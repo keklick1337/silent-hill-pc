@@ -38,7 +38,8 @@ jobs:
           dpkg --add-architecture i386
           apt-get update
           apt-get install -y --no-install-recommends \
-            ca-certificates git cmake ninja-build pkg-config nasm zip unzip python3 curl 7zip \
+            ca-certificates git cmake ninja-build make pkg-config nasm zip unzip python3 curl 7zip \
+            gcc libc6-dev \
             gcc-mingw-w64-x86-64-posix g++-mingw-w64-x86-64-posix binutils-mingw-w64-x86-64 \
             glslang-tools wine wine64
           # std::thread and friends need the posix thread model.
