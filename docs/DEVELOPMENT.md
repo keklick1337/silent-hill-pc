@@ -12,7 +12,7 @@ How to build the engine, run it, test it and check that a change broke nothing. 
 | `src/formats/`, `src/import/` | disc and file formats, the importer and its converters |
 | `gamedata/` | the game as data: `chara/`, `items/`, `weapons/`, `flags/`, `maps/<map>/`, `config/`, `menu/`, `menus/`, `text/`, `sounds/`, `scripts/` |
 | `assets/` | the default `config.cfg`, the icon, the Linux desktop entry, the controller database |
-| `examples/mods/` | example mods ([modding guide](modding/README.md)) |
+| `examples/mods/` | example mods ([modding guide](modding/README.md)); `tools/ci/package_mods.sh` packs them for a release (`.github/workflows/example-mods.yml`) |
 | `tests/` | unit tests (`tests/<module>/*_test.cpp`, one binary `sh_tests`), their recorded tables (`tests/data/`), `tests/replay/`, `tests/smoke/` |
 | `tools/` | see section 6 |
 | `third_party/` | vendored libraries built from source: Lua, Dear ImGui, miniz, stb, cgltf, bcdec, the console font |

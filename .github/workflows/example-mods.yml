@@ -1,0 +1,45 @@
+name: Example mods
+
+# Packs examples/mods into one archive a player unpacks into the game folder
+# (tools/ci/package_mods.sh: mods/<id>/..., each mod.json checked). release.yml
+# calls this workflow on a v* tag and publishes the archive with the game.
+on:
+  push:
+    branches: ['**']
+    paths: ['examples/mods/**', 'tools/ci/package_mods.sh', '.github/workflows/example-mods.yml']
+  pull_request:
+    paths: ['examples/mods/**', 'tools/ci/package_mods.sh', '.github/workflows/example-mods.yml']
+  workflow_dispatch:
+  workflow_call:
+    inputs:
+      version:
+        type: string
+        required: true
+
+concurrency:
+  group: example-mods-${{ github.ref }}
+  cancel-in-progress: ${{ !startsWith(github.ref, 'refs/tags/') }}
+
+jobs:
+  mods:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Version
+        id: ver
+        run: |
+          v='${{ inputs.version }}'
+          [ -n "$v" ] || v="$(git describe --tags --always --dirty)"
+          echo "version=$v" >> "$GITHUB_OUTPUT"
+
+      - name: Package
+        run: tools/ci/package_mods.sh '${{ steps.ver.outputs.version }}' dist
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: SilentHillPC-example-mods
+          path: dist/*.zip
+          if-no-files-found: error

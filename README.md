@@ -155,7 +155,7 @@ Every change of rules, balance or story is an option marked `GAMEPLAY CHANGE` in
 A mod that changes rules, balance or story is marked `GAMEPLAY CHANGE` on that screen. With an empty `mods/` folder the game is the original.
 
 - The modding guide (English): [docs/modding/](docs/modding/README.md) — getting started, `mod.json`, every kind of data, Lua scripting, the event catalogue, the [Lua API reference](docs/modding/lua-api.md), troubleshooting
-- Example mods, each showing one technique: [examples/mods/](examples/mods/README.md)
+- Example mods, each showing one technique: [examples/mods/](examples/mods/README.md). Every release also has them as `SilentHillPC-<version>-example-mods.zip`: unpack it into the game folder, then turn the mods on in *Options > Mods*.
 - Data formats written by the import: [docs/FORMATS.md](docs/FORMATS.md), [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
 
 [docs/README.md](docs/README.md) lists all documents.
