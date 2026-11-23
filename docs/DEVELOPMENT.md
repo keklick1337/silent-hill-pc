@@ -114,7 +114,7 @@ Notes:
 - The base data is copied to `<build>/gamedata` only when the game is relinked. After editing `gamedata/`, copy the changed files there yourself, and delete there what you deleted in the repository.
 - `map_sweep.sh` refuses to import into a build directory that already has a `gamedata/`; give it one with `-d`.
 - Game runs can go in parallel (`-j 8`); keep them silent and off the screen with the three variables above.
-- A change of CMake or of platform code also needs the mingw build ([BUILDING.md](BUILDING.md), section 2).
+- A change of CMake or of platform code also needs the mingw build ([BUILDING.md](BUILDING.md), section 2); `tools/ci/local_ci.sh` builds both platforms as the workflows do (section 5).
 - Work files belong in `.tmp/` (ignored by git).
 - `assets/config.cfg` explains every key the game accepts; the unit test `tests/gconfig/config_reference_test.cpp` fails when a key is read by the game and missing there, or set there and not read. A removed key goes into `src/engine/config/retired_keys.cpp`.
 - Writing unit tests, the recorded tables of `tests/data/`, the smoke test and the frame-rate independence test: [TESTING.md](TESTING.md). A test holds no second implementation of a rule to compare the engine with: it compares with a recorded table and states the rule in words.
@@ -123,6 +123,7 @@ Notes:
 
 - **Engine version**: the `VERSION` file at the repository root (`MAJOR.MINOR.PATCH`) is the only place. CMake reads it, the code gets it from `src/engine/version/engine_version.h`, and mods require it with `min_engine_version`. The build adds the commit count and hash as metadata (`1.0.0+2890.1a2b3c4d5`). When which number grows is the modding guide's [engine version policy](modding/versioning.md).
 - **Package**: `tools/ci/package.sh <build> <linux|windows> <version> [<out dir>]` assembles the executable, `sh-import`, `sh-upscale` with `upscale-models/`, on Windows `software_gl/` (Mesa llvmpipe, [design/RENDER.md](RENDER.md) section 2.2c), the libraries, `assets/`, the licenses and `gamedata/` strictly from the files tracked by git. It follows the import tables of every binary to decide which libraries go in and fails when one is missing. `python3 -I tools/ci/check_package.py check <archive|dir> <linux|windows> [--run]` verifies a package: required files, nothing disc-derived, every imported library present, and with `--run` a start from an empty directory.
+- **The workflows locally**: `tools/ci/local_ci.sh [linux|windows|checks|all]` runs the jobs of `build-linux.yml`, `build-windows.yml` and `check.yml` step by step in Docker — `ubuntu:24.04` with a sudo user `runner` and g++-14, `debian:trixie` with mingw-w64 and wine, `python:3.14` — on a clone of `HEAD` with the working tree laid over it. GitHub's toolchains are older than a typical development machine's (GCC 14, CMake 3.28 on Ubuntu, glslangValidator instead of glslc), so run it before pushing a change of CMake, of platform code or of shaders. It installs nothing on the host: images, apt downloads and the dependency caches (the `actions/cache` steps) are Docker volumes `sh-ci-*`, the log of a job is `.tmp/local-ci/<job>.log`. `-j <cpus>` limits the CPUs a job sees (default 8), `--fresh` drops the dependency caches first. The steps are transcribed from the yml files: a change of a workflow belongs in the script too.
 - **Release**: raise `VERSION` in the commit that is released, tag it `vX.Y.Z` (or `vX.Y.Z-rc1`) and push the tag. `release.yml` checks the tag against `VERSION` (`tools/ci/check_release_version.sh`), builds both platforms and publishes the packages.
 
 ## 6. Tools
@@ -150,6 +151,7 @@ Notes:
 | `tools/win-deps/`, `tools/linux-deps/`, `tools/ffmpeg/`, `tools/ncnn/` | fetch and build the dependencies of a release |
 | `tools/sh-upscale/` | the AI texture upscaler the game starts in the background (`texture_upscale`) |
 | `tools/ci/gate.sh` | the whole verification of section 4 in one run |
+| `tools/ci/local_ci.sh` | the GitHub workflows in Docker, as section 5 says |
 | `tools/ci/` | packaging and the package check |
 
 ## 7. Working with the specification
