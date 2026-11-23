@@ -54,6 +54,15 @@ need "$BUILD/assets"
 
 # A value of the build's CMake cache (empty when it is not there).
 cache() { sed -n "s/^$1:[A-Z]*=//p" "$BUILD/CMakeCache.txt" | head -n 1; }
+# The build's C++ compiler. A toolchain file sets it as a plain variable, which the cache does not hold; CMake's
+# record of the compiler does.
+build_cxx() {
+    local cxx
+    cxx="$(cache CMAKE_CXX_COMPILER)"
+    [[ -n "$cxx" ]] || cxx="$(sed -n 's/^set(CMAKE_CXX_COMPILER "\(.*\)")$/\1/p' \
+        "$BUILD"/CMakeFiles/*/CMakeCXXCompiler.cmake 2>/dev/null | head -n 1)"
+    echo "$cxx"
+}
 
 rm -rf "$STAGE"
 mkdir -p "$STAGE/licenses"
@@ -92,7 +101,7 @@ if [[ "$PLATFORM" == windows ]]; then
     # Mesa llvmpipe, loaded only without an OpenGL 3.3 driver (tools/win-deps/software_gl.sh).
     need "$BUILD/software_gl/opengl32.dll"
     cp -a "$BUILD/software_gl" "$STAGE/"
-    CXX="$(cache CMAKE_CXX_COMPILER)"
+    CXX="$(build_cxx)"
     SEARCH+=("$DEPS/bin")
 else
     strip --strip-unneeded "$STAGE/SilentHillPC" "$STAGE/sh-import"
@@ -100,7 +109,7 @@ else
     # used tools/linux-deps/build.sh.
     libs=("$BUILD"/lib*.so.*)
     (( ${#libs[@]} )) && cp "${libs[@]}" "$STAGE/"
-    CXX="$(cache CMAKE_CXX_COMPILER)"
+    CXX="$(build_cxx)"
     # The Linux menu entry: the template, and the script that installs it for the user who asks.
     need "$BUILD/silent-hill-pc.desktop.in"
     need "$BUILD/install-desktop.sh"
