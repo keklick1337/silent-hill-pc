@@ -2,6 +2,7 @@
 // Motion of a posed mesh or a moving object where it is what the scene shows: its depth matches the scene's
 // (tessellated models bulge a little off their flat triangles, hence the tolerance).
 #version 450
+#extension GL_GOOGLE_include_directive : require
 
 #include "common.glsl"
 

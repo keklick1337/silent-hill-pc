@@ -2,6 +2,7 @@
 // Sharpening after the reconstruction (vk_temporal.cpp): an unsharp mask held to the range of the four neighbours,
 // so fog gradients and the beam's edge get no bright or dark halo.
 #version 450
+#extension GL_GOOGLE_include_directive : require
 
 #include "common.glsl"
 

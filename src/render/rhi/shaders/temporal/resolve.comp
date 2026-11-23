@@ -3,6 +3,7 @@
 // and the history at the place the same point had in the frame before. The history is clipped to the colour range
 // of the samples around the pixel, so what moved or appeared does not leave a trail.
 #version 450
+#extension GL_GOOGLE_include_directive : require
 
 #include "common.glsl"
 

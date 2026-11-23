@@ -2,6 +2,7 @@
 // Spatial upscale (vk_temporal.cpp): a Lanczos-2 window over 4 x 4 drawn pixels, held to the range of the 2 x 2
 // nearest so edges do not ring.
 #version 450
+#extension GL_GOOGLE_include_directive : require
 
 #include "common.glsl"
 

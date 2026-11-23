@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // The result over its rect of the scene target (colour only; the target keeps its alpha).
 #version 450
+#extension GL_GOOGLE_include_directive : require
 
 #include "common.glsl"
 
