@@ -409,6 +409,7 @@ Above `enhanced` (the default, unchanged) each step adds the next most visible f
 | `volumetric_fog`, `god_rays` | 0 | 0 | 0 | 1 | 1 | 1 | 1 | 0 |
 | `particle_shadows` | 0 | 0 | 0 | 1 | 1 | 1 | 1 | 0 |
 | `extra_lights` | 0 | 0 | 0 | 1 | 1 | 1 | 1 | 0 |
+| `bullet_decals` | 0 | 1 | 1 | 1 | 1 | 1 | 1 | 0 |
 | `model_upscaling` | off | off | off | off | tessellation | off | tessellation | off |
 | `texture_upscale` | 0 | 0 | 0 | 0 | 2 | 0 | 2 | 0 |
 | `ray_tracing`, `rt_shadows`, `rt_reflections`, `rt_gi`, `rt_lights` | 0 | 0 | 0 | 0 | 0 | 1 | 1 | 0 |

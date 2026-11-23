@@ -122,11 +122,11 @@ SH_TEST(settings_presets_preset_match)
     SH_CHECK(!pr::preset_upscales(pr::kUltra) && !pr::preset_upscales(pr::kUltraRtx));
     SH_CHECK(pr::preset_upscales(pr::kUltraUpscaled) && pr::preset_upscales(pr::kUltraRtxUpscaled));
     SH_CHECK(!pr::preset_traces_rays(pr::kCustom) && !pr::preset_upscales(pr::kCustom));
-    SH_CHECK(pr::preset_keys().size() == 39);
+    SH_CHECK(pr::preset_keys().size() == 40);
     // Every feature of RENDER.md section 14 is a preset key, so its own row turns the preset row Custom.
     for (std::string_view key : {"render_scale", "shadow_resolution", "shadow_filter", "msaa", "texture_filter", "hdr_frame",
                                  "bloom", "upscaler", "map_lights", "volumetric_fog", "model_upscaling",
-                                 "texture_upscale", "ray_tracing", "rt_lights"}) {
+                                 "texture_upscale", "ray_tracing", "rt_lights", "bullet_decals"}) {
         bool found = false;
         for (std::string_view k : pr::preset_keys()) found = found || k == key;
         SH_CHECK(found);

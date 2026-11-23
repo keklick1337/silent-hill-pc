@@ -53,6 +53,7 @@ struct PresetValues
     int   extraLights;  // works on every renderer
     int   modelUpscaling;
     int   textureUpscale;
+    int   bulletDecals;  // render only: the holes never touch the game state
     int   rayTracing;  // the ultra_rtx presets alone: the master switch and every effect under it
 };
 
@@ -113,6 +114,7 @@ constexpr PresetValues Enhanced()
     v.foliageEdge = 1;
     v.loadScreenTrail = 2;
     v.waterQuality = 1;
+    v.bulletDecals = 1;
     return v;
 }
 
@@ -298,6 +300,7 @@ extern "C" void RenderPreset_Apply(int preset, s_PcConfig* cfg)
     cfg->godRays              = v.godRays;
     cfg->particleShadows      = v.particleShadows;
     cfg->extraLights          = v.extraLights;
+    cfg->bulletDecals         = v.bulletDecals;
     cfg->modelUpscaling       = v.modelUpscaling;
     cfg->textureUpscale       = v.textureUpscale;
     cfg->rayTracing           = v.rayTracing;
@@ -325,7 +328,7 @@ extern "C" int RenderPreset_Matches(int preset, const s_PcConfig* cfg)
            c.hdrFrame == p.hdrFrame && c.hdrTonemap == p.hdrTonemap && c.bloom == p.bloom && c.upscaler == p.upscaler &&
            c.ambientOcclusion == p.ambientOcclusion && c.mapLights == p.mapLights && c.sunShadows == p.sunShadows &&
            c.volumetricFog == p.volumetricFog && c.godRays == p.godRays && c.particleShadows == p.particleShadows &&
-           c.extraLights == p.extraLights && c.modelUpscaling == p.modelUpscaling &&
+           c.extraLights == p.extraLights && c.bulletDecals == p.bulletDecals && c.modelUpscaling == p.modelUpscaling &&
            c.textureUpscale == p.textureUpscale && c.rayTracing == p.rayTracing && c.rtShadows == p.rtShadows &&
            c.rtReflections == p.rtReflections && c.rtGi == p.rtGi && c.rtLights == p.rtLights;
 }

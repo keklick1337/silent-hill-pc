@@ -41,7 +41,7 @@ constexpr std::array<KeyValue, 2> kShadowMediumTable = {{{"shadows", 1.0f}, {"sh
 constexpr std::array<KeyValue, 2> kShadowHighTable = {{{"shadows", 1.0f}, {"shadow_resolution", 2048.0f}}};
 constexpr std::array<KeyValue, 2> kShadowUltraTable = {{{"shadows", 1.0f}, {"shadow_resolution", 4096.0f}}};
 
-constexpr std::array<std::string_view, 39> kPresetKeys = {
+constexpr std::array<std::string_view, 40> kPresetKeys = {
     "native_resolution", "scaling", "dithering", "texture_filter", "msaa", "flashlight_mode",
     "shadows", "deband", "soft_highlights", "post_process", "post_process_intensity", "tonemap",
     "use_pgxp", "soft_fog", "smooth_models", "foliage_edge", "load_screen_trail",
@@ -49,6 +49,7 @@ constexpr std::array<std::string_view, 39> kPresetKeys = {
     "hdr_frame", "hdr_tonemap", "bloom", "upscaler", "ambient_occlusion", "map_lights", "sun_shadows",
     "volumetric_fog", "god_rays", "particle_shadows", "model_upscaling", "texture_upscale",
     "ray_tracing", "rt_shadows", "rt_reflections", "rt_gi", "rt_lights", "extra_lights",
+    "bullet_decals",
 };
 
 // water_quality is spelled by name too.
