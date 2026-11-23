@@ -1,6 +1,6 @@
 name: Build Windows
 
-# mingw-w64 x86_64 cross build (docs/BUILD_WINDOWS.md): tools/win-deps/build.sh
+# mingw-w64 x86_64 cross build (docs/BUILDING.md): tools/win-deps/build.sh
 # builds the pinned dependencies from source, the game links them, sh_tests.exe
 # runs under wine, and tools/ci/package.sh makes the zip (exe, every DLL the
 # binaries import, the repository's base gamedata/, licenses) and checks it.
@@ -74,11 +74,13 @@ jobs:
 
       # Console runner, no window: wine needs no display. SDL3 reads
       # SDL_AUDIO_DRIVER from the Windows environment, which this wine takes from
-      # the registry (BUILD_WINDOWS.md), so it is set there.
+      # the registry, so it is set there. The prefix is not under $RUNNER_TEMP: the
+      # runner owns that folder, the container runs as root, and wine refuses a
+      # prefix in a folder that is not its user's.
       - name: Unit tests (wine)
         working-directory: build-win/tests
         run: |
-          export WINEPREFIX="$RUNNER_TEMP/wineprefix"
+          export WINEPREFIX=/tmp/wineprefix
           wineboot -i
           wine reg add 'HKCU\Environment' /v SDL_AUDIO_DRIVER /d dummy /f
           wine reg add 'HKCU\Environment' /v ALSOFT_DRIVERS /d null /f
@@ -103,7 +105,7 @@ jobs:
       # with nothing of the build folder beside it.
       - name: Check the package
         run: |
-          export WINEPREFIX="$RUNNER_TEMP/wineprefix"
+          export WINEPREFIX=/tmp/wineprefix
           python3 -I tools/ci/check_package.py check dist/*.zip windows --run
 
       - uses: actions/upload-artifact@v4

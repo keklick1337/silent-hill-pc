@@ -192,6 +192,8 @@ update-alternatives --set x86_64-w64-mingw32-gcc /usr/bin/x86_64-w64-mingw32-gcc
 update-alternatives --set x86_64-w64-mingw32-g++ /usr/bin/x86_64-w64-mingw32-g++-posix
 step Checkout
 checkout
+# On GitHub the runner user (uid 1001) owns $RUNNER_TEMP while the container runs as root.
+chown 1001:1001 "$RUNNER_TEMP"
 step Trust the checkout
 git config --global --add safe.directory "$GITHUB_WORKSPACE"
 step Cache Windows dependencies
@@ -205,7 +207,7 @@ cmake --build build-win --parallel "$(nproc)"
 step Unit tests \(wine\)
 (
 cd build-win/tests
-export WINEPREFIX="$RUNNER_TEMP/wineprefix"
+export WINEPREFIX=/tmp/wineprefix
 wineboot -i
 wine reg add "HKCU\\Environment" /v SDL_AUDIO_DRIVER /d dummy /f
 wine reg add "HKCU\\Environment" /v ALSOFT_DRIVERS /d null /f
@@ -218,7 +220,7 @@ echo "version=$v" >>"$GITHUB_OUTPUT"
 step Package
 tools/ci/package.sh build-win windows "$v" dist
 step Check the package
-export WINEPREFIX="$RUNNER_TEMP/wineprefix"
+export WINEPREFIX=/tmp/wineprefix
 python3 -I tools/ci/check_package.py check dist/*.zip windows --run
 '
 
