@@ -1,0 +1,14 @@
+{
+  "format": "sh-text",
+  "version": 1,
+  "lang": "pt",
+  "map": "map5_s00",
+  "strings": {
+    "map5_s00.used_the_sewer_key": "Usei a {color 2}chave do esgoto{/color}.{end}",
+    "map5_s00.used_the_sewer_exit_key": "Usei a {color 2}chave da saída{/color}.{end}",
+    "map5_s00.there_is_a_sewer_key": "Há uma {color 2}chave do esgoto{/color} aqui.\nPegar?{choice 4}",
+    "map5_s00.there_is_a_sewer_exit": "Há uma {color 2}chave da saída{/color}\nna água. Pegar?{choice 4}",
+    "map5_s00.got_to_find_cheryl_no": "Preciso achar a Cheryl.\nNão há tempo para voltar.{end}",
+    "map5_s00.there_is_a_sewer_map": "{hires}Há um {color 5}mapa do esgoto\n(ligação com a área turística){/color}.\nPegar?{choice 4}"
+  }
+}

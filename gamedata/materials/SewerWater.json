@@ -1,0 +1,6 @@
+{
+  "description": "The running water of the sewers: a dark mirror broken only by the waves.",
+  "match": ["DWAVE"],
+  "roughness": 0.04,
+  "reflective": 0.8
+}

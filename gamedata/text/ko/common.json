@@ -1,0 +1,22 @@
+{
+  "format": "sh-text",
+  "version": 1,
+  "lang": "ko",
+  "strings": {
+    "common.yes": "예",
+    "common.no": "아니요",
+    "common.notes_useful": "언젠가 누군가 이 기이한 일들을\n겪게 될지도 모른다. 그때 내 기록이\n도움이 되기를 바란다.{end}",
+    "common.no_map": "{instant}이곳의 지도는\n가지고 있지 않다.{end}",
+    "common.too_dark_for_map": "{instant}너무 어두워서\n지도를 볼 수 없다.{end}",
+    "common.take_first_aid_kit": "{color 2}구급상자{/color}가 있다.\n가져갈까?{choice 4}",
+    "common.take_health_drink": "{color 2}영양 드링크{/color}가 있다.\n가져갈까?{choice 4}",
+    "common.take_ampoule": "{color 2}앰풀{/color}이 있다.\n가져갈까?{choice 4}",
+    "common.take_handgun_bullets": "{color 2}권총 탄환{/color}이 있다.\n가져갈까?{choice 4}",
+    "common.take_rifle_shells": "{color 2}라이플 탄환{/color}이 있다.\n가져갈까?{choice 4}",
+    "common.take_shotgun_shells": "{color 2}산탄총 탄환{/color}이 있다.\n가져갈까?{choice 4}",
+    "common.lock_jammed": "자물쇠가 망가져 있다.\n이 문은 열 수 없다.{end}",
+    "common.locked": "잠겨 있다.{end}",
+    "common.unlocked": "자물쇠가 열렸다.{end}",
+    "common.now_making": "{color 6}제작 중!{/color}{end}"
+  }
+}

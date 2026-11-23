@@ -1,0 +1,17 @@
+{
+  "rain": { "boundary": true },
+  "rest_gate": true,
+  "init": [
+    {
+      "rooms": [20],
+      "mode": 1,
+      "corners": [[133, 130], [133, 150]]
+    }
+  ],
+  "update": [
+    {
+      "rooms": [20]
+    },
+    { "skip": true }
+  ]
+}

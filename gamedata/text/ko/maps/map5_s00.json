@@ -1,0 +1,14 @@
+{
+  "format": "sh-text",
+  "version": 1,
+  "lang": "ko",
+  "map": "map5_s00",
+  "strings": {
+    "map5_s00.used_the_sewer_key": "{color 2}하수도 열쇠{/color}를 사용했다.{end}",
+    "map5_s00.used_the_sewer_exit_key": "{color 2}하수도 출구 열쇠{/color}를 사용했다.{end}",
+    "map5_s00.there_is_a_sewer_key": "{color 2}하수도 열쇠{/color}가 있다.\n가져갈까?{choice 4}",
+    "map5_s00.there_is_a_sewer_exit": "물속에 {color 2}하수도 출구 열쇠{/color}가\n있다. 가져갈까?{choice 4}",
+    "map5_s00.got_to_find_cheryl_no": "셰릴을 찾아야 해.\n되돌아갈 시간은 없어.{end}",
+    "map5_s00.there_is_a_sewer_map": "{hires}{color 5}하수도 지도\n(휴양지 방면){/color}가 있다.\n가져갈까?{choice 4}"
+  }
+}

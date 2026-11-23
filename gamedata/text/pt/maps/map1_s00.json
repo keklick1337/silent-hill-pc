@@ -1,0 +1,33 @@
+{
+  "format": "sh-text",
+  "version": 1,
+  "lang": "pt",
+  "map": "map1_s00",
+  "strings": {
+    "map1_s00.the_tower_door_is_locked": "A porta da torre está trancada.{end}",
+    "map1_s00.the_hands_are_stopped_at": "Os ponteiros estão\nparados em 10:00.{end}",
+    "map1_s00.the_hands_are_stopped_at_2": "Os ponteiros estão\nparados em 12:00.{end}",
+    "map1_s00.the_hands_are_stopped_at_3": "Os ponteiros estão parados em 5:00.{end}",
+    "map1_s00.a_golden_sun": "{color 3}Um Sol Dourado{end}",
+    "map1_s00.a_silver_moon": "{color 3}Uma Lua Prateada{end}",
+    "map1_s00.the_door_wont_open": "A porta não abre.{end}",
+    "map1_s00.10_00_alchemy_laboratory_gold": "{pos 4}{center}{color 3}10:00\n“Laboratório de alquimia”\n\nOuro na palma de um ancião.\nO futuro oculto em seu punho.\nTroque-o pela água do sábio.{end}",
+    "map1_s00.12_00_a_place_with": "{pos 4}{center}{color 3}12:00\n“Um lugar de canções e sons”\n\nUm guia de prata repousa,\nintocado, em línguas caladas.\nDesperta na ordem prescrita.{end}",
+    "map1_s00.5_00_darkness_that_brings": "{pos 4}{center}{color 3}5:00\n“Trevas que trazem\no calor sufocante”\n\nChamas rasgam o silêncio,\ndespertando a fera faminta.\nAbra a porta do tempo\ne atraia a presa.{end}",
+    "map1_s00.its_written_in_blood": "Está escrito com sangue.{end}",
+    "map1_s00.cheryl_might_be_here_i": "A Cheryl pode estar aqui.\nPreciso procurá-la.{end}",
+    "map1_s00.a_picture_of_a_door": "O desenho de uma porta.",
+    "map1_s00.i_dont_know_who_drew": "Não sei quem desenhou,\nmas é sem dúvida de mau gosto.{end}",
+    "map1_s00.there_is_a_switch_do": "Há um interruptor.\nApertar o interruptor?{choice 4}",
+    "map1_s00.nothing_appears_to_happen": "Parece que nada acontece.{end}",
+    "map1_s00.the_boiler_is_working": "A caldeira está funcionando.{end}",
+    "map1_s00.it_appears_to_be_broken": "Parece que está com defeito.{end}",
+    "map1_s00.the_valve_is_tightly_shut": "A válvula está bem fechada.\nNão dá para girar.",
+    "map1_s00.dont_know_what_it_is": "Não sei para que serve,\nmelhor não mexer.{end}",
+    "map1_s00.nothing_special_is_written": "Nada de especial escrito.{end}",
+    "map1_s00.nothing_useful_in_the_desk": "Nada de útil\nna gaveta da mesa.{end}",
+    "map1_s00.there_is_a_school_map": "{hires}Há um {color 5}mapa da escola{/color} aqui.\nPegar?{choice 4}",
+    "map1_s00.moore_ranaldo_gordon_this_must": "Moore, Ranaldo, Gordon...\nDeve ser a lista de professores.{end}",
+    "map1_s00.nothing_inside": "Não há nada dentro.{end}"
+  }
+}

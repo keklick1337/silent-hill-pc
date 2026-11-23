@@ -1,0 +1,21 @@
+{
+  "format": "sh-part-variants",
+  "description": "Split Head's two alternative head mesh sets: only the low two bits select. A non-zero slot value first hides the slot's \"hide\" parts, then the variant's \"hide\", then shows its \"show\" parts (model indices of the skeleton).",
+  "slots": [
+    {
+      "name": "head",
+      "shift": 0,
+      "bits": 2,
+      "variants": {
+        "1": {
+          "hide": [17, 18, 19, 20, 21, 22, 23, 24, 25],
+          "show": [26, 27, 28, 29, 30, 31, 32, 33, 34]
+        },
+        "2": {
+          "hide": [26, 27, 28, 29, 30, 31, 32, 33, 34],
+          "show": [17, 18, 19, 20, 21, 22, 23, 24, 25]
+        }
+      }
+    }
+  ]
+}

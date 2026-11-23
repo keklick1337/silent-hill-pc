@@ -1,0 +1,13 @@
+{
+  "format": "sh-text",
+  "version": 1,
+  "lang": "ja",
+  "map": "map5_s01",
+  "strings": {
+    "map5_s01.there_is_a_resort_area": "{hires}{color 5}リゾート地区の地図{/color}がある。\n取りますか？{choice 4}",
+    "map5_s01.nothing_unusual": "変わったところはない。{end}",
+    "map5_s01.used_the_kaufmann_key": "{color 2}カウフマンの鍵{/color}を使った。{end}",
+    "map5_s01.what": "{wait 1.0}何だ？{end}",
+    "map5_s01.that_light": "{wait 2.5}あの光は！？{end}"
+  }
+}

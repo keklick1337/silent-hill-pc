@@ -1,0 +1,33 @@
+{
+  "format": "sh-text",
+  "version": 1,
+  "lang": "ko",
+  "map": "map3_s05",
+  "strings": {
+    "map3_s05.there_is_a_video_tape": "{color 2}비디오테이프{/color}가 있다.\n가져갈까?{choice 4}",
+    "map3_s05.alessa": "{color 3}알레사{end}",
+    "map3_s05.alessa_2": "알레사...?{end}",
+    "map3_s05.whats_this": "{wait 1.2}이건 뭐지?{end}",
+    "map3_s05.looks_like_someones_been_here": "{wait 2.6}누군가 여기 있었던 것 같군...{end}",
+    "map3_s05.msg20": "{wait 0.4}{end}",
+    "map3_s05.there_is_an_examination_room": "{color 2}진찰실 열쇠{/color}가 있다.\n가져갈까?{choice 4}",
+    "map3_s05.looks_like_a_hallway_under": "쇠창살 아래로\n통로가 있는 것 같다.",
+    "map3_s05.cant_move_it_since_the": "덩굴이 휘감고 있어서\n움직일 수 없다.{end}",
+    "map3_s05.no_the_fire_goes_out": "안 되겠어.\n덩굴에 불을 붙여도\n금세 꺼져 버린다.{end}",
+    "map3_s05.poured_disinfecting_alcohol_on": "덩굴에 {color 2}소독용 알코올{/color}을\n부었다.{end}",
+    "map3_s05.the_vines_absorbed_the_alcohol": "덩굴이 알코올을 빨아들였다.{end}",
+    "map3_s05.used_the_basement_storeroom": "{color 2}지하 창고 열쇠{/color}를 사용했다.{end}",
+    "map3_s05.do_you_want_to_push": "캐비닛을\n밀어 볼까?{choice 4}",
+    "map3_s05.the_generator_is_on": "발전기가 켜져 있다.{end}",
+    "map3_s05.there_are_skid_marks_from": "캐비닛을 옮기면서\n끌린 자국이 있다.{end}",
+    "map3_s05.there_is_a_hammer_take": "{color 2}해머{/color}가 있다.\n가져갈까?{choice 4}",
+    "map3_s05.a_bed_whats_it_doing": "침대? 이게 왜 여기 있지?\n대체 누가...{end}",
+    "map3_s05.a_body_is_laid_out": "침대 위에 시체가 눕혀져 있다.\n들여다보고 싶지는 않다.{end}",
+    "map3_s05.nothing_helpful": "도움이 될 만한 것은 없다.{end}",
+    "map3_s05.nothing_useful_in_the_boxes": "상자에는 쓸 만한 것이 없다.{end}",
+    "map3_s05.theres_a_bottle_filled_with": "무슨 약인지 모를\n약이 가득 든 병이 있다.\n그냥 두는 게 좋겠다.{end}",
+    "map3_s05.there_are_some_empty_bottles": "빈 병이 몇 개 있다.{end}",
+    "map3_s05.nothing_special_in_the_box": "상자에는 특별한 것이 없다.\n신경 쓸 것은 없다.{end}",
+    "map3_s05.nothing_inside": "안에는 아무것도 없다.{end}"
+  }
+}

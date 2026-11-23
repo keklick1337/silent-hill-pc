@@ -1,0 +1,14 @@
+{
+  "format": "sh-text",
+  "version": 1,
+  "lang": "pl",
+  "map": "map5_s00",
+  "strings": {
+    "map5_s00.used_the_sewer_key": "Użyto: {color 2}klucz do kanałów{/color}.{end}",
+    "map5_s00.used_the_sewer_exit_key": "Użyto: {color 2}klucz wyjścia z kanałów{/color}.{end}",
+    "map5_s00.there_is_a_sewer_key": "Jest tu {color 2}klucz do kanałów{/color}.\nZabrać?{choice 4}",
+    "map5_s00.there_is_a_sewer_exit": "W wodzie leży\n{color 2}klucz wyjścia z kanałów{/color}. Zabrać?{choice 4}",
+    "map5_s00.got_to_find_cheryl_no": "Muszę znaleźć Cheryl.\nNie ma czasu na powrót.{end}",
+    "map5_s00.there_is_a_sewer_map": "{hires}Jest tu {color 5}mapa kanałów\n(do dzielnicy wypoczynkowej){/color}.\nZabrać?{choice 4}"
+  }
+}

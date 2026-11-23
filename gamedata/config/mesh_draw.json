@@ -1,0 +1,13 @@
+{
+  "format": "sh-mesh-draw",
+  "version": 1,
+  "description": "Render options of the static world mesh drawer. The defaults give the original PS1 look: texture_filter (0 = nearest, 1 = bilinear, 2 = bilinear with mipmaps), vertex_snap (true keeps the PS1 vertex jitter), affine_warp (true keeps the PS1 texture warp, false is perspective-correct), smooth_shading (Gouraud light on polygons the original shaded flat), msaa_samples (0 = off, else 2/4/8/16), edge_smoothing (0 = off, 1 = FXAA-like), dither (true keeps the 15-bit colour dither) and draw_distance_pct (draw distance in percent; 100 = the original). A mod changes it with a file of the same path in its own folder; objects are merged key by key, so the patch only needs the keys it changes.",
+  "texture_filter": 0,
+  "vertex_snap": true,
+  "affine_warp": true,
+  "smooth_shading": false,
+  "msaa_samples": 0,
+  "edge_smoothing": 0,
+  "dither": true,
+  "draw_distance_pct": 100
+}

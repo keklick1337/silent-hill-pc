@@ -1,0 +1,8 @@
+{
+  "description": "Engine setup of map3_s02 (Hospital - antique shop cutscene), a map made only of data and Lua: \"map_type\" is the map type HU, the entry of gamedata/config/map_info.json that gives its zones, scenery file and environment. \"characters\" lists the character types this map runs, each by its gamedata/chara/<Name>/behavior.lua; a character type that is not listed cannot act here (this map: Creeper and Alessa). A mod changes it with its own maps/map3_s02/overlay.json.",
+  "map_type": "HU",
+  "characters": [
+    "Creeper",
+    "Alessa"
+  ]
+}

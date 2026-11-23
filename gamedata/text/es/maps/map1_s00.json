@@ -1,0 +1,33 @@
+{
+  "format": "sh-text",
+  "version": 1,
+  "lang": "es",
+  "map": "map1_s00",
+  "strings": {
+    "map1_s00.the_tower_door_is_locked": "La puerta de la torre\nestá cerrada con llave.{end}",
+    "map1_s00.the_hands_are_stopped_at": "Las agujas están\nparadas en las 10:00.{end}",
+    "map1_s00.the_hands_are_stopped_at_2": "Las agujas están\nparadas en las 12:00.{end}",
+    "map1_s00.the_hands_are_stopped_at_3": "Las agujas están\nparadas en las 5:00.{end}",
+    "map1_s00.a_golden_sun": "{color 3}Un Sol de Oro{end}",
+    "map1_s00.a_silver_moon": "{color 3}Una Luna de Plata{end}",
+    "map1_s00.the_door_wont_open": "La puerta no se abre.{end}",
+    "map1_s00.10_00_alchemy_laboratory_gold": "{pos 4}{center}{color 3}10:00\n“Laboratorio de alquimia”\n\nOro en la palma de un anciano.\nEl futuro, oculto en su puño.\nCámbialo por el agua del sabio.{end}",
+    "map1_s00.12_00_a_place_with": "{pos 4}{center}{color 3}12:00\n“Un lugar de cantos y sonidos”\n\nUna señal de plata sigue\nsin tocar en lenguas perdidas.\nDespierta en el orden prescrito.{end}",
+    "map1_s00.5_00_darkness_that_brings": "{pos 4}{center}{color 3}5:00\n“Oscuridad que trae\nel calor asfixiante”\n\nLas llamas rasgan el silencio\ny despiertan a la bestia famélica.\nAbre la puerta del tiempo\npara atraer a la presa.{end}",
+    "map1_s00.its_written_in_blood": "Está escrito con sangre.{end}",
+    "map1_s00.cheryl_might_be_here_i": "Cheryl podría estar aquí.\nDebería buscarla.{end}",
+    "map1_s00.a_picture_of_a_door": "El dibujo de una puerta.",
+    "map1_s00.i_dont_know_who_drew": "No sé quién lo dibujó,\npero desde luego es de mal gusto.{end}",
+    "map1_s00.there_is_a_switch_do": "Hay un interruptor.\n¿Quieres accionarlo?{choice 4}",
+    "map1_s00.nothing_appears_to_happen": "No parece ocurrir nada.{end}",
+    "map1_s00.the_boiler_is_working": "La caldera está en marcha.{end}",
+    "map1_s00.it_appears_to_be_broken": "Parece que no funciona.{end}",
+    "map1_s00.the_valve_is_tightly_shut": "La válvula está cerrada a fondo.\nNo se mueve.",
+    "map1_s00.dont_know_what_it_is": "No sé para qué sirve,\nmejor no tocarlo.{end}",
+    "map1_s00.nothing_special_is_written": "No hay nada especial escrito.{end}",
+    "map1_s00.nothing_useful_in_the_desk": "Nada útil en el cajón\ndel escritorio.{end}",
+    "map1_s00.there_is_a_school_map": "{hires}Hay un {color 5}mapa de la escuela{/color}.\n¿Te lo llevas?{choice 4}",
+    "map1_s00.moore_ranaldo_gordon_this_must": "Moore, Ranaldo, Gordon...\nDebe de ser la lista de profesores.{end}",
+    "map1_s00.nothing_inside": "No hay nada dentro.{end}"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "description": "Flauros: the pyramid-shaped seal whose power Dahlia turns on Alessa at the Lakeside Amusement Park.",
+  "category": "Other",
+  "maps": ["map6_s04"],
+  "model": "models/CHARA/BFLU.glb",
+  "animations": "anim/ANIM/BFLU.anim.json",
+  "clip_tables": ["flauros"],
+  "textures": ["textures/CHARA/BFLU.png"],
+  "shadow": 0.25,
+  "blend_mode": "additive",
+  "camera_anchor": "character",
+  "camera_offset_y": 0.0,
+  "anims": {
+    "still": 0,
+    "ray_growth": 1
+  },
+  "controls": {
+    "none": 0,
+    "appear": 1
+  },
+  "spawn": {
+    "state": 0,
+    "kind": "prop",
+    "auto": "full"
+  }
+}

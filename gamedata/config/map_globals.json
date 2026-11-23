@@ -1,0 +1,30 @@
+{
+  "description": "Map variables that live for the whole run instead of one map: values a script or the engine looks up by name (a map variable's \"symbol\" in map_vars.json) when the loaded map's own tables.json has no array of that name. One block per name, kept through map changes. bytes: the block size; type: the element type (u8 default, s16, u16, s32, ...); init: the first values the block starts with. On the PS1 these were data of the map overlays that used them.",
+  "globals": {
+    "paper_map_tex_offset": {"bytes": 256},
+    "sound_test_ids": {"bytes": 256, "type": "u16", "init": [
+      4109, 4131, 4132, 4126, 4119, 4127, 4130, 4097, 4136, 4138, 4100, 4101, 4173, 4161, 4151, 4180, 4179, 4175, 4157, 4165,
+      4168, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      4099, 4112, 4105, 4125, 4123, 4144, 4121, 4104, 4143, 4147, 4117, 4129, 4120, 4103, 4135, 4134, 4142, 4148, 4140, 4141,
+      4111, 4106, 4118, 4146, 4108, 4114, 4139, 4122, 4102, 4116, 4137, 4128, 4107, 4133, 4110, 4115, 4113, 4145, 4124, 4098,
+      4174, 4153, 4177, 4172, 4167, 4181, 4176, 4166, 4169, 4178, 4158, 4171, 4156, 4162, 4160, 4163, 4159, 4164, 4154, 4170,
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      4348, 4351, 4301, 4282, 4211, 4234, 4332, 4214]},
+    "ufo_lights_clock": {"bytes": 256},
+    "keypad_entered_letters": {"bytes": 256},
+    "harry_push_total": {"bytes": 256},
+    "vines_flame_sfx_pos": {"bytes": 12, "type": "s32", "init": [86425, 0, -81920]},
+    "elevator_door_sfx_pos": {"bytes": 12, "type": "s32", "init": [-413286, -8192, -249446]},
+    "elevator_door_sfx_pos2": {"bytes": 256},
+    "elevator_door_speed": {"bytes": 256},
+    "elevator_cursor_x": {"bytes": 256},
+    "elevator_cursor_y": {"bytes": 256},
+    "elevator_selected_floor": {"bytes": 256},
+    "particle_emitter": {"bytes": 256},
+    "water_stream": {"bytes": 256},
+    "wall_collision_result": {"bytes": 256},
+    "dahlia_effect_spawned": {"bytes": 256},
+    "cutscene_camera_look_at": {"bytes": 256},
+    "cutscene_camera_position": {"bytes": 256}
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "format": "sh-text",
+  "version": 1,
+  "lang": "ru",
+  "map": "map0_s02",
+  "strings": {
+    "map0_s02.there_is_a_chain_saw": "Здесь {color 2}бензопила{/color}.\nВзять?{choice 4}",
+    "map0_s02.some_oil_cans_are_on": "На полке банки с маслом.{end}",
+    "map0_s02.a_car_engine_no_problem": "Автомобильный двигатель.\nС ним всё в порядке.{end}",
+    "map0_s02.theres_a_tv_set_it": "Телевизор.\nНе включается.{end}",
+    "map0_s02.there_is_a_gasoline_tank": "Здесь {color 2}канистра бензина{/color}.\nВзять?{choice 4}",
+    "map0_s02.there_is_a_katana_take": "Здесь {color 2}катана{/color}.\nВзять?{choice 4}",
+    "map0_s02.there_is_a_channeling_stone": "Здесь {color 2}камень контакта{/color}.\nВзять?{choice 4}"
+  }
+}

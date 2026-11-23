@@ -1,0 +1,23 @@
+{
+  "format": "sh-part-variants",
+  "description": "Dahlia's alternative part meshes (held objects of the cutscenes). A non-zero slot value first hides the slot's \"hide\" parts, then the variant's \"hide\", then shows its \"show\" parts (model indices of the skeleton).",
+  "slots": [
+    {
+      "name": "variant",
+      "shift": 0,
+      "bits": 4,
+      "hide": [0, 1, 2, 3],
+      "variants": {
+        "1": {
+          "show": [0]
+        },
+        "2": {
+          "show": [1, 2]
+        },
+        "3": {
+          "show": [3]
+        }
+      }
+    }
+  ]
+}

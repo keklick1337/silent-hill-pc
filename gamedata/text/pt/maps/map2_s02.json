@@ -1,0 +1,11 @@
+{
+  "format": "sh-text",
+  "version": 1,
+  "lang": "pt",
+  "map": "map2_s02",
+  "strings": {
+    "map2_s02.used_the_antique_shop_key": "Usei a {color 2}chave do antiquário{/color}.{end}",
+    "map2_s02.alchemilla_hospital": "{color 3}Hospital Alchemilla{end}",
+    "map2_s02.green_lion": "{color 3}leão verde{end}"
+  }
+}

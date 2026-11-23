@@ -1,0 +1,24 @@
+{
+  "format": "sh-text",
+  "version": 1,
+  "lang": "en",
+  "strings": {
+    "ui.bind.attack": "Attack",
+    "ui.bind.back_cancel": "Back / Cancel",
+    "ui.bind.confirm_skip": "Confirm / Skip",
+    "ui.bind.view": "View",
+    "ui.controls_ref.category.camera": "Camera",
+    "ui.controls_ref.category.combat": "Combat",
+    "ui.controls_ref.category.debug": "Debug",
+    "ui.controls_ref.category.menu": "Menu",
+    "ui.controls_ref.category.movement": "Movement",
+    "ui.controls_ref.category.system": "System",
+    "ui.controls_ref.close_hint": "Press any key to close",
+    "ui.controls_ref.scheme_altcam": "alternate camera",
+    "ui.controls_ref.scheme_classic": "classic camera",
+    "ui.controls_ref.stick": "Stick/D-pad",
+    "ui.controls_ref.title": "Controls",
+    "ui.options.controls_reference": "Controls Reference",
+    "ui.options.controls_reference.help": "Shows every current key and button."
+  }
+}

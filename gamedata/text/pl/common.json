@@ -1,0 +1,22 @@
+{
+  "format": "sh-text",
+  "version": 1,
+  "lang": "pl",
+  "strings": {
+    "common.yes": "Tak",
+    "common.no": "Nie",
+    "common.notes_useful": "Może kiedyś ktoś jeszcze przeżyje\nte niesamowite zdarzenia. Oby\nmoje notatki mu się przydały.{end}",
+    "common.no_map": "{instant}Nie mam mapy tego miejsca.{end}",
+    "common.too_dark_for_map": "{instant}Za ciemno, żeby tu oglądać mapę.{end}",
+    "common.take_first_aid_kit": "Jest tu {color 2}apteczka{/color}.\nZabrać?{choice 4}",
+    "common.take_health_drink": "Jest tu {color 2}napój odżywczy{/color}.\nZabrać?{choice 4}",
+    "common.take_ampoule": "Jest tu {color 2}ampułka{/color}.\nZabrać?{choice 4}",
+    "common.take_handgun_bullets": "Są tu {color 2}naboje do pistoletu{/color}.\nZabrać?{choice 4}",
+    "common.take_rifle_shells": "Są tu {color 2}naboje do karabinu{/color}.\nZabrać?{choice 4}",
+    "common.take_shotgun_shells": "Są tu {color 2}naboje do strzelby{/color}.\nZabrać?{choice 4}",
+    "common.lock_jammed": "Zamek jest zacięty.\nTych drzwi nie da się otworzyć.{end}",
+    "common.locked": "Zamknięte na klucz.{end}",
+    "common.unlocked": "Zamek otwarty.{end}",
+    "common.now_making": "{color 6}W przygotowaniu!{/color}{end}"
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "format": "sh-text",
+  "version": 1,
+  "lang": "pl",
+  "map": "map3_s05",
+  "strings": {
+    "map3_s05.there_is_a_video_tape": "Jest tu {color 2}kaseta wideo{/color}.\nZabrać?{choice 4}",
+    "map3_s05.alessa": "{color 3}Alessa{end}",
+    "map3_s05.alessa_2": "Alessa...?{end}",
+    "map3_s05.whats_this": "{wait 1.2}Co to?{end}",
+    "map3_s05.looks_like_someones_been_here": "{wait 2.6}Wygląda na to, że ktoś tu był...{end}",
+    "map3_s05.msg20": "{wait 0.4}{end}",
+    "map3_s05.there_is_an_examination_room": "Jest tu {color 2}klucz do gabinetu{/color}.\nZabrać?{choice 4}",
+    "map3_s05.looks_like_a_hallway_under": "Pod kratą chyba jest korytarz.",
+    "map3_s05.cant_move_it_since_the": "Nie da się jej ruszyć,\nbo oplotły ją pnącza.{end}",
+    "map3_s05.no_the_fire_goes_out": "Nic z tego.\nGdy podpalam pnącza,\nogień od razu gaśnie.{end}",
+    "map3_s05.poured_disinfecting_alcohol_on": "Pnącza polano\n{color 2}spirytusem odkażającym{/color}.{end}",
+    "map3_s05.the_vines_absorbed_the_alcohol": "Pnącza wchłonęły spirytus.{end}",
+    "map3_s05.used_the_basement_storeroom": "Użyto: {color 2}klucz do składziku{/color}.{end}",
+    "map3_s05.do_you_want_to_push": "Przesunąć szafkę?{choice 4}",
+    "map3_s05.the_generator_is_on": "Generator jest włączony.{end}",
+    "map3_s05.there_are_skid_marks_from": "Widać ślady po przesuwaniu szafki.{end}",
+    "map3_s05.there_is_a_hammer_take": "Jest tu {color 2}młot{/color}.\nZabrać?{choice 4}",
+    "map3_s05.a_bed_whats_it_doing": "Łóżko? Co ono tu robi? Kto by...{end}",
+    "map3_s05.a_body_is_laid_out": "Na łóżku leży ciało.\nWolę mu się nie przyglądać.{end}",
+    "map3_s05.nothing_helpful": "Nic, co by pomogło.{end}",
+    "map3_s05.nothing_useful_in_the_boxes": "W pudłach nie ma nic przydatnego.{end}",
+    "map3_s05.theres_a_bottle_filled_with": "Butelka pełna jakiegoś leku.\nLepiej jej nie ruszać.{end}",
+    "map3_s05.there_are_some_empty_bottles": "Stoi tu kilka pustych butelek.{end}",
+    "map3_s05.nothing_special_in_the_box": "W pudle nic szczególnego.\nNie ma się czym przejmować.{end}",
+    "map3_s05.nothing_inside": "W środku nic nie ma.{end}"
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "format": "sh-text",
+  "version": 1,
+  "lang": "ar",
+  "map": "map1_s00",
+  "strings": {
+    "map1_s00.the_tower_door_is_locked": "باب البرج مقفل.{end}",
+    "map1_s00.the_hands_are_stopped_at": "العقارب متوقفة عند 10:00.{end}",
+    "map1_s00.the_hands_are_stopped_at_2": "العقارب متوقفة عند 12:00.{end}",
+    "map1_s00.the_hands_are_stopped_at_3": "العقارب متوقفة عند 5:00.{end}",
+    "map1_s00.a_golden_sun": "{color 3}شمس ذهبية{end}",
+    "map1_s00.a_silver_moon": "{color 3}قمر فضي{end}",
+    "map1_s00.the_door_wont_open": "الباب لا ينفتح.{end}",
+    "map1_s00.10_00_alchemy_laboratory_gold": "{pos 4}{center}{color 3}10:00\n«مختبر الخيمياء»\n\nذهب في كف شيخ عجوز.\nالمستقبل مخبوء في قبضته.\nيستبدل بماء الحكيم.{end}",
+    "map1_s00.12_00_a_place_with": "{pos 4}{center}{color 3}12:00\n«مكان الأغاني والأنغام»\n\nدليل فضي لم يمس بعد،\nبين ألسنة خرساء ضائعة.\nيستيقظ على الترتيب المقدر.{end}",
+    "map1_s00.5_00_darkness_that_brings": "{pos 4}{center}{color 3}5:00\n«ظلام يجلب\nالحر الخانق»\n\nاللهب يمزق الصمت،\nفيوقظ الوحش الجائع.\nافتح باب الزمن لتستدرج الفريسة.{end}",
+    "map1_s00.its_written_in_blood": "مكتوب بالدم.{end}",
+    "map1_s00.cheryl_might_be_here_i": "قد تكون شيريل هنا.\nعلي أن أبحث عنها.{end}",
+    "map1_s00.a_picture_of_a_door": "رسم لباب.",
+    "map1_s00.i_dont_know_who_drew": "لا أدري من رسمه،\nلكن ذوقه رديء بلا شك.{end}",
+    "map1_s00.there_is_a_switch_do": "هنا زر.\nهل تضغط الزر؟{choice 4}",
+    "map1_s00.nothing_appears_to_happen": "لا يبدو أن شيئا قد حدث.{end}",
+    "map1_s00.the_boiler_is_working": "المرجل يعمل.{end}",
+    "map1_s00.it_appears_to_be_broken": "يبدو أنه معطل.{end}",
+    "map1_s00.the_valve_is_tightly_shut": "الصمام مغلق بإحكام.\nلا أستطيع تحريكه.",
+    "map1_s00.dont_know_what_it_is": "لا أعرف فائدته،\nالأفضل أن أتركه وشأنه.{end}",
+    "map1_s00.nothing_special_is_written": "لا شيء مميز مكتوب هنا.{end}",
+    "map1_s00.nothing_useful_in_the_desk": "لا شيء نافع في درج المكتب.{end}",
+    "map1_s00.there_is_a_school_map": "{hires}يوجد هنا {color 5}خريطة المدرسة{/color}.\nهل تأخذها؟{choice 4}",
+    "map1_s00.moore_ranaldo_gordon_this_must": "مور، رانالدو، غوردون...\nلا بد أنها قائمة المعلمين.{end}",
+    "map1_s00.nothing_inside": "لا شيء في الداخل.{end}"
+  }
+}

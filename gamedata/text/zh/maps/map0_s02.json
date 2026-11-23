@@ -1,0 +1,15 @@
+{
+  "format": "sh-text",
+  "version": 1,
+  "lang": "zh",
+  "map": "map0_s02",
+  "strings": {
+    "map0_s02.there_is_a_chain_saw": "这里有{color 2}链锯{/color}。\n要拿走吗？{choice 4}",
+    "map0_s02.some_oil_cans_are_on": "架子上放着几罐机油。{end}",
+    "map0_s02.a_car_engine_no_problem": "汽车引擎。\n看不出有什么问题。{end}",
+    "map0_s02.theres_a_tv_set_it": "有台电视机。\n打不开。{end}",
+    "map0_s02.there_is_a_gasoline_tank": "这里有{color 2}汽油桶{/color}。\n要拿走吗？{choice 4}",
+    "map0_s02.there_is_a_katana_take": "这里有{color 2}武士刀{/color}。\n要拿走吗？{choice 4}",
+    "map0_s02.there_is_a_channeling_stone": "这里有{color 2}通灵石{/color}。\n要拿走吗？{choice 4}"
+  }
+}

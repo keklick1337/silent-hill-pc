@@ -1,0 +1,32 @@
+{
+  "format": "sh-text",
+  "version": 1,
+  "lang": "ar",
+  "map": "map0_s00",
+  "strings": {
+    "map0_s00.cheryl_where_could_you_be": "{wait 2.5}شيريل. أين عساك تكونين؟{end}",
+    "map0_s00.its_strange": "{wait 1.5}غريب...",
+    "map0_s00.its_quiet_too_quiet": "{wait 2.0}المكان هادئ. أهدأ مما ينبغي.",
+    "map0_s00.this_place_is_like_a": "{wait 3.0}كأنها مدينة أشباح.{end}",
+    "map0_s00.cheryl": "{wait 3.0}شيريل.{end}",
+    "map0_s00.footsteps": "{wait 1.5}وقع أقدام؟{end}",
+    "map0_s00.cheryl_is_that_cheryl": "{wait 2.8}شيريل؟\nأهذه شيريل؟!{end}",
+    "map0_s00.where_are_you_going": "{wait 1.2}إلى أين تذهبين؟{end}",
+    "map0_s00.hey_wait_stop": "{wait 1.8}مهلا... توقفي!{end}",
+    "map0_s00.id_better_follow_cheryl": "الأفضل أن أتبع شيريل...{end}",
+    "map0_s00.thats_strange_its_getting": "غريب، الظلام يشتد.{end}",
+    "map0_s00.a_dead_end_what_the": "طريق مسدود؟\nما هذا بحق الجحيم؟!{end}",
+    "map0_s00.what_is_this": "{wait 1.6}ما هذا؟",
+    "map0_s00.whats_going_on_here": "{wait 2.5}ما الذي يجري هنا؟!{end}",
+    "map0_s00.whats_this": "ما هذا؟{end}",
+    "map0_s00.better_than_nothing_i_guess": "......أفضل من لا شيء،\nعلى ما أظن.{end}",
+    "map0_s00.what_whats_this_doing_here": "ماذا؟\nما الذي جاء بهذا إلى هنا؟{end}",
+    "map0_s00.blocked_by_a_fence": "سياج يسد الطريق؟{end}",
+    "map0_s00.a_broken_wheelchair_whats_this": "كرسي متحرك مكسور؟\nما الذي جاء به إلى هنا؟{end}",
+    "map0_s00.what_the_what_is_it": "ما هذا..؟\nما هذا الشيء؟{end}",
+    "map0_s00.the_street_is_blocked": "الشارع مسدود.",
+    "map0_s00.cant_get_out_of_town": "لا سبيل للخروج من البلدة من هنا.{end}",
+    "map0_s00.my_car_too_banged_up": "سيارتي...\nمحطمة ولا تصلح للقيادة.",
+    "map0_s00.wheres_cheryl_hope_shes_safe": "أين شيريل؟\nأرجو أن تكون بخير.{end}"
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "format": "sh-text-lang",
+  "version": 1,
+  "code": "ko",
+  "name": "한국어",
+  "english_name": "Korean",
+  "direction": "ltr",
+  "fonts": [
+    "Noto Sans CJK KR",
+    "Noto Sans KR",
+    "Malgun Gothic",
+    "Apple SD Gothic Neo",
+    "NanumGothic"
+  ]
+}

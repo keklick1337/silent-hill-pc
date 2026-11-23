@@ -1,0 +1,17 @@
+{
+  "format": "sh-map-lights",
+  "version": 1,
+  "map": "map5_s02",
+  "description": "The lights of Annie's Bar and the Indian Runner for the modern lighting (rt_lights, docs/RENDER.md section 10). At night, no sun. The lamps are the models the cell ER0300 draws lit (its other fixtures are drawn dark and stay off): four fluorescent tubes (KEIKO, about 1.9 m up) and a row of five small ceiling lamps (AKARI, 3.16 m up). Positions are metres, PS1 axes (y down), just below each fixture; weak and short, so the room keeps the original's dim tint and the fog bounds them.",
+  "lights": [
+    {"name": "TubeWest", "description": "Fluorescent tube along z (KEIKO): cold white.", "position": [138.14, -1.74, 24.04], "color": [0.86, 0.93, 1.0], "intensity": 0.7, "range": 4.0, "radius": 0.25, "casts_shadows": true, "gi": true},
+    {"name": "TubeNorth", "description": "Fluorescent tube along x (KEIKO).", "position": [142.05, -1.74, 19.52], "color": [0.86, 0.93, 1.0], "intensity": 0.7, "range": 4.0, "radius": 0.25, "casts_shadows": true, "gi": true},
+    {"name": "TubeMiddle", "description": "Fluorescent tube along x (KEIKO).", "position": [142.02, -1.74, 22.01], "color": [0.86, 0.93, 1.0], "intensity": 0.7, "range": 4.0, "radius": 0.25, "casts_shadows": true, "gi": true},
+    {"name": "TubeSouth", "description": "Fluorescent tube along x (KEIKO).", "position": [142.12, -1.74, 24.41], "color": [0.86, 0.93, 1.0], "intensity": 0.7, "range": 4.0, "radius": 0.25, "casts_shadows": true, "gi": true},
+    {"name": "CeilingLamp1", "description": "Small ceiling lamp of the row (AKARI): warm.", "position": [131.69, -3.08, 22.28], "color": [1.0, 0.8, 0.55], "intensity": 0.45, "range": 3.5, "radius": 0.06, "casts_shadows": true, "gi": true},
+    {"name": "CeilingLamp2", "description": "Small ceiling lamp of the row (AKARI).", "position": [132.46, -3.08, 22.28], "color": [1.0, 0.8, 0.55], "intensity": 0.45, "range": 3.5, "radius": 0.06, "casts_shadows": true, "gi": true},
+    {"name": "CeilingLamp3", "description": "Small ceiling lamp of the row (AKARI).", "position": [133.27, -3.08, 22.28], "color": [1.0, 0.8, 0.55], "intensity": 0.45, "range": 3.5, "radius": 0.06, "casts_shadows": true, "gi": true},
+    {"name": "CeilingLamp4", "description": "Small ceiling lamp of the row (AKARI).", "position": [134.21, -3.08, 22.28], "color": [1.0, 0.8, 0.55], "intensity": 0.45, "range": 3.5, "radius": 0.06, "casts_shadows": true, "gi": true},
+    {"name": "CeilingLamp5", "description": "Small ceiling lamp of the row (AKARI).", "position": [135.07, -3.08, 22.28], "color": [1.0, 0.8, 0.55], "intensity": 0.45, "range": 3.5, "radius": 0.06, "casts_shadows": true, "gi": true}
+  ]
+}

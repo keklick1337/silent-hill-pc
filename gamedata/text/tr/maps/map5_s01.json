@@ -1,0 +1,13 @@
+{
+  "format": "sh-text",
+  "version": 1,
+  "lang": "tr",
+  "map": "map5_s01",
+  "strings": {
+    "map5_s01.there_is_a_resort_area": "{hires}Burada {color 5}Tatil bölgesi haritası{/color} var.\nAlınsın mı?{choice 4}",
+    "map5_s01.nothing_unusual": "Olağan dışı bir şey yok.{end}",
+    "map5_s01.used_the_kaufmann_key": "{color 2}Kaufmann anahtarı{/color} kullanıldı.{end}",
+    "map5_s01.what": "{wait 1.0}Ne?{end}",
+    "map5_s01.that_light": "{wait 2.5}Bu ışık!?{end}"
+  }
+}

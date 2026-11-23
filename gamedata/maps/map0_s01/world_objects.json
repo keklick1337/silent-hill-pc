@@ -1,0 +1,114 @@
+{
+  "format": "sh-map-world-objects",
+  "version": 2,
+  "map": "map0_s01",
+  "description": "Static world objects of map0_s01 (Old Silent Hill - cafe): 16 objects, drawn in file order. An object is drawn while the player is in one of its \"zones\" (each {\"x\": [...], \"z\": [...]} lists 40 m cells along that axis: cell c holds 40c..40(c+1) m; no zones = everywhere) and every flag of \"flags_set\" is set and every flag of \"flags_clear\" is clear (event flag names, e.g. the pickup flags). \"name\" is the object's id for scripts and mods, \"model\" its model (at most 8 characters, the map's or an item model), \"position\" in metres and \"rotation\" in degrees (x, y, z). \"pose\" instead takes position and rotation from a table of the map's overlay on the disc (\"disc_table\" from tables.json, row \"index\"), resolved when the map loads; pickups use it. The cafe models (InsideRoom, InsideBuilding, OutsideRoom, the Broken* versions) switch with the bird scenes through M0S01_AirScreamerIntroOutsideShotDone/M0S01_AirScreamerFightStarted and the Air Screamer intro flag; HealthDrink0/1 take their pose from the overlay on the disc. A mod's maps/map0_s01/world_objects.json changes or adds objects by name.",
+  "objects": [
+    {
+      "name": "Map",
+      "model": "MAP_HIDE",
+      "position": [5.24, -1.0, 267.21],
+      "rotation": [0, 57.0, 0],
+      "flags_clear": ["M0S01_PickupMap"]
+    },
+    {
+      "name": "Flashlight",
+      "model": "FLASH_HI",
+      "position": [5.18, -1.0, 267.28],
+      "rotation": [-3.0, 111.0, 0],
+      "flags_clear": ["M0S01_PickupFlashlight"]
+    },
+    {
+      "name": "PocketRadio",
+      "model": "RADIO_HI",
+      "position": [2.31, -0.6, 273.95],
+      "rotation": [0, 147.0, 0],
+      "flags_clear": ["M0S01_PickupPocketRadio"]
+    },
+    {
+      "name": "KitchenKnife",
+      "model": "KNIFE_HI",
+      "position": [5.09, -1.01, 274.12],
+      "rotation": [0, 32.0, 0],
+      "flags_clear": ["M0S01_PickupKitchenKnife"]
+    },
+    {
+      "name": "InsideRoom",
+      "model": "IN1_HIDE",
+      "position": [0.0, 0.0, 280.0],
+      "flags_clear": ["M0S01_AirScreamerFightStarted", "M0S01_AirScreamerIntroCutsceneStarted"]
+    },
+    {
+      "name": "InsideRoomAfterIntro",
+      "model": "IN1_HIDE",
+      "position": [0.0, 0.0, 280.0],
+      "flags_set": ["M0S01_AirScreamerIntroCutsceneStarted", "M0S01_AirScreamerIntroOutsideShotDone"],
+      "flags_clear": ["M0S01_AirScreamerFightStarted"]
+    },
+    {
+      "name": "InsideBuilding",
+      "model": "IN_BLD1_",
+      "position": [0.0, 0.0, 280.0],
+      "flags_clear": ["M0S01_AirScreamerFightStarted", "M0S01_AirScreamerIntroCutsceneStarted"]
+    },
+    {
+      "name": "InsideBuildingAfterIntro",
+      "model": "IN_BLD1_",
+      "position": [0.0, 0.0, 280.0],
+      "flags_set": ["M0S01_AirScreamerIntroCutsceneStarted", "M0S01_AirScreamerIntroOutsideShotDone"],
+      "flags_clear": ["M0S01_AirScreamerFightStarted"]
+    },
+    {
+      "name": "OutsideRoom",
+      "model": "OUT1_HID",
+      "position": [0.0, 0.0, 280.0],
+      "flags_set": ["M0S01_AirScreamerIntroCutsceneStarted"],
+      "flags_clear": ["M0S01_AirScreamerFightStarted", "M0S01_AirScreamerIntroOutsideShotDone"]
+    },
+    {
+      "name": "OutsideBuilding",
+      "model": "OUT_BLD_",
+      "position": [0.0, 0.0, 280.0],
+      "flags_set": ["M0S01_AirScreamerIntroCutsceneStarted"],
+      "flags_clear": ["M0S01_AirScreamerFightStarted", "M0S01_AirScreamerIntroOutsideShotDone"]
+    },
+    {
+      "name": "BrokenInsideRoom",
+      "model": "IN1_HIDE",
+      "position": [0.0, 0.0, 280.0],
+      "flags_set": ["M0S01_AirScreamerFightStarted"]
+    },
+    {
+      "name": "BrokenBuilding",
+      "model": "BRK_BLD1",
+      "position": [0.0, 0.0, 280.0],
+      "flags_set": ["M0S01_AirScreamerFightStarted"]
+    },
+    {
+      "name": "BrokenGlass1",
+      "model": "BRK_GLS1",
+      "position": [0.0, 0.0, 280.0],
+      "flags_set": ["M0S01_AirScreamerFightStarted"]
+    },
+    {
+      "name": "BrokenGlass2",
+      "model": "BRK_GLS2",
+      "position": [0.0, 0.0, 280.0],
+      "flags_set": ["M0S01_AirScreamerFightStarted"]
+    },
+    {
+      "name": "HealthDrink0",
+      "model": "DRINK_NE",
+      "pose": {"disc_table": "CommonWorldObjectPoses", "index": 0, "disc_address": "0x800DE12C"},
+      "zones": [{"x": 0, "z": 6}],
+      "flags_clear": ["M0S01_HealthDrink0"]
+    },
+    {
+      "name": "HealthDrink1",
+      "model": "DRINK_NE",
+      "pose": {"disc_table": "CommonWorldObjectPoses", "index": 1, "disc_address": "0x800DE12C"},
+      "zones": [{"x": 0, "z": 6}],
+      "flags_clear": ["M0S01_HealthDrink1"]
+    }
+  ]
+}

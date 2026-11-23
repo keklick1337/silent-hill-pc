@@ -1,0 +1,29 @@
+{
+  "format": "sh-text",
+  "version": 1,
+  "lang": "en",
+  "map": "map5_s01",
+  "description": "The map's messages: the keys by message number from \"first\" (the numbers before it are common.json's), and the English text of the original game.",
+  "index": {
+    "map": {
+      "first": 15,
+      "keys": [
+        "map5_s01.there_is_a_resort_area",
+        "map5_s01.nothing_unusual",
+        "map5_s01.used_the_kaufmann_key",
+        "map5_s01.what",
+        "map5_s01.that_light"
+      ]
+    }
+  },
+  "strings": {
+    "map5_s01.there_is_a_resort_area": "{hires}There is a {color 5}Resort area map{/color}.\nTake it?{choice 4}",
+    "map5_s01.nothing_unusual": "Nothing unusual.{end}",
+    "map5_s01.used_the_kaufmann_key": "Used the {color 2}Kaufmann key{/color}.{end}",
+    "map5_s01.what": "{wait 1.0}What?{end}",
+    "map5_s01.that_light": "{wait 2.5}That light!?{end}"
+  },
+  "ws": {
+    "map5_s01.there_is_a_resort_area": "0b5b1315:1=t"
+  }
+}

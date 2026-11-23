@@ -1,0 +1,10 @@
+{
+  "format": "sh-text",
+  "version": 1,
+  "lang": "ja",
+  "map": "map3_s02",
+  "strings": {
+    "map3_s02.nothing_happens_when_the": "エレベーターのボタンを\n押しても何も起こらない。{end}",
+    "map3_s02.its_locked": "鍵がかかっている！{end}"
+  }
+}

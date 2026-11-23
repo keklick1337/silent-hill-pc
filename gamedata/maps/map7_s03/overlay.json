@@ -1,0 +1,23 @@
+{
+  "description": "Engine setup of map7_s03 (Nowhere - final boss), a map made only of data and Lua: \"map_type\" is the map type ER2, the entry of gamedata/config/map_info.json that gives its zones, scenery file and environment. \"characters\" lists the character types this map runs, each by its gamedata/chara/<Name>/behavior.lua; a character type that is not listed cannot act here (this map: Incubus, Unknown23, Cybil, EndingCybil, Dahlia, EndingDahlia, BloodyLisa, Alessa, Incubator, BloodyIncubator, Kaufmann, EndingKaufmann and LittleIncubus). \"character_effects\": Incubus and Unknown23 draw their own effects here: the final bosses' lightning, fire, sparks and light beams. The sh.map lightning, fire and beam binds and the bosses' sh.entity effect binds work only on a map that lists Incubus, the shock sparks of Unknown23 only where Unknown23 is listed. A mod changes it with its own maps/map7_s03/overlay.json.",
+  "map_type": "ER2",
+  "characters": [
+    "Incubus",
+    "Unknown23",
+    "Cybil",
+    "EndingCybil",
+    "Dahlia",
+    "EndingDahlia",
+    "BloodyLisa",
+    "Alessa",
+    "Incubator",
+    "BloodyIncubator",
+    "Kaufmann",
+    "EndingKaufmann",
+    "LittleIncubus"
+  ],
+  "character_effects": [
+    "Incubus",
+    "Unknown23"
+  ]
+}

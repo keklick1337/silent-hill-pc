@@ -1,0 +1,12 @@
+{
+  "format": "sh-text",
+  "version": 1,
+  "lang": "en",
+  "strings": {
+    "ui.pause.continue": "CONTINUE (EXAMPLE MOD)",
+    "example_mod:ui.entry": "EXAMPLE MOD",
+    "example_mod:ui.title": "EXAMPLE MOD",
+    "example_mod:ui.about": "Made by mods/example_mod",
+    "example_mod:ui.greeting": "Greeting in the log"
+  }
+}

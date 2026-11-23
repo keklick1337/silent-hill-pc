@@ -1,0 +1,10 @@
+{
+  "format": "sh-text",
+  "version": 1,
+  "lang": "ko",
+  "map": "map3_s02",
+  "strings": {
+    "map3_s02.nothing_happens_when_the": "엘리베이터 버튼을 눌러도\n아무 반응이 없다.{end}",
+    "map3_s02.its_locked": "잠겨 있다!{end}"
+  }
+}

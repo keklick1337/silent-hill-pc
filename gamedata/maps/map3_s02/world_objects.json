@@ -1,0 +1,7 @@
+{
+  "format": "sh-map-world-objects",
+  "version": 2,
+  "map": "map3_s02",
+  "description": "Static world objects of map3_s02 (Hospital - antique shop cutscene): this map draws none. The file exists so that the map's world_objects.lua runs (it plays the one-shot machine-room sounds of M3S02_CorridorDoorNoiseHeard/M3S02_DarkRoomDoorNoiseHeard). An object added here would follow the usual rules: name, model, position (metres) or pose, rotation (degrees x, y, z), zones (40 m cells), flags_set / flags_clear.",
+  "objects": []
+}

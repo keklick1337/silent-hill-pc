@@ -1,0 +1,439 @@
+{
+  "format": "sh-map-world-objects",
+  "version": 2,
+  "map": "map7_s02",
+  "description": "Static world objects of map7_s02 (Nowhere - Alessa vs. Dahlia cutscene): 57 objects, drawn in file order. An object is drawn while the player is in one of its \"zones\" (each {\"x\": [...], \"z\": [...]} lists 40 m cells along that axis: cell c holds 40c..40(c+1) m; no zones = everywhere) and every flag of \"flags_set\" is set and every flag of \"flags_clear\" is clear (event flag names, e.g. the pickup flags). \"name\" is the object's id for scripts and mods, \"model\" its model (at most 8 characters, the map's or an item model), \"position\" in metres and \"rotation\" in degrees (x, y, z). \"pose\" instead takes position and rotation from a table of the map's overlay on the disc (\"disc_table\" from tables.json, row \"index\"), resolved when the map loads; pickups use it. \"script\": true lets world_objects.lua and events.lua move, turn, re-model or hide the object. \"pc_near_pickup\": true (not in the original) also draws the pickup while the player is in a neighbouring cell of the same floor. Bed, KitchenDoor<i>, LisaDoor and SlidingDoor<i> are script objects moved by events.lua through the map variables bed, kitchen_doors, lisa_door and sliding_doors. A mod's maps/map7_s02/world_objects.json changes or adds objects by name.",
+  "objects": [
+    {
+      "name": "Diary",
+      "model": "DIARY_HI",
+      "position": [-180.0, 0.0, -140.755],
+      "rotation": [0, 180.0, 0],
+      "zones": [{"x": -5, "z": -4}],
+      "flags_set": ["M7S01_LisaDiaryAppeared"]
+    },
+    {
+      "name": "PaintingRight",
+      "model": "KAIGAR_H",
+      "position": [56.0, -1.9, -19.25],
+      "rotation": [0, 180.0, 0],
+      "zones": [{"x": 1, "z": -1}],
+      "flags_clear": ["M7S01_DarknessPicturePhotographed"]
+    },
+    {
+      "name": "PaintingRightOpen",
+      "model": "KAIGAR2_",
+      "position": [56.0, -1.9, -19.25],
+      "rotation": [0, 180.0, 0],
+      "zones": [{"x": 1, "z": -1}],
+      "flags_set": ["M7S01_DarknessPicturePhotographed"]
+    },
+    {
+      "name": "PaintingLeft",
+      "model": "KAIGAL_H",
+      "position": [56.0, -1.9, -21.45],
+      "rotation": [0, 180.0, 0],
+      "zones": [{"x": 1, "z": -1}],
+      "flags_clear": ["M7S01_FuturePicturePhotographed"]
+    },
+    {
+      "name": "PaintingLeftOpen",
+      "model": "KAIGAL2_",
+      "position": [56.0, -1.9, -21.45],
+      "rotation": [0, 180.0, 0],
+      "zones": [{"x": 1, "z": -1}],
+      "flags_set": ["M7S01_FuturePicturePhotographed"]
+    },
+    {
+      "name": "StoneSlot",
+      "model": "STONE_HI",
+      "position": [-16.6692, -0.71, -61.533],
+      "rotation": [0, 90.0, 0],
+      "zones": [{"x": -1, "z": -2}]
+    },
+    {
+      "name": "ClockWindow",
+      "model": "WINDOW_H",
+      "position": [-16.666, -1.235, -61.503],
+      "rotation": [0, 90.0, 0],
+      "zones": [{"x": -1, "z": -2}]
+    },
+    {
+      "name": "SavePad",
+      "model": "PAD_NEAR",
+      "position": [-16.6226, -1.2396, -59.0691],
+      "rotation": [0, 105.21, 0],
+      "zones": [{"x": -1, "z": -2}]
+    },
+    {
+      "name": "ClockHand2",
+      "model": "KEYX2_HI",
+      "position": [-16.6692, -1.23, -61.6],
+      "rotation": [90.9, 90.0, 0],
+      "zones": [{"x": -1, "z": -2}]
+    },
+    {
+      "name": "Bed",
+      "model": "BED3_HID",
+      "position": [139.6, 0.0, -59.6],
+      "rotation": [0, 90.0, 0],
+      "script": true,
+      "zones": [{"x": 3, "z": -2}],
+      "flags_set": ["M7S02_CutsceneDahliaKaufmannPlanDone"]
+    },
+    {
+      "name": "DiskOfOuroboros",
+      "model": "KEY_HIDE",
+      "position": [140.6558, -0.81, -58.937],
+      "zones": [{"x": 3, "z": -2}],
+      "flags_set": ["M7S02_CutsceneDahliaKaufmannPlanDone"],
+      "flags_clear": ["M7S02_PickupDiskOfOuroboros"]
+    },
+    {
+      "name": "Ankh",
+      "model": "ANK_HIDE",
+      "position": [21.5767, -1.3956, -100.8592],
+      "zones": [{"x": 0, "z": -3}],
+      "flags_clear": ["M7S02_PickupAnkh"]
+    },
+    {
+      "name": "FridgeOpen",
+      "model": "REF2_HID",
+      "position": [20.3, 0.0, -60.75],
+      "zones": [{"x": 0, "z": -2}],
+      "flags_set": ["M7S02_FridgeOpened"]
+    },
+    {
+      "name": "KitchenDoor0",
+      "model": "DOR1_HID",
+      "position": [21.15, -0.8, -60.0],
+      "script": true,
+      "zones": [{"x": 0, "z": -2}],
+      "flags_set": ["M7S02_FridgeOpened"]
+    },
+    {
+      "name": "KitchenDoor1",
+      "model": "DOR2_HID",
+      "position": [21.15, -0.1, -60.0],
+      "script": true,
+      "zones": [{"x": 0, "z": -2}],
+      "flags_set": ["M7S02_FridgeOpened"]
+    },
+    {
+      "name": "KitchenDoor2",
+      "model": "DOR3_HID",
+      "position": [21.15, -0.1, -61.5],
+      "script": true,
+      "zones": [{"x": 0, "z": -2}],
+      "flags_set": ["M7S02_FridgeOpened"]
+    },
+    {
+      "name": "KitchenDoor3",
+      "model": "DOR4_HID",
+      "position": [21.15, -0.8, -61.5],
+      "script": true,
+      "zones": [{"x": 0, "z": -2}],
+      "flags_set": ["M7S02_FridgeOpened"]
+    },
+    {
+      "name": "Fridge",
+      "model": "REF1_HID",
+      "position": [20.3, 0.0, -60.75],
+      "zones": [{"x": 0, "z": -2}],
+      "flags_clear": ["M7S02_FridgeOpened"]
+    },
+    {
+      "name": "DaggerOfMelchior",
+      "model": "SWORD_HI",
+      "position": [20.3, 0.0, -60.75],
+      "zones": [{"x": 0, "z": -2}],
+      "flags_clear": ["M7S02_FridgeOpened", "M7S02_PickupDaggerOfMelchior"]
+    },
+    {
+      "name": "ChainBroken",
+      "model": "CHAIN1_H",
+      "position": [20.3, 0.0206, -60.75],
+      "zones": [{"x": 0, "z": -2}],
+      "flags_set": ["M7S02_RingOfContractOnChain"]
+    },
+    {
+      "name": "Chain",
+      "model": "CHAIN1_N",
+      "position": [20.3, 0.31, -60.75],
+      "zones": [{"x": 0, "z": -2}],
+      "flags_clear": ["M7S02_RingOfContractOnChain"]
+    },
+    {
+      "name": "JellyJar",
+      "model": "JELLY_NE",
+      "position": [62.55, -0.9, -61.05],
+      "rotation": [0, 90.0, 0],
+      "zones": [{"x": 1, "z": -2}],
+      "flags_clear": ["M7S02_JellyBeanJarEmptied"]
+    },
+    {
+      "name": "KeyOfBethor",
+      "model": "KEY_HIDE",
+      "position": [62.2, 0.0, -61.1],
+      "rotation": [0, 0, 90.0],
+      "zones": [{"x": 1, "z": -2}],
+      "flags_set": ["M7S02_JellyBeanJarEmptied"],
+      "flags_clear": ["M7S02_PickupKeyOfBethor"]
+    },
+    {
+      "name": "Wall9",
+      "model": "WALL9_HI",
+      "position": [103.9, 0.0, -99.5],
+      "zones": [{"x": 2, "z": -3}],
+      "flags_set": ["M7S02_CutsceneHallwayAlessaDahliaDone"]
+    },
+    {
+      "name": "Door9",
+      "model": "DOOR9_HI",
+      "position": [104.0, -1.6, -100.2],
+      "zones": [{"x": 2, "z": -3}],
+      "flags_set": ["M7S02_CutsceneHallwayAlessaDahliaDone"]
+    },
+    {
+      "name": "AmuletOfSolomon",
+      "model": "GOFU_HID",
+      "position": [17.072, -1.6, -19.2],
+      "zones": [{"x": 0, "z": -1}],
+      "flags_clear": ["M7S01_PickupAmuletOfSolomon"]
+    },
+    {
+      "name": "Screwdriver",
+      "model": "DRIVER_H",
+      "position": [-19.2, 0.0, -97.45],
+      "zones": [{"x": -1, "z": -3}],
+      "flags_clear": ["M7S01_PickupScrewdriver"]
+    },
+    {
+      "name": "PlantBook",
+      "model": "ZUKAN_HI",
+      "position": [99.8, 0.0, -20.0],
+      "zones": [{"x": 2, "z": -1}]
+    },
+    {
+      "name": "Newspaper",
+      "model": "SCRAP_HI",
+      "position": [100.0, 0.0, -20.0],
+      "zones": [{"x": 2, "z": -1}],
+      "flags_set": ["M5S03_SeenSecondNewspaper"]
+    },
+    {
+      "name": "FaucetKey",
+      "model": "KEY_HIDE",
+      "position": [-60.0, 0.0, -140.8],
+      "rotation": [0, 180.0, 0],
+      "zones": [{"x": -2, "z": -4}],
+      "flags_set": ["M7S01_FuseBoxPlateRemoved"],
+      "flags_clear": ["M7S02_PickupKeyOfAratron"]
+    },
+    {
+      "name": "FaucetCoverOpen",
+      "model": "FUTA2_HI",
+      "position": [-60.0, 0.0, -140.8],
+      "rotation": [0, 180.0, 0],
+      "zones": [{"x": -2, "z": -4}],
+      "flags_set": ["M7S01_FuseBoxPlateRemoved"]
+    },
+    {
+      "name": "FaucetCover",
+      "model": "FUTA1_HI",
+      "position": [-60.0, 0.0, -140.8],
+      "rotation": [0, 180.0, 0],
+      "zones": [{"x": -2, "z": -4}],
+      "flags_clear": ["M7S01_FuseBoxPlateRemoved"]
+    },
+    {
+      "name": "Hollow",
+      "model": "KUBOMI_H",
+      "position": [-139.5, 0.0, -138.1],
+      "zones": [{"x": -4, "z": -4}]
+    },
+    {
+      "name": "Camera",
+      "model": "CAMERA_H",
+      "position": [-19.6, -0.8, -142.2],
+      "rotation": [0, 126.7, 0],
+      "zones": [{"x": -1, "z": -4}],
+      "flags_clear": ["M7S01_PickupCamera"]
+    },
+    {
+      "name": "LisaDoor",
+      "model": "DOOR_HID",
+      "position": [182.5247, 0.0, -106.064],
+      "script": true,
+      "zones": [{"x": 4, "z": -3}]
+    },
+    {
+      "name": "SlidingDoor0",
+      "model": "DR1L_HID",
+      "position": [-100.9, 0.0, -60.9],
+      "script": true,
+      "zones": [{"x": -1, "z": -1}, {"x": -3, "z": -2}]
+    },
+    {
+      "name": "SlidingDoor1",
+      "model": "DR1R_HID",
+      "position": [-100.9, 0.0, -60.9],
+      "script": true,
+      "zones": [{"x": -1, "z": -1}, {"x": -3, "z": -2}]
+    },
+    {
+      "name": "SlidingDoor2",
+      "model": "DR3L_HID",
+      "position": [-100.9, 0.0, -60.9],
+      "script": true,
+      "zones": [{"x": -1, "z": -1}, {"x": -3, "z": -2}]
+    },
+    {
+      "name": "SlidingDoor3",
+      "model": "DR3R_HID",
+      "position": [-100.9, 0.0, -60.9],
+      "script": true,
+      "zones": [{"x": -1, "z": -1}, {"x": -3, "z": -2}]
+    },
+    {
+      "name": "SlidingDoor4",
+      "model": "DR2L_HID",
+      "position": [-100.9, 0.0, -60.9],
+      "script": true,
+      "zones": [{"x": -1, "z": -1}, {"x": -3, "z": -2}]
+    },
+    {
+      "name": "SlidingDoor5",
+      "model": "DR2R_HID",
+      "position": [-100.9, 0.0, -60.9],
+      "script": true,
+      "zones": [{"x": -1, "z": -1}, {"x": -3, "z": -2}]
+    },
+    {
+      "name": "RingOfContract",
+      "model": "RING_NEA",
+      "position": [-178.381, -0.5716, -98.846],
+      "rotation": [0, 0, -32.5],
+      "zones": [{"x": -5, "z": -3}],
+      "flags_clear": ["M7S01_PickupRingOfContract"]
+    },
+    {
+      "name": "CrestOfMercury",
+      "model": "GOFU_B_H",
+      "position": [-181.9, -0.57, -101.2],
+      "rotation": [0, 59.0, 0],
+      "zones": [{"x": -5, "z": -3}],
+      "flags_clear": ["M7S01_PickupCrestOfMercury"]
+    },
+    {
+      "name": "Talisman0",
+      "model": "GOFUA_HI",
+      "position": [59.7776, -1.8433, -96.1695],
+      "rotation": [0, 90.0, 0],
+      "zones": [{"x": 1, "z": -3}],
+      "flags_set": ["M7S02_LastDoorAmuletOfSolomonPlaced"]
+    },
+    {
+      "name": "Talisman1",
+      "model": "GOFUB_HI",
+      "position": [59.77, -1.2757, -95.924],
+      "rotation": [90.0, 180.0, 0],
+      "zones": [{"x": 1, "z": -3}],
+      "flags_set": ["M7S02_LastDoorCrestOfMercuryPlaced"]
+    },
+    {
+      "name": "Talisman2",
+      "model": "GOFUC_HI",
+      "position": [60.2471, -1.8104, -95.917],
+      "rotation": [0, 90.0, 0],
+      "zones": [{"x": 1, "z": -3}],
+      "flags_set": ["M7S02_LastDoorAnkhPlaced"]
+    },
+    {
+      "name": "Talisman3",
+      "model": "GOFUD_HI",
+      "position": [59.9993, -1.5943, -95.9087],
+      "rotation": [90.0, 0, 0],
+      "zones": [{"x": 1, "z": -3}],
+      "flags_set": ["M7S02_LastDoorDaggerOfMelchiorPlaced"]
+    },
+    {
+      "name": "Talisman4",
+      "model": "GOFUE_HI",
+      "position": [60.2496, -1.2691, -95.9105],
+      "rotation": [90.0, 0, 0],
+      "zones": [{"x": 1, "z": -3}],
+      "flags_set": ["M7S02_LastDoorDiskOfOuroborosPlaced"]
+    },
+    {
+      "name": "SavePadAltar",
+      "model": "PAD_NEAR",
+      "position": [58.9993, -0.82, -99.0521],
+      "rotation": [0, -86.1, 0],
+      "zones": [{"x": 1, "z": -3}]
+    },
+    {
+      "name": "RifleShells",
+      "model": "SHELL_NE",
+      "pose": {"disc_table": "CommonWorldObjectPoses", "index": 0},
+      "pc_near_pickup": true,
+      "zones": [{"x": -5, "z": -3}],
+      "flags_clear": ["M7S01_RifleShells"]
+    },
+    {
+      "name": "HandgunBullets0",
+      "model": "BULLET_N",
+      "pose": {"disc_table": "CommonWorldObjectPoses", "index": 1},
+      "pc_near_pickup": true,
+      "zones": [{"x": -1, "z": -4}],
+      "flags_clear": ["M7S01_HandgunBullets0"]
+    },
+    {
+      "name": "HealthDrink0",
+      "model": "DRINK_NE",
+      "pose": {"disc_table": "CommonWorldObjectPoses", "index": 2},
+      "pc_near_pickup": true,
+      "zones": [{"x": 2, "z": -1}],
+      "flags_clear": ["M7S01_HealthDrink0"]
+    },
+    {
+      "name": "HandgunBullets1",
+      "model": "BULLET_N",
+      "pose": {"disc_table": "CommonWorldObjectPoses", "index": 3},
+      "pc_near_pickup": true,
+      "zones": [{"x": -5, "z": -1}],
+      "flags_clear": ["M7S01_HandgunBullets1"]
+    },
+    {
+      "name": "ShotgunShells",
+      "model": "SHOT_NEA",
+      "pose": {"disc_table": "CommonWorldObjectPoses", "index": 4},
+      "pc_near_pickup": true,
+      "zones": [{"x": -1, "z": -2}],
+      "flags_clear": ["M7S01_ShotgunShells"]
+    },
+    {
+      "name": "FirstAidKit",
+      "model": "AIDKIT_N",
+      "pose": {"disc_table": "CommonWorldObjectPoses", "index": 5},
+      "zones": [{"x": -1, "z": -2}],
+      "flags_clear": ["M7S01_FirstAidKit"]
+    },
+    {
+      "name": "HandgunBullets2",
+      "model": "BULLET_N",
+      "pose": {"disc_table": "CommonWorldObjectPoses", "index": 6},
+      "pc_near_pickup": true,
+      "zones": [{"x": 1, "z": -2}],
+      "flags_clear": ["M7S01_HandgunBullets2"]
+    },
+    {
+      "name": "HealthDrink1",
+      "model": "DRINK_NE",
+      "pose": {"disc_table": "CommonWorldObjectPoses", "index": 7},
+      "pc_near_pickup": true,
+      "zones": [{"x": 1, "z": -2}],
+      "flags_clear": ["M7S01_HealthDrink1"]
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "group": "keys",
+  "inventory": {
+    "order": 33,
+    "command": "UseLook",
+    "used_up_on_event": true,
+    "examine_picture": "TIM/K_GORDON.TIM"
+  },
+  "display_tilt": {
+    "x": 45.0
+  },
+  "close_up_model": "ITEM/UNQ47.TMD"
+}

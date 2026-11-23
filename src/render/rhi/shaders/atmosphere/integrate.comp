@@ -1,0 +1,26 @@
+#version 450
+#extension GL_GOOGLE_include_directive : require
+// Front to back along each froxel column (RENDER.md 7.10). Slice i scatters the share of light the fog ramp takes
+// away over it, T(start) - T(end), so the density reproduces the original ramp along every ray; boundary i + 1 holds
+// what reaches the eye from in front of it.
+layout(local_size_x = 8, local_size_y = 8) in;
+#include "common.glsl"
+layout(set = 0, binding = 4, rgba16f) uniform image3D i_inject;
+layout(set = 0, binding = 5, rgba16f) uniform image3D i_volume;
+
+void main() {
+    ivec2 at = ivec2(gl_GlobalInvocationID.xy);
+    if (at.x >= int(u_grid.x) || at.y >= int(u_grid.y)) return;
+    int slices = int(u_depth.w);
+    vec3 sum = vec3(0.0);
+    float before = 1.0;
+    imageStore(i_volume, ivec3(at, 0), vec4(0.0, 0.0, 0.0, 1.0));
+    for (int s = 0; s < slices; s++) {
+        float after = Transmittance(SliceDepth(float(s + 1)));
+        // Where the ramp gives no fog (interiors, the Otherworld) a faint haze still scatters; it dims nothing.
+        float haze = before * (1.0 - exp(-u_scatter.z * (SliceDepth(float(s + 1)) - SliceDepth(float(s)))));
+        sum += imageLoad(i_inject, ivec3(at, s)).rgb * max(before - after, haze);
+        before = min(before, after);
+        imageStore(i_volume, ivec3(at, s + 1), vec4(sum, before));
+    }
+}

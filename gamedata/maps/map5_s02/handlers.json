@@ -1,0 +1,78 @@
+{
+  "map": "map5_s02",
+  "table": "g_MapEventFuncs",
+  "handlers": [
+    {
+      "index": 0,
+      "symbol": "MapEvent_DoorJammed",
+      "name": "MapEvent_DoorJammed",
+      "shape": "script"
+    },
+    {
+      "index": 1,
+      "symbol": "MapEvent_DoorLocked",
+      "name": "MapEvent_DoorLocked",
+      "shape": "script"
+    },
+    {
+      "index": 2,
+      "symbol": "MapEvent_CommonItemTake",
+      "name": "MapEvent_CommonItemTake",
+      "shape": "script"
+    },
+    {
+      "index": 3,
+      "symbol": "PushBox",
+      "name": "PushBox",
+      "shape": "script"
+    },
+    {
+      "index": 4,
+      "symbol": "MapEvent_SafeKeyTake",
+      "name": "MapEvent_SafeKeyTake",
+      "shape": "item"
+    },
+    {
+      "index": 5,
+      "symbol": "MapEvent_DiaryInspect",
+      "name": "MapEvent_DiaryInspect",
+      "shape": "script"
+    },
+    {
+      "index": 6,
+      "symbol": "UseSafeKey",
+      "name": "UseSafeKey",
+      "shape": "script"
+    },
+    {
+      "index": 7,
+      "symbol": "SafeReopen",
+      "name": "SafeReopen",
+      "shape": "script"
+    },
+    {
+      "index": 8,
+      "symbol": "MapEvent_PictureInspect",
+      "name": "MapEvent_PictureInspect",
+      "shape": "script"
+    },
+    {
+      "index": 9,
+      "symbol": "MapEvent_MemoInspect",
+      "name": "MapEvent_MemoInspect",
+      "shape": "script"
+    },
+    {
+      "index": 10,
+      "symbol": "MapEvent_KaufmannBarFightCutscene",
+      "name": "MapEvent_KaufmannBarFightCutscene",
+      "shape": "cutscene"
+    },
+    {
+      "index": 11,
+      "symbol": "KaufmannReceipt",
+      "name": "KaufmannReceipt",
+      "shape": "script"
+    }
+  ]
+}

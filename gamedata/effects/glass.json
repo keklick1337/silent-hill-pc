@@ -1,0 +1,8 @@
+{
+  "description": "Shards of the window panes that burst (glass effect). max_x / max_y: a shard whose last corner lands outside this screen box (pixels from the centre) is skipped; ordering_table_size: the depth range of the draw order; slot_depth_offset: depth taken off (Q12, 6144 = 1.5) so the shard draws a little nearer; fog_mix: how much of the fog colour a shard takes (0..255). Every key is checked. A mod replaces the whole file with its own copy at the same path.",
+  "max_x": 200,
+  "max_y": 160,
+  "ordering_table_size": 2048,
+  "slot_depth_offset": 6144,
+  "fog_mix": 128
+}

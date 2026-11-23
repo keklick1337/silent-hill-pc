@@ -1,0 +1,20 @@
+{
+  "format": "sh-text",
+  "version": 1,
+  "lang": "ru",
+  "map": "map2_s04",
+  "strings": {
+    "map2_s04.theres_a_memo_on_the": "На столе записка.",
+    "map2_s04.coroner_seals_called": "{color 3}Звонил коронер Силс.",
+    "map2_s04.officer_gucci_is_unlikely_to": "{color 3}Офицера Гуччи вряд ли\nубили. Судя по всему,\nон умер своей смертью.",
+    "map2_s04.but_medical_records_show": "{color 3}Но, по медицинской карте,\nна сердце офицер Гуччи\nпрежде не жаловался.{end}",
+    "map2_s04.theres_something_on_it": "Здесь что-то написано.",
+    "map2_s04.product_only_available_in": "{color 3}Товар продаётся лишь\nв отдельных районах\nСайлент Хилла.",
+    "map2_s04.raw_material_is_white_claudia": "{color 3}Сырьё — Белая Клаудия,\nрастение, которое\nвстречается только здесь.",
+    "map2_s04.manufactured_here_dealer": "{color 3}Делают здесь же?\nТорговец * изготовитель?{end}",
+    "map2_s04.there_is_a_shopping_district": "{hires}Здесь {color 5}карта\nторгового района{/color}.\nВзять?{choice 4}",
+    "map2_s04.nothing_helpful": "Ничего полезного.{end}",
+    "map2_s04.the_desk_is_messy": "На столе беспорядок.{end}",
+    "map2_s04.there_is_a_shotgun_take": "Здесь {color 2}дробовик{/color}.\nВзять?{choice 4}"
+  }
+}

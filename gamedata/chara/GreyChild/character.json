@@ -1,0 +1,36 @@
+{
+  "description": "Grey Child: a knife-wielding child-sized monster that swarms Harry in the opening alley nightmare and in the Otherworld Midwich Elementary School. The PAL release replaces it with the Mumbler.",
+  "category": "CommonEnemies",
+  "maps": ["map0_s00", "map1_s00", "map1_s01", "map1_s02", "map1_s03", "map6_s04"],
+  "model": "models/CHARA/CLD3.glb",
+  "animations": "anim/ANIM/CLD2.anim.json",
+  "clip_tables": ["Stalker/clips.json"],
+  "textures": ["textures/CHARA/CLD3.png"],
+  "shadow": 0.25,
+  "blend_mode": "additive",
+  "camera_anchor": "character",
+  "camera_offset_y": -0.8,
+  "sounds": {
+    "alert": "stalker_alert",
+    "attack": "stalker_attack",
+    "attack_hit": "stalker_attack_hit",
+    "damage": "stalker_damage"
+  },
+  "params": {
+    "collision_ground_walker": 1
+  },
+  "_param_units": {
+    "collision_ground_walker": "1: the wall / ledge / void classification applies (walks on the ground)"
+  },
+  "spawn": {
+    "state": 3,
+    "kind": "enemy",
+    "auto": "full",
+    "map_state": {"map0_s00": 6}
+  },
+  "behavior": "Stalker",
+  "harry_reactions": ["Hit", "LegGrab", "Death"],
+  "blood": "LarvalStalker",
+  "enemy": true,
+  "preview": {"rotate": [-90, 0, 0]}
+}

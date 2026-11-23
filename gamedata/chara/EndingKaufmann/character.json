@@ -1,0 +1,24 @@
+{
+  "description": "Michael Kaufmann in the final scenes in Nowhere, with his own set of ending animations.",
+  "category": "StoryCharacters",
+  "maps": ["map7_s03"],
+  "model": "models/CHARA/KAU.glb",
+  "animations": "anim/ANIM/KAU2.anim.json",
+  "clip_tables": ["kaufmann"],
+  "textures": ["textures/CHARA/KAU.png"],
+  "shadow": 0.25,
+  "blend_mode": "additive",
+  "camera_anchor": "character",
+  "camera_offset_y": -0.5,
+  "sounds": {
+    "cue": "kaufmann_cue",
+    "shot": "kaufmann_shot"
+  },
+  "spawn": {
+    "state": 0,
+    "kind": "actor",
+    "auto": "fallback",
+    "note": "its own AI plays the cutscene state the map sets"
+  },
+  "behavior": "Kaufmann"
+}

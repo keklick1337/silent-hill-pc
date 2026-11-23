@@ -1,0 +1,17 @@
+{
+  "snow": {
+    "aperture": {
+      "fallback": {
+        "lines": [[0, 1, 0]]
+      }
+    },
+    "far_slot_mode": 2
+  },
+  "rest_gate": true,
+  "init": [
+    {
+      "mode": 1,
+      "corners": [[-0.3, 275], [-0.3, 265]]
+    }
+  ]
+}

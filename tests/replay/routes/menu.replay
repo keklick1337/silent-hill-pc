@@ -1,0 +1,50 @@
+# Menus: title OPTION screen (in and out), START, NORMAL, opening scene skipped with Start,
+# then the item screen (cursor right, right, left), pause and unpause, the map key.
+#
+# t=43 title; t=159 options; t=364 back on the title; t=525 opening movie; t=719 opening
+# scene; ~t=906 item screen; ~t=1201 paused; ~t=1321 map key (no map yet on map0_s00).
+#@timeout 900
+1 -
+100 Down
+104 -
+130 Cross
+134 -
+220 Down
+224 -
+250 Down
+254 -
+280 Up
+284 -
+310 Up
+314 -
+340 Cross
+344 -
+420 Up
+424 -
+450 Cross
+454 -
+500 Cross
+504 -
+800 Start
+804 -
+900 Select
+904 -
+1000 Right
+1004 -
+1030 Right
+1034 -
+1060 Left
+1064 -
+1100 Select
+1104 -
+1200 Start
+1204 -
+1260 Start
+1264 -
+1320 Triangle
+1324 -
+1400 Triangle
+1404 -
+1430 Up
+1500 -
+end 1550

@@ -1,0 +1,11 @@
+{
+  "group": "guns",
+  "inventory": {
+    "order": 0,
+    "keep_when_empty": true,
+    "counts_ammo_in_hand": true,
+    "command": "EquipReload",
+    "command_in_hand": "UnequipReload",
+    "stock_in_hand": true
+  }
+}

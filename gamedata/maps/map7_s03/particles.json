@@ -1,0 +1,4 @@
+{
+  "particle_max": 450,
+  "snow": { "range": 8, "landing": "flat", "drifting": true }
+}

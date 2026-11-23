@@ -1,0 +1,27 @@
+{
+  "format": "sh-main-frame",
+  "version": 1,
+  "description": "What one frame of the main loop runs. hooks: named engine steps run at each fixed point of the frame (startup once before the first frame, then top, input, after_update, late, sync, after_swap, after_present), in list order; the engine's own steps (soft-reset checks, game state update, frame pacing, buffer swap, end-of-frame draw) run between them. An unknown hook name is reported and skipped. opaque_depth_rooms: map rooms whose world drawing tests opaque depth because their draw order overlaps. black_void_cutscene_maps: maps whose cutscenes clear the screen to black. ui_menu_game_states / ui_menu_sys_states: game and system states whose menu drawing switches to the 4:3 frame once the world is off screen and the fade is not opaque. A mod changes it with a file of the same path in its own folder; objects are merged key by key, so the patch only needs the keys it changes.",
+  "hooks": {
+    "startup": ["vcount_init", "save_init", "pad_init", "vsync_callback", "geometry_init", "item_screen_init",
+                "audio_init", "vsync_callback", "warning_screen", "replay_init"],
+    "top": ["debug_menu_init", "debug_overlay", "console_command_file", "game_script", "mod_hooks"],
+    "input": ["pad_read", "replay_pad", "demo_pad", "pad_build", "frame_cheats", "input_gate_after_pad",
+              "quick_save_load", "control_style", "extra_actions", "rear_look", "hero_light", "dpad_movement_gate", "mouse_cursor", "console_fmv", "console_gpu_bench", "texture_upscale"],
+    "after_update": ["packet_arena_check", "shadow_gate", "freeze_frame", "demo_update", "demo_random_seed"],
+    "late": ["screen_fade", "heal_flash", "low_health_glow", "log_flush", "audio_tasks", "audio_tasks_drain",
+             "xa_player", "message_voice", "fog_floor_frame_end", "fps_counter_preload", "file_queue"],
+    "sync": ["vibration", "water", "map_lights", "draw_sync"],
+    "after_swap": ["position_key"],
+    "after_present": ["post_fire_trace"]
+  },
+  "opaque_depth_rooms": [
+    {"map": "map3_s01", "rooms": [10, 11]},
+    {"map": "map3_s04", "rooms": [10]},
+    {"map": "map3_s03", "rooms": [29, 35]}
+  ],
+  "black_void_cutscene_maps": ["map3_s02"],
+  "ui_menu_game_states": ["InventoryScreen", "LoadStatusScreen", "PaperMapScreen", "SaveScreen", "OptionScreen",
+                          "LoadMapScreen"],
+  "ui_menu_sys_states": ["StatusMenu", "OptionsMenu", "MapScreen", "SaveMenu0", "SaveMenu1"]
+}

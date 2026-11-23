@@ -1,0 +1,15 @@
+{
+  "description": "The map light setup. light_modes: per light mode of the map header, the pair of environment presets (indices into config/map_info.json \"environments\": [flashlight off, flashlight on]) a map starts with; chunk_presets is used instead for an interior with active chunks; any other mode takes default_presets. flash_preset: the preset a flash of light switches to (when bit 0 of the current preset's flags is set); flash_boost: otherwise (bit 1) the spot light grows by this much. light_rigs: where the flashlight and the loading screen's spot light sit on Harry (bone name, the lens flare's bone, position offset in metres, rotation in degrees, intensity 1.0 = normal). Every key is checked. A mod replaces the whole file with its own copy at the same path.",
+  "light_modes": [
+    {"mode": 1, "presets": [1, 1], "chunk_presets": [2, 2]},
+    {"mode": 2, "presets": [6, 3], "chunk_presets": [7, 4]},
+    {"mode": 3, "presets": [9, 9]}
+  ],
+  "default_presets": [1, 1],
+  "flash_preset": 8,
+  "flash_boost": 0.3,
+  "light_rigs": {
+    "flashlight": {"bone": "Torso", "flare_bone": "Root", "position": [-0.08, -0.28, 0.12], "rotation": [-15, 0, 0], "intensity": 1.0},
+    "load_screen": {"bone": "Root", "flare_bone": "Root", "position": [0, -0.2, -2.0], "rotation": [10, 0, 0], "intensity": 1.0}
+  }
+}

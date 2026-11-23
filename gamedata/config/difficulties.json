@@ -1,0 +1,8 @@
+{
+  "description": "The difficulties the New Game picker shows, in order. label: the text shown; base_difficulty: the game's difficulty the entry plays as (-1 easy, 0 normal, 1 hard), which drives saves, enemy spawns and the grab-escape counts of config/gameplay.json. Extra entries are presets over these three bases. \"default\": true preselects an entry. A mod changes it with a file of the same path in its own folder; objects are merged key by key, so the patch only needs the keys it changes.",
+  "difficulties": [
+    { "label": "EASY",   "base_difficulty": -1 },
+    { "label": "NORMAL", "base_difficulty": 0, "default": true },
+    { "label": "HARD",   "base_difficulty": 1 }
+  ]
+}

@@ -1,0 +1,5 @@
+{
+  "world_anchor_base": 8,
+  "player_sys_states": ["ReadMessage", "StatusMenu", "MapScreen", "OptionsMenu", "SaveMenu0", "SaveMenu1", "GamePaused"],
+  "player_game_states": ["LoadStatusScreen", "InventoryScreen", "LoadMapScreen", "PaperMapScreen", "SaveScreen", "OptionScreen"]
+}

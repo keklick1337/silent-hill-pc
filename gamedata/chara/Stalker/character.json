@@ -1,0 +1,72 @@
+{
+  "description": "Stalker: a nearly invisible child-shaped creature that creeps up on Harry in the dark, in the opening alley nightmare and in Nowhere.",
+  "category": "CommonEnemies",
+  "maps": ["map0_s00", "map7_s02"],
+  "model": "models/CHARA/CLD2.glb",
+  "animations": "anim/ANIM/CLD2.anim.json",
+  "clip_tables": ["Stalker/clips.json"],
+  "textures": ["textures/CHARA/CLD2.png"],
+  "shadow": 0.25,
+  "blend_mode": "subtractive",
+  "camera_anchor": "character",
+  "camera_offset_y": -0.8,
+  "sounds": {
+    "alert": "stalker_alert",
+    "attack": "stalker_attack",
+    "attack_hit": "stalker_attack_hit",
+    "damage": "stalker_damage"
+  },
+  "params": {
+    "collision_ground_walker": 1
+  },
+  "_param_units": {
+    "collision_ground_walker": "1: the wall / ledge / void classification applies (walks on the ground)"
+  },
+  "anims": {
+    "still": 0,
+    "turn_from_lunge_a": 1,
+    "turn_from_lunge_b": 2,
+    "turn_from_lunge_long": 3,
+    "turn_from_getup_a": 4,
+    "turn_from_getup_long": 5,
+    "corpse_pose": 6,
+    "lunge": 7,
+    "hold_back": 8,
+    "hold_front": 9,
+    "thrown": 10,
+    "rise_a": 11,
+    "rise_b": 12,
+    "rise_c": 13,
+    "scripted_death_start": 14,
+    "scripted_death_end": 15,
+    "unused_after_scripted_death": 16,
+    "lie_b": 17,
+    "lie_c": 18,
+    "down_b": 19,
+    "down_c": 20,
+    "down_a": 21,
+    "hit_a": 22,
+    "hit_b": 23,
+    "recoil": 24,
+    "recover": 25,
+    "lie_a": 26,
+    "get_up": 27,
+    "idle_loop": 28,
+    "unused_grab_pose": 29,
+    "chase_run": 30,
+    "down_hold_a": 31,
+    "down_hold_b": 32,
+    "down_hold_c": 33,
+    "grab_front": 34
+  },
+  "spawn": {
+    "state": 3,
+    "kind": "enemy",
+    "auto": "full",
+    "map_state": {"map0_s00": 6}
+  },
+  "harry_reactions": ["Hit", "LegGrab", "Death"],
+  "blood": "Stalker",
+  "enemy": true,
+  "preview": {"rotate": [-90, 0, 0]}
+}

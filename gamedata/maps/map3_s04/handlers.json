@@ -1,0 +1,48 @@
+{
+  "map": "map3_s04",
+  "table": "g_MapEventFuncs",
+  "handlers": [
+    {
+      "index": 0,
+      "symbol": "MapEvent_DoorJammed",
+      "name": "MapEvent_DoorJammed",
+      "shape": "script"
+    },
+    {
+      "index": 1,
+      "symbol": "MapEvent_LockedDoorKnocking",
+      "name": "MapEvent_LockedDoorKnocking",
+      "shape": "script"
+    },
+    {
+      "index": 2,
+      "symbol": "MapEvent_CommonItemTake",
+      "name": "MapEvent_CommonItemTake",
+      "shape": "script"
+    },
+    {
+      "index": 3,
+      "symbol": "UseExaminationRoomKey",
+      "name": "UseExaminationRoomKey",
+      "shape": "script"
+    },
+    {
+      "index": 4,
+      "symbol": "CutsceneHospitalLisa",
+      "name": "CutsceneHospitalLisa",
+      "shape": "cutscene"
+    },
+    {
+      "index": 5,
+      "symbol": "MapEvent_PlateOfQueenTake",
+      "name": "MapEvent_PlateOfQueenTake",
+      "shape": "item"
+    },
+    {
+      "index": 6,
+      "symbol": "ElevatorPanel",
+      "name": "ElevatorPanel",
+      "shape": "script"
+    }
+  ]
+}

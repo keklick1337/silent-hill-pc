@@ -1,0 +1,10 @@
+{
+  "format": "sh-text",
+  "version": 1,
+  "lang": "tr",
+  "map": "map6_s03",
+  "strings": {
+    "map6_s03.there_is_a_sewer_map": "{hires}Burada {color 5}Kanalizasyon haritası\n(lunapark bağlantısı){/color} var.\nAlınsın mı?{choice 4}",
+    "map6_s03.gotta_go_find_cybil_no": "Gidip Cybil'i bulmalıyım!\nGeri dönecek vakit yok.{end}"
+  }
+}

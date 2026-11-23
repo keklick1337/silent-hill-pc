@@ -1,0 +1,60 @@
+{
+  "map": "map7_s03",
+  "table": "g_MapEventFuncs",
+  "handlers": [
+    {
+      "index": 0,
+      "symbol": null,
+      "name": null,
+      "shape": null
+    },
+    {
+      "index": 1,
+      "symbol": null,
+      "name": null,
+      "shape": null
+    },
+    {
+      "index": 2,
+      "symbol": "Cutscene_FinalBossIntro",
+      "name": "Cutscene_FinalBossIntro",
+      "shape": "cutscene"
+    },
+    {
+      "index": 3,
+      "symbol": "Cutscene_IncubusDeath",
+      "name": "Cutscene_IncubusDeath",
+      "shape": "cutscene"
+    },
+    {
+      "index": 4,
+      "symbol": "Cutscene_EndingGood",
+      "name": "Cutscene_EndingGood",
+      "shape": "script"
+    },
+    {
+      "index": 5,
+      "symbol": "Cutscene_EndingBad",
+      "name": "Cutscene_EndingBad",
+      "shape": "cutscene"
+    },
+    {
+      "index": 6,
+      "symbol": "Cutscene_EndingBadPlusCybil",
+      "name": "Cutscene_EndingBadPlusCybil",
+      "shape": "cutscene"
+    },
+    {
+      "index": 7,
+      "symbol": "Cutscene_EndingStaffRoll",
+      "name": "Cutscene_EndingStaffRoll",
+      "shape": "script"
+    },
+    {
+      "index": 8,
+      "symbol": "Cutscene_EndingClear",
+      "name": "Cutscene_EndingClear",
+      "shape": "script"
+    }
+  ]
+}

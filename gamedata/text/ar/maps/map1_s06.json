@@ -1,0 +1,24 @@
+{
+  "format": "sh-text",
+  "version": 1,
+  "lang": "ar",
+  "map": "map1_s06",
+  "strings": {
+    "map1_s06.msg15": "{wait 1.3}",
+    "map1_s06.what_was_that": "{wait2 1.5}ما كان ذلك...؟{end}",
+    "map1_s06.who_in_the_hell_was": "{wait 2.4}من كان ذاك بحق الجحيم؟{end}",
+    "map1_s06.there_is_a_k_gordon": "يوجد هنا {color 2}مفتاح ك. غوردون{/color}.\nهل تأخذه؟{choice 4}",
+    "map1_s06.the_boiler_is_off": "المرجل مطفأ.{end}",
+    "map1_s06.it_appears_to_be_broken": "يبدو أنه معطل.{end}",
+    "map1_s06.the_valve_is_tightly_shut": "الصمام مغلق بإحكام.\nلا أستطيع تحريكه.{end}",
+    "map1_s06.i_hear_a": "{wait 2.0}أسمع ...",
+    "map1_s06.a_church_bell_maybe_who": "{wait 3.0}لعله جرس كنيسة؟\nمن الذي يقرع الجرس؟{end}",
+    "map1_s06.moore_ranaldo_gordon_this_must": "مور، رانالدو، غوردون...\nلا بد أنها قائمة المعلمين.{end}",
+    "map1_s06.list_of_teachers": "قائمة المعلمين.",
+    "map1_s06.k_gordon_thats_it_ill": "ك. غوردون... وجدته.\nسأدون العنوان على الخريطة.{end}",
+    "map1_s06.there_is_a_school_map": "{hires}يوجد هنا {color 5}خريطة المدرسة{/color}.\nهل تأخذها؟{choice 4}",
+    "map1_s06.where_am_i": "{wait1 3.5}أين أنا؟",
+    "map1_s06.this_is_a_boiler_room": "{wait1 3.0}هذه... غرفة المرجل؟!",
+    "map1_s06.what_is_going_on_here": "{wait1 3.5}ما الذي يجري هنا؟{end}"
+  }
+}

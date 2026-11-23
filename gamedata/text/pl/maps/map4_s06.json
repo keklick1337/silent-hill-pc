@@ -1,0 +1,9 @@
+{
+  "format": "sh-text",
+  "version": 1,
+  "lang": "pl",
+  "map": "map4_s06",
+  "strings": {
+    "map4_s06.no_stage": "BRAK ETAPU!{end}"
+  }
+}

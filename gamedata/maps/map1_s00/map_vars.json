@@ -1,0 +1,6 @@
+{
+  "description": "Named variables of map1_s00 (School - 1F, courtyard, basement) that its Lua reads and writes with sh.map.get / sh.map.set or passes by name (\"name[i]\"). Each entry says where the value lives: \"symbol\" (an array of tables.json or a game variable shared with the engine; with \"storage\" too, the storage is used where the symbol is missing), \"object\" (the draw records of world_objects.json, starting at that object) or \"storage\" (a value only the scripts keep, alive for the whole run); \"type\" is s8/u8/s16/u16/s32/u32 (default s32) or ref (an address); \"count\" elements lie \"stride\" bytes apart from \"offset\". \"layout\" gives several names at once: vec3 (.x/.y/.z, s32 Q12 metres), svec3 (s16, Q12 turns for angles), pose (.pos, .rot) and placement (.pos). Variables every map shares are in gamedata/config/map_vars.json; this file is looked up first, and a mod patches it with its own copy. On map1_s00 (school 1F): boiler_light is the pose of the world object BoilerLight that the boiler scene pulses.",
+  "vars": {
+    "boiler_light": {"object": "BoilerLight", "layout": "pose"}
+  }
+}

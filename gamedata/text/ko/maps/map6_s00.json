@@ -1,0 +1,20 @@
+{
+  "format": "sh-text",
+  "version": 1,
+  "lang": "ko",
+  "map": "map6_s00",
+  "strings": {
+    "map6_s00.whats_this": "{wait 1.5}이건 뭐지!{end}",
+    "map6_s00.msg16": "{wait 0.1}{end}",
+    "map6_s00.msg17": "{wait 0.1}{end}",
+    "map6_s00.msg18": "{wait 0.1}{end}",
+    "map6_s00.not_again_no_this_time": "{wait1 4.0}또...!?\n아니, 이번에는 느낌이 달라.",
+    "map6_s00.rather_than_shifting_from": "{wait1 4.5}현실에서 악몽으로\n넘어간다기보다,",
+    "map6_s00.this_is_more_like_reality": "{wait1 4.5}현실 자체가 악몽으로\n변해 가는 것 같아.",
+    "map6_s00.i_dont_like_this_feeling": "{wait1 6.0}이 느낌, 마음에 안 들어.\n뭔가 나쁜 일이\n일어날 것만 같은...",
+    "map6_s00.no_doubt_something_terrible_is": "{wait1 4.0}틀림없어, 뭔가 끔찍한 일이\n벌어지고 있어...{end}",
+    "map6_s00.the_cover_has_been_removed": "덮개가 벗겨져 있다...",
+    "map6_s00.could_cybil_have_gotten_to": "시빌은 여기를 통해\n놀이공원으로 간 걸까?{end}",
+    "map6_s00.lake_side_amusement_park": "{color 3}레이크사이드 놀이공원{end}"
+  }
+}

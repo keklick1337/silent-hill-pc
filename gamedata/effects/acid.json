@@ -1,0 +1,31 @@
+{
+  "description": "The acid spit of the Floatstinger and the Twinfeeler. Distances in metres, times in seconds, stored as Q12 the way the original's float constants converted. A spit flies for \"life\" seconds along a line and leaves \"segments\" glow sprites over \"length\" metres; where it lands it bursts into drop.count droplets. look: textures (page = texture page word, palette = [x, y] in video memory), draw-order offsets, the screen box beyond which sprites are skipped; the halo is drawn at a quarter of the core's brightness. maps: per map name the spit settings on normal difficulty and the keys hard changes. Every key is checked: an unknown key is an error. A mod replaces the whole file with its own copy at the same path.",
+  "look": {
+    "halo": {"page": 45, "palette": [224, 0]},
+    "core": {"page": 77, "palette": [224, 1]},
+    "_slot_offsets": "depth words taken off so the glow draws over what it lights",
+    "slot_offsets": {"spit": 32, "drop": 16, "drop_on_player": 128},
+    "max_screen": [200, 160],
+    "ordering_table_size": 2048
+  },
+  "drop": {
+    "count": 12,
+    "life": 1.4,
+    "fade_in": 0.4,
+    "size_base": 2048,
+    "spread": 0.25,
+    "age_jitter": 0.35,
+    "scale": [2048, 4095],
+    "variant": [64, 127]
+  },
+  "maps": {
+    "map4_s03": {
+      "normal": {"speed": 3.5, "size_start": 0.2, "size_end": 0.1, "pitch_scale": 0.45, "life": 6.0, "length": 0.55, "segments": 18},
+      "hard": {"speed": 5.0}
+    },
+    "map4_s05": {
+      "normal": {"speed": 3.75, "size_start": 0.2, "size_end": 0.1, "pitch_scale": 0.45, "life": 6.0, "length": 0.55, "segments": 18},
+      "hard": {"speed": 5.5}
+    }
+  }
+}

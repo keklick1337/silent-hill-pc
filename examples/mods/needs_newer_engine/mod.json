@@ -1,0 +1,9 @@
+{
+  "format": 1,
+  "id": "needs_newer_engine",
+  "name": "Needs a newer engine (example)",
+  "version": "0.1.0",
+  "description": "Made for an engine version that does not exist yet: the game does not load it and says why.",
+  "authors": ["Silent Hill PC"],
+  "min_engine_version": "99.0.0"
+}

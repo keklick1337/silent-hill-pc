@@ -1,0 +1,19 @@
+{
+  "group": "ammo",
+  "pickup_count": 6,
+  "inventory": {
+    "order": 6,
+    "stack_limit": 200,
+    "counts_ammo_in_hand": true,
+    "command": "Reload",
+    "command_in_hand": "UnequipReload",
+    "name_tag": "stock",
+    "usable_ammo": "with_gun"
+  },
+  "display_tilt": {
+    "x": 45.0
+  },
+  "close_up_model": "ITEM/UNQC2.TMD",
+  "display_lit": true,
+  "world_model": "SHOT_NEA"
+}

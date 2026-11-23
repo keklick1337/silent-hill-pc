@@ -1,0 +1,92 @@
+{
+  "description": "Hanged Scratcher: a long-limbed creature that clings to walls and ceilings in the sewers under Silent Hill and on the way to the Lakeside Amusement Park.",
+  "category": "CommonEnemies",
+  "maps": ["map5_s00", "map6_s03"],
+  "model": "models/CHARA/SLT.glb",
+  "animations": "anim/ANIM/SLT.anim.json",
+  "clip_tables": ["hanged_scratcher"],
+  "textures": ["textures/CHARA/SLT.png"],
+  "shadow": 0.25,
+  "blend_mode": "subtractive",
+  "camera_anchor": "character",
+  "camera_offset_y": -0.6,
+  "sounds": {
+    "attack": "hanged_scratcher_attack",
+    "damage": "hanged_scratcher_damage",
+    "damage_airborne": "hanged_scratcher_damage_airborne",
+    "idle": "hanged_scratcher_idle",
+    "scrape": "hanged_scratcher_scrape",
+    "vocal": "hanged_scratcher_vocal"
+  },
+  "footsteps": {
+    "metal_grating": "hanged_scratcher_footstep_metal",
+    "*": "hanged_scratcher_footstep"
+  },
+  "params": {
+    "health": 350.0,
+    "health_hard_scale": 1.35,
+    "collision_crowd_slowdown": 0.6
+  },
+  "_param_units": {
+    "health": "health points, Q12 on use",
+    "health_hard_scale": "factor, Q12 on use",
+    "collision_crowd_slowdown": "fraction of a mover's speed taken when walking into it (Q12 on use; 0.4 when absent)"
+  },
+  "anims": {
+    "still": 0,
+    "jump_down_from_wall": 1,
+    "emerge_from_water": 2,
+    "jump_down_from_ceiling": 3,
+    "drop_grab": 4,
+    "slash": 5,
+    "die_back": 6,
+    "die_crawl": 7,
+    "hit_hang": 8,
+    "stagger": 9,
+    "fall_off": 10,
+    "fall_to_crawl": 11,
+    "lie_back": 12,
+    "crawl": 13,
+    "hang": 14,
+    "stand_idle": 15,
+    "drop": 16,
+    "run_forward": 17,
+    "walk_forward": 18,
+    "die_back_hold": 19,
+    "die_crawl_hold": 20,
+    "knocked_back": 21,
+    "knocked_crawl": 22,
+    "knock_down": 23,
+    "hang_wall_pose": 24,
+    "hang_water_pose": 25,
+    "hang_ceiling_pose": 26
+  },
+  "controls": {
+    "none": 0,
+    "hang_wait": 1,
+    "hang_drift": 2,
+    "run_forward": 3,
+    "grab_above": 4,
+    "stand_hidden": 5,
+    "stand_wait": 6,
+    "walk_forward": 7,
+    "drop_from_ceiling": 8,
+    "hit_hanging": 9,
+    "hit_standing": 10,
+    "fall_off_ceiling": 11,
+    "crawl": 12,
+    "dying": 13,
+    "ambush": 14,
+    "slash": 15,
+    "wait_wake": 16
+  },
+  "spawn": {
+    "state": 6,
+    "kind": "enemy",
+    "auto": "full"
+  },
+  "harry_reactions": ["Hit", "Death"],
+  "blood": "HangedScratcher",
+  "enemy": true,
+  "preview": {"rotate": [0, 0, 180]}
+}

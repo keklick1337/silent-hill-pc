@@ -1,0 +1,59 @@
+{
+  "class": "melee",
+  "item": null,
+  "clip": null,
+  "ammo": null,
+  "attacks": [
+    {
+      "input": "tap",
+      "impact_sound": "wing_beat",
+      "finisher": true,
+      "ranking": "none",
+      "hit_type": 2,
+      "power": 100,
+      "reach": 0.1,
+      "reach_q12": 410,
+      "reach_start": 0.0,
+      "reach_start_q12": 0,
+      "knockback": 0.0,
+      "knockback_q12": 0,
+      "keyframe_start": 8,
+      "keyframe_length": 5,
+      "min_hit_box_q12": [819, 1228, 1638],
+      "hurt_sound": -1,
+      "blood_splatter": 3
+    },
+    {
+      "input": "hold",
+      "hit_type": 0,
+      "power": 0,
+      "reach": 0.0,
+      "reach_q12": 0,
+      "reach_start": 0.0,
+      "reach_start_q12": 0,
+      "knockback": 0.0,
+      "knockback_q12": 0,
+      "keyframe_start": 0,
+      "keyframe_length": 0,
+      "min_hit_box_q12": [0, 0, 0],
+      "hurt_sound": -1,
+      "blood_splatter": 0
+    },
+    {
+      "input": "multitap",
+      "hit_type": 6,
+      "power": 1,
+      "reach": 0.5,
+      "reach_q12": 2048,
+      "reach_start": 0.3,
+      "reach_start_q12": 1229,
+      "knockback": 0.0,
+      "knockback_q12": 0,
+      "keyframe_start": 0,
+      "keyframe_length": 5,
+      "min_hit_box_q12": [0, 0, 0],
+      "hurt_sound": -1,
+      "blood_splatter": 0
+    }
+  ]
+}

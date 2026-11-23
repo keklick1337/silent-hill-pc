@@ -1,0 +1,22 @@
+{
+  "format": "sh-text",
+  "version": 1,
+  "lang": "ru",
+  "strings": {
+    "common.yes": "Да",
+    "common.no": "Нет",
+    "common.notes_useful": "Вдруг кто-то ещё попадёт\nв этот кошмар. Надеюсь,\nмои записи ему пригодятся.{end}",
+    "common.no_map": "{instant}У меня нет карты этих мест.{end}",
+    "common.too_dark_for_map": "{instant}Слишком темно,\nкарту не разглядеть.{end}",
+    "common.take_first_aid_kit": "Здесь {color 2}аптечка{/color}.\nВзять?{choice 4}",
+    "common.take_health_drink": "Здесь {color 2}тоник{/color}.\nВзять?{choice 4}",
+    "common.take_ampoule": "Здесь {color 2}ампула{/color}.\nВзять?{choice 4}",
+    "common.take_handgun_bullets": "Здесь {color 2}патроны к пистолету{/color}.\nВзять?{choice 4}",
+    "common.take_rifle_shells": "Здесь {color 2}патроны к винтовке{/color}.\nВзять?{choice 4}",
+    "common.take_shotgun_shells": "Здесь {color 2}патроны к дробовику{/color}.\nВзять?{choice 4}",
+    "common.lock_jammed": "Замок заклинило.\nЭту дверь не открыть.{end}",
+    "common.locked": "Заперто.{end}",
+    "common.unlocked": "Отперто.{end}",
+    "common.now_making": "{color 6}В разработке!{/color}{end}"
+  }
+}

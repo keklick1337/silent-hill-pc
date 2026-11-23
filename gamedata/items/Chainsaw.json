@@ -1,0 +1,15 @@
+{
+  "group": "melee",
+  "inventory": {
+    "order": 14,
+    "command": "Equip",
+    "command_in_hand": "Unequip",
+    "pickup": "special"
+  },
+  "display_tilt": {
+    "x": 45.0,
+    "z": 45.0
+  },
+  "close_up_model": "ITEM/UNQ83.TMD",
+  "display_lit": true
+}

@@ -1,0 +1,14 @@
+{
+  "group": "keys",
+  "inventory": {
+    "order": 73,
+    "command": "Use",
+    "pickup": "special",
+    "pickup_once": true,
+    "used_up_on_event": true
+  },
+  "display_tilt": {
+    "x": 45.0
+  },
+  "close_up_model": "ITEM/UNQ56.TMD"
+}

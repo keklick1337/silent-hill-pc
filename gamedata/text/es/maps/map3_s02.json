@@ -1,0 +1,10 @@
+{
+  "format": "sh-text",
+  "version": 1,
+  "lang": "es",
+  "map": "map3_s02",
+  "strings": {
+    "map3_s02.nothing_happens_when_the": "No pasa nada al apretar\nel botón del ascensor.{end}",
+    "map3_s02.its_locked": "¡Cerrado con llave!{end}"
+  }
+}

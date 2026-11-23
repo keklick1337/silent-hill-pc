@@ -1,0 +1,22 @@
+{
+  "format": "sh-text",
+  "version": 1,
+  "lang": "es",
+  "strings": {
+    "common.yes": "Sí",
+    "common.no": "No",
+    "common.notes_useful": "Algún día, alguien podría vivir\nestos extraños sucesos. Ojalá\nmis notas le sean de ayuda.{end}",
+    "common.no_map": "{instant}No tengo el mapa\nde este lugar.{end}",
+    "common.too_dark_for_map": "{instant}Aquí hay muy poca luz\npara mirar el mapa.{end}",
+    "common.take_first_aid_kit": "Hay un {color 2}botiquín{/color}.\n¿Te lo llevas?{choice 4}",
+    "common.take_health_drink": "Hay una {color 2}bebida nutritiva{/color}.\n¿Te la llevas?{choice 4}",
+    "common.take_ampoule": "Hay una {color 2}ampolla{/color}.\n¿Te la llevas?{choice 4}",
+    "common.take_handgun_bullets": "Hay {color 2}balas de pistola{/color}.\n¿Te las llevas?{choice 4}",
+    "common.take_rifle_shells": "Hay {color 2}balas de rifle{/color}.\n¿Te las llevas?{choice 4}",
+    "common.take_shotgun_shells": "Hay {color 2}cartuchos de escopeta{/color}.\n¿Te los llevas?{choice 4}",
+    "common.lock_jammed": "La cerradura está atascada.\nEsta puerta no se puede abrir.{end}",
+    "common.locked": "Cerrado con llave.{end}",
+    "common.unlocked": "La cerradura se abrió.{end}",
+    "common.now_making": "{color 6}¡En construcción!{/color}{end}"
+  }
+}

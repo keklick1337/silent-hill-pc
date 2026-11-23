@@ -1,0 +1,43 @@
+{
+  "format": "sh-part-variants",
+  "description": "Harry's hand meshes: the held item picks one mesh per slot. A non-zero slot value first hides the slot's \"hide\" parts, then the variant's \"hide\", then shows its \"show\" parts (model indices of the skeleton).",
+  "slots": [
+    {
+      "name": "variant",
+      "shift": 0,
+      "bits": 4,
+      "hide": [19, 20, 21, 22],
+      "variants": {
+        "1": {
+          "show": [19]
+        },
+        "2": {
+          "show": [20]
+        },
+        "3": {
+          "show": [21]
+        },
+        "4": {
+          "show": [22]
+        },
+        "5": {
+          "show": []
+        }
+      }
+    },
+    {
+      "name": "second",
+      "shift": 4,
+      "bits": 4,
+      "hide": [17, 18],
+      "variants": {
+        "1": {
+          "show": [17]
+        },
+        "2": {
+          "show": [18]
+        }
+      }
+    }
+  ]
+}

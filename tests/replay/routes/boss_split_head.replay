@@ -1,0 +1,311 @@
+# Split Head boss fight (map1_s05): New Game on the arena, the intro scene paged with Cross, then the
+# handgun (console give/equip) against the boss: aim (R2) and fire (Cross) bursts with turns and runs;
+# a console hurt brings the boss low enough that the shots finish it.
+# The equip must land in the ticks between the end of the intro (control back, tick 1016) and the first R2
+# (tick 1020): earlier the player has no control, later the aim pose refuses a weapon swap.
+#@config skip_intros = 2
+#@config map = map1_s05
+#@console @2 give Handgun
+#@console @2 give HandgunBullets
+#@console @2 give HandgunBullets
+#@console @17.15 equip Handgun
+#@console @45 hurt 24000
+#@timeout 600
+1 -
+200 Cross
+204 -
+230 Cross
+234 -
+260 Cross
+264 -
+290 Cross
+294 -
+320 Cross
+324 -
+350 Cross
+354 -
+380 Cross
+384 -
+410 Cross
+414 -
+440 Cross
+444 -
+470 Cross
+474 -
+500 Cross
+504 -
+530 Cross
+534 -
+560 Cross
+564 -
+590 Cross
+594 -
+620 Cross
+624 -
+650 Cross
+654 -
+680 Cross
+684 -
+710 Cross
+714 -
+740 Cross
+744 -
+770 Cross
+774 -
+800 Cross
+804 -
+830 Cross
+834 -
+860 Cross
+864 -
+890 Cross
+894 -
+920 Cross
+924 -
+950 Cross
+954 -
+980 Cross
+984 -
+1020 R2
+1040 R2 Cross
+1044 R2
+1060 R2
+1080 R2 Cross
+1084 R2
+1100 R2
+1120 R2 Cross
+1124 R2
+1140 R2
+1160 R2 Cross
+1164 R2
+1180 -
+1190 R2
+1210 R2 Cross
+1214 R2
+1230 R2
+1250 R2 Cross
+1254 R2
+1270 R2
+1290 R2 Cross
+1294 R2
+1310 R2
+1330 R2 Cross
+1334 R2
+1350 -
+1360 R2
+1380 R2 Cross
+1384 R2
+1400 R2
+1420 R2 Cross
+1424 R2
+1440 R2
+1460 R2 Cross
+1464 R2
+1480 R2
+1500 R2 Cross
+1504 R2
+1520 -
+1530 Left
+1540 Up Square
+1570 -
+1590 R2
+1610 R2 Cross
+1614 R2
+1630 R2
+1650 R2 Cross
+1654 R2
+1670 R2
+1690 R2 Cross
+1694 R2
+1710 R2
+1730 R2 Cross
+1734 R2
+1750 -
+1760 R2
+1780 R2 Cross
+1784 R2
+1800 R2
+1820 R2 Cross
+1824 R2
+1840 R2
+1860 R2 Cross
+1864 R2
+1880 R2
+1900 R2 Cross
+1904 R2
+1920 -
+1930 R2
+1950 R2 Cross
+1954 R2
+1970 R2
+1990 R2 Cross
+1994 R2
+2010 R2
+2030 R2 Cross
+2034 R2
+2050 R2
+2070 R2 Cross
+2074 R2
+2090 -
+2100 Left
+2110 Up Square
+2140 -
+2160 R2
+2180 R2 Cross
+2184 R2
+2200 R2
+2220 R2 Cross
+2224 R2
+2240 R2
+2260 R2 Cross
+2264 R2
+2280 R2
+2300 R2 Cross
+2304 R2
+2320 -
+2330 R2
+2350 R2 Cross
+2354 R2
+2370 R2
+2390 R2 Cross
+2394 R2
+2410 R2
+2430 R2 Cross
+2434 R2
+2450 R2
+2470 R2 Cross
+2474 R2
+2490 -
+2500 R2
+2520 R2 Cross
+2524 R2
+2540 R2
+2560 R2 Cross
+2564 R2
+2580 R2
+2600 R2 Cross
+2604 R2
+2620 R2
+2640 R2 Cross
+2644 R2
+2660 -
+2670 Left
+2680 Up Square
+2710 -
+2730 R2
+2750 R2 Cross
+2754 R2
+2770 R2
+2790 R2 Cross
+2794 R2
+2810 R2
+2830 R2 Cross
+2834 R2
+2850 R2
+2870 R2 Cross
+2874 R2
+2890 -
+2900 R2
+2920 R2 Cross
+2924 R2
+2940 R2
+2960 R2 Cross
+2964 R2
+2980 R2
+3000 R2 Cross
+3004 R2
+3020 R2
+3040 R2 Cross
+3044 R2
+3060 -
+3070 R2
+3090 R2 Cross
+3094 R2
+3110 R2
+3130 R2 Cross
+3134 R2
+3150 R2
+3170 R2 Cross
+3174 R2
+3190 R2
+3210 R2 Cross
+3214 R2
+3230 -
+3240 Left
+3250 Up Square
+3280 -
+3300 Cross
+3304 -
+3330 Cross
+3334 -
+3360 Cross
+3364 -
+3390 Cross
+3394 -
+3420 Cross
+3424 -
+3450 Cross
+3454 -
+3480 Cross
+3484 -
+3510 Cross
+3514 -
+3540 Cross
+3544 -
+3570 Cross
+3574 -
+3600 Cross
+3604 -
+3630 Cross
+3634 -
+3660 Cross
+3664 -
+3690 Cross
+3694 -
+3720 Cross
+3724 -
+3750 Cross
+3754 -
+3780 Cross
+3784 -
+3810 Cross
+3814 -
+3840 Cross
+3844 -
+3870 Cross
+3874 -
+3900 Cross
+3904 -
+3930 Cross
+3934 -
+3960 Cross
+3964 -
+3990 Cross
+3994 -
+4020 Cross
+4024 -
+4050 Cross
+4054 -
+4080 Cross
+4084 -
+4110 Cross
+4114 -
+4140 Cross
+4144 -
+4170 Cross
+4174 -
+4200 Cross
+4204 -
+4230 Cross
+4234 -
+4260 Cross
+4264 -
+4290 Cross
+4294 -
+4320 Cross
+4324 -
+4350 Cross
+4354 -
+4380 Cross
+4384 -
+end 4500

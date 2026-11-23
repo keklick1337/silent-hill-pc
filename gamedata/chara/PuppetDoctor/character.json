@@ -1,0 +1,39 @@
+{
+  "description": "Puppet Doctor: a doctor's body moved like a marionette, the male counterpart of the Puppet Nurse, met on the first floor of the Otherworld Alchemilla Hospital.",
+  "category": "OtherworldEnemies",
+  "maps": ["map3_s04"],
+  "model": "models/CHARA/PRSD.glb",
+  "animations": "anim/ANIM/PRS.anim.json",
+  "clip_tables": ["puppet_nurse_a", "puppet_nurse_b"],
+  "textures": ["textures/CHARA/PRSD.png"],
+  "shadow": 0.25,
+  "blend_mode": "subtractive",
+  "camera_anchor": "character",
+  "camera_offset_y": -0.9,
+  "sounds": {
+    "death": "puppet_doctor_death",
+    "hurt": "puppet_doctor_hurt",
+    "hurt_2": "puppet_doctor_hurt_2",
+    "hurt_3": "puppet_doctor_hurt_3",
+    "idle": "puppet_doctor_idle",
+    "motion": "puppet_nurse_motion",
+    "motion_2": "puppet_nurse_motion",
+    "motion_3": "puppet_nurse_motion_3",
+    "stagger": "puppet_doctor_stagger"
+  },
+  "params": {
+    "collision_ground_walker": 1
+  },
+  "_param_units": {
+    "collision_ground_walker": "1: the wall / ledge / void classification applies (walks on the ground)"
+  },
+  "spawn": {
+    "state": 17,
+    "kind": "enemy",
+    "auto": "full"
+  },
+  "behavior": "PuppetNurse",
+  "harry_reactions": ["Hit", "TorsoGrab", "Death"],
+  "blood": "PuppetNurse",
+  "enemy": true
+}

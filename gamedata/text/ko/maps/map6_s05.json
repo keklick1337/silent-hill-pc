@@ -1,0 +1,9 @@
+{
+  "format": "sh-text",
+  "version": 1,
+  "lang": "ko",
+  "map": "map6_s05",
+  "strings": {
+    "map6_s05.no_stage": "스테이지 없음!{end}"
+  }
+}

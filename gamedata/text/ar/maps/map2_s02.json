@@ -1,0 +1,11 @@
+{
+  "format": "sh-text",
+  "version": 1,
+  "lang": "ar",
+  "map": "map2_s02",
+  "strings": {
+    "map2_s02.used_the_antique_shop_key": "استخدمت {color 2}مفتاح متجر التحف{/color}.{end}",
+    "map2_s02.alchemilla_hospital": "{color 3}مستشفى ألكيميلا{end}",
+    "map2_s02.green_lion": "{color 3}الأسد الأخضر{end}"
+  }
+}

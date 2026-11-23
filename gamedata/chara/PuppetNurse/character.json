@@ -1,0 +1,74 @@
+{
+  "description": "Puppet Nurse: a nurse's body jerked around like a marionette by the parasite on its back, haunting the Otherworld Alchemilla Hospital and Nowhere.",
+  "category": "OtherworldEnemies",
+  "maps": ["map3_s03", "map3_s05", "map7_s01"],
+  "model": "models/CHARA/PRS.glb",
+  "animations": "anim/ANIM/PRS.anim.json",
+  "clip_tables": ["puppet_nurse_a", "puppet_nurse_b"],
+  "textures": ["textures/CHARA/PRS.png"],
+  "shadow": 0.25,
+  "blend_mode": "subtractive",
+  "camera_anchor": "character",
+  "camera_offset_y": -0.9,
+  "sounds": {
+    "death": "puppet_nurse_death",
+    "hurt": "puppet_nurse_hurt",
+    "hurt_2": "puppet_nurse_hurt_2",
+    "hurt_3": "puppet_nurse_hurt_3",
+    "idle": "puppet_nurse_idle",
+    "motion": "puppet_nurse_motion",
+    "motion_2": "puppet_nurse_motion",
+    "motion_3": "puppet_nurse_motion_3",
+    "stagger": "puppet_nurse_stagger"
+  },
+  "params": {
+    "collision_ground_walker": 1
+  },
+  "_param_units": {
+    "collision_ground_walker": "1: the wall / ledge / void classification applies (walks on the ground)"
+  },
+  "anims": {
+    "still": 0,
+    "attack_windup_a": 1,
+    "stagger": 2,
+    "fall_back": 3,
+    "fall_front": 4,
+    "down": 5,
+    "grab_start": 6,
+    "taunt_nurse": 7,
+    "taunt_doctor": 8,
+    "close_in": 9,
+    "rise": 10,
+    "lying_dead": 14,
+    "lying_hurt": 15,
+    "unused_before_dormant": 16,
+    "dormant": 17,
+    "walk": 18,
+    "idle": 19,
+    "walk_fast": 20,
+    "attack_windup_b": 21
+  },
+  "controls": {
+    "attack": 1,
+    "stagger": 2,
+    "down_from_back": 3,
+    "down_from_front": 4,
+    "grab": 5,
+    "taunt_nurse": 6,
+    "taunt_doctor": 7,
+    "release": 8,
+    "hunt": 9,
+    "idle": 10,
+    "dormant": 11,
+    "close_in": 12,
+    "recover": 13
+  },
+  "spawn": {
+    "state": 17,
+    "kind": "enemy",
+    "auto": "full"
+  },
+  "harry_reactions": ["Hit", "TorsoGrab", "Death"],
+  "blood": "PuppetNurse",
+  "enemy": true
+}

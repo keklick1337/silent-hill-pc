@@ -1,0 +1,24 @@
+{
+  "format": "sh-text",
+  "version": 1,
+  "lang": "pl",
+  "strings": {
+    "ui.bind.attack": "Atak",
+    "ui.bind.back_cancel": "Wstecz / Anuluj",
+    "ui.bind.confirm_skip": "Potwierdź / Pomiń",
+    "ui.bind.view": "Widok",
+    "ui.controls_ref.category.camera": "Kamera",
+    "ui.controls_ref.category.combat": "Walka",
+    "ui.controls_ref.category.debug": "Debug",
+    "ui.controls_ref.category.menu": "Menu",
+    "ui.controls_ref.category.movement": "Ruch",
+    "ui.controls_ref.category.system": "System",
+    "ui.controls_ref.close_hint": "Naciśnij dowolny klawisz",
+    "ui.controls_ref.scheme_altcam": "kamera alternatywna",
+    "ui.controls_ref.scheme_classic": "kamera klasyczna",
+    "ui.controls_ref.stick": "Gałka/D-pad",
+    "ui.controls_ref.title": "Sterowanie",
+    "ui.options.controls_reference": "Opis sterowania",
+    "ui.options.controls_reference.help": "Wszystkie aktualne klawisze i przyciski."
+  }
+}

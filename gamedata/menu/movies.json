@@ -1,0 +1,16 @@
+{
+  "description": "The movie screens. Movies are disc files (\"XA/C1_20670\"); a movie with a manifest key plays the file game.json names under that key when the disc has it. intro_fade_in: the save-card message fades in after wait_vblanks (60 per second), holds until a button is held or the frame counter passes hold_frames, fades out, then goes to next_state. intro: the intro movie (extra_movie while the extra option bit is set), then the fade step of the next screen (a fraction of the fade per frame) and next_state. intro_alternate: the intro started from a frame offset (the manifest key may give it; 0 there keeps frame_offset), then as intro. opening / exit_movie: the opening and the exit movies. debug_player (not used by the game): Left/Right count back from last_file, Enter plays, Cancel goes to cancel_state. silence_world_audio: movies for which the world's music and sound effects stop. Every key is checked: an unknown key is an error.",
+  "intro_fade_in": {"wait_vblanks": 8, "hold_frames": 300, "next_state": "MovieIntro"},
+  "intro": {
+    "movie": {"manifest": "intro_file", "file": "XA/C1_20670"},
+    "extra_movie": {"manifest": "intro_file_extra", "file": "XA/C2_20670"},
+    "extra_option_bit": 0,
+    "fade_step_after": 1.0,
+    "next_state": "MainMenu"
+  },
+  "intro_alternate": {"frame_offset_manifest": "intro_frame_offset", "frame_offset": 2060},
+  "opening": {"movie": {"manifest": "opening_file", "file": "XA/M1_03500"}, "next_state": "MainLoadScreen"},
+  "exit_movie": {"next_state": "InGame"},
+  "debug_player": {"last_file": "XA/ZC_14392", "cancel_state": "Unk16", "text_position": [40, 40]},
+  "silence_world_audio": ["XA/M4_02490"]
+}

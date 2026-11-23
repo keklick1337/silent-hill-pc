@@ -1,0 +1,24 @@
+{
+  "format": "sh-text",
+  "version": 1,
+  "lang": "ko",
+  "map": "map1_s06",
+  "strings": {
+    "map1_s06.msg15": "{wait 1.3}",
+    "map1_s06.what_was_that": "{wait2 1.5}방금 그건 뭐였지...?{end}",
+    "map1_s06.who_in_the_hell_was": "{wait 2.4}대체 누구였던 거야?{end}",
+    "map1_s06.there_is_a_k_gordon": "{color 2}K. 고든의 열쇠{/color}가 있다.\n가져갈까?{choice 4}",
+    "map1_s06.the_boiler_is_off": "보일러가 꺼져 있다.{end}",
+    "map1_s06.it_appears_to_be_broken": "고장 난 것 같다.{end}",
+    "map1_s06.the_valve_is_tightly_shut": "밸브가 꽉 잠겨 있다.\n움직이지 않는다.{end}",
+    "map1_s06.i_hear_a": "{wait 2.0}무슨 소리가 ...",
+    "map1_s06.a_church_bell_maybe_who": "{wait 3.0}교회 종소리인가?\n누가 종을 치고 있는 거지?{end}",
+    "map1_s06.moore_ranaldo_gordon_this_must": "무어, 라날도, 고든...\n교사 명단인 모양이다.{end}",
+    "map1_s06.list_of_teachers": "교사 명단.",
+    "map1_s06.k_gordon_thats_it_ill": "K. 고든... 이거로군.\n주소를 지도에\n적어 두자.{end}",
+    "map1_s06.there_is_a_school_map": "{hires}{color 5}학교 지도{/color}가 있다.\n가져갈까?{choice 4}",
+    "map1_s06.where_am_i": "{wait1 3.5}여긴 어디지?",
+    "map1_s06.this_is_a_boiler_room": "{wait1 3.0}여긴... 보일러실!?",
+    "map1_s06.what_is_going_on_here": "{wait1 3.5}대체 무슨 일이 벌어지는 거지?{end}"
+  }
+}

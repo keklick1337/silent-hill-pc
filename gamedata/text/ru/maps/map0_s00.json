@@ -1,0 +1,32 @@
+{
+  "format": "sh-text",
+  "version": 1,
+  "lang": "ru",
+  "map": "map0_s00",
+  "strings": {
+    "map0_s00.cheryl_where_could_you_be": "{wait 2.5}Шерил. Где же ты?{end}",
+    "map0_s00.its_strange": "{wait 1.5}Странно...",
+    "map0_s00.its_quiet_too_quiet": "{wait 2.0}Тихо. Слишком тихо.",
+    "map0_s00.this_place_is_like_a": "{wait 3.0}Словно город-призрак.{end}",
+    "map0_s00.cheryl": "{wait 3.0}Шерил.{end}",
+    "map0_s00.footsteps": "{wait 1.5}Шаги?{end}",
+    "map0_s00.cheryl_is_that_cheryl": "{wait 2.8}Шерил?\nЭто Шерил!?{end}",
+    "map0_s00.where_are_you_going": "{wait 1.2}Куда ты?{end}",
+    "map0_s00.hey_wait_stop": "{wait 1.8}Эй, подожди... стой!{end}",
+    "map0_s00.id_better_follow_cheryl": "Надо идти за Шерил...{end}",
+    "map0_s00.thats_strange_its_getting": "Странно,\nтемнеет.{end}",
+    "map0_s00.a_dead_end_what_the": "Тупик?\nЧто за чёрт!?{end}",
+    "map0_s00.what_is_this": "{wait 1.6}Что это?",
+    "map0_s00.whats_going_on_here": "{wait 2.5}Что здесь творится!?{end}",
+    "map0_s00.whats_this": "Что это?{end}",
+    "map0_s00.better_than_nothing_i_guess": "......всё лучше, чем ничего.{end}",
+    "map0_s00.what_whats_this_doing_here": "Что?\nОткуда это здесь?{end}",
+    "map0_s00.blocked_by_a_fence": "Путь перекрыт забором?{end}",
+    "map0_s00.a_broken_wheelchair_whats_this": "Сломанная инвалидная\nколяска? Откуда она здесь?{end}",
+    "map0_s00.what_the_what_is_it": "Что за..?\nЧто это?{end}",
+    "map0_s00.the_street_is_blocked": "Улица перекрыта.",
+    "map0_s00.cant_get_out_of_town": "Здесь из города не выбраться.{end}",
+    "map0_s00.my_car_too_banged_up": "Моя машина...\nРазбита, на ней не уехать.",
+    "map0_s00.wheres_cheryl_hope_shes_safe": "Где Шерил?\nЛишь бы с ней всё было хорошо.{end}"
+  }
+}

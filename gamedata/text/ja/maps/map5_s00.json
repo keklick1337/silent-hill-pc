@@ -1,0 +1,14 @@
+{
+  "format": "sh-text",
+  "version": 1,
+  "lang": "ja",
+  "map": "map5_s00",
+  "strings": {
+    "map5_s00.used_the_sewer_key": "{color 2}下水道の鍵{/color}を使った。{end}",
+    "map5_s00.used_the_sewer_exit_key": "{color 2}下水道出口の鍵{/color}を使った。{end}",
+    "map5_s00.there_is_a_sewer_key": "{color 2}下水道の鍵{/color}がある。\n取りますか？{choice 4}",
+    "map5_s00.there_is_a_sewer_exit": "水の中に{color 2}下水道出口の鍵{/color}が\nある。取りますか？{choice 4}",
+    "map5_s00.got_to_find_cheryl_no": "シェリルを見つけなければ。\n引き返している時間はない。{end}",
+    "map5_s00.there_is_a_sewer_map": "{hires}{color 5}下水道の地図\n（リゾート地区方面）{/color}がある。\n取りますか？{choice 4}"
+  }
+}

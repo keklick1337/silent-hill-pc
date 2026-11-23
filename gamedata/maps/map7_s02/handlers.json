@@ -1,0 +1,282 @@
+{
+  "map": "map7_s02",
+  "table": "g_MapEventFuncs",
+  "handlers": [
+    {
+      "index": 0,
+      "symbol": "MapEvent_DoorJammed",
+      "name": "MapEvent_DoorJammed",
+      "shape": "script"
+    },
+    {
+      "index": 1,
+      "symbol": "MapEvent_DoorLocked",
+      "name": "MapEvent_DoorLocked",
+      "shape": "script"
+    },
+    {
+      "index": 2,
+      "symbol": "MapEvent_DoorUnlocked",
+      "name": "MapEvent_DoorUnlocked",
+      "shape": "script"
+    },
+    {
+      "index": 3,
+      "symbol": "MapEvent_CommonItemTake",
+      "name": "MapEvent_CommonItemTake",
+      "shape": "script"
+    },
+    {
+      "index": 4,
+      "symbol": "MapEvent_DoorLocked86",
+      "name": "MapEvent_DoorLocked86",
+      "shape": "script"
+    },
+    {
+      "index": 5,
+      "symbol": "MapEvent_DoorLocked88",
+      "name": "MapEvent_DoorLocked88",
+      "shape": "script"
+    },
+    {
+      "index": 6,
+      "symbol": "MapEvent_KeyOfBethorUse",
+      "name": "MapEvent_KeyOfBethorUse",
+      "shape": "script"
+    },
+    {
+      "index": 7,
+      "symbol": "MapEvent_KeyOfAratronUse",
+      "name": "MapEvent_KeyOfAratronUse",
+      "shape": "script"
+    },
+    {
+      "index": 8,
+      "symbol": "MapEvent_LisaVideoTape",
+      "name": "MapEvent_LisaVideoTape",
+      "shape": "script"
+    },
+    {
+      "index": 9,
+      "symbol": "Cutscene_GhostAlessaCorridor",
+      "name": "Cutscene_GhostAlessaCorridor",
+      "shape": "script"
+    },
+    {
+      "index": 10,
+      "symbol": "MapEvent_AnkhTake",
+      "name": "MapEvent_AnkhTake",
+      "shape": "item"
+    },
+    {
+      "index": 11,
+      "symbol": "MapEvent_JellyBeansJar",
+      "name": "MapEvent_JellyBeansJar",
+      "shape": "script"
+    },
+    {
+      "index": 12,
+      "symbol": "MapEvent_KeyOfBethorTake",
+      "name": "MapEvent_KeyOfBethorTake",
+      "shape": "script"
+    },
+    {
+      "index": 13,
+      "symbol": "MapEvent_Empty13",
+      "name": "MapEvent_Empty13",
+      "shape": "script"
+    },
+    {
+      "index": 14,
+      "symbol": "MapEvent_RafaelChainInspect",
+      "name": "MapEvent_RafaelChainInspect",
+      "shape": "script"
+    },
+    {
+      "index": 15,
+      "symbol": "MapEvent_MelchiorChainsDagger",
+      "name": "MapEvent_MelchiorChainsDagger",
+      "shape": "script"
+    },
+    {
+      "index": 16,
+      "symbol": "Cutscene_KitchenBloodsucker",
+      "name": "Cutscene_KitchenBloodsucker",
+      "shape": "cutscene"
+    },
+    {
+      "index": 17,
+      "symbol": "MapEvent_ChainsBloodsuckerScene",
+      "name": "MapEvent_ChainsBloodsuckerScene",
+      "shape": "script"
+    },
+    {
+      "index": 18,
+      "symbol": "MapEvent_ApparatusTogglePrompt",
+      "name": "MapEvent_ApparatusTogglePrompt",
+      "shape": "script"
+    },
+    {
+      "index": 19,
+      "symbol": "MapEvent_Empty19",
+      "name": "MapEvent_Empty19",
+      "shape": "script"
+    },
+    {
+      "index": 20,
+      "symbol": "MapEvent_CutsceneEverythingIsGoingAccording",
+      "name": "MapEvent_CutsceneEverythingIsGoingAccording",
+      "shape": "cutscene"
+    },
+    {
+      "index": 21,
+      "symbol": "MapEvent_DiskOfOuroborosTake",
+      "name": "MapEvent_DiskOfOuroborosTake",
+      "shape": "item"
+    },
+    {
+      "index": 22,
+      "symbol": "Cutscene_HallwayAlessaDahlia",
+      "name": "Cutscene_HallwayAlessaDahlia",
+      "shape": "cutscene"
+    },
+    {
+      "index": 23,
+      "symbol": "MapEvent_AbusedDeskInspect",
+      "name": "MapEvent_AbusedDeskInspect",
+      "shape": "script"
+    },
+    {
+      "index": 24,
+      "symbol": "MapEvent_ScrewdriverTake",
+      "name": "MapEvent_ScrewdriverTake",
+      "shape": "item"
+    },
+    {
+      "index": 25,
+      "symbol": "MapEvent_LithographRead",
+      "name": "MapEvent_LithographRead",
+      "shape": "script"
+    },
+    {
+      "index": 26,
+      "symbol": "MapEvent_Lithograph3Read",
+      "name": "MapEvent_Lithograph3Read",
+      "shape": "script"
+    },
+    {
+      "index": 27,
+      "symbol": "MapEvent_AmuletOfSolomonTake",
+      "name": "MapEvent_AmuletOfSolomonTake",
+      "shape": "item"
+    },
+    {
+      "index": 28,
+      "symbol": "Cutscene_LisaNurseRoom",
+      "name": "Cutscene_LisaNurseRoom",
+      "shape": "cutscene"
+    },
+    {
+      "index": 29,
+      "symbol": "Cutscene_BloodyLisaDoor",
+      "name": "Cutscene_BloodyLisaDoor",
+      "shape": "cutscene"
+    },
+    {
+      "index": 30,
+      "symbol": "MapEvent_LisaDiaryRead",
+      "name": "MapEvent_LisaDiaryRead",
+      "shape": "script"
+    },
+    {
+      "index": 31,
+      "symbol": "MapEvent_StonePanelPuzzle",
+      "name": "MapEvent_StonePanelPuzzle",
+      "shape": "script"
+    },
+    {
+      "index": 32,
+      "symbol": "MapEvent_CrestOfMercuryTake",
+      "name": "MapEvent_CrestOfMercuryTake",
+      "shape": "item"
+    },
+    {
+      "index": 33,
+      "symbol": "MapEvent_RingOfContractTake",
+      "name": "MapEvent_RingOfContractTake",
+      "shape": "item"
+    },
+    {
+      "index": 34,
+      "symbol": "MapEvent_CameraTake",
+      "name": "MapEvent_CameraTake",
+      "shape": "item"
+    },
+    {
+      "index": 35,
+      "symbol": "Cutscene_FuseBoxScrewdriver",
+      "name": "Cutscene_FuseBoxScrewdriver",
+      "shape": "cutscene"
+    },
+    {
+      "index": 36,
+      "symbol": "MapEvent_FuseBox",
+      "name": "MapEvent_FuseBox",
+      "shape": "script"
+    },
+    {
+      "index": 37,
+      "symbol": "MapEvent_Puzzle3x3HintView",
+      "name": "MapEvent_Puzzle3x3HintView",
+      "shape": "script"
+    },
+    {
+      "index": 38,
+      "symbol": "MapEvent_Puzzle3x3HintInspect",
+      "name": "MapEvent_Puzzle3x3HintInspect",
+      "shape": "script"
+    },
+    {
+      "index": 39,
+      "symbol": "MapEvent_Puzzle3x3Door",
+      "name": "MapEvent_Puzzle3x3Door",
+      "shape": "script"
+    },
+    {
+      "index": 40,
+      "symbol": "MapEvent_NewspaperRead",
+      "name": "MapEvent_NewspaperRead",
+      "shape": "script"
+    },
+    {
+      "index": 41,
+      "symbol": "MapEvent_PlantBookRead",
+      "name": "MapEvent_PlantBookRead",
+      "shape": "script"
+    },
+    {
+      "index": 42,
+      "symbol": "ElevatorPanel",
+      "name": "ElevatorPanel",
+      "shape": "script"
+    },
+    {
+      "index": 43,
+      "symbol": "MapEvent_AlessaPhotoInspect",
+      "name": "MapEvent_AlessaPhotoInspect",
+      "shape": "script"
+    },
+    {
+      "index": 44,
+      "symbol": "MapEvent_LastDoorSeals",
+      "name": "MapEvent_LastDoorSeals",
+      "shape": "script"
+    },
+    {
+      "index": 45,
+      "symbol": "MapEvent_AlertDoorKeypad",
+      "name": "MapEvent_AlertDoorKeypad",
+      "shape": "script"
+    }
+  ]
+}

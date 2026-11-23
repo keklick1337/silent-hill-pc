@@ -1,0 +1,13 @@
+{
+  "format": "sh-pickups",
+  "version": 1,
+  "description": "The common pickups that map events name by kind: item is the item given (items/ names), message the pickup prompt (a shared message name of the message table). For ammo the count is the item's pickup count times the ammo multiplier (the 'extra bullets' option, at least 2 on easy); everything else gives 1. A mod replaces the whole file with its own copy at the same path. Keep the order: the position is the kind number map events use.",
+  "pickups": [
+    { "item": "FirstAidKit", "message": "FirstAidSelect" },
+    { "item": "HealthDrink", "message": "HealthDrinkSelect" },
+    { "item": "Ampoule", "message": "AmpouleSelect" },
+    { "item": "HandgunBullets", "message": "HandgunAmmoSelect", "ammo": true },
+    { "item": "RifleShells", "message": "RifleAmmoSelect", "ammo": true },
+    { "item": "ShotgunShells", "message": "ShotgunAmmoSelect", "ammo": true }
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "format": "sh-text",
+  "version": 1,
+  "lang": "en",
+  "strings": {
+    "ambush_dogs:ui.title": "AMBUSH: DOGS",
+    "ambush_dogs:ui.enabled": "Ambush",
+    "ambush_dogs:ui.extra": "Extra dogs",
+    "ambush_dogs:ui.help": "Groaners come from behind when Harry takes the ammo from the bench outside the cafe.",
+    "ambush_dogs:ui.where": "Bench outside the cafe",
+    "ambush_dogs:ui.count": "Dogs per difficulty",
+    "ambush_dogs:ui.version": "Version"
+  }
+}

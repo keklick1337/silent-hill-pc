@@ -1,0 +1,6 @@
+{
+  "description": "The hospital's polished floor tiles: a faint, blurred sheen of the beam.",
+  "match": ["HP*", "HU*"],
+  "roughness": 0.45,
+  "wet": 0.15
+}

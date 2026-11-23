@@ -1,0 +1,64 @@
+{
+  "description": "Creeper: a giant cockroach that scuttles over the floors of the Otherworld Midwich Elementary School, the basement of Alchemilla Hospital and the sewers.",
+  "category": "CommonEnemies",
+  "maps": ["map1_s02", "map1_s03", "map3_s01", "map3_s02", "map3_s05", "map5_s00"],
+  "model": "models/CHARA/COC.glb",
+  "animations": "anim/ANIM/COC.anim.json",
+  "clip_tables": ["creeper"],
+  "textures": ["textures/CHARA/COC.png"],
+  "shadow": 0.25,
+  "blend_mode": "subtractive",
+  "camera_anchor": "character",
+  "camera_offset_y": -0.5,
+  "sounds": {
+    "attack": "creeper_attack",
+    "chirp": "creeper_chirp",
+    "chirp_2": "creeper_chirp_2",
+    "damage": "creeper_damage"
+  },
+  "params": {
+    "health": 200.0,
+    "collision_ground_walker": 1
+  },
+  "_param_units": {
+    "health": "health points, Q12 on use",
+    "collision_ground_walker": "1: the wall / ledge / void classification applies (walks on the ground)"
+  },
+  "anims": {
+    "still": 0,
+    "attack_to_walk_forward": 1,
+    "attack": 2,
+    "death_start": 3,
+    "run_forward_stun_cont": 4,
+    "recoil": 5,
+    "unused6": 6,
+    "stun_loop": 7,
+    "idle_to_run_forward": 8,
+    "stun": 9,
+    "run_forward": 10,
+    "idle": 11,
+    "attack_start": 12,
+    "walk_forward": 13,
+    "death_end": 14,
+    "run_forward_stun_end": 15,
+    "stun_once": 16,
+    "run_forward_stun_start": 17
+  },
+  "controls": {
+    "none": 0,
+    "idle": 1,
+    "walk_forward": 2,
+    "attack": 3,
+    "stun": 4,
+    "damage": 5
+  },
+  "spawn": {
+    "state": 3,
+    "kind": "enemy",
+    "auto": "full"
+  },
+  "harry_reactions": ["FeetHit", "Death"],
+  "blood": "Creeper",
+  "enemy": true,
+  "single_clip_table": true
+}

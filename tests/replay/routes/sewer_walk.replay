@@ -1,0 +1,158 @@
+# Sewers (map5_s00): New Game on the map, the opening event, random walk
+#@config skip_intros = 2
+#@config map = map5_s00
+# generated: gen_route.py --seed 5103 --start 300 --end 4000 --min-gap 10 --max-gap 40
+1 -
+300 Up Square
+316 Up Square
+343 Up Cross
+373 Circle
+396 Up Right
+408 L2
+432 Up
+446 Up Circle
+477 Up Left
+488 Square
+524 L2
+553 Up Square
+593 Cross
+610 Up Right
+633 Up Cross
+645 Up Circle
+663 Cross
+677 Down Square
+715 Up Circle
+753 R1
+768 Right
+779 Cross
+790 Down Square
+816 L2
+842 -
+864 Up
+901 L1
+928 Right
+941 Up Square
+951 Right
+979 Up Circle
+1007 Circle
+1043 Up
+1060 R2
+1072 Down
+1088 Left
+1110 -
+1133 Up Left
+1171 Up
+1201 -
+1223 Up
+1255 Square
+1293 Up Square
+1326 Up Right
+1360 Left
+1372 Up Circle
+1408 Up Right
+1423 Down
+1440 Down
+1467 Up Circle
+1494 Circle
+1529 Down Square
+1539 Up Square
+1570 Up
+1595 Up
+1610 Square
+1620 -
+1657 L2
+1686 L2
+1718 -
+1734 Left
+1751 Square
+1763 R2
+1793 Right
+1814 Cross
+1853 Left
+1891 Square
+1902 -
+1941 Up
+1967 Down
+1997 Square
+2024 L1
+2038 Up Square
+2075 Up Left
+2091 L1
+2105 Up Circle
+2122 Square
+2151 Up Right
+2169 Up
+2199 Up Square
+2222 -
+2235 Down
+2272 Cross
+2293 L1
+2324 Up Square
+2356 -
+2382 Circle
+2418 Up Right
+2452 Left
+2476 Up Square
+2506 R2
+2530 Up
+2566 Up
+2602 Left
+2641 Up
+2658 L2
+2682 Cross
+2702 Up
+2726 -
+2765 R2
+2802 R2
+2819 Up Square
+2842 R1
+2869 -
+2891 R1
+2918 Up Cross
+2952 Up
+2969 R2
+2982 Right
+3003 L2
+3026 Right
+3044 Up Circle
+3078 L2
+3103 Up Square
+3114 Up Left
+3129 Circle
+3149 L2
+3167 Cross
+3190 L2
+3203 Up Right
+3237 Up Right
+3274 Up Cross
+3284 Cross
+3314 Up Left
+3332 Up
+3343 Up Right
+3381 Left
+3402 L1
+3442 R2
+3478 -
+3503 L2
+3533 Left
+3543 Up Square
+3553 R1
+3571 Square
+3600 Up
+3617 Square
+3637 -
+3671 Up Circle
+3692 -
+3719 Square
+3752 -
+3766 R2
+3795 Up Square
+3829 Cross
+3844 Up Square
+3865 R1
+3905 Down
+3933 L2
+3946 Circle
+3973 Up Cross
+3993 R2
+end 4000

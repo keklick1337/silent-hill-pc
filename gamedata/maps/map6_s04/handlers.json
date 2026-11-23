@@ -1,0 +1,72 @@
+{
+  "map": "map6_s04",
+  "table": "g_MapEventFuncs",
+  "handlers": [
+    {
+      "index": 0,
+      "symbol": null,
+      "name": null,
+      "shape": null
+    },
+    {
+      "index": 1,
+      "symbol": null,
+      "name": null,
+      "shape": null
+    },
+    {
+      "index": 2,
+      "symbol": "MapEvent_Nop",
+      "name": "MapEvent_Nop",
+      "shape": "script"
+    },
+    {
+      "index": 3,
+      "symbol": "Cutscene_CybilBossIntro",
+      "name": "Cutscene_CybilBossIntro",
+      "shape": "cutscene"
+    },
+    {
+      "index": 4,
+      "symbol": "Cutscene_CybilBossAims",
+      "name": "Cutscene_CybilBossAims",
+      "shape": "script"
+    },
+    {
+      "index": 5,
+      "symbol": "MapEvent_CybilBossFightResume",
+      "name": "MapEvent_CybilBossFightResume",
+      "shape": "cutscene"
+    },
+    {
+      "index": 6,
+      "symbol": "Cutscene_CybilBossPhaseChange",
+      "name": "Cutscene_CybilBossPhaseChange",
+      "shape": "script"
+    },
+    {
+      "index": 7,
+      "symbol": "MapEvent_CutsceneCybilDeath",
+      "name": "MapEvent_CutsceneCybilDeath",
+      "shape": "cutscene"
+    },
+    {
+      "index": 8,
+      "symbol": "Cutscene_CybilExorcism",
+      "name": "Cutscene_CybilExorcism",
+      "shape": "cutscene"
+    },
+    {
+      "index": 9,
+      "symbol": "MapEvent_CutsceneIFiguredYoudShow",
+      "name": "MapEvent_CutsceneIFiguredYoudShow",
+      "shape": "cutscene"
+    },
+    {
+      "index": 10,
+      "symbol": "Cutscene_AlessaLooksBack",
+      "name": "Cutscene_AlessaLooksBack",
+      "shape": "cutscene"
+    }
+  ]
+}

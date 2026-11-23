@@ -1,0 +1,5 @@
+add_library(sh_disc STATIC disc_image.cpp)
+target_compile_features(sh_disc PUBLIC cxx_std_20)
+target_include_directories(sh_disc PUBLIC ${PROJECT_SOURCE_DIR}/src)
+target_link_libraries(sh_disc PUBLIC sh_common)
+target_compile_options(sh_disc PRIVATE -Wall -Wextra -Wpedantic)

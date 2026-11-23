@@ -1,0 +1,19 @@
+{
+  "description": "The blood a hit on a character spills (character traits): a character's \"blood\" names one of these kinds. \"kind\" is the colour kind the blood effects take (the original's impact character type, which picks the spray and pool colour slot with the extra blood colour option, engine/world/blood_color.cpp); -1 spills nothing. Most kinds are named after the creatures that bleed them in the original. A mod adds kinds or changes them in mods/<folder>/effects/blood.json.",
+  "kinds": {
+    "None": {"kind": -1, "description": "no blood (the Padlock)"},
+    "Harry": {"kind": 1, "description": "the player's blood"},
+    "AirScreamer": {"kind": 2, "description": "Air Screamer, Night Flutter"},
+    "LarvalStalker": {"kind": 3, "description": "Larval Stalker, Grey Child, Mumbler"},
+    "Stalker": {"kind": 4, "description": "Stalker: its own colour slot"},
+    "Creeper": {"kind": 5},
+    "Groaner": {"kind": 6, "description": "Groaner, Wormhead"},
+    "SplitHead": {"kind": 7},
+    "HangedScratcher": {"kind": 8},
+    "Romper": {"kind": 9},
+    "Floatstinger": {"kind": 10, "description": "Floatstinger, Twinfeeler"},
+    "PuppetNurse": {"kind": 11, "description": "Puppet Nurse, Puppet Doctor"},
+    "Bloodsucker": {"kind": 12},
+    "Default": {"kind": 16, "description": "every other character (a character without \"blood\")"}
+  }
+}

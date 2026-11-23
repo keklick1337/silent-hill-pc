@@ -1,0 +1,213 @@
+{
+  "description": "Ground effects: what a creature leaves on the floor when it bursts out of it or dives into it (the Twinfeeler). Each entry of \"sets\" is named. Positions are relative to an origin snapped to multiples of 1 << grid_shift (Q12 metres). palette: at a reset the set reads the 16-entry palette row read_row at the texture's palette x, writes the shade of each entry below (entries < split: reference - entry) and above (the rest: entry - reference) the reference entry (+ reference_offset; (difference * gain) >> 7, 0..31) on rows below_row / above_row and a ramp (r = 2i * ramp_red >> 12, g = b = 2i * ramp_green_blue >> 12) on ramp_row; the floor layers use the texture page or-ed with page_layer_a (above palette) and page_layer_b (below palette). dust: count clouds of cols x rows Gouraud boxes over a stride x buffer_rows heat buffer (a box is screen distance * cell / depth + 1 pixels); while life > hot_life a cloud seeds its bottom row (seed_tries chances of rand & seed_mask) and drifts fast; light = falloff toward normal * the cloud's alpha; a cell's colour is ramp[(heat * light) >> 8 + jitter]; kinds 0/1 drift sideways (heading +-turn, speed and rise by hot/cool), kind 2 by its velocity, 3 stays; abr and page_x make the page that closes each cloud. dust_ring: count clouds around the burst point with random headings (+-spread, then step), rise in [low, high], a random delay, then the light rises by rise_rate to peak while life > fade_after and falls by fall_rate after. blood: a drop when (rand & skip_mask) == 0, lifted by lift, velocity rand % spread - centre. marks: floor squares of half size, full alpha while timer > hold then fading by fade_rate, two layers at the draw-order slot + slot_bias. craters / rings: 3x3 grids of half size size * scale (scale grows by grow_rate to 4096), alpha full (alpha_rise -1) or rising while life > hold, fading by fade_rate after; texture rows from uv_a / uv_b in uv_step steps; craters draw two floor layers, rings (ramp_layers) face a at slot + slot_bias and face b at slot with page and the ramp palette, turned to the view yaw + rings_yaw_offset. grid_quads: the 4 quads as grid point indices. holes: timelines run by index (0 = BurstOut, 1 = DiveIn on map4_s03); a step runs its 'do' actions once the time reaches 'at' (or at once), then the next step (or the hole ends with 'end'); 'each_frame' actions run every frame of the step after that check (when rand & chance_mask, if given). Actions: {burst_point: d} (the point d ahead of the hole along the owner's heading), dust_ring, blood, {crater: d}, {ring: d}. Every busy hole runs on the first hole's time and step, as in the original. Every key is checked. A mod replaces the whole file with its own copy at the same path.",
+  "sets": {
+    "TwinfeelerBurrow": {
+      "description": "map4_s03: the Twinfeeler bursting out of the mall floor and diving back (chara/Twinfeeler/behavior.lua: twinfeeler_hole / twinfeeler_dust / twinfeeler_effects_draw). Ramp, gains, normals and grid quads from the original MAP4_S03.BIN.",
+      "grid_shift": 18,
+      "palette": {
+        "texture": "SPUM602F",
+        "read_row": 1,
+        "below_row": 15,
+        "above_row": 14,
+        "ramp_row": 13,
+        "split": 7,
+        "reference_entry": 7,
+        "reference_offset": [0, 0, 0],
+        "gain_below": 128,
+        "gain_above": 128,
+        "ramp_red": 1638,
+        "ramp_green_blue": 1433,
+        "page_layer_a": 32,
+        "page_layer_b": 64
+      },
+      "dust": {
+        "count": 16,
+        "cols": 11,
+        "rows": 9,
+        "stride": 12,
+        "buffer_rows": 11,
+        "cell_w": 8,
+        "cell_h": 12,
+        "life": 4096,
+        "hot_life": 3072,
+        "seed_tries": 3,
+        "seed_mask": 112,
+        "jitter": [-2, 1],
+        "page_x": 320,
+        "abr": 1,
+        "normal": [0, -4096, 0],
+        "turn": 1024,
+        "speed": [128, 76],
+        "rise": [89, 128],
+        "ramp": [973078528, 973078785, 973144578, 973210371, 973276165, 973341958, 973342215, 973408009, 973473802, 973539595, 973605389, 973605646, 973671439, 973737233, 973803026, 973869075, 973934869, 973935126, 974000919, 974066713, 974132506, 974198299, 974198557, 974264350, 974330143, 974395937, 974461730, 974461987, 974527781, 974593574, 974659623, 974725417, 974791210, 974791467, 974857261, 974923054, 974988847, 975054641, 975054898, 975120691, 975186485, 975252278, 975318071, 975318329, 975384122, 975450171, 975515965, 975581758, 975647551, 975647809, 975713602, 975779395, 975845189, 975910982, 975911239, 975977033, 976042826, 976108619, 976174413, 976174670, 976240719, 976306513, 976372306, 976438099, 976503893, 976504150, 976569943, 976635736, 976701530, 976767323, 976767580, 976833374, 976899167, 976964960, 977031010, 977031267, 977097060, 977162854, 977228647, 977294440, 977360234, 977360491, 977426284, 977492078, 977557871, 977623664, 977623922, 977689715, 977755508, 977821558, 977887351, 977887608, 977953402, 978019195, 978084988, 978150782, 978216575, 978216832, 978282626, 978348419, 978414212, 978480006, 978480263, 978546056, 978612106, 978677899, 978743692, 978743950, 978809743, 978875536, 978941330, 979007123, 979072916, 979073174, 979138967, 979204760, 979270554, 979336347, 979336604, 979402654, 979468447, 979534240, 979600034, 979600291, 979666084, 979731878, 979797671, 979863464, 979929258, 979929515, 979995308, 980061101, 980126895, 980192944, 980193201, 980258995, 980324788, 980390581, 980456375, 980456632, 980522425, 980588219, 980654012, 980719805, 980785599, 980785856, 980851649, 980917443, 980983492, 981049285, 981049543, 981115336, 981181129, 981246923, 981312716, 981312973, 981378767, 981444560, 981510353, 981576147, 981641940, 981642197, 981707991, 981774040, 981839833, 981905627, 981905884, 981971677, 982037471, 982103264, 982169057, 982169315, 982235108, 982300901, 982366695, 982432488, 982498281, 982498539, 982564588, 982630381, 982696175, 982761968, 982762225, 982828019, 982893812, 982959605, 983025399, 983025656, 983091449, 983157243, 983223036, 983288829, 983354879, 983354879, 983354879, 983354879, 983420415, 983420671, 983420671, 983420671, 983486207, 983486207, 983486463, 983486463, 983551999, 983551999, 983551999, 983617791, 983617791, 983617791, 983617791, 983683327, 983683583, 983683583, 983683583, 983749119, 983749119, 983749375, 983814911, 983814911, 983814911, 983814911, 983880703, 983880703, 983880703, 983880703, 983946495, 983946495, 983946495, 983946495, 984012031, 984012287, 984012287, 984077823, 984077823, 984077823, 984078079, 984143615, 984143615, 984143615, 984143615, 984209407, 984209407, 984209407, 984274943, 984274943, 984275199, 984275199, 984340735, 984340735, 984340735, 984340991, 984406527, 984406527, 984406527, 984472319]
+      },
+      "dust_ring": {
+        "count": 5,
+        "speed": 153,
+        "spread": 128,
+        "step": 819,
+        "rise": [112, 143],
+        "life": 7782,
+        "delay_max": 255,
+        "alpha": 1228,
+        "fade_after": 2457,
+        "peak": 2662,
+        "rise_rate": 1392,
+        "fall_rate": 1024
+      },
+      "blood": {
+        "skip_mask": 48,
+        "lift": 819,
+        "spread": 153,
+        "centre": 76,
+        "rise": -76
+      },
+      "marks": {
+        "count": 16,
+        "life": 12288,
+        "hold": 4915,
+        "fade_rate": 1228,
+        "alpha_reset": 2048,
+        "half": 128,
+        "uv": [224, 192, 255, 224],
+        "normal": [0, -4096, 0],
+        "slot_bias": 25
+      },
+      "craters": {
+        "count": 3,
+        "life": 32768,
+        "hold": 11059,
+        "alpha_start": 0,
+        "scale_start": 0,
+        "alpha_rise": -1,
+        "fade_rate": 1638,
+        "grow_rate": 2048,
+        "size": 256,
+        "uv_a": [64, 128],
+        "uv_b": [64, 128],
+        "uv_step": 32,
+        "normal": [0, -4096, 0],
+        "slot_bias": 25,
+        "wrap_amount": true
+      },
+      "rings": {
+        "count": 2,
+        "life": 18432,
+        "hold": 11059,
+        "alpha_start": 2048,
+        "scale_start": 1638,
+        "alpha_rise": 2048,
+        "fade_rate": 1638,
+        "grow_rate": 2867,
+        "size": 204,
+        "wrap_amount": false,
+        "uv_a": [0, 128],
+        "uv_b": [0, 192],
+        "uv_step": 32,
+        "normal": [0, -4096, 0],
+        "slot_bias": 25,
+        "ramp_layers": true,
+        "page": 77
+      },
+      "rings_yaw_offset": 2048,
+      "grid_quads": [
+        [3, 0, 4, 1],
+        [4, 1, 5, 2],
+        [6, 3, 7, 4],
+        [7, 4, 8, 5]
+      ],
+      "hole_count": 3,
+      "holes": [
+        {
+          "name": "BurstOut",
+          "steps": [
+            {
+              "do": [
+                {
+                  "burst_point": 5324
+                }
+              ]
+            },
+            {
+              "at": 1228,
+              "each_frame": {
+                "do": [
+                  "blood"
+                ]
+              }
+            },
+            {
+              "at": 1433,
+              "do": [
+                {
+                  "crater": 4710
+                },
+                {
+                  "ring": 4710
+                },
+                "dust_ring"
+              ]
+            },
+            {
+              "at": 3686,
+              "do": [
+                "blood"
+              ]
+            },
+            {
+              "at": 5324,
+              "do": [
+                "dust_ring"
+              ],
+              "end": true
+            }
+          ]
+        },
+        {
+          "name": "DiveIn",
+          "steps": [
+            {
+              "do": [
+                {
+                  "burst_point": 5120
+                },
+                "dust_ring",
+                {
+                  "crater": 5120
+                },
+                {
+                  "ring": 5120
+                }
+              ]
+            },
+            {
+              "at": 3276,
+              "do": [
+                "dust_ring"
+              ]
+            },
+            {
+              "at": 4096,
+              "do": [
+                "blood"
+              ]
+            },
+            {
+              "at": 6144,
+              "do": [
+                "dust_ring"
+              ],
+              "end": true,
+              "each_frame": {
+                "chance_mask": 128,
+                "do": [
+                  "blood"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

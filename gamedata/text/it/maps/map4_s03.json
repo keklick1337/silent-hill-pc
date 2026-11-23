@@ -1,0 +1,14 @@
+{
+  "format": "sh-text",
+  "version": 1,
+  "lang": "it",
+  "map": "map4_s03",
+  "strings": {
+    "map4_s03.daddy_where_are_you": "Papà... dove sei...?",
+    "map4_s03.cheryl": "{wait 1.0}Cheryl!{end}",
+    "map4_s03.there_is_a_hunting_rifle": "C'è un {color 2}fucile da caccia{/color}.\nPrenderlo?{choice 4}",
+    "map4_s03.nothing_unusual": "Niente di strano.{end}",
+    "map4_s03.a_picture_is_projected_on": "Sullo schermo\nè proiettata un'immagine.",
+    "map4_s03.cheryl_where_could_she_be": "Cheryl...\ndove sarà?{end}"
+  }
+}

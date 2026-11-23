@@ -1,0 +1,96 @@
+{
+  "map": "map3_s01",
+  "table": "g_MapEventFuncs",
+  "handlers": [
+    {
+      "index": 0,
+      "symbol": "MapEvent_DoorJammed",
+      "name": "MapEvent_DoorJammed",
+      "shape": "script"
+    },
+    {
+      "index": 1,
+      "symbol": "MapEvent_DoorLocked",
+      "name": "MapEvent_DoorLocked",
+      "shape": "script"
+    },
+    {
+      "index": 2,
+      "symbol": "MapEvent_CommonItemTake",
+      "name": "MapEvent_CommonItemTake",
+      "shape": "script"
+    },
+    {
+      "index": 3,
+      "symbol": "MapEvent_FirstAidKitTake",
+      "name": "MapEvent_FirstAidKitTake",
+      "shape": "script"
+    },
+    {
+      "index": 4,
+      "symbol": "MapEvent_BasementKeyUse",
+      "name": "MapEvent_BasementKeyUse",
+      "shape": "script"
+    },
+    {
+      "index": 5,
+      "symbol": "ElevatorPanel",
+      "name": "ElevatorPanel",
+      "shape": "script"
+    },
+    {
+      "index": 6,
+      "symbol": "MapEvent_UnknownLiquidInteract",
+      "name": "MapEvent_UnknownLiquidInteract",
+      "shape": "script"
+    },
+    {
+      "index": 7,
+      "symbol": "MapEvent_UseBottleOnLiquid",
+      "name": "MapEvent_UseBottleOnLiquid",
+      "shape": "script"
+    },
+    {
+      "index": 8,
+      "symbol": "MapEvent_PlasticBottleTake",
+      "name": "MapEvent_PlasticBottleTake",
+      "shape": "item"
+    },
+    {
+      "index": 9,
+      "symbol": "MapEvent_PaperMapTake0",
+      "name": "MapEvent_PaperMapTake0",
+      "shape": "script"
+    },
+    {
+      "index": 10,
+      "symbol": "MapEvent_PaperMapTake1",
+      "name": "MapEvent_PaperMapTake1",
+      "shape": "script"
+    },
+    {
+      "index": 11,
+      "symbol": "MapEvent_BasementKeyTake",
+      "name": "MapEvent_BasementKeyTake",
+      "shape": "item"
+    },
+    {
+      "index": 12,
+      "symbol": "MapEvent_Generator0",
+      "name": "MapEvent_Generator0",
+      "shape": "script"
+    },
+    {
+      "index": 13,
+      "symbol": "MapEvent_BgPictureMsgShow",
+      "name": "MapEvent_BgPictureMsgShow",
+      "shape": "script"
+    },
+    {
+      "index": 14,
+      "symbol": "MapEvent_GeneratorRunningMessage",
+      "name": "MapEvent_GeneratorRunningMessage",
+      "shape": "script"
+    }
+  ]
+}

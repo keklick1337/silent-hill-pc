@@ -1,0 +1,12 @@
+{
+  "format": "sh-text",
+  "version": 1,
+  "lang": "ru",
+  "map": "map4_s05",
+  "strings": {
+    "map4_s05.what": "{wait 1.0}Что?{end}",
+    "map4_s05.that_light": "{wait 2.5}Этот свет!?{end}",
+    "map4_s05.the_stairs_are_wrecked": "Лестница разрушена!{end}",
+    "map4_s05.alchemilla_hospital": "{color 3}Больница Алхемилла{end}"
+  }
+}

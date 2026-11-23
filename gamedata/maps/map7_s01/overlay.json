@@ -1,0 +1,16 @@
+{
+  "description": "Engine setup of map7_s01 (Nowhere), a map made only of data and Lua: \"map_type\" is the map type ER2, the entry of gamedata/config/map_info.json that gives its zones, scenery file and environment. \"characters\" lists the character types this map runs, each by its gamedata/chara/<Name>/behavior.lua; a character type that is not listed cannot act here (this map: PuppetNurse, DummyNurse, PuppetDoctor, DummyDoctor, Lisa, BloodyLisa and GhostChildAlessa). \"effect_draws\" lists the effect slot drawers the map has; an effect slot of any other kind is not drawn. Here: glass_shards (breaking glass shards). A mod changes it with its own maps/map7_s01/overlay.json.",
+  "map_type": "ER2",
+  "characters": [
+    "PuppetNurse",
+    "DummyNurse",
+    "PuppetDoctor",
+    "DummyDoctor",
+    "Lisa",
+    "BloodyLisa",
+    "GhostChildAlessa"
+  ],
+  "effect_draws": [
+    "glass_shards"
+  ]
+}

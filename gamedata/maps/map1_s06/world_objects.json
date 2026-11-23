@@ -1,0 +1,44 @@
+{
+  "format": "sh-map-world-objects",
+  "version": 2,
+  "map": "map1_s06",
+  "description": "Static world objects of map1_s06 (School - 1F and basement after the boss): 5 objects, drawn in file order. An object is drawn while the player is in one of its \"zones\" (each {\"x\": [...], \"z\": [...]} lists 40 m cells along that axis: cell c holds 40c..40(c+1) m; no zones = everywhere) and every flag of \"flags_set\" is set and every flag of \"flags_clear\" is clear (event flag names, e.g. the pickup flags). \"name\" is the object's id for scripts and mods, \"model\" its model (at most 8 characters, the map's or an item model), \"position\" in metres and \"rotation\" in degrees (x, y, z). The map, save pad, red mark, K. Gordon key and picture of the school after the boss. A mod's maps/map1_s06/world_objects.json changes or adds objects by name.",
+  "objects": [
+    {
+      "name": "Map",
+      "model": "MAP_HIDE",
+      "position": [96.9405, -0.3365, 21.092],
+      "rotation": [0, 66.8, 0],
+      "zones": [{"x": 2, "z": 0}],
+      "flags_clear": ["M1S00_PickupMap"]
+    },
+    {
+      "name": "SavePad",
+      "model": "PAD_NEAR",
+      "position": [61.8531, -0.805, 140.61],
+      "rotation": [0, 92.9, 0],
+      "zones": [{"x": 1, "z": 3}]
+    },
+    {
+      "name": "RedMark",
+      "model": "REDX_HID",
+      "position": [20.4568, -0.8345, -17.97],
+      "zones": [{"x": 0, "z": -1}]
+    },
+    {
+      "name": "KGordonKey",
+      "model": "KEY_HIDE",
+      "position": [20.9021, -0.002, -17.26],
+      "rotation": [0, -37.45, 0],
+      "zones": [{"x": 0, "z": -1}],
+      "flags_clear": ["M1S06_PickupKGordonKey"]
+    },
+    {
+      "name": "Picture",
+      "model": "PICT00_H",
+      "position": [133.294, -0.8614, 19.04],
+      "rotation": [0, 162.6, 0],
+      "zones": [{"x": 3, "z": 0}]
+    }
+  ]
+}

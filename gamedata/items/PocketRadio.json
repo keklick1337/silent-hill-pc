@@ -1,0 +1,20 @@
+{
+  "group": "portable",
+  "inventory": {
+    "order": 18,
+    "counts_ammo_in_hand": true,
+    "command": "OnOff",
+    "command_on_maps": {
+      "map5_s00": "Unusable",
+      "map6_s03": "Unusable"
+    },
+    "name_tag": "switch",
+    "switches": "radio"
+  },
+  "display_tilt": {
+    "x": 225.0,
+    "z": 180.0
+  },
+  "close_up_model": "ITEM/UNQE1.TMD",
+  "display_lit": true
+}

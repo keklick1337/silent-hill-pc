@@ -1,0 +1,15 @@
+{
+  "format": "sh-text",
+  "version": 1,
+  "lang": "de",
+  "map": "map0_s02",
+  "strings": {
+    "map0_s02.there_is_a_chain_saw": "{color 2}Kettensäge{/color} gefunden.\nMitnehmen?{choice 4}",
+    "map0_s02.some_oil_cans_are_on": "Im Regal stehen\nein paar Ölkanister.{end}",
+    "map0_s02.a_car_engine_no_problem": "Ein Automotor.\nDer ist in Ordnung.{end}",
+    "map0_s02.theres_a_tv_set_it": "Ein Fernseher.\nEr geht nicht an.{end}",
+    "map0_s02.there_is_a_gasoline_tank": "{color 2}Benzinkanister{/color} gefunden.\nMitnehmen?{choice 4}",
+    "map0_s02.there_is_a_katana_take": "{color 2}Katana{/color} gefunden.\nMitnehmen?{choice 4}",
+    "map0_s02.there_is_a_channeling_stone": "{color 2}Channeling-Stein{/color} gefunden.\nMitnehmen?{choice 4}"
+  }
+}

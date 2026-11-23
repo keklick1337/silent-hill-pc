@@ -1,0 +1,11 @@
+{
+  "format": "sh-text",
+  "version": 1,
+  "lang": "tr",
+  "strings": {
+    "ui.bind.debug_options": "Hata ayıklama",
+    "ui.menu.off": "Kapalı",
+    "ui.menu.on": "Açık",
+    "ui.pause.debug_options": "HATA AYIKLAMA"
+  }
+}

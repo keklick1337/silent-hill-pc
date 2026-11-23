@@ -1,0 +1,24 @@
+{
+  "format": "sh-text",
+  "version": 1,
+  "lang": "ar",
+  "strings": {
+    "ui.bind.attack": "هجوم",
+    "ui.bind.back_cancel": "رجوع / إلغاء",
+    "ui.bind.confirm_skip": "تأكيد / تخط",
+    "ui.bind.view": "النظر حولك",
+    "ui.controls_ref.category.camera": "الكاميرا",
+    "ui.controls_ref.category.combat": "القتال",
+    "ui.controls_ref.category.debug": "تصحيح",
+    "ui.controls_ref.category.menu": "القوائم",
+    "ui.controls_ref.category.movement": "الحركة",
+    "ui.controls_ref.category.system": "النظام",
+    "ui.controls_ref.close_hint": "اضغط أي مفتاح للإغلاق",
+    "ui.controls_ref.scheme_altcam": "الكاميرا البديلة",
+    "ui.controls_ref.scheme_classic": "الكاميرا الأصلية",
+    "ui.controls_ref.stick": "العصا/الأسهم",
+    "ui.controls_ref.title": "التحكم",
+    "ui.options.controls_reference": "مرجع التحكم",
+    "ui.options.controls_reference.help": "يعرض كل المفاتيح والأزرار الحالية."
+  }
+}

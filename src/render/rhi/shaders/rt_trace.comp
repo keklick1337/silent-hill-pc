@@ -1,0 +1,574 @@
+#version 460
+// Ray tracing of the frame (RENDER.md 2.2b, rhi_vulkan_rt.cpp), one invocation per pixel of the scene target: the
+// primary ray finds the surface the raster pass draws there, then the flashlight's shadow rays run from it to points
+// of the lens. Everything is in the frame's view space (PS1 axes, 256 units per metre). Vulkan only (ray queries).
+#extension GL_EXT_ray_query : require
+#extension GL_EXT_buffer_reference : require
+#extension GL_EXT_buffer_reference_uvec2 : require
+#extension GL_EXT_scalar_block_layout : require
+#extension GL_EXT_nonuniform_qualifier : require
+
+layout(local_size_x = 8, local_size_y = 8) in;
+
+layout(set = 0, binding = 0) uniform accelerationStructureEXT u_tlas;
+layout(set = 0, binding = 1, std140) uniform RtFrame {
+    mat4 u_prevFromCur;  // this frame's view space to the last frame's
+    vec4 u_pixelRay;     // view ray of pixel centre p: (p.x * x + y, p.y * z + w, 1)
+    vec4 u_prevPixelRay;
+    vec4 u_viewport;     // x, y, w, h in target pixels
+    vec4 u_lens;         // xyz: the flashlight's lens point, w: lens radius
+    vec4 u_beamDir;      // xyz: beam direction, w: outer cone cosine
+    vec4 u_beam;         // x: inner cone cosine, y: range, z: 1 classic style, w: 1 flashlight on
+    vec4 u_beamColor;
+    vec4 u_fog;          // rgb: fog colour, a: fog strength
+    vec4 u_ambient;      // rgb: the map light a lit surface shows without the flashlight, w: fog's opaque distance
+    vec4 u_effects;      // x: shadows, y: reflections, z: GI, w: frame number
+    vec4 u_params;       // x: shadow rays per pixel, y: GI strength, z: roughest reflecting surface, w: near clip
+    vec4 u_up;           // xyz: the world's up in view space
+    vec4 u_fogRampP;
+    vec4 u_fogRamp[32];
+    vec4 u_lightInfo;  // x: map lights, y: 1 rt_lights (map lights, sun, sky and the specular lobes)
+    vec4 u_sunDir;     // xyz: the way the sunlight travels, w: 1 a sun
+    vec4 u_sunColor;   // rgb, w: angular radius (radians)
+    vec4 u_sky;        // rgb: the sky's light on surfaces open to it
+    vec4 u_ceilingInfo;   // x: roofs the cells do not draw (lights.json "ceilings")
+    vec4 u_ceilings[24];  // per roof: a corner and the two edges from it (view space)
+};
+
+// A ray from o along d meets one of the roofs the cells do not draw: the sun and the sky do not reach o that way.
+bool UnderCeiling(vec3 o, vec3 d) {
+    for (int i = 0; i < int(u_ceilingInfo.x); ++i) {
+        vec3 c = u_ceilings[3 * i].xyz, e1 = u_ceilings[3 * i + 1].xyz, e2 = u_ceilings[3 * i + 2].xyz;
+        vec3 nrm = cross(e1, e2);
+        float dn = dot(d, nrm);
+        if (abs(dn) < 1e-12) continue;
+        float t = dot(c - o, nrm) / dn;
+        if (t <= 0.0) continue;
+        vec3 q = o + d * t - c;
+        float u = dot(q, e1) / dot(e1, e1), v = dot(q, e2) / dot(e2, e2);
+        if (u >= 0.0 && u <= 1.0 && v >= 0.0 && v <= 1.0) return true;
+    }
+    return false;
+}
+
+// One material range of a mesh (RayGeometry): addresses of its vertices (52-byte GpuVertex) and 32-bit indices.
+struct Geo {
+    uvec2 vtx;
+    uvec2 idx;
+    uint first;
+    uint flags;  // RayGeometryFlag
+    uint tex;      // u_tex slot, 0 = white
+    uint regions;  // first << 8 | count: the texture rectangles with their own material
+    vec4 surface;  // roughness, metalness, reflective, wet (scene materials)
+};
+layout(set = 0, binding = 2, scalar) readonly buffer Geos { Geo geos[]; };
+
+// A rectangle of a texture page with its own material (scene materials regions), in normalised UVs.
+struct Region {
+    vec4 rect;
+    vec4 surface;
+};
+layout(set = 0, binding = 8, scalar) readonly buffer Regions { Region regions[]; };
+
+// A map light of lights.json in view space (RayTracer::View::Light).
+struct Light {
+    vec4 pos;    // xyz, w: range
+    vec4 dir;    // xyz: a spot's axis (zero: a point light), w: outer cone cosine
+    vec4 color;  // rgb, w: inner cone cosine
+    float radius;
+    uint flags;  // 1 casts shadows, 2 bounces
+    float nearClip;  // shadow rays stop this short of it
+    float pad;
+};
+layout(set = 0, binding = 9, scalar) readonly buffer Lights { Light lights[]; };
+layout(set = 0, binding = 3) uniform sampler2D u_tex[];
+
+layout(set = 0, binding = 4, rgba16f) uniform writeonly image2D o_gbuf;  // xyz: normal (to the eye), w: view z, 0 miss
+layout(set = 0, binding = 5, rgba16f) uniform writeonly image2D o_shadow;
+layout(set = 0, binding = 6, rgba16f) uniform writeonly image2D o_reflect;
+layout(set = 0, binding = 7, rgba16f) uniform writeonly image2D o_gi;
+
+// How far a bounce ray looks for the surface that lights this one (within the fog's opaque distance): about 16 m,
+// a room or a stretch of street.
+const float kGiRange = 4096.0;
+
+layout(buffer_reference, scalar) readonly buffer Verts { float f[]; };
+layout(buffer_reference, scalar) readonly buffer Indices { uint i[]; };
+
+const uint kBlendMask = 7u;
+const uint kTextured = 8u;
+const uint kWater = 16u;
+const uint kNoShadow = 32u;
+const uint kPrelit = 64u;
+const uint kVertexFloats = 13u;
+
+uint g_seed;
+float Rand() {
+    g_seed = g_seed * 747796405u + 2891336453u;
+    uint w = ((g_seed >> ((g_seed >> 28u) + 4u)) ^ g_seed) * 277803737u;
+    return float((w >> 22u) ^ w) * (1.0 / 4294967296.0);
+}
+
+uvec3 TriIndices(Geo g, uint prim) {
+    Indices ib = Indices(g.idx);
+    uint b = g.first + prim * 3u;
+    return uvec3(ib.i[b], ib.i[b + 1u], ib.i[b + 2u]);
+}
+
+vec3 VertPos(Verts vb, uint i) {
+    uint o = i * kVertexFloats;
+    return vec3(vb.f[o], vb.f[o + 1u], vb.f[o + 2u]);
+}
+
+vec2 VertUv(Verts vb, uint i) {
+    uint o = i * kVertexFloats + 6u;
+    return vec2(vb.f[o], vb.f[o + 1u]);
+}
+
+vec2 UvAt(Geo g, uint prim, vec2 b) {
+    uvec3 t = TriIndices(g, prim);
+    Verts vb = Verts(g.vtx);
+    return VertUv(vb, t.x) * (1.0 - b.x - b.y) + VertUv(vb, t.y) * b.x + VertUv(vb, t.z) * b.y;
+}
+
+// The material at barycentrics `b`: the first region of the range's page that holds the point, else the range's.
+vec4 SurfaceAt(Geo g, uint prim, vec2 b) {
+    uint count = g.regions & 255u;
+    if (count == 0u || (g.flags & kTextured) == 0u) return g.surface;
+    vec2 uv = UvAt(g, prim, b);
+    uint first = g.regions >> 8u;
+    for (uint i = 0u; i < count; ++i) {
+        Region r = regions[first + i];
+        if (all(greaterThanEqual(uv, r.rect.xy)) && all(lessThan(uv, r.rect.zw))) return r.surface;
+    }
+    return g.surface;
+}
+
+// The texel the surface shows at barycentrics `b`: alpha 0 a hole, 0.5 an STP texel, 1 solid.
+vec4 TexelAt(Geo g, uint prim, vec2 b) {
+    if ((g.flags & kTextured) == 0u) return vec4(1.0);
+    uvec3 t = TriIndices(g, prim);
+    Verts vb = Verts(g.vtx);
+    vec2 uv = VertUv(vb, t.x) * (1.0 - b.x - b.y) + VertUv(vb, t.y) * b.x + VertUv(vb, t.z) * b.y;
+    return textureLod(u_tex[nonuniformEXT(g.tex)], uv, 0.0);
+}
+
+// The record of a hit: the mesh's first record (the instance's custom index) plus the range.
+#define GeoIndex(rq, committed)                                           \
+    (uint(rayQueryGetIntersectionInstanceCustomIndexEXT(rq, committed)) + \
+     uint(rayQueryGetIntersectionGeometryIndexEXT(rq, committed)))
+
+// What a semi-transparent texel lets through, by its PS1 blend (the shadow map's transmittance layer, scene.frag).
+vec3 Through(uint blend, vec4 t) {
+    bool stp = t.a < 0.75;
+    float dense = max(t.r, max(t.g, t.b));
+    if (blend == 2u) return vec3(1.0 - t.a);
+    if (!stp) return vec3(0.0);
+    if (blend == 3u) return vec3(0.5);
+    if (blend == 4u) return clamp(vec3(1.0) - t.rgb, 0.0, 1.0);
+    return vec3(1.0 - ((blend == 5u) ? 0.12 : 0.45) * dense);
+}
+
+// The light that reaches `target` from `o`: 0 behind a solid surface, tinted by the translucent ones between. The
+// ray stops `nearClip` short of the target.
+vec3 ShadowRayNear(vec3 o, vec3 target, float nearClip) {
+    vec3 d = target - o;
+    float len = length(d);
+    if (len < 1.0) return vec3(1.0);
+    d /= len;
+    vec3 through = vec3(1.0);
+    rayQueryEXT rq;
+    rayQueryInitializeEXT(rq, u_tlas, gl_RayFlagsTerminateOnFirstHitEXT, 0xFF, o, 0.0, d, max(len - nearClip, 0.0));
+    while (rayQueryProceedEXT(rq)) {
+        if (rayQueryGetIntersectionTypeEXT(rq, false) != gl_RayQueryCandidateIntersectionTriangleEXT) continue;
+        Geo g = geos[GeoIndex(rq, false)];
+        if ((g.flags & kNoShadow) != 0u) continue;
+        vec4 t = TexelAt(g, uint(rayQueryGetIntersectionPrimitiveIndexEXT(rq, false)),
+                         rayQueryGetIntersectionBarycentricsEXT(rq, false));
+        if (t.a < 0.25) continue;
+        uint blend = g.flags & kBlendMask;
+        if (blend != 0u) {
+            through *= Through(blend, t);
+            if (max(through.r, max(through.g, through.b)) > 0.004) continue;
+        }
+        rayQueryConfirmIntersectionEXT(rq);
+    }
+    if (rayQueryGetIntersectionTypeEXT(rq, true) != gl_RayQueryCommittedIntersectionNoneEXT) return vec3(0.0);
+    return through;
+}
+
+// The flashlight's shadow ray: it stops the shadow map's near plane short of the lens.
+vec3 ShadowRay(vec3 o, vec3 target) { return ShadowRayNear(o, target, u_params.w); }
+
+
+struct Hit {
+    vec3 p;      // view space
+    vec3 n;      // unit, turned to the ray's origin
+    float t;     // distance along the ray
+    uint geo;
+    vec4 surface;  // the material at the point (SurfaceAt)
+    vec4 texel;  // the texture's texel (white untextured)
+    vec4 vcolor; // posed meshes: rgb the lit colour (1 = unmodulated), a how much of the beam it does not take
+};
+
+// The nearest surface along a ray that the raster pass would show: opaque texels, and the solid texels of
+// semi-transparent materials (drawn with the opaque surfaces); blended texels are seen through.
+bool Closest(vec3 o, vec3 dir, float tmin, float tmax, out Hit h) {
+    rayQueryEXT rq;
+    rayQueryInitializeEXT(rq, u_tlas, gl_RayFlagsNoneEXT, 0xFF, o, tmin, dir, tmax);
+    while (rayQueryProceedEXT(rq)) {
+        if (rayQueryGetIntersectionTypeEXT(rq, false) != gl_RayQueryCandidateIntersectionTriangleEXT) continue;
+        Geo g = geos[GeoIndex(rq, false)];
+        vec4 t = TexelAt(g, uint(rayQueryGetIntersectionPrimitiveIndexEXT(rq, false)),
+                         rayQueryGetIntersectionBarycentricsEXT(rq, false));
+        uint blend = g.flags & kBlendMask;
+        bool solid = blend == 0u ? t.a >= 0.25 : (blend != 2u && t.a >= 0.75);
+        if (solid) rayQueryConfirmIntersectionEXT(rq);
+    }
+    if (rayQueryGetIntersectionTypeEXT(rq, true) == gl_RayQueryCommittedIntersectionNoneEXT) return false;
+    h.t = rayQueryGetIntersectionTEXT(rq, true);
+    h.p = o + dir * h.t;
+    h.geo = GeoIndex(rq, true);
+    Geo g = geos[h.geo];
+    uint prim = uint(rayQueryGetIntersectionPrimitiveIndexEXT(rq, true));
+    vec2 bary = rayQueryGetIntersectionBarycentricsEXT(rq, true);
+    uvec3 i = TriIndices(g, prim);
+    Verts vb = Verts(g.vtx);
+    vec3 a = VertPos(vb, i.x), b = VertPos(vb, i.y), c = VertPos(vb, i.z);
+    mat4x3 o2w = rayQueryGetIntersectionObjectToWorldEXT(rq, true);
+    h.n = normalize(mat3(o2w) * cross(b - a, c - a));
+    if (dot(h.n, dir) > 0.0) h.n = -h.n;
+    h.texel = TexelAt(g, prim, bary);
+    h.surface = SurfaceAt(g, prim, bary);
+    h.vcolor = vec4(1.0, 1.0, 1.0, 0.0);
+    if ((g.flags & kPrelit) != 0u) {
+        uint o8 = kVertexFloats * i.x + 8u;
+        vec4 c0 = unpackUnorm4x8(floatBitsToUint(vb.f[o8]));
+        vec4 c1 = unpackUnorm4x8(floatBitsToUint(vb.f[kVertexFloats * i.y + 8u]));
+        vec4 c2 = unpackUnorm4x8(floatBitsToUint(vb.f[kVertexFloats * i.z + 8u]));
+        vec4 v = c0 * (1.0 - bary.x - bary.y) + c1 * bary.x + c2 * bary.y;
+        h.vcolor = vec4(v.rgb * (255.0 / 128.0), v.a);
+    }
+    return true;
+}
+
+// scene.frag's Modern beam.
+float ModernCone(float c, float outer, float inner) {
+    float t = clamp((c - outer) / max(inner - outer, 1e-4), 0.0, 1.0);
+    float cone = t * t * t * (t * (t * 6.0 - 15.0) + 10.0);
+    return cone + 0.06 * smoothstep(outer - 0.2, outer, c) * (1.0 - cone);
+}
+
+float ModernFalloff(float d, float range) {
+    float r0 = 0.4 * range;
+    float x = d / max(range, 1.0);
+    float window = clamp(1.0 - x * x * x * x, 0.0, 1.0);
+    return window * window / (1.0 + (d * d) / (r0 * r0));
+}
+
+// The flashlight's light on a surface at q facing nq, before shadows, as scene.frag lights it (both styles).
+vec3 BeamAt(vec3 q, vec3 nq) {
+    if (u_beam.w < 0.5) return vec3(0.0);
+    vec3 L = u_lens.xyz - q;
+    float d = length(L);
+    L /= max(d, 1e-4);
+    float c = dot(-L, normalize(u_beamDir.xyz));
+    float nl = dot(nq, L);
+    if (nl <= 0.0) return vec3(0.0);
+    float k;
+    if (u_beam.z > 0.5) {
+        float cone = smoothstep(u_beamDir.w, u_beam.x, c);
+        cone = cone * (2.0 - cone);
+        float ad = d * 2.0;
+        float inv = 1.0 / max(ad, 1.0);
+        float atten = max(0.0, 134217728.0 * inv * inv - 16.0) + min(48.0, 32768.0 * inv);
+        atten = clamp(atten / 255.0, 0.0, 1.0) * (1.0 - smoothstep(u_beam.y * 0.9, u_beam.y, ad));
+        k = cone * atten;
+    } else {
+        k = ModernCone(c, u_beamDir.w, u_beam.x) * ModernFalloff(d, u_beam.y) * (0.1 + 0.9 * max((nl + 0.3) / 1.3, 0.0));
+    }
+    return u_beamColor.rgb * k;
+}
+
+float FogAt(float z);
+
+// How far a sun shadow ray looks for what stands between the surface and the sun: about 64 m.
+const float kSunReach = 16384.0;
+
+float Luma(vec3 c) { return dot(c, vec3(0.2126, 0.7152, 0.0722)); }
+
+vec3 RandUnit() { return normalize(vec3(Rand(), Rand(), Rand()) * 2.0 - 1.0 + 1e-4); }
+
+// The PBR-lite specular lobe (GGX distribution, Smith-Schlick visibility, Schlick Fresnel) times n.l, scaled like
+// the diffuse term (the shading takes albedo times light, without the 1/pi of a Lambert lobe). Bounded so a mirror
+// does not turn a lamp into a spark brighter than the frame can hold.
+vec3 Ggx(vec3 n, vec3 v, vec3 l, float rough, vec3 f0) {
+    float nl = dot(n, l);
+    if (nl <= 0.0) return vec3(0.0);
+    float nv = max(dot(n, v), 1e-3);
+    vec3 hv = normalize(l + v);
+    float nh = max(dot(n, hv), 0.0), vh = max(dot(v, hv), 0.0);
+    float a = max(rough * rough, 0.02);
+    float a2 = a * a;
+    float dd = nh * nh * (a2 - 1.0) + 1.0;
+    float k = a * 0.5;
+    float vis = 1.0 / ((nl * (1.0 - k) + k) * (nv * (1.0 - k) + k));
+    vec3 f = f0 + (1.0 - f0) * pow(1.0 - vh, 5.0);
+    return min(a2 / (dd * dd) * vis * 0.25 * f * nl, vec3(4.0));
+}
+
+// The unshadowed light of a map light at q facing n: its colour, a spot's cone, the windowed falloff of the modern
+// beam, and the fog of the way from the light (lights never reach through what the fog hides).
+vec3 LightIn(Light L, vec3 q, vec3 n, out vec3 ldir) {
+    vec3 d = L.pos.xyz - q;
+    float dist = length(d);
+    ldir = d / max(dist, 1e-4);
+    if (dist >= L.pos.w || dot(n, ldir) <= 0.0) return vec3(0.0);
+    float k = ModernFalloff(dist, L.pos.w);
+    if (dot(L.dir.xyz, L.dir.xyz) > 0.5) k *= smoothstep(L.dir.w, L.color.w, dot(-ldir, L.dir.xyz));
+    return L.color.rgb * k * (1.0 - FogAt(dist));
+}
+
+// The map lights and the sun on a surface at q facing n (o: the ray origin off it): the diffuse light (the caller
+// multiplies it by the albedo) and the specular lobe towards v (zero v: none). The strongest light takes one shadow
+// ray, one more light picked by its share stands for all the others (weighed by its probability), the sun takes one
+// ray over its disc; the denoiser averages the noise. `bounce`: only the lights that bounce.
+void MapLightsAt(vec3 q, vec3 n, vec3 o, vec3 v, vec4 surf, vec3 albedo, bool bounce, inout vec3 diffuse,
+                 inout vec3 spec) {
+    if (u_lightInfo.y < 0.5) return;
+    bool glossy = surf.x < 0.9 && dot(v, v) > 0.5;
+    vec3 f0 = mix(vec3(0.04), albedo, surf.y);
+    int count = min(int(u_lightInfo.x + 0.5), 32);
+    float total = 0.0, best = 0.0;
+    int bi = -1;
+    for (int i = 0; i < count; ++i) {
+        if (bounce && (lights[i].flags & 2u) == 0u) continue;
+        vec3 ld;
+        float w = Luma(LightIn(lights[i], q, n, ld)) * max(dot(n, ld), 0.0);
+        total += w;
+        if (w > best) {
+            best = w;
+            bi = i;
+        }
+    }
+    if (bi >= 0) {
+        int pick = -1;
+        float pw = 0.0, rest = total - best, acc = 0.0, r = Rand() * rest;
+        for (int i = 0; i < count && rest > 1e-6; ++i) {
+            if (i == bi || (bounce && (lights[i].flags & 2u) == 0u)) continue;
+            vec3 ld;
+            float w = Luma(LightIn(lights[i], q, n, ld)) * max(dot(n, ld), 0.0);
+            acc += w;
+            if (w > 0.0 && acc >= r) {
+                pick = i;
+                pw = w;
+                break;
+            }
+        }
+        for (int s = 0; s < 2; ++s) {
+            int i = s == 0 ? bi : pick;
+            if (i < 0) break;
+            float weight = s == 0 ? 1.0 : rest / pw;
+            Light L = lights[i];
+            vec3 ld;
+            vec3 c = LightIn(L, q, n, ld) * weight;
+            vec3 vis = (L.flags & 1u) != 0u ? ShadowRayNear(o, L.pos.xyz + RandUnit() * L.radius, L.nearClip)
+                                             : vec3(1.0);
+            diffuse += c * max(dot(n, ld), 0.0) * vis;
+            if (glossy) spec += c * Ggx(n, v, ld, surf.x, f0) * vis;
+        }
+    }
+    if (u_sunDir.w > 0.5) {
+        vec3 l = -normalize(u_sunDir.xyz);
+        float nl = dot(n, l);
+        if (nl > 0.0 && !UnderCeiling(o, l)) {
+            // The fog between the eye and the point: the sun fades with it, so no crisp sunlight lies deep in the
+            // fog, and what the fog scatters stays its own soft colour.
+            vec3 c = u_sunColor.rgb * (1.0 - FogAt(length(q)));
+            vec3 vis = ShadowRayNear(o, o + normalize(l + RandUnit() * u_sunColor.w) * kSunReach, 0.0);
+            diffuse += c * nl * vis;
+            if (glossy) spec += c * Ggx(n, v, l, surf.x, f0) * vis;
+        }
+    }
+}
+
+// What a surface the rays found sends back: its texture times the map's light (the posed meshes' own lit colour),
+// darkened as scene.frag darkens it under the beam, plus the beam where it reaches the point unshadowed.
+vec3 Radiance(Hit h) {
+    Geo g = geos[h.geo];
+    vec3 albedo = h.texel.rgb;
+    vec3 lit = (g.flags & kPrelit) != 0u ? h.vcolor.rgb : u_ambient.rgb;
+    vec3 rgb = min(albedo * lit, vec3(1.0));
+    if (u_beam.w > 0.5) {
+        rgb *= u_beam.z > 0.5 ? 0.72 : 0.15;
+        vec3 beam = BeamAt(h.p, h.n);
+        if (max(beam.r, max(beam.g, beam.b)) > 0.002)
+            rgb += albedo * beam * (1.0 - clamp(h.vcolor.a, 0.0, 1.0)) *
+                   ShadowRay(h.p + h.n * (0.5 + 0.002 * h.p.z), u_lens.xyz);
+    }
+    vec3 lit2 = vec3(0.0), spec = vec3(0.0);
+    MapLightsAt(h.p, h.n, h.p + h.n * (0.5 + 0.002 * h.p.z), vec3(0.0), h.surface, albedo, false, lit2, spec);
+    return rgb + albedo * lit2;
+}
+
+float FogRampAt(int i) {
+    vec4 r = u_fogRamp[i / 4];
+    int c = i - (i / 4) * 4;
+    return (c == 0) ? r.x : ((c == 1) ? r.y : ((c == 2) ? r.z : r.w));
+}
+
+// The fog over a path of length z, by the world's ramp and strength (scene.frag's FogAmountAtZ).
+float FogAt(float z) {
+    if (u_fogRampP.x < 0.5) return 0.0;
+    float fi = z * u_fogRampP.y;
+    float fb = 255.0;
+    if (fi < 128.0) {
+        float f0 = floor(max(fi, 0.0));
+        int i = int(f0);
+        float b = (i < 127) ? FogRampAt(i + 1) : 255.0;
+        fb = mix(FogRampAt(i), b, clamp(fi - f0, 0.0, 1.0));
+    }
+    return clamp(clamp(fb * 16.0 + u_fogRampP.z, 0.0, 4096.0) / 4096.0 * u_fog.a, 0.0, 1.0);
+}
+
+// Light reaching the eye along a secondary path of length `t` that leaves the visible surface at view distance
+// `dp`: the shading fogs the surface by dp itself, so this keeps only what the extra stretch takes, and the fog's
+// colour fills what it hides. A path past the fog's opaque distance is all fog.
+vec3 Fogged(vec3 rgb, float dp, float t) {
+    float near = 1.0 - FogAt(dp);
+    float far = 1.0 - FogAt(dp + t);
+    float keep = near > 1e-3 ? clamp(far / near, 0.0, 1.0) : 0.0;
+    return rgb * keep + u_fog.rgb * (1.0 - keep);
+}
+
+// A direction around `r` spread by the roughness, kept above the surface.
+vec3 Lobe(vec3 r, vec3 n, float rough) {
+    float s = rough * rough;
+    vec3 j = normalize(vec3(Rand(), Rand(), Rand()) * 2.0 - 1.0 + 1e-4);
+    vec3 d = normalize(r + j * s);
+    return dot(d, n) > 0.0 ? d : r;
+}
+
+// A point of the lens disc, across the beam.
+vec3 LensPoint(vec3 lens, vec3 beam, float radius) {
+    vec3 u = normalize(abs(beam.y) < 0.9 ? cross(beam, vec3(0.0, 1.0, 0.0)) : cross(beam, vec3(1.0, 0.0, 0.0)));
+    vec3 v = cross(beam, u);
+    float r = radius * sqrt(Rand());
+    float a = 6.2831853 * Rand();
+    return lens + (u * cos(a) + v * sin(a)) * r;
+}
+
+void main() {
+    ivec2 px = ivec2(gl_GlobalInvocationID.xy) + ivec2(u_viewport.xy);
+    if (gl_GlobalInvocationID.x >= uint(u_viewport.z) || gl_GlobalInvocationID.y >= uint(u_viewport.w)) return;
+    g_seed = uint(px.x) * 1973u + uint(px.y) * 9277u + uint(u_effects.w) * 26699u;
+    vec2 c = vec2(px) + 0.5;
+    vec3 dir = normalize(vec3(c.x * u_pixelRay.x + u_pixelRay.y, c.y * u_pixelRay.z + u_pixelRay.w, 1.0));
+    Hit h;
+    if (!Closest(vec3(0.0), dir, 1.0, 1.0e6, h)) {
+        imageStore(o_gbuf, px, vec4(0.0));
+        imageStore(o_shadow, px, vec4(1.0, 1.0, 1.0, 0.0));
+        imageStore(o_reflect, px, vec4(0.0));
+        imageStore(o_gi, px, vec4(0.0));
+        return;
+    }
+    vec3 p = h.p, n = h.n;
+    imageStore(o_gbuf, px, vec4(n, p.z));
+    Geo g = geos[h.geo];
+    // Off the surface along its normal, more with distance (float precision of far surfaces).
+    vec3 o = p + n * (0.5 + 0.002 * p.z);
+
+    vec3 light = vec3(1.0);
+    if (u_effects.x > 0.5 && u_beam.w > 0.5) {
+        vec3 beam = normalize(u_beamDir.xyz);
+        vec3 lens = u_lens.xyz;
+        vec3 L = lens - p;
+        float d = length(L);
+        float reach = u_beam.z > 0.5 ? u_beam.y * 0.5 : u_beam.y;
+        // Only where the beam can reach: the cone with its spill, within the range.
+        if (dot(-L / max(d, 1e-4), beam) > u_beamDir.w - 0.25 && d < reach) {
+            int rays = max(int(u_params.x + 0.5), 1);
+            light = vec3(0.0);
+            for (int r = 0; r < rays; ++r) light += ShadowRay(o, LensPoint(lens, beam, u_lens.w));
+            light /= float(rays);
+        }
+    }
+    imageStore(o_shadow, px, vec4(light, p.z));
+
+    // Reflections: water, and materials that reflect on every face or, wet, on faces turned up. Blended surfaces
+    // (additive, subtractive, the PS1 averages) never reflect.
+    vec3 refl = vec3(0.0);
+    if (u_effects.y > 0.5 && ((g.flags & kBlendMask) == 0u || (g.flags & kWater) != 0u)) {
+        float rough = h.surface.x;
+        float k = max(h.surface.z, h.surface.w * smoothstep(0.7, 0.95, dot(n, normalize(u_up.xyz))));
+        if (k > 0.001 && rough <= u_params.z) {
+            float dp = length(p);
+            vec3 albedo = min(h.texel.rgb * h.vcolor.rgb, vec3(1.0));
+            vec3 f0 = mix(vec3(0.02), albedo, h.surface.y);
+            float cosv = max(dot(-dir, n), 0.0);
+            vec3 fresnel = f0 + (1.0 - f0) * pow(1.0 - cosv, 5.0);
+            // No ray reaches past the fog's opaque distance: what lies there is fog.
+            float tmax = max(u_ambient.w - dp, 0.0);
+            vec3 rd = Lobe(reflect(dir, n), n, rough);
+            Hit r;
+            vec3 seen = u_fog.rgb;
+            if (tmax > 1.0 && Closest(o, rd, 0.0, tmax, r)) seen = Fogged(Radiance(r), dp, r.t);
+            // The game's camera mostly looks down steeply, where a plain Fresnel term leaves a puddle almost black: a
+            // quarter of the strength reflects at every angle, the rest by the Fresnel term (metals by their colour).
+            refl = seen * k * mix(fresnel, vec3(0.25) + 0.75 * fresnel, 1.0 - h.surface.y);
+        }
+    }
+    // PBR-lite (rt_lights): the map lights' and the sun's light on the surface, and the specular lobe of them and of
+    // the beam on the materials that reflect (glass, metal, wet ground, tiles: the same strength as their mirror
+    // lobe), so a neutral surface keeps the original's matte look; the beam's own diffuse light stays the calibrated
+    // one of scene.frag.
+    vec3 lit = vec3(0.0);
+    if (u_lightInfo.y > 0.5) {
+        vec3 albedo = min(h.texel.rgb * h.vcolor.rgb, vec3(1.0));
+        vec3 spec = vec3(0.0);
+        MapLightsAt(p, n, o, -dir, h.surface, albedo, false, lit, spec);
+        if (u_beam.w > 0.5 && h.surface.x < 0.9 && (g.flags & kBlendMask) == 0u) {
+            vec3 l = normalize(u_lens.xyz - p);
+            vec3 beam = BeamAt(p, n);
+            vec3 f0 = mix(vec3(0.04), albedo, h.surface.y);
+            spec += beam * light * Ggx(n, -dir, l, h.surface.x, f0) / max(dot(n, l), 0.25);
+        }
+        float gloss = max(h.surface.z, h.surface.w * smoothstep(0.7, 0.95, dot(n, normalize(u_up.xyz))));
+        if ((g.flags & kBlendMask) == 0u || (g.flags & kWater) != 0u) refl += spec * min(gloss * 2.0, 1.0);
+    }
+    imageStore(o_reflect, px, vec4(refl, p.z));
+
+    // One bounce of the flashlight: a cosine-weighted ray finds the surface that faces this one; what the beam
+    // lights there (its texture times the beam, where a shadow ray reaches the lens) is the light it sends here,
+    // dimmed by the fog of the stretch. Nothing else is added, so a point no lit surface sees stays as dark as in
+    // the original.
+    vec3 gi = vec3(0.0);
+    if (u_effects.z > 0.5 && (u_beam.w > 0.5 || u_lightInfo.y > 0.5)) {
+        vec3 u = normalize(abs(n.y) < 0.9 ? cross(n, vec3(0.0, 1.0, 0.0)) : cross(n, vec3(1.0, 0.0, 0.0)));
+        vec3 v = cross(n, u);
+        float r1 = Rand(), r2 = Rand();
+        float sr = sqrt(r1);
+        vec3 d = normalize(u * (sr * cos(6.2831853 * r2)) + v * (sr * sin(6.2831853 * r2)) + n * sqrt(1.0 - r1));
+        float dp = length(p);
+        float tmax = min(max(u_ambient.w - dp, 0.0), kGiRange);
+        Hit q;
+        if (tmax > 1.0 && Closest(o, d, 0.0, tmax, q)) {
+            vec3 qo = q.p + q.n * (0.5 + 0.002 * q.p.z);
+            vec3 sent = vec3(0.0);
+            vec3 beam = BeamAt(q.p, q.n);
+            if (max(beam.r, max(beam.g, beam.b)) > 0.002)
+                sent = q.texel.rgb * beam * (1.0 - clamp(q.vcolor.a, 0.0, 1.0)) * ShadowRay(qo, u_lens.xyz);
+            vec3 qlit = vec3(0.0), qspec = vec3(0.0);
+            MapLightsAt(q.p, q.n, qo, vec3(0.0), q.surface, q.texel.rgb, true, qlit, qspec);
+            sent += q.texel.rgb * qlit;
+            float near = 1.0 - FogAt(dp);
+            float keep = near > 1e-3 ? clamp((1.0 - FogAt(dp + q.t)) / near, 0.0, 1.0) : 0.0;
+            gi = sent * keep * u_params.y;
+        } else if (tmax > 1.0 && dot(d, normalize(u_up.xyz)) > 0.0 && !UnderCeiling(o, d)) {
+            // Open to the sky (lights.json "sky"): what the bounce ray finds is the sky's light.
+            gi = u_sky.rgb * (1.0 - FogAt(dp)) * u_params.y;
+        }
+    }
+    gi += lit;
+    imageStore(o_gi, px, vec4(gi, p.z));
+}

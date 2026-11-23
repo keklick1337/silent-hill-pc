@@ -1,0 +1,28 @@
+{
+  "description": "Named variables of the Romper's behaviour (chara/Romper/behavior.lua reads and writes them by name). Each character instance owns a small block of bytes; every entry of \"fields\" names one value in it: \"name\" is the name the script uses, \"kind\" the storage type (s8, u8, s16, u16, s32, u32: a write keeps the low bits, a read sign- or zero-extends), \"at\" the byte offset in the block (absent: the next naturally aligned offset), \"note\" what the value means. Values are raw integers in the units the behaviour uses (usually Q12, 4096 = 1.0 or 1 m; angles Q12, 4096 = a full turn). A mod adds or changes fields with a state.json of the same path; keep the offsets of fields the behaviour already uses.",
+  "fields": [
+    {"name": "romper_flags", "kind": "s32", "at": 0},
+    {"name": "romper_prev_rot_y", "kind": "s16", "at": 4, "note": "rot_y of the previous tick: a turn twists the body (romper_twist, bone 2)."},
+    {"name": "romper_twist", "kind": "s16", "at": 6},
+    {"name": "romper_accel", "kind": "s16", "at": 8, "note": "Speed added every 30 fps tick; the walk and run cycles set it by keyframe."},
+    {"name": "romper_heading_target", "kind": "s16", "at": 10},
+    {"name": "romper_cycle_time", "kind": "s32", "at": 12, "note": "Time into the walk or run cycle the speed curve was integrated up to."},
+    {"name": "romper_offset_x", "kind": "s16", "at": 16, "note": "Slide of the body this tick (the lunge and the stun jump), added to the step."},
+    {"name": "romper_offset_z", "kind": "s16", "at": 18},
+    {"name": "romper_target_x", "kind": "s32", "at": 20},
+    {"name": "romper_target_z", "kind": "s32", "at": 24},
+    {"name": "romper_pin_time", "kind": "s32", "at": 28, "note": "Time into the landing clip of the pin (0 elsewhere)."},
+    {"name": "romper_home_z", "kind": "s32", "at": 32, "note": "The spawn point the idle wander picks its targets around."},
+    {"name": "romper_home_x", "kind": "s32", "at": 40},
+    {"name": "romper_start_keyframe", "kind": "u8", "at": 36, "note": "Keyframe offset into the cycle the run or the creep starts at."},
+    {"name": "romper_lost_timer", "kind": "u16", "at": 38, "note": "Time since Harry was last seen or heard."},
+    {"name": "romper_step_latch", "kind": "u8", "at": 44},
+    {"name": "romper_step_latch_2", "kind": "u8", "at": 45},
+    {"name": "romper_hurt_timer", "kind": "s16", "at": 46},
+    {"name": "romper_land_timer", "kind": "s16", "at": 48},
+    {"name": "romper_bite_sound", "kind": "u8", "at": 50, "note": "The bite landed this tick: its sound plays with the voices."},
+    {"name": "romper_idle_timer", "kind": "s16", "at": 52},
+    {"name": "romper_timer", "kind": "s32", "at": 56, "note": "The chase's leap cooldown and the creep's steering timer."},
+    {"name": "romper_pin_brake", "kind": "s32", "at": 60, "note": "How fast the pin's slide onto Harry slows down."}
+  ]
+}

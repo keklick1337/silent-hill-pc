@@ -1,0 +1,11 @@
+{
+  "format": "sh-text",
+  "version": 1,
+  "lang": "pl",
+  "map": "map2_s02",
+  "strings": {
+    "map2_s02.used_the_antique_shop_key": "Użyto: {color 2}klucz do antykwariatu{/color}.{end}",
+    "map2_s02.alchemilla_hospital": "{color 3}Szpital Alchemilla{end}",
+    "map2_s02.green_lion": "{color 3}zielony lew{end}"
+  }
+}

@@ -1,0 +1,108 @@
+{
+  "map": "map1_s03",
+  "table": "g_MapEventFuncs",
+  "handlers": [
+    {
+      "index": 0,
+      "symbol": "MapEvent_DoorJammed",
+      "name": "MapEvent_DoorJammed",
+      "shape": "script"
+    },
+    {
+      "index": 1,
+      "symbol": "MapEvent_DoorLocked",
+      "name": "MapEvent_DoorLocked",
+      "shape": "script"
+    },
+    {
+      "index": 2,
+      "symbol": "MapEvent_DoorUnlocked",
+      "name": "MapEvent_DoorUnlocked",
+      "shape": "script"
+    },
+    {
+      "index": 3,
+      "symbol": "UseLibraryReserveKey",
+      "name": "UseLibraryReserveKey",
+      "shape": "script"
+    },
+    {
+      "index": 4,
+      "symbol": "UseClassroomKey",
+      "name": "UseClassroomKey",
+      "shape": "script"
+    },
+    {
+      "index": 5,
+      "symbol": "TakeCommonPickup",
+      "name": "TakeCommonPickup",
+      "shape": "script"
+    },
+    {
+      "index": 6,
+      "symbol": "InspectDrainPipe",
+      "name": "InspectDrainPipe",
+      "shape": "script"
+    },
+    {
+      "index": 7,
+      "symbol": "InspectDrainHole",
+      "name": "InspectDrainHole",
+      "shape": "script"
+    },
+    {
+      "index": 8,
+      "symbol": "MapEvent_DrainageValveInteract",
+      "name": "MapEvent_DrainageValveInteract",
+      "shape": "script"
+    },
+    {
+      "index": 9,
+      "symbol": "ReadMonsterLurksBook",
+      "name": "ReadMonsterLurksBook",
+      "shape": "script"
+    },
+    {
+      "index": 10,
+      "symbol": "ReadLibraryFairyTale",
+      "name": "ReadLibraryFairyTale",
+      "shape": "script"
+    },
+    {
+      "index": 11,
+      "symbol": "InspectEmptyLocker",
+      "name": "InspectEmptyLocker",
+      "shape": "script"
+    },
+    {
+      "index": 12,
+      "symbol": "InspectLockerRoomLocker",
+      "name": "InspectLockerRoomLocker",
+      "shape": "cutscene"
+    },
+    {
+      "index": 13,
+      "symbol": "MapEvent_LockerDeadBodyCutscene",
+      "name": "MapEvent_LockerDeadBodyCutscene",
+      "shape": "cutscene"
+    },
+    {
+      "index": 14,
+      "symbol": "PickupLibraryReserveKey",
+      "name": "PickupLibraryReserveKey",
+      "shape": "script"
+    },
+    {
+      "index": 15,
+      "symbol": "UseRubberBall",
+      "name": "UseRubberBall",
+      "shape": "script"
+    },
+    {
+      "index": 16,
+      "symbol": "Cutscene_UfoChannelingStone",
+      "name": "Cutscene_UfoChannelingStone",
+      "shape": "cutscene"
+    }
+  ]
+}

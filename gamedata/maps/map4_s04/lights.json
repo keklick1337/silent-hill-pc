@@ -1,0 +1,9 @@
+{
+  "format": "sh-map-lights",
+  "version": 1,
+  "map": "map4_s04",
+  "description": "The lights of the hospital room of Harry's dream with Lisa (map4_s04, cell HU0103) for the setting extra_lights. The room has no fixture of its own, but the original lights the 'Where am I?' scene from a lamp's place: it detaches the light from Harry and hangs it at the ceiling over the bed, (57.0, -3.0, 141.8), pointing straight down (Cutscene_WhereAmI), and the talk with Lisa that follows keeps a scene light. The lamp here hangs at that point and stays on until the talk is over (M4S04_LisaTalkCutsceneDone); afterwards the original returns to the flashlight and so does the room. Positions are metres, PS1 axes (y down).",
+  "lights": [
+    {"name": "CeilingLamp", "description": "The lamp over the bed: weak and warm, so the walls and Lisa get a soft light around the scene's own beam.", "extra": true, "position": [57.0, -3.0, 141.8], "color": [1.0, 0.86, 0.66], "intensity": 0.8, "range": 5.0, "radius": 0.1, "casts_shadows": true, "gi": true, "when": "!flag:M4S04_LisaTalkCutsceneDone"}
+  ]
+}

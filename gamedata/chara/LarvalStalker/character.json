@@ -1,0 +1,70 @@
+{
+  "description": "Larval Stalker: a small translucent child-like figure that wanders harmlessly through Midwich Elementary School and the Lakeside Amusement Park.",
+  "category": "CommonEnemies",
+  "maps": ["map1_s00", "map1_s01", "map6_s04"],
+  "model": "models/CHARA/CLD1.glb",
+  "animations": "anim/ANIM/CLD1.anim.json",
+  "clip_tables": ["larval_stalker"],
+  "textures": ["textures/CHARA/CLD1.png"],
+  "shadow": 0.25,
+  "blend_mode": "subtractive",
+  "camera_anchor": "character",
+  "camera_offset_y": -0.5,
+  "sounds": {
+    "stumble": "larval_stalker_stumble"
+  },
+  "params": {
+    "health": 300.0,
+    "collision_ground_walker": 1
+  },
+  "_param_units": {
+    "health": "health points, Q12 on use",
+    "collision_ground_walker": "1: the wall / ledge / void classification applies (walks on the ground)"
+  },
+  "anims": {
+    "still": 0,
+    "grab_attack": 1,
+    "stun_back_end": 2,
+    "death_back_start": 3,
+    "death_front_start": 4,
+    "stun_back_to_idle": 5,
+    "stun_front_to_idle": 6,
+    "stun_back_start": 7,
+    "stun_front_start": 8,
+    "stun_front_end": 9,
+    "idle": 10,
+    "walk_forward": 11,
+    "walk_forward_alt": 12,
+    "death_front_end": 13,
+    "death_back_cont": 14,
+    "stun_back_to_idle_alt": 15,
+    "stun_front_to_idle_alt": 16,
+    "stun_front_cont": 17,
+    "stun_back_recoil": 18
+  },
+  "controls": {
+    "none": 0,
+    "gone": 1,
+    "wander": 2,
+    "look_around": 3,
+    "walk_forward": 4,
+    "grab": 5,
+    "circle": 6,
+    "idle": 7,
+    "stagger": 8,
+    "trip_over": 9,
+    "stun": 10,
+    "down_front": 11,
+    "down_back": 12,
+    "death": 13
+  },
+  "spawn": {
+    "state": 3,
+    "kind": "enemy",
+    "auto": "full"
+  },
+  "harry_reactions": ["Hit", "Death"],
+  "blood": "LarvalStalker",
+  "enemy": true,
+  "single_clip_table": true
+}

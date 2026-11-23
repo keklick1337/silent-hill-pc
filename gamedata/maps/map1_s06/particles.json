@@ -1,0 +1,42 @@
+{
+  "snow": {
+    "range": 6,
+    "start_height": -10,
+    "landing": "recycle",
+    "aperture": {
+      "fallback": {
+        "lines": [[0, 1, 0]]
+      }
+    },
+    "far_slot_mode": 2
+  },
+  "rest_gate": true,
+  "init": [
+    {
+      "rooms": [12],
+      "mode": 1,
+      "corners": [[105.5, 67], [105.5, 50]]
+    },
+    {
+      "rooms": [13],
+      "mode": 1,
+      "corners": [[145, 24], [132, 24]]
+    },
+    {
+      "rooms": [9],
+      "mode": 1,
+      "corners": [[55, 137], [62, 137]]
+    },
+    {
+      "rooms": [14],
+      "mode": 2,
+      "corners": [[96.5, 15], [103.5, 15]]
+    }
+  ],
+  "update": [
+    {
+      "rooms": [9, 12, 13, 14]
+    },
+    { "skip": true }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "format": "sh-paper-map-reveals",
+  "version": 1,
+  "description": "Paper map pages that picking up one page also marks as found: \"page\" is the page picked up, \"reveals\" the pages found along with it. Page names are those of paper_maps.json. A mod changes it with a file of the same path in its own folder; objects are merged key by key, so the patch only needs the keys it changes.",
+  "reveals": [
+    { "page": "FogSchool1F", "reveals": ["FogSchoolBF", "FogSchool2F", "FogSchoolRF", "AltSchoolBF", "AltSchool1F", "AltSchool2F", "AltSchoolRF"] },
+    { "page": "FogHospital1F", "reveals": ["FogHospital2F", "FogHospital3F", "AltHospital1F", "AltHospital2F", "AltHospital3F"] },
+    { "page": "FogHospitalBF", "reveals": ["AltHospitalBF"] },
+    { "page": "FogSewer1F", "reveals": ["FogSewer2F"] },
+    { "page": "FogCentralTown", "reveals": ["AltCentralTown"] }
+  ]
+}

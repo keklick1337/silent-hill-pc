@@ -1,0 +1,14 @@
+{
+  "format": "sh-text",
+  "version": 1,
+  "lang": "de",
+  "map": "map5_s00",
+  "strings": {
+    "map5_s00.used_the_sewer_key": "{color 2}Kanalschlüssel{/color} benutzt.{end}",
+    "map5_s00.used_the_sewer_exit_key": "{color 2}Kanalausgangsschlüssel{/color} benutzt.{end}",
+    "map5_s00.there_is_a_sewer_key": "{color 2}Kanalschlüssel{/color} gefunden.\nMitnehmen?{choice 4}",
+    "map5_s00.there_is_a_sewer_exit": "{color 2}Kanalausgangsschlüssel{/color}\nim Wasser gefunden. Mitnehmen?{choice 4}",
+    "map5_s00.got_to_find_cheryl_no": "Ich muss Cheryl finden.\nKeine Zeit umzukehren.{end}",
+    "map5_s00.there_is_a_sewer_map": "{hires}{color 5}Karte der Kanalisation\n(zum Ferienviertel){/color} gefunden.\nMitnehmen?{choice 4}"
+  }
+}

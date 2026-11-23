@@ -1,0 +1,3 @@
+[{"map": "map6_s04", "name": "park_ending", "ticks": 9000, "flags": [441, 442, 443, 445, 447, 449, 467, 470], "clear_flags": [450, 451, 468], "commands": ["@5 TP 20.0 100.0", "@9 SETFLAG 450 1"]},
+ {"map": "map6_s04", "name": "park_portal", "ticks": 5500, "flags": [441, 442, 443, 445, 447, 449, 467, 470], "clear_flags": [450, 451, 468], "commands": ["@5 TP 20.0 100.0", "@9 SETFLAG 450 1"]},
+ {"map": "map6_s04", "name": "i_figured_settled", "ticks": 2500, "flags": [441, 442, 443, 445, 447, 449, 467, 470], "clear_flags": [450, 451, 468], "commands": ["@5 TP 20.0 100.0", "@9 SETFLAG 468 1"]}]

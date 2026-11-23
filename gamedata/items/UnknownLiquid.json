@@ -1,0 +1,19 @@
+{
+  "group": "puzzle",
+  "inventory": {
+    "order": 37,
+    "command": "Use",
+    "used_up_on_event": true,
+    "use_on_npc": {
+      "map": "map6_s04",
+      "distance": 0.7,
+      "height": 0.3,
+      "flag": "M6S04_UnknownLiquidUsedOnCybil"
+    }
+  },
+  "display_tilt": {
+    "x": 45.0
+  },
+  "close_up_model": "ITEM/UNQ66.TMD",
+  "close_up_fix": "liquid_uvs"
+}

@@ -1,0 +1,13 @@
+{
+  "format": 1,
+  "id": "example_mod",
+  "name": "Example mod",
+  "version": "1.0.0",
+  "description": "Shows the parts of a mod: a text change, a pause menu row with its own menu and a console command.",
+  "authors": ["Silent Hill PC"],
+  "min_engine_version": "1.0.0",
+  "api": "^1.0",
+  "priority": 0,
+  "gameplay": false,
+  "scripts": true
+}

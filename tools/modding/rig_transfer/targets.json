@@ -1,0 +1,265 @@
+{
+  "description": "Targets of rig_transfer.py: the characters of Silent Hill by the name of their model file (convert/models/CHARA/<NAME>.glb; print a skeleton with --inspect NAME). mode 'rig': 'roles' give the game bone (NN of boneNN) of every body part the skeleton has, a part without a bone follows the part above it, and 'proportions' says whose bone lengths the result has -- 'source' (the people-shaped characters): the model keeps its own proportions at one scale ('scale': a number instead of the scale that matches the target's stature, 'scale_factor': a factor on it) and the glb carries its own rest pose, which the engine plays the character's clips on; 'target' (the default; animals and other shapes): every limb is stretched onto the target's bone; mode 'chain': the body is bent along the listed bones, feet first; mode 'blob': the body is fitted into the creature's box ('up' and 'front': where the source's head and face point, in the glb's axes) and takes its weights from the original mesh. 'pose' turns parts of the source before the fit: {role: [axis, degrees]}.",
+  "targets": {
+    "HERO": {
+      "description": "Harry Mason",
+      "mode": "rig",
+      "proportions": "source",
+      "roles": {
+        "hips": 11, "chest": 1, "neck": 2, "head": 2,
+        "l_clavicle": 3, "l_upperarm": 4, "l_forearm": 5, "l_hand": 6,
+        "r_clavicle": 7, "r_upperarm": 8, "r_forearm": 9, "r_hand": 10,
+        "l_thigh": 12, "l_shin": 13, "l_foot": 14,
+        "r_thigh": 15, "r_shin": 16, "r_foot": 17
+      }
+    },
+    "PRS": {
+      "description": "Puppet Nurse (the parasite on her back, bones 18-21, stays empty)",
+      "mode": "rig",
+      "proportions": "source",
+      "roles": {
+        "hips": 11, "chest": 1, "neck": 2, "head": 2,
+        "l_clavicle": 3, "l_upperarm": 4, "l_forearm": 5, "l_hand": 6,
+        "r_clavicle": 7, "r_upperarm": 8, "r_forearm": 9, "r_hand": 10,
+        "l_thigh": 12, "l_shin": 13, "l_foot": 14,
+        "r_thigh": 15, "r_shin": 16, "r_foot": 17
+      }
+    },
+    "PRSD": {
+      "description": "Puppet Doctor",
+      "mode": "rig",
+      "proportions": "source",
+      "roles": {
+        "hips": 11, "chest": 1, "neck": 2, "head": 2,
+        "l_clavicle": 3, "l_upperarm": 4, "l_forearm": 5, "l_hand": 6,
+        "r_clavicle": 7, "r_upperarm": 8, "r_forearm": 9, "r_hand": 10,
+        "l_thigh": 12, "l_shin": 13, "l_foot": 14,
+        "r_thigh": 15, "r_shin": 16, "r_foot": 17
+      }
+    },
+    "MSB": {
+      "description": "Monster Cybil",
+      "mode": "rig",
+      "proportions": "source",
+      "roles": {
+        "hips": 11, "chest": 1, "neck": 2, "head": 2,
+        "l_clavicle": 3, "l_upperarm": 4, "l_forearm": 5, "l_hand": 6,
+        "r_clavicle": 7, "r_upperarm": 8, "r_forearm": 9, "r_hand": 10,
+        "l_thigh": 12, "l_shin": 13, "l_foot": 14,
+        "r_thigh": 15, "r_shin": 16, "r_foot": 17
+      }
+    },
+    "MAR": {
+      "description": "Incubator and Unknown 23 (hair 18-19 and sleeves 20-23 stay empty)",
+      "mode": "rig",
+      "proportions": "source",
+      "roles": {
+        "hips": 11, "chest": 1, "neck": 2, "head": 2,
+        "l_clavicle": 3, "l_upperarm": 4, "l_forearm": 5, "l_hand": 6,
+        "r_clavicle": 7, "r_upperarm": 8, "r_forearm": 9, "r_hand": 10,
+        "l_thigh": 12, "l_shin": 13, "l_foot": 14,
+        "r_thigh": 15, "r_shin": 16, "r_foot": 17
+      }
+    },
+    "BAR": {
+      "description": "Bloody Incubator",
+      "mode": "rig",
+      "proportions": "source",
+      "roles": {
+        "hips": 11, "chest": 1, "neck": 2, "head": 2,
+        "l_clavicle": 3, "l_upperarm": 4, "l_forearm": 5, "l_hand": 6,
+        "r_clavicle": 7, "r_upperarm": 8, "r_forearm": 9, "r_hand": 10,
+        "l_thigh": 12, "l_shin": 13, "l_foot": 14,
+        "r_thigh": 15, "r_shin": 16, "r_foot": 17
+      }
+    },
+    "CLD2": {
+      "description": "Stalker",
+      "mode": "rig",
+      "proportions": "source",
+      "roles": {
+        "hips": 1, "chest": 2, "neck": 3, "head": 3,
+        "r_upperarm": 4, "r_forearm": 5, "r_hand": 6,
+        "l_upperarm": 7, "l_forearm": 8, "l_hand": 9,
+        "r_thigh": 10, "r_shin": 11, "r_foot": 12,
+        "l_thigh": 13, "l_shin": 14, "l_foot": 15
+      }
+    },
+    "CLD3": {
+      "description": "Grey Child",
+      "mode": "rig",
+      "proportions": "source",
+      "roles": {
+        "hips": 1, "chest": 2, "neck": 3, "head": 3,
+        "r_upperarm": 4, "r_forearm": 5, "r_hand": 6,
+        "l_upperarm": 7, "l_forearm": 8, "l_hand": 9,
+        "r_thigh": 10, "r_shin": 11, "r_foot": 12,
+        "l_thigh": 13, "l_shin": 14, "l_foot": 15
+      }
+    },
+    "CLD4": {
+      "description": "Mumbler",
+      "mode": "rig",
+      "proportions": "source",
+      "roles": {
+        "hips": 1, "chest": 2, "neck": 3, "head": 3,
+        "r_upperarm": 4, "r_forearm": 5, "r_hand": 6,
+        "l_upperarm": 7, "l_forearm": 8, "l_hand": 9,
+        "r_thigh": 10, "r_shin": 11, "r_foot": 12,
+        "l_thigh": 13, "l_shin": 14, "l_foot": 15
+      }
+    },
+    "CLD1": {
+      "description": "Larval Stalker (one body bone; no hands)",
+      "mode": "rig",
+      "proportions": "source",
+      "roles": {
+        "hips": 1, "chest": 1, "neck": 2, "head": 2,
+        "l_thigh": 3, "l_shin": 4, "l_foot": 5,
+        "r_thigh": 6, "r_shin": 7, "r_foot": 8,
+        "r_upperarm": 9, "r_forearm": 10,
+        "l_upperarm": 11, "l_forearm": 12
+      }
+    },
+    "JACK": {
+      "description": "Romper",
+      "mode": "rig",
+      "proportions": "source",
+      "roles": {
+        "chest": 1, "hips": 2, "neck": 3, "head": 3,
+        "l_upperarm": 4, "l_forearm": 5, "l_hand": 6,
+        "r_upperarm": 7, "r_forearm": 8, "r_hand": 9,
+        "l_thigh": 10, "l_shin": 11, "l_foot": 12,
+        "r_thigh": 13, "r_shin": 14, "r_foot": 15
+      }
+    },
+    "SLT": {
+      "description": "Hanged Scratcher",
+      "mode": "rig",
+      "proportions": "source",
+      "roles": {
+        "chest": 1, "hips": 2, "neck": 3, "head": 4,
+        "r_upperarm": 6, "r_forearm": 7, "r_hand": 8,
+        "l_upperarm": 10, "l_forearm": 11, "l_hand": 12,
+        "l_thigh": 14, "l_shin": 15, "l_foot": 16,
+        "r_thigh": 17, "r_shin": 18, "r_foot": 19
+      }
+    },
+    "BOS": {
+      "description": "Incubus (the wings, bones 11-16, stay empty)",
+      "mode": "rig",
+      "proportions": "source",
+      "roles": {
+        "chest": 1, "hips": 2, "neck": 3, "head": 3,
+        "l_upperarm": 5, "l_forearm": 6, "l_hand": 7,
+        "r_upperarm": 8, "r_forearm": 9, "r_hand": 10,
+        "l_thigh": 17, "l_shin": 18, "l_foot": 19,
+        "r_thigh": 20, "r_shin": 21, "r_foot": 22
+      }
+    },
+    "DOG": {
+      "description": "Groaner: a quadruped, the arms are the front legs",
+      "mode": "rig",
+      "roles": {
+        "hips": 1, "chest": 2, "neck": 3, "head": 4,
+        "r_upperarm": 6, "r_forearm": 7, "r_hand": 8,
+        "l_upperarm": 10, "l_forearm": 11, "l_hand": 12,
+        "l_thigh": 15, "l_shin": 16, "l_foot": 17, "l_toes": 18,
+        "r_thigh": 19, "r_shin": 20, "r_foot": 21, "r_toes": 22
+      }
+    },
+    "DG2": {
+      "description": "Wormhead",
+      "mode": "rig",
+      "roles": {
+        "hips": 1, "chest": 2, "neck": 3, "head": 4,
+        "r_upperarm": 6, "r_forearm": 7, "r_hand": 8,
+        "l_upperarm": 10, "l_forearm": 11, "l_hand": 12,
+        "l_thigh": 15, "l_shin": 16, "l_foot": 17, "l_toes": 18,
+        "r_thigh": 19, "r_shin": 20, "r_foot": 21, "r_toes": 22
+      }
+    },
+    "BIRD": {
+      "description": "Air Screamer: the arms are the wings",
+      "mode": "rig",
+      "roles": {
+        "chest": 1, "hips": 16, "neck": 9, "head": 10,
+        "l_upperarm": 12, "l_forearm": 13,
+        "r_upperarm": 14, "r_forearm": 15,
+        "l_thigh": 3, "l_shin": 4, "l_foot": 5,
+        "r_thigh": 6, "r_shin": 7, "r_foot": 8
+      }
+    },
+    "BD2": {
+      "description": "Night Flutter",
+      "mode": "rig",
+      "roles": {
+        "chest": 1, "hips": 16, "neck": 9, "head": 10,
+        "l_upperarm": 12, "l_forearm": 13,
+        "r_upperarm": 14, "r_forearm": 15,
+        "l_thigh": 3, "l_shin": 4, "l_foot": 5,
+        "r_thigh": 6, "r_shin": 7, "r_foot": 8
+      }
+    },
+    "FAT": {
+      "description": "Split Head: a lizard on four legs; the head goes on the right half of the split head",
+      "mode": "rig",
+      "roles": {
+        "hips": 1, "chest": 2, "neck": 17, "head": 18,
+        "l_upperarm": 11, "l_forearm": 12, "l_hand": 13,
+        "r_upperarm": 14, "r_forearm": 15, "r_hand": 16,
+        "r_thigh": 3, "r_shin": 4, "r_foot": 5, "r_toes": 6,
+        "l_thigh": 7, "l_shin": 8, "l_foot": 9, "l_toes": 10
+      }
+    },
+    "MTH": {
+      "description": "Floatstinger: the arms are the front wings, both legs lie along the abdomen",
+      "mode": "rig",
+      "roles": {
+        "hips": 1, "chest": 6, "neck": 7, "head": 7,
+        "l_upperarm": 32, "l_forearm": 33, "l_hand": 34,
+        "r_upperarm": 38, "r_forearm": 39, "r_hand": 40,
+        "l_thigh": 2, "l_shin": 3, "l_foot": 4,
+        "r_thigh": 2, "r_shin": 3, "r_foot": 4
+      }
+    },
+    "WRM": {
+      "description": "Twinfeeler: bent along the worm from the tail to the head",
+      "mode": "chain",
+      "chain": [6, 5, 4, 3, 2, 1, 11, 12, 13, 14],
+      "front": "-y",
+      "pose": {"l_upperarm": [[0, 0, 1], -75], "r_upperarm": [[0, 0, 1], 75]}
+    },
+    "ROD": {
+      "description": "Bloodsucker: bent along the tentacle from its root to its tip",
+      "mode": "chain",
+      "chain": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14],
+      "front": "+z",
+      "pose": {"l_upperarm": [[0, 0, 1], -75], "r_upperarm": [[0, 0, 1], 75]}
+    },
+    "COC": {
+      "description": "Creeper: lies face down in the insect's box",
+      "mode": "blob",
+      "up": "+z",
+      "front": "-y"
+    },
+    "ICU": {
+      "description": "Parasite: lies face down in the slug's box",
+      "mode": "blob",
+      "up": "+z",
+      "front": "-y"
+    },
+    "LITL": {
+      "description": "Little Incubus: every joint of its rest pose is in one place, so the box of the mesh is all there is",
+      "mode": "blob",
+      "up": "+z",
+      "front": "-y"
+    },
+    "DUMMY": {
+      "description": "Dummy Nurse and Dummy Doctor: a one-triangle placeholder; the body stands on its single bone",
+      "mode": "blob",
+      "size": 1.7,
+      "bone": 1
+    }
+  }
+}

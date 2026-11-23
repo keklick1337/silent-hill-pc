@@ -1,0 +1,90 @@
+{
+  "map": "map1_s01",
+  "table": "g_MapEventFuncs",
+  "handlers": [
+    {
+      "index": 0,
+      "symbol": "MapEvent_DoorJammed",
+      "name": "MapEvent_DoorJammed",
+      "shape": "script"
+    },
+    {
+      "index": 1,
+      "symbol": "MapEvent_DoorLocked",
+      "name": "MapEvent_DoorLocked",
+      "shape": "script"
+    },
+    {
+      "index": 2,
+      "symbol": "MapEvent_DoorUnlocked",
+      "name": "MapEvent_DoorUnlocked",
+      "shape": "script"
+    },
+    {
+      "index": 3,
+      "symbol": "MapEvent_CommonItemTake",
+      "name": "MapEvent_CommonItemTake",
+      "shape": "script"
+    },
+    {
+      "index": 4,
+      "symbol": "MapEvent_HandStatueInspect",
+      "name": "MapEvent_HandStatueInspect",
+      "shape": "script"
+    },
+    {
+      "index": 5,
+      "symbol": "MapEvent_ChemicalItemTake",
+      "name": "MapEvent_ChemicalItemTake",
+      "shape": "item"
+    },
+    {
+      "index": 6,
+      "symbol": "CutsceneLockerRoomEffect",
+      "name": "CutsceneLockerRoomEffect",
+      "shape": "cutscene"
+    },
+    {
+      "index": 7,
+      "symbol": "PickupGoldMedallion",
+      "name": "PickupGoldMedallion",
+      "shape": "script"
+    },
+    {
+      "index": 8,
+      "symbol": "InspectPianoScore",
+      "name": "InspectPianoScore",
+      "shape": "script"
+    },
+    {
+      "index": 9,
+      "symbol": "PianoPuzzle",
+      "name": "PianoPuzzle",
+      "shape": "script"
+    },
+    {
+      "index": 10,
+      "symbol": "MapEvent_PianoInspect",
+      "name": "MapEvent_PianoInspect",
+      "shape": "script"
+    },
+    {
+      "index": 11,
+      "symbol": "PickupSilverMedallion",
+      "name": "PickupSilverMedallion",
+      "shape": "script"
+    },
+    {
+      "index": 12,
+      "symbol": "MapEvent_LockerInspect",
+      "name": "MapEvent_LockerInspect",
+      "shape": "script"
+    },
+    {
+      "index": 13,
+      "symbol": "CutsceneLockerCat",
+      "name": "CutsceneLockerCat",
+      "shape": "cutscene"
+    }
+  ]
+}

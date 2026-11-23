@@ -1,0 +1,720 @@
+# Recorded behaviour, read by tests/screens/map_screen_test.cpp (tests/framework/golden.h). 0 is false, 1 is true.
+# link   <page> <page above, - none> <page below, - none>
+# grid   <name> <first_x> <first_z> <size_x> <size_z>
+# cell   <grid> <x> <z>  <anchor x> <anchor z>
+# page   <page> <marking atlas> <marks>
+# sprite <page> <number in the page's atlas>  <u> <v> <w> <h>
+# mark   <page> <index>  <x> <y> <sprite of each half> <game number of the flag of each half>
+link OtherPlaces - -
+link OldTown - -
+link FogCentralTown - -
+link AltCentralTown - -
+link ResortTown - -
+link FogSchoolBF FogSchool1F -
+link FogSchool1F FogSchool2F FogSchoolBF
+link FogSchool2F FogSchoolRF FogSchool1F
+link FogSchoolRF - FogSchool2F
+link AltSchoolBF AltSchool1F -
+link AltSchool1F AltSchool2F AltSchoolBF
+link AltSchool2F AltSchoolRF AltSchool1F
+link AltSchoolRF - AltSchool2F
+link FogSewer1F FogSewer2F -
+link FogSewer2F - FogSewer1F
+link AltSewer - -
+link FogHospitalBF FogHospital1F -
+link FogHospital1F FogHospital2F FogHospitalBF
+link FogHospital2F FogHospital3F FogHospital1F
+link FogHospital3F - FogHospital2F
+link AltHospitalBF AltHospital1F -
+link AltHospital1F AltHospital2F AltHospitalBF
+link AltHospital2F AltHospital3F AltHospital1F
+link AltHospital3F - AltHospital2F
+grid school -4 -2 8 7
+cell school -4 -2  0 0
+cell school -4 -1  0 0
+cell school -4 0  -43 90
+cell school -4 1  -48 72
+cell school -4 2  -51 42
+cell school -4 3  -48 -32
+cell school -4 4  -47 68
+cell school -3 -2  0 0
+cell school -3 -1  0 0
+cell school -3 0  -1 82
+cell school -3 1  -33 -2
+cell school -3 2  -8 -80
+cell school -3 3  64 -80
+cell school -3 4  0 0
+cell school -2 -2  0 0
+cell school -2 -1  -36 -74
+cell school -2 0  72 80
+cell school -2 1  37 1
+cell school -2 2  28 -80
+cell school -2 3  104 -75
+cell school -2 4  0 0
+cell school -1 -2  31 -3
+cell school -1 -1  33 -43
+cell school -1 0  32 56
+cell school -1 1  112 32
+cell school -1 2  112 -32
+cell school -1 3  0 0
+cell school -1 4  54 1
+cell school 0 -2  66 100
+cell school 0 -1  65 65
+cell school 0 0  -48 88
+cell school 0 1  -48 72
+cell school 0 2  -43 37
+cell school 0 3  -48 -32
+cell school 0 4  0 0
+cell school 1 -2  64 65
+cell school 1 -1  111 77
+cell school 1 0  4 83
+cell school 1 1  -28 -2
+cell school 1 2  0 0
+cell school 1 3  68 84
+cell school 1 4  0 0
+cell school 2 -2  0 0
+cell school 2 -1  0 0
+cell school 2 0  32 80
+cell school 2 1  47 1
+cell school 2 2  -4 -82
+cell school 2 3  32 -80
+cell school 2 4  0 0
+cell school 3 -2  0 0
+cell school 3 -1  0 0
+cell school 3 0  32 56
+cell school 3 1  107 32
+cell school 3 2  117 -32
+cell school 3 3  89 -80
+cell school 3 4  64 1
+grid fog_hospital -1 -2 5 6
+cell fog_hospital -1 -2  0 0
+cell fog_hospital -1 -1  60 -83
+cell fog_hospital -1 0  87 -81
+cell fog_hospital -1 1  0 0
+cell fog_hospital -1 2  0 0
+cell fog_hospital -1 3  0 0
+cell fog_hospital 0 -2  0 0
+cell fog_hospital 0 -1  98 -36
+cell fog_hospital 0 0  68 -19
+cell fog_hospital 0 1  102 -1
+cell fog_hospital 0 2  0 0
+cell fog_hospital 0 3  -53 -25
+cell fog_hospital 1 -2  0 0
+cell fog_hospital 1 -1  59 -40
+cell fog_hospital 1 0  111 -84
+cell fog_hospital 1 1  104 41
+cell fog_hospital 1 2  32 11
+cell fog_hospital 1 3  0 0
+cell fog_hospital 2 -2  0 0
+cell fog_hospital 2 -1  0 0
+cell fog_hospital 2 0  102 -49
+cell fog_hospital 2 1  102 69
+cell fog_hospital 2 2  1 6
+cell fog_hospital 2 3  0 0
+cell fog_hospital 3 -2  0 0
+cell fog_hospital 3 -1  104 -25
+cell fog_hospital 3 0  104 -24
+cell fog_hospital 3 1  0 0
+cell fog_hospital 3 2  -10 -41
+cell fog_hospital 3 3  0 0
+grid alt_hospital -4 -4 8 8
+cell alt_hospital -4 -4  0 0
+cell alt_hospital -4 -3  32 11
+cell alt_hospital -4 -2  -40 48
+cell alt_hospital -4 -1  -5 72
+cell alt_hospital -4 0  62 71
+cell alt_hospital -4 1  -39 -62
+cell alt_hospital -4 2  68 -66
+cell alt_hospital -4 3  0 0
+cell alt_hospital -3 -4  0 0
+cell alt_hospital -3 -3  68 -66
+cell alt_hospital -3 -2  -40 -66
+cell alt_hospital -3 -1  0 0
+cell alt_hospital -3 0  98 79
+cell alt_hospital -3 1  -35 -3
+cell alt_hospital -3 2  60 1
+cell alt_hospital -3 3  0 0
+cell alt_hospital -2 -4  0 0
+cell alt_hospital -2 -3  68 38
+cell alt_hospital -2 -2  -40 -12
+cell alt_hospital -2 -1  56 78
+cell alt_hospital -2 0  110 24
+cell alt_hospital -2 1  0 0
+cell alt_hospital -2 2  14 -13
+cell alt_hospital -2 3  0 0
+cell alt_hospital -1 -4  0 0
+cell alt_hospital -1 -3  -4 -17
+cell alt_hospital -1 -2  -40 13
+cell alt_hospital -1 -1  104 -18
+cell alt_hospital -1 0  109 -53
+cell alt_hospital -1 1  0 0
+cell alt_hospital -1 2  -46 66
+cell alt_hospital -1 3  32 12
+cell alt_hospital 0 -4  0 0
+cell alt_hospital 0 -3  0 0
+cell alt_hospital 0 -2  31 -66
+cell alt_hospital 0 -1  32 12
+cell alt_hospital 0 0  -10 48
+cell alt_hospital 0 1  110 -83
+cell alt_hospital 0 2  0 0
+cell alt_hospital 0 3  31 10
+cell alt_hospital 1 -4  0 0
+cell alt_hospital 1 -3  0 0
+cell alt_hospital 1 -2  59 -39
+cell alt_hospital 1 -1  32 -24
+cell alt_hospital 1 0  0 0
+cell alt_hospital 1 1  116 -48
+cell alt_hospital 1 2  0 0
+cell alt_hospital 1 3  1 7
+cell alt_hospital 2 -4  0 0
+cell alt_hospital 2 -3  0 0
+cell alt_hospital 2 -2  98 -37
+cell alt_hospital 2 -1  0 0
+cell alt_hospital 2 0  0 0
+cell alt_hospital 2 1  104 -24
+cell alt_hospital 2 2  68 71
+cell alt_hospital 2 3  -52 -24
+cell alt_hospital 3 -4  0 0
+cell alt_hospital 3 -3  0 0
+cell alt_hospital 3 -2  0 0
+cell alt_hospital 3 -1  103 -23
+cell alt_hospital 3 0  68 -24
+cell alt_hospital 3 1  101 -5
+cell alt_hospital 3 2  41 86
+cell alt_hospital 3 3  0 0
+page OldTown OldTown 34
+sprite OldTown 1  0 0 15 31
+sprite OldTown 2  16 0 15 31
+sprite OldTown 3  32 0 15 31
+sprite OldTown 4  48 0 15 31
+sprite OldTown 5  64 0 15 31
+sprite OldTown 6  80 0 15 31
+sprite OldTown 7  96 0 15 31
+sprite OldTown 8  80 112 31 47
+sprite OldTown 9  32 32 31 31
+sprite OldTown 10  64 32 31 31
+sprite OldTown 11  0 64 31 63
+sprite OldTown 12  32 64 15 47
+sprite OldTown 13  0 128 79 95
+sprite OldTown 14  80 64 31 47
+sprite OldTown 15  96 32 31 31
+sprite OldTown 16  112 64 15 95
+sprite OldTown 17  80 160 31 63
+mark OldTown 0  7 -114 1 0 868 869
+mark OldTown 1  10 -30 4 0 870 871
+mark OldTown 2  12 -23 5 0 872 873
+mark OldTown 3  -8 -66 14 0 874 875
+mark OldTown 4  -33 -67 1 0 876 877
+mark OldTown 5  -54 -83 1 0 878 879
+mark OldTown 6  -63 -35 1 0 880 881
+mark OldTown 7  -54 106 1 0 882 883
+mark OldTown 8  -35 92 1 0 884 885
+mark OldTown 9  0 92 1 0 886 887
+mark OldTown 10  6 54 1 0 888 889
+mark OldTown 11  36 67 1 0 890 891
+mark OldTown 12  3 71 13 0 892 893
+mark OldTown 13  36 15 1 0 894 895
+mark OldTown 14  7 14 1 0 896 897
+mark OldTown 15  55 -68 1 0 898 899
+mark OldTown 16  -34 32 1 0 900 901
+mark OldTown 17  -24 26 1 0 902 903
+mark OldTown 18  -17 34 1 0 904 905
+mark OldTown 19  -24 55 1 0 906 907
+mark OldTown 20  -30 32 11 0 908 909
+mark OldTown 21  -35 -7 1 0 910 911
+mark OldTown 22  -37 -33 9 0 912 913
+mark OldTown 23  -37 68 9 0 914 915
+mark OldTown 24  37 -69 15 0 916 917
+mark OldTown 25  21 -57 16 0 918 919
+mark OldTown 26  31 0 17 0 920 921
+mark OldTown 27  60 32 1 6 922 923
+mark OldTown 28  57 19 10 0 924 925
+mark OldTown 29  13 43 2 3 926 927
+mark OldTown 30  -60 41 0 0 928 929
+mark OldTown 31  -67 78 2 3 930 931
+mark OldTown 32  -37 68 8 0 932 933
+mark OldTown 33  -33 -32 7 0 934 935
+page FogCentralTown CentralTown 7
+sprite FogCentralTown 1  0 128 63 31
+sprite FogCentralTown 2  48 64 31 63
+sprite FogCentralTown 3  80 64 31 31
+sprite FogCentralTown 4  0 64 31 63
+sprite FogCentralTown 5  0 0 15 31
+sprite FogCentralTown 6  16 0 15 31
+sprite FogCentralTown 7  32 0 15 31
+sprite FogCentralTown 8  64 0 15 31
+mark FogCentralTown 0  44 -106 1 0 944 945
+mark FogCentralTown 1  -16 91 6 0 946 947
+mark FogCentralTown 2  -28 -52 2 0 948 949
+mark FogCentralTown 3  -28 105 3 0 950 951
+mark FogCentralTown 4  50 -14 2 0 952 953
+mark FogCentralTown 5  49 65 2 0 954 955
+mark FogCentralTown 6  32 -120 3 0 956 957
+page AltCentralTown CentralTown 15
+sprite AltCentralTown 1  0 128 63 31
+sprite AltCentralTown 2  48 64 31 63
+sprite AltCentralTown 3  80 64 31 31
+sprite AltCentralTown 4  0 64 31 63
+sprite AltCentralTown 5  0 0 15 31
+sprite AltCentralTown 6  16 0 15 31
+sprite AltCentralTown 7  32 0 15 31
+sprite AltCentralTown 8  64 0 15 31
+mark AltCentralTown 0  44 -106 1 0 978 979
+mark AltCentralTown 1  -16 91 6 0 980 981
+mark AltCentralTown 2  -28 -54 2 0 982 983
+mark AltCentralTown 3  -28 105 3 0 984 985
+mark AltCentralTown 4  32 -120 3 0 986 987
+mark AltCentralTown 5  36 -47 5 0 988 989
+mark AltCentralTown 6  36 34 5 0 990 991
+mark AltCentralTown 7  6 28 5 0 992 993
+mark AltCentralTown 8  -7 63 2 0 994 995
+mark AltCentralTown 9  69 -14 2 0 996 997
+mark AltCentralTown 10  -50 -17 2 0 998 999
+mark AltCentralTown 11  60 -95 2 0 1000 1001
+mark AltCentralTown 12  66 4 5 0 1002 1003
+mark AltCentralTown 13  -80 -120 0 0 1004 1005
+mark AltCentralTown 14  -24 62 2 0 1006 1007
+page ResortTown CentralTown 8
+sprite ResortTown 1  0 128 63 31
+sprite ResortTown 2  48 64 31 63
+sprite ResortTown 3  80 64 31 31
+sprite ResortTown 4  0 64 31 63
+sprite ResortTown 5  0 0 15 31
+sprite ResortTown 6  16 0 15 31
+sprite ResortTown 7  32 0 15 31
+sprite ResortTown 8  64 0 15 31
+mark ResortTown 0  16 -105 5 0 1012 1013
+mark ResortTown 1  44 -84 2 0 1014 1015
+mark ResortTown 2  -15 9 5 0 1016 1017
+mark ResortTown 3  -22 15 5 0 1018 1019
+mark ResortTown 4  -64 -19 2 0 1020 1021
+mark ResortTown 5  0 -13 5 0 1022 1023
+mark ResortTown 6  -31 77 6 7 1024 1025
+mark ResortTown 7  -56 -22 8 0 1026 1027
+page FogSchoolBF School 2
+sprite FogSchoolBF 1  0 0 15 31
+sprite FogSchoolBF 2  16 0 15 31
+sprite FogSchoolBF 3  32 0 15 31
+sprite FogSchoolBF 4  48 0 15 31
+sprite FogSchoolBF 5  64 0 15 31
+sprite FogSchoolBF 6  80 0 15 31
+sprite FogSchoolBF 7  96 0 15 31
+sprite FogSchoolBF 8  0 32 31 31
+sprite FogSchoolBF 9  32 32 31 31
+sprite FogSchoolBF 10  80 32 15 31
+sprite FogSchoolBF 11  64 32 15 31
+sprite FogSchoolBF 12  96 32 15 31
+sprite FogSchoolBF 13  0 64 31 31
+mark FogSchoolBF 0  36 82 2 4 1046 1047
+mark FogSchoolBF 1  36 56 0 4 1048 1049
+page FogSchool1F School 30
+sprite FogSchool1F 1  0 0 15 31
+sprite FogSchool1F 2  16 0 15 31
+sprite FogSchool1F 3  32 0 15 31
+sprite FogSchool1F 4  48 0 15 31
+sprite FogSchool1F 5  64 0 15 31
+sprite FogSchool1F 6  80 0 15 31
+sprite FogSchool1F 7  96 0 15 31
+sprite FogSchool1F 8  0 32 31 31
+sprite FogSchool1F 9  32 32 31 31
+sprite FogSchool1F 10  80 32 15 31
+sprite FogSchool1F 11  64 32 15 31
+sprite FogSchool1F 12  96 32 15 31
+sprite FogSchool1F 13  0 64 31 31
+mark FogSchool1F 0  12 88 0 3 1066 1067
+mark FogSchool1F 1  12 56 0 3 1068 1069
+mark FogSchool1F 2  -12 48 11 4 1070 1071
+mark FogSchool1F 3  -10 68 1 3 1072 1073
+mark FogSchool1F 4  23 56 0 3 1074 1075
+mark FogSchool1F 5  12 32 1 3 1076 1077
+mark FogSchool1F 6  36 48 11 4 1078 1079
+mark FogSchool1F 7  36 -64 11 4 1080 1081
+mark FogSchool1F 8  38 -72 1 0 1082 1083
+mark FogSchool1F 9  44 -66 2 4 1084 1085
+mark FogSchool1F 10  44 -14 2 4 1086 1087
+mark FogSchool1F 11  44 -2 2 4 1088 1089
+mark FogSchool1F 12  44 50 2 4 1090 1091
+mark FogSchool1F 13  57 -8 0 3 1092 1093
+mark FogSchool1F 14  12 -48 0 3 1094 1095
+mark FogSchool1F 15  23 -72 1 0 1096 1097
+mark FogSchool1F 16  12 -72 0 3 1098 1099
+mark FogSchool1F 17  -7 -72 1 0 1100 1101
+mark FogSchool1F 18  -12 -64 0 4 1102 1103
+mark FogSchool1F 19  12 -104 1 0 1104 1105
+mark FogSchool1F 20  -20 -67 2 0 1106 1107
+mark FogSchool1F 21  -20 -15 2 0 1108 1109
+mark FogSchool1F 22  -20 -2 2 0 1110 1111
+mark FogSchool1F 23  -20 49 2 0 1112 1113
+mark FogSchool1F 24  -20 68 0 4 1114 1115
+mark FogSchool1F 25  -20 84 0 4 1116 1117
+mark FogSchool1F 26  -2 60 7 0 1118 1119
+mark FogSchool1F 27  30 28 6 0 1120 1121
+mark FogSchool1F 28  -12 48 2 0 1122 1123
+mark FogSchool1F 29  36 -64 2 0 1124 1125
+page FogSchool2F School 26
+sprite FogSchool2F 1  0 0 15 31
+sprite FogSchool2F 2  16 0 15 31
+sprite FogSchool2F 3  32 0 15 31
+sprite FogSchool2F 4  48 0 15 31
+sprite FogSchool2F 5  64 0 15 31
+sprite FogSchool2F 6  80 0 15 31
+sprite FogSchool2F 7  96 0 15 31
+sprite FogSchool2F 8  0 32 31 31
+sprite FogSchool2F 9  32 32 31 31
+sprite FogSchool2F 10  80 32 15 31
+sprite FogSchool2F 11  64 32 15 31
+sprite FogSchool2F 12  96 32 15 31
+sprite FogSchool2F 13  0 64 31 31
+mark FogSchool2F 0  -12 48 11 4 1222 1223
+mark FogSchool2F 1  -9 56 0 3 1224 1225
+mark FogSchool2F 2  23 56 0 3 1226 1227
+mark FogSchool2F 3  36 48 2 4 1228 1229
+mark FogSchool2F 4  36 -64 2 4 1230 1231
+mark FogSchool2F 5  39 -72 1 3 1232 1233
+mark FogSchool2F 6  44 -66 2 4 1234 1235
+mark FogSchool2F 7  44 -14 2 4 1236 1237
+mark FogSchool2F 8  44 -2 2 4 1238 1239
+mark FogSchool2F 9  44 50 2 4 1240 1241
+mark FogSchool2F 10  58 -8 0 3 1242 1243
+mark FogSchool2F 11  33 -72 10 3 1244 1245
+mark FogSchool2F 12  0 -72 0 3 1246 1247
+mark FogSchool2F 13  -6 -72 0 3 1248 1249
+mark FogSchool2F 14  -12 -64 0 4 1250 1251
+mark FogSchool2F 15  -20 -66 0 4 1252 1253
+mark FogSchool2F 16  -20 -14 0 4 1254 1255
+mark FogSchool2F 17  -20 -2 0 4 1256 1257
+mark FogSchool2F 18  -20 50 0 4 1258 1259
+mark FogSchool2F 19  -33 -8 0 3 1260 1261
+mark FogSchool2F 20  -20 68 0 4 1262 1263
+mark FogSchool2F 21  -20 84 0 4 1264 1265
+mark FogSchool2F 22  36 -98 0 4 1266 1267
+mark FogSchool2F 23  8 -81 9 0 1268 1269
+mark FogSchool2F 24  -8 84 8 0 1270 1271
+mark FogSchool2F 25  30 68 7 0 1272 1273
+page FogSchoolRF School 2
+sprite FogSchoolRF 1  0 0 15 31
+sprite FogSchoolRF 2  16 0 15 31
+sprite FogSchoolRF 3  32 0 15 31
+sprite FogSchoolRF 4  48 0 15 31
+sprite FogSchoolRF 5  64 0 15 31
+sprite FogSchoolRF 6  80 0 15 31
+sprite FogSchoolRF 7  96 0 15 31
+sprite FogSchoolRF 8  0 32 31 31
+sprite FogSchoolRF 9  32 32 31 31
+sprite FogSchoolRF 10  80 32 15 31
+sprite FogSchoolRF 11  64 32 15 31
+sprite FogSchoolRF 12  96 32 15 31
+sprite FogSchoolRF 13  0 64 31 31
+mark FogSchoolRF 0  -13 -96 2 4 1354 1355
+mark FogSchoolRF 1  34 -87 13 0 1356 1357
+page AltSchoolBF School 2
+sprite AltSchoolBF 1  0 0 15 31
+sprite AltSchoolBF 2  16 0 15 31
+sprite AltSchoolBF 3  32 0 15 31
+sprite AltSchoolBF 4  48 0 15 31
+sprite AltSchoolBF 5  64 0 15 31
+sprite AltSchoolBF 6  80 0 15 31
+sprite AltSchoolBF 7  96 0 15 31
+sprite AltSchoolBF 8  0 32 31 31
+sprite AltSchoolBF 9  32 32 31 31
+sprite AltSchoolBF 10  80 32 15 31
+sprite AltSchoolBF 11  64 32 15 31
+sprite AltSchoolBF 12  96 32 15 31
+sprite AltSchoolBF 13  0 64 31 31
+mark AltSchoolBF 0  36 82 2 4 1056 1057
+mark AltSchoolBF 1  36 56 0 4 1058 1059
+page AltSchool1F School 33
+sprite AltSchool1F 1  0 0 15 31
+sprite AltSchool1F 2  16 0 15 31
+sprite AltSchool1F 3  32 0 15 31
+sprite AltSchool1F 4  48 0 15 31
+sprite AltSchool1F 5  64 0 15 31
+sprite AltSchool1F 6  80 0 15 31
+sprite AltSchool1F 7  96 0 15 31
+sprite AltSchool1F 8  0 32 31 31
+sprite AltSchool1F 9  32 32 31 31
+sprite AltSchool1F 10  80 32 15 31
+sprite AltSchool1F 11  64 32 15 31
+sprite AltSchool1F 12  96 32 15 31
+sprite AltSchool1F 13  0 64 31 31
+mark AltSchool1F 0  12 88 1 0 1144 1145
+mark AltSchool1F 1  12 56 0 3 1146 1147
+mark AltSchool1F 2  -12 48 11 4 1148 1149
+mark AltSchool1F 3  -10 68 0 3 1150 1151
+mark AltSchool1F 4  22 56 0 3 1152 1153
+mark AltSchool1F 5  12 32 10 3 1154 1155
+mark AltSchool1F 6  36 48 0 4 1156 1157
+mark AltSchool1F 7  36 -64 11 4 1158 1159
+mark AltSchool1F 8  38 -72 0 3 1160 1161
+mark AltSchool1F 9  44 -66 0 4 1162 1163
+mark AltSchool1F 10  44 -14 0 4 1164 1165
+mark AltSchool1F 11  44 -2 2 4 1166 1167
+mark AltSchool1F 12  44 50 0 4 1168 1169
+mark AltSchool1F 13  57 -8 0 3 1170 1171
+mark AltSchool1F 14  12 -48 0 3 1172 1173
+mark AltSchool1F 15  23 -72 0 3 1174 1175
+mark AltSchool1F 16  12 -72 0 3 1176 1177
+mark AltSchool1F 17  -7 -72 0 3 1178 1179
+mark AltSchool1F 18  -12 -64 11 4 1180 1181
+mark AltSchool1F 19  -20 -67 0 4 1182 1183
+mark AltSchool1F 20  -20 -15 2 0 1184 1185
+mark AltSchool1F 21  -20 -2 0 4 1186 1187
+mark AltSchool1F 22  -20 49 0 4 1188 1189
+mark AltSchool1F 23  -20 68 0 4 1190 1191
+mark AltSchool1F 24  -20 84 0 4 1192 1193
+mark AltSchool1F 25  -33 -8 0 3 1194 1195
+mark AltSchool1F 26  -16 -8 1 0 1196 1197
+mark AltSchool1F 27  40 -8 1 0 1198 1199
+mark AltSchool1F 28  40 56 10 3 1200 1201
+mark AltSchool1F 29  12 -8 7 0 1202 1203
+mark AltSchool1F 30  12 -100 5 0 1204 1205
+mark AltSchool1F 31  -12 78 11 4 1206 1207
+mark AltSchool1F 32  40 57 12 0 1208 1209
+page AltSchool2F School 26
+sprite AltSchool2F 1  0 0 15 31
+sprite AltSchool2F 2  16 0 15 31
+sprite AltSchool2F 3  32 0 15 31
+sprite AltSchool2F 4  48 0 15 31
+sprite AltSchool2F 5  64 0 15 31
+sprite AltSchool2F 6  80 0 15 31
+sprite AltSchool2F 7  96 0 15 31
+sprite AltSchool2F 8  0 32 31 31
+sprite AltSchool2F 9  32 32 31 31
+sprite AltSchool2F 10  80 32 15 31
+sprite AltSchool2F 11  64 32 15 31
+sprite AltSchool2F 12  96 32 15 31
+sprite AltSchool2F 13  0 64 31 31
+mark AltSchool2F 0  -12 48 0 4 1288 1289
+mark AltSchool2F 1  -9 56 1 0 1290 1291
+mark AltSchool2F 2  23 56 0 3 1292 1293
+mark AltSchool2F 3  36 48 11 4 1294 1295
+mark AltSchool2F 4  36 -64 11 4 1296 1297
+mark AltSchool2F 5  40 -72 0 3 1298 1299
+mark AltSchool2F 6  44 -66 11 4 1300 1301
+mark AltSchool2F 7  44 -14 11 4 1302 1303
+mark AltSchool2F 8  44 -2 0 4 1304 1305
+mark AltSchool2F 9  44 50 0 4 1306 1307
+mark AltSchool2F 10  58 -8 0 3 1308 1309
+mark AltSchool2F 11  33 -72 10 3 1310 1311
+mark AltSchool2F 12  1 -72 1 0 1312 1313
+mark AltSchool2F 13  -5 -72 1 0 1314 1315
+mark AltSchool2F 14  -12 -64 0 4 1316 1317
+mark AltSchool2F 15  -20 -66 0 4 1318 1319
+mark AltSchool2F 16  -20 -14 0 4 1320 1321
+mark AltSchool2F 17  -20 -2 0 4 1322 1323
+mark AltSchool2F 18  -20 50 0 4 1324 1325
+mark AltSchool2F 19  -33 -8 0 3 1326 1327
+mark AltSchool2F 20  -20 68 0 4 1328 1329
+mark AltSchool2F 21  -20 84 0 4 1330 1331
+mark AltSchool2F 22  -16 -8 1 0 1332 1333
+mark AltSchool2F 23  -16 56 1 0 1334 1335
+mark AltSchool2F 24  40 -8 1 0 1336 1337
+mark AltSchool2F 25  36 -98 0 4 1338 1339
+page AltSchoolRF School 2
+sprite AltSchoolRF 1  0 0 15 31
+sprite AltSchoolRF 2  16 0 15 31
+sprite AltSchoolRF 3  32 0 15 31
+sprite AltSchoolRF 4  48 0 15 31
+sprite AltSchoolRF 5  64 0 15 31
+sprite AltSchoolRF 6  80 0 15 31
+sprite AltSchoolRF 7  96 0 15 31
+sprite AltSchoolRF 8  0 32 31 31
+sprite AltSchoolRF 9  32 32 31 31
+sprite AltSchoolRF 10  80 32 15 31
+sprite AltSchoolRF 11  64 32 15 31
+sprite AltSchoolRF 12  96 32 15 31
+sprite AltSchoolRF 13  0 64 31 31
+mark AltSchoolRF 0  -13 -96 2 4 1362 1363
+mark AltSchoolRF 1  34 -87 13 0 1364 1365
+page FogSewer1F Sewer 4
+sprite FogSewer1F 1  64 0 7 15
+sprite FogSewer1F 2  56 0 7 15
+sprite FogSewer1F 3  16 0 7 15
+sprite FogSewer1F 4  24 0 7 15
+sprite FogSewer1F 5  0 16 31 47
+mark FogSewer1F 0  12 36 1 3 1370 1371
+mark FogSewer1F 1  46 -61 2 4 1372 1373
+mark FogSewer1F 2  46 -73 2 4 1374 1375
+mark FogSewer1F 3  47 -53 1 3 1376 1377
+page FogSewer2F Sewer 5
+sprite FogSewer2F 1  64 0 7 15
+sprite FogSewer2F 2  56 0 7 15
+sprite FogSewer2F 3  16 0 7 15
+sprite FogSewer2F 4  24 0 7 15
+sprite FogSewer2F 5  0 16 31 47
+mark FogSewer2F 0  54 35 2 4 1390 1391
+mark FogSewer2F 1  34 35 2 4 1392 1393
+mark FogSewer2F 2  -2 36 2 4 1394 1395
+mark FogSewer2F 3  -26 45 2 4 1396 1397
+mark FogSewer2F 4  -36 9 5 0 1398 1399
+page AltSewer Sewer 1
+sprite AltSewer 1  64 0 7 15
+sprite AltSewer 2  56 0 7 15
+sprite AltSewer 3  16 0 7 15
+sprite AltSewer 4  24 0 7 15
+sprite AltSewer 5  0 16 31 47
+mark AltSewer 0  40 -27 5 0 1414 1415
+page FogHospitalBF Hospital 5
+sprite FogHospitalBF 1  0 0 15 31
+sprite FogHospitalBF 2  16 0 15 31
+sprite FogHospitalBF 3  32 0 15 31
+sprite FogHospitalBF 4  48 0 15 31
+sprite FogHospitalBF 5  64 0 15 31
+sprite FogHospitalBF 6  80 0 15 31
+sprite FogHospitalBF 7  96 0 15 31
+sprite FogHospitalBF 8  80 32 15 31
+sprite FogHospitalBF 9  64 32 15 31
+sprite FogHospitalBF 10  0 32 31 31
+mark FogHospitalBF 0  36 -51 0 4 1512 1513
+mark FogHospitalBF 1  24 -80 2 0 1514 1515
+mark FogHospitalBF 2  24 -37 2 0 1516 1517
+mark FogHospitalBF 3  36 -26 0 4 1518 1519
+mark FogHospitalBF 4  36 -2 2 0 1520 1521
+page FogHospital1F Hospital 16
+sprite FogHospital1F 1  0 0 15 31
+sprite FogHospital1F 2  16 0 15 31
+sprite FogHospital1F 3  32 0 15 31
+sprite FogHospital1F 4  48 0 15 31
+sprite FogHospital1F 5  64 0 15 31
+sprite FogHospital1F 6  80 0 15 31
+sprite FogHospital1F 7  96 0 15 31
+sprite FogHospital1F 8  80 32 15 31
+sprite FogHospital1F 9  64 32 15 31
+sprite FogHospital1F 10  0 32 31 31
+mark FogHospital1F 0  -31 16 1 0 1424 1425
+mark FogHospital1F 1  -24 -13 0 4 1426 1427
+mark FogHospital1F 2  -9 -56 0 3 1428 1429
+mark FogHospital1F 3  -21 -31 0 3 1430 1431
+mark FogHospital1F 4  0 -1 0 4 1432 1433
+mark FogHospital1F 5  20 16 0 3 1434 1435
+mark FogHospital1F 6  18 40 1 0 1436 1437
+mark FogHospital1F 7  30 40 1 0 1438 1439
+mark FogHospital1F 8  45 52 0 3 1440 1441
+mark FogHospital1F 9  36 28 2 4 1442 1443
+mark FogHospital1F 10  36 -2 2 4 1444 1445
+mark FogHospital1F 11  36 -27 2 4 1446 1447
+mark FogHospital1F 12  36 -61 9 4 1448 1449
+mark FogHospital1F 13  36 -61 2 0 1450 1451
+mark FogHospital1F 14  12 29 2 0 1452 1453
+mark FogHospital1F 15  24 -96 2 4 1454 1455
+page FogHospital2F Hospital 1
+sprite FogHospital2F 1  0 0 15 31
+sprite FogHospital2F 2  16 0 15 31
+sprite FogHospital2F 3  32 0 15 31
+sprite FogHospital2F 4  48 0 15 31
+sprite FogHospital2F 5  64 0 15 31
+sprite FogHospital2F 6  80 0 15 31
+sprite FogHospital2F 7  96 0 15 31
+sprite FogHospital2F 8  80 32 15 31
+sprite FogHospital2F 9  64 32 15 31
+sprite FogHospital2F 10  0 32 31 31
+mark FogHospital2F 0  30 -68 1 0 1552 1553
+page FogHospital3F Hospital 1
+sprite FogHospital3F 1  0 0 15 31
+sprite FogHospital3F 2  16 0 15 31
+sprite FogHospital3F 3  32 0 15 31
+sprite FogHospital3F 4  48 0 15 31
+sprite FogHospital3F 5  64 0 15 31
+sprite FogHospital3F 6  80 0 15 31
+sprite FogHospital3F 7  96 0 15 31
+sprite FogHospital3F 8  80 32 15 31
+sprite FogHospital3F 9  64 32 15 31
+sprite FogHospital3F 10  0 32 31 31
+mark FogHospital3F 0  30 -68 1 0 1558 1559
+page AltHospitalBF Hospital 5
+sprite AltHospitalBF 1  0 0 15 31
+sprite AltHospitalBF 2  16 0 15 31
+sprite AltHospitalBF 3  32 0 15 31
+sprite AltHospitalBF 4  48 0 15 31
+sprite AltHospitalBF 5  64 0 15 31
+sprite AltHospitalBF 6  80 0 15 31
+sprite AltHospitalBF 7  96 0 15 31
+sprite AltHospitalBF 8  80 32 15 31
+sprite AltHospitalBF 9  64 32 15 31
+sprite AltHospitalBF 10  0 32 31 31
+mark AltHospitalBF 0  36 -51 0 4 1532 1533
+mark AltHospitalBF 1  24 -80 0 4 1534 1535
+mark AltHospitalBF 2  24 -37 9 4 1536 1537
+mark AltHospitalBF 3  36 -26 0 4 1538 1539
+mark AltHospitalBF 4  36 -2 2 0 1540 1541
+page AltHospital1F Hospital 15
+sprite AltHospital1F 1  0 0 15 31
+sprite AltHospital1F 2  16 0 15 31
+sprite AltHospital1F 3  32 0 15 31
+sprite AltHospital1F 4  48 0 15 31
+sprite AltHospital1F 5  64 0 15 31
+sprite AltHospital1F 6  80 0 15 31
+sprite AltHospital1F 7  96 0 15 31
+sprite AltHospital1F 8  80 32 15 31
+sprite AltHospital1F 9  64 32 15 31
+sprite AltHospital1F 10  0 32 31 31
+mark AltHospital1F 0  -31 16 1 0 1468 1469
+mark AltHospital1F 1  -24 -13 0 4 1470 1471
+mark AltHospital1F 2  -21 -31 1 0 1472 1473
+mark AltHospital1F 3  0 -1 9 4 1474 1475
+mark AltHospital1F 4  20 16 1 3 1476 1477
+mark AltHospital1F 5  18 40 0 3 1478 1479
+mark AltHospital1F 6  30 40 0 3 1480 1481
+mark AltHospital1F 7  36 28 2 0 1482 1483
+mark AltHospital1F 8  36 -2 0 4 1484 1485
+mark AltHospital1F 9  36 -27 0 4 1486 1487
+mark AltHospital1F 10  36 -61 0 4 1488 1489
+mark AltHospital1F 11  12 29 0 4 1490 1491
+mark AltHospital1F 12  24 -96 2 0 1492 1493
+mark AltHospital1F 13  -4 40 1 0 1494 1495
+mark AltHospital1F 14  4 40 1 0 1496 1497
+page AltHospital2F Hospital 16
+sprite AltHospital2F 1  0 0 15 31
+sprite AltHospital2F 2  16 0 15 31
+sprite AltHospital2F 3  32 0 15 31
+sprite AltHospital2F 4  48 0 15 31
+sprite AltHospital2F 5  64 0 15 31
+sprite AltHospital2F 6  80 0 15 31
+sprite AltHospital2F 7  96 0 15 31
+sprite AltHospital2F 8  80 32 15 31
+sprite AltHospital2F 9  64 32 15 31
+sprite AltHospital2F 10  0 32 31 31
+mark AltHospital2F 0  30 -68 8 3 1564 1565
+mark AltHospital2F 1  36 -61 0 4 1566 1567
+mark AltHospital2F 2  36 -26 2 0 1568 1569
+mark AltHospital2F 3  36 13 0 4 1570 1571
+mark AltHospital2F 4  24 40 0 3 1572 1573
+mark AltHospital2F 5  36 64 0 4 1574 1575
+mark AltHospital2F 6  21 16 8 3 1576 1577
+mark AltHospital2F 7  12 29 9 4 1578 1579
+mark AltHospital2F 8  4 40 1 0 1580 1581
+mark AltHospital2F 9  -4 40 1 0 1582 1583
+mark AltHospital2F 10  -12 29 0 4 1584 1585
+mark AltHospital2F 11  -12 8 0 4 1586 1587
+mark AltHospital2F 12  -12 -17 2 0 1588 1589
+mark AltHospital2F 13  -12 -36 2 0 1590 1591
+mark AltHospital2F 14  -12 -64 0 4 1592 1593
+mark AltHospital2F 15  0 -1 0 4 1594 1595
+page AltHospital3F Hospital 17
+sprite AltHospital3F 1  0 0 15 31
+sprite AltHospital3F 2  16 0 15 31
+sprite AltHospital3F 3  32 0 15 31
+sprite AltHospital3F 4  48 0 15 31
+sprite AltHospital3F 5  64 0 15 31
+sprite AltHospital3F 6  80 0 15 31
+sprite AltHospital3F 7  96 0 15 31
+sprite AltHospital3F 8  80 32 15 31
+sprite AltHospital3F 9  64 32 15 31
+sprite AltHospital3F 10  0 32 31 31
+mark AltHospital3F 0  30 -68 8 3 1610 1611
+mark AltHospital3F 1  36 -61 2 0 1612 1613
+mark AltHospital3F 2  36 -36 0 4 1614 1615
+mark AltHospital3F 3  36 12 2 0 1616 1617
+mark AltHospital3F 4  24 40 0 3 1618 1619
+mark AltHospital3F 5  36 64 2 0 1620 1621
+mark AltHospital3F 6  21 16 0 3 1622 1623
+mark AltHospital3F 7  12 28 0 4 1624 1625
+mark AltHospital3F 8  -4 40 0 3 1626 1627
+mark AltHospital3F 9  3 40 1 0 1628 1629
+mark AltHospital3F 10  -12 29 0 4 1630 1631
+mark AltHospital3F 11  -12 9 0 4 1632 1633
+mark AltHospital3F 12  -12 -15 0 4 1634 1635
+mark AltHospital3F 13  -12 -36 2 0 1636 1637
+mark AltHospital3F 14  -12 -64 0 4 1638 1639
+mark AltHospital3F 15  0 0 0 4 1640 1641
+mark AltHospital3F 16  -32 -27 10 0 1642 1643

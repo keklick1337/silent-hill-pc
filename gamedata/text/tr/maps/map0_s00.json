@@ -1,0 +1,32 @@
+{
+  "format": "sh-text",
+  "version": 1,
+  "lang": "tr",
+  "map": "map0_s00",
+  "strings": {
+    "map0_s00.cheryl_where_could_you_be": "{wait 2.5}Cheryl. Nerede olabilirsin?{end}",
+    "map0_s00.its_strange": "{wait 1.5}Tuhaf...",
+    "map0_s00.its_quiet_too_quiet": "{wait 2.0}Sessiz. Fazla sessiz.",
+    "map0_s00.this_place_is_like_a": "{wait 3.0}Burası hayalet\nkasaba gibi.{end}",
+    "map0_s00.cheryl": "{wait 3.0}Cheryl.{end}",
+    "map0_s00.footsteps": "{wait 1.5}Ayak sesleri mi?{end}",
+    "map0_s00.cheryl_is_that_cheryl": "{wait 2.8}Cheryl?\nBu Cheryl mi!?{end}",
+    "map0_s00.where_are_you_going": "{wait 1.2}Nereye gidiyorsun?{end}",
+    "map0_s00.hey_wait_stop": "{wait 1.8}Hey, bekle... dur!{end}",
+    "map0_s00.id_better_follow_cheryl": "Cheryl'in peşinden\ngitsem iyi olacak...{end}",
+    "map0_s00.thats_strange_its_getting": "Tuhaf,\nhava kararıyor.{end}",
+    "map0_s00.a_dead_end_what_the": "Çıkmaz sokak mı?\nBu da ne demek!?{end}",
+    "map0_s00.what_is_this": "{wait 1.6}Bu da ne?",
+    "map0_s00.whats_going_on_here": "{wait 2.5}Neler oluyor burada!?{end}",
+    "map0_s00.whats_this": "Bu ne?{end}",
+    "map0_s00.better_than_nothing_i_guess": "......hiç yoktan iyidir\nherhâlde.{end}",
+    "map0_s00.what_whats_this_doing_here": "Ne?\nBunun burada ne işi var?{end}",
+    "map0_s00.blocked_by_a_fence": "Yolu çit mi kesmiş?{end}",
+    "map0_s00.a_broken_wheelchair_whats_this": "Kırık bir tekerlekli sandalye mi?\nBunun burada ne işi var?{end}",
+    "map0_s00.what_the_what_is_it": "Bu da..?\nNedir bu?{end}",
+    "map0_s00.the_street_is_blocked": "Sokak kapalı.",
+    "map0_s00.cant_get_out_of_town": "Buradan kasabanın\ndışına çıkılmaz.{end}",
+    "map0_s00.my_car_too_banged_up": "Arabam...\nsürülemeyecek kadar hasarlı.",
+    "map0_s00.wheres_cheryl_hope_shes_safe": "Cheryl nerede?\nUmarım güvendedir.{end}"
+  }
+}

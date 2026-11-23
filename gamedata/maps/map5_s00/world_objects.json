@@ -1,0 +1,96 @@
+{
+  "format": "sh-map-world-objects",
+  "version": 2,
+  "map": "map5_s00",
+  "description": "Static world objects of map5_s00 (Sewers - lower and upper levels): 12 objects, drawn in file order. An object is drawn while the player is in one of its \"zones\" (each {\"x\": [...], \"z\": [...]} lists 40 m cells along that axis: cell c holds 40c..40(c+1) m; no zones = everywhere) and every flag of \"flags_set\" is set and every flag of \"flags_clear\" is clear (event flag names, e.g. the pickup flags). \"name\" is the object's id for scripts and mods, \"model\" its model (at most 8 characters, the map's or an item model), \"position\" in metres and \"rotation\" in degrees (x, y, z). \"pose\" instead takes position and rotation from a table of the map's overlay on the disc (\"disc_table\" from tables.json, row \"index\"), resolved when the map loads; pickups use it. \"item_model\" ({\"file\": an item model file, \"scale\"}) draws the object from that item model instead of a model of the map (\"model\" is then only the object's own name). The map, save pads and ammunition of the sewers. A mod's maps/map5_s00/world_objects.json changes or adds objects by name.",
+  "objects": [
+    {
+      "name": "Map",
+      "model": "MAP_NEAR",
+      "position": [41.2, -0.7, -48.7],
+      "rotation": [0, -100.1, 0],
+      "zones": [{"x": 1, "z": -2}],
+      "flags_clear": ["M5S00_PickupMap"]
+    },
+    {
+      "name": "SewerKey",
+      "description": "The Sewer key on the office's key board (not in the original). The original draws nothing for this pickup: the framed board on the wall only has keys painted on its texture, and the take prompt (map point 29, the board's middle) is all there is. Here the Sewer Key's own item model hangs on the board until it is taken.",
+      "model": "SEWERKEY",
+      "item_model": {"file": "ITEM/UNQ4D.TMD", "scale": 0.08},
+      "position": [42.5, -1.5, -48.115],
+      "rotation": [90, 0, 0],
+      "zones": [{"x": 1, "z": -2}],
+      "flags_clear": ["M5S00_PickupSewerKey"]
+    },
+    {
+      "name": "SavePad",
+      "model": "PAD_NEAR",
+      "position": [40.503, -0.709, -48.7925],
+      "rotation": [0, 5.7, 0],
+      "zones": [{"x": 1, "z": -2}]
+    },
+    {
+      "name": "SavePad2",
+      "model": "PAD_NEAR",
+      "position": [-86.469, -1.041, -103.4905],
+      "rotation": [0, 206.3, 0],
+      "zones": [{"x": -3, "z": -3}]
+    },
+    {
+      "name": "ShotgunShells",
+      "model": "SHOT_NEA",
+      "pose": {"disc_table": "CommonWorldObjectPoses", "index": 0, "disc_address": "0x800DAAD0"},
+      "zones": [{"x": 1, "z": 0}],
+      "flags_clear": ["M5S00_ShotgunShells"]
+    },
+    {
+      "name": "HealthDrink0",
+      "model": "DRINK_NE",
+      "pose": {"disc_table": "CommonWorldObjectPoses", "index": 1, "disc_address": "0x800DAAD0"},
+      "zones": [{"x": 1, "z": 0}],
+      "flags_clear": ["M5S00_HealthDrink0"]
+    },
+    {
+      "name": "HandgunBullets0",
+      "model": "BULLET_N",
+      "pose": {"disc_table": "CommonWorldObjectPoses", "index": 2, "disc_address": "0x800DAAD0"},
+      "zones": [{"x": 1, "z": 0}],
+      "flags_clear": ["M5S00_HandgunBullets0"]
+    },
+    {
+      "name": "RifleShells",
+      "model": "SHELL_NE",
+      "pose": {"disc_table": "CommonWorldObjectPoses", "index": 3, "disc_address": "0x800DAAD0"},
+      "zones": [{"x": 1, "z": 0}],
+      "flags_clear": ["M5S00_RifleShells"]
+    },
+    {
+      "name": "FirstAidKit0",
+      "model": "AIDKIT_N",
+      "pose": {"disc_table": "CommonWorldObjectPoses", "index": 4, "disc_address": "0x800DAAD0"},
+      "zones": [{"x": -1, "z": -1}],
+      "flags_clear": ["M5S00_FirstAidKit0"]
+    },
+    {
+      "name": "FirstAidKit1",
+      "model": "AIDKIT_N",
+      "pose": {"disc_table": "CommonWorldObjectPoses", "index": 5, "disc_address": "0x800DAAD0"},
+      "zones": [{"x": -2, "z": -1}],
+      "flags_clear": ["M5S00_FirstAidKit1"]
+    },
+    {
+      "name": "HealthDrink1",
+      "model": "DRINK_NE",
+      "pose": {"disc_table": "CommonWorldObjectPoses", "index": 6, "disc_address": "0x800DAAD0"},
+      "zones": [{"x": -2, "z": -3}],
+      "flags_clear": ["M5S00_HealthDrink1"]
+    },
+    {
+      "name": "HandgunBullets1",
+      "model": "BULLET_N",
+      "pose": {"disc_table": "CommonWorldObjectPoses", "index": 7, "disc_address": "0x800DAAD0"},
+      "zones": [{"x": -2, "z": -3}],
+      "flags_clear": ["M5S00_HandgunBullets1"]
+    }
+  ]
+}

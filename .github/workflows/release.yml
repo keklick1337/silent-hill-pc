@@ -1,0 +1,54 @@
+name: Release
+
+# A pushed v* tag builds both packages and publishes them as a GitHub Release.
+# The packages hold only engine binaries, the repository's base data and the
+# licenses: the game imports the user's own disc image at first run.
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+jobs:
+  # The tag vX.Y.Z must be the engine version of the VERSION file: nothing is
+  # built or published otherwise.
+  version:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Tag matches the engine version
+        run: tools/ci/check_release_version.sh '${{ github.ref_name }}' --require-tag
+
+  linux:
+    needs: version
+    uses: ./.github/workflows/build-linux.yml
+    with:
+      version: ${{ github.ref_name }}
+
+  windows:
+    needs: version
+    uses: ./.github/workflows/build-windows.yml
+    with:
+      version: ${{ github.ref_name }}
+
+  publish:
+    needs: [linux, windows]
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
+
+      - name: Create the release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: Silent Hill PC ${{ github.ref_name }}
+          prerelease: ${{ contains(github.ref_name, '-') }}
+          generate_release_notes: true
+          fail_on_unmatched_files: true
+          files: |
+            dist/*.tar.gz
+            dist/*.zip

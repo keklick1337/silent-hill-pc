@@ -1,0 +1,71 @@
+{
+  "format": "sh-text",
+  "version": 1,
+  "lang": "en",
+  "map": "map1_s00",
+  "description": "The map's messages: the keys by message number from \"first\" (the numbers before it are common.json's), and the English text of the original game.",
+  "index": {
+    "map": {
+      "first": 15,
+      "keys": [
+        "map1_s00.the_tower_door_is_locked",
+        "map1_s00.the_hands_are_stopped_at",
+        "map1_s00.the_hands_are_stopped_at_2",
+        "map1_s00.the_hands_are_stopped_at_3",
+        "map1_s00.a_golden_sun",
+        "map1_s00.a_silver_moon",
+        "map1_s00.the_door_wont_open",
+        "map1_s00.10_00_alchemy_laboratory_gold",
+        "map1_s00.12_00_a_place_with",
+        "map1_s00.5_00_darkness_that_brings",
+        "map1_s00.its_written_in_blood",
+        "map1_s00.cheryl_might_be_here_i",
+        "map1_s00.a_picture_of_a_door",
+        "map1_s00.i_dont_know_who_drew",
+        "map1_s00.there_is_a_switch_do",
+        "map1_s00.nothing_appears_to_happen",
+        "map1_s00.the_boiler_is_working",
+        "map1_s00.it_appears_to_be_broken",
+        "map1_s00.the_valve_is_tightly_shut",
+        "map1_s00.dont_know_what_it_is",
+        "map1_s00.nothing_special_is_written",
+        "map1_s00.nothing_useful_in_the_desk",
+        "map1_s00.there_is_a_school_map",
+        "map1_s00.moore_ranaldo_gordon_this_must",
+        "map1_s00.nothing_inside"
+      ]
+    }
+  },
+  "strings": {
+    "map1_s00.the_tower_door_is_locked": "The tower door is locked.{end}",
+    "map1_s00.the_hands_are_stopped_at": "The hands are stopped at 10:00.{end}",
+    "map1_s00.the_hands_are_stopped_at_2": "The hands are stopped at 12:00.{end}",
+    "map1_s00.the_hands_are_stopped_at_3": "The hands are stopped at 5:00.{end}",
+    "map1_s00.a_golden_sun": "{color 3}A Golden Sun{end}",
+    "map1_s00.a_silver_moon": "{color 3}A Silver Moon{end}",
+    "map1_s00.the_door_wont_open": "The door won't open.{end}",
+    "map1_s00.10_00_alchemy_laboratory_gold": "{pos 4}{center}{color 3}10:00\n[Alchemy laboratory]\n\nGold in an old man's palm.\nThe future hidden in his fist.\nExchange for sage's water.{end}",
+    "map1_s00.12_00_a_place_with": "{pos 4}{center}{color 3}12:00\n[A place with songs and sound]\n\nA silver guidepost is\nuntapped in lost tongues.\nAwakening at the ordained order.{end}",
+    "map1_s00.5_00_darkness_that_brings": "{pos 4}{center}{color 3}5:00\n[Darkness that brings\nthe choking heat]\n\nFlames render the silence,\nawakening the hungry beast.\nOpen time's door to beckon prey.{end}",
+    "map1_s00.its_written_in_blood": "It's written in blood.{end}",
+    "map1_s00.cheryl_might_be_here_i": "Cheryl might be here.\nI should search for her.{end}",
+    "map1_s00.a_picture_of_a_door": "A picture of a door.",
+    "map1_s00.i_dont_know_who_drew": "I don't know who drew it,\nbut it is certainly in bad taste.{end}",
+    "map1_s00.there_is_a_switch_do": "There is a switch.\nDo you want to press the switch?{choice 4}",
+    "map1_s00.nothing_appears_to_happen": "Nothing appears to happen.{end}",
+    "map1_s00.the_boiler_is_working": "The boiler is working.{end}",
+    "map1_s00.it_appears_to_be_broken": "It appears to be broken.{end}",
+    "map1_s00.the_valve_is_tightly_shut": "The valve is tightly shut.\nCan't move it.",
+    "map1_s00.dont_know_what_it_is": "Don't know what it is for,\nbetter leave it alone.{end}",
+    "map1_s00.nothing_special_is_written": "Nothing special is written.{end}",
+    "map1_s00.nothing_useful_in_the_desk": "Nothing useful\nin the desk drawer.{end}",
+    "map1_s00.there_is_a_school_map": "{hires}There is a {color 5}School map{/color}.\nTake it?{choice 4}",
+    "map1_s00.moore_ranaldo_gordon_this_must": "Moore, Ranaldo, Gordon...\nThis must be the list of teachers.{end}",
+    "map1_s00.nothing_inside": "Nothing inside.{end}"
+  },
+  "ws": {
+    "map1_s00.a_golden_sun": "3777ebb6:0=t",
+    "map1_s00.a_silver_moon": "273ffb41:0=t",
+    "map1_s00.there_is_a_school_map": "db24f421:1=t"
+  }
+}

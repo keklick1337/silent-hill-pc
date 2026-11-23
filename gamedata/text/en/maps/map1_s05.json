@@ -1,0 +1,14 @@
+{
+  "format": "sh-text",
+  "version": 1,
+  "lang": "en",
+  "map": "map1_s05",
+  "description": "The map's messages: the keys by message number from \"first\" (the numbers before it are common.json's), and the English text of the original game. This map has none of its own.",
+  "index": {
+    "map": {
+      "first": 15,
+      "keys": []
+    }
+  },
+  "strings": {}
+}

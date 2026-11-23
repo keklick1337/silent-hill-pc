@@ -1,0 +1,16 @@
+{
+  "group": "health",
+  "inventory": {
+    "order": 0,
+    "stack_limit": 100,
+    "command": "UseHealth",
+    "heal": "health_drink",
+    "name_tag": "stock"
+  },
+  "display_tilt": {
+    "x": 45.0
+  },
+  "close_up_model": "ITEM/UNQ21.TMD",
+  "display_lit": true,
+  "world_model": "DRINK_NE"
+}

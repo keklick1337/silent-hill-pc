@@ -1,0 +1,36 @@
+{
+  "format": "sh-part-variants",
+  "description": "Possessed Cybil's alternative part meshes. A non-zero slot value first hides the slot's \"hide\" parts, then the variant's \"hide\", then shows its \"show\" parts (model indices of the skeleton).",
+  "slots": [
+    {
+      "name": "variant",
+      "shift": 0,
+      "bits": 4,
+      "variants": {
+        "1": {
+          "hide": [3],
+          "show": [2]
+        },
+        "2": {
+          "hide": [2],
+          "show": [3]
+        }
+      }
+    },
+    {
+      "name": "second",
+      "shift": 4,
+      "bits": 4,
+      "variants": {
+        "1": {
+          "hide": [0, 1],
+          "show": [0]
+        },
+        "2": {
+          "hide": [0],
+          "show": [0, 1]
+        }
+      }
+    }
+  ]
+}

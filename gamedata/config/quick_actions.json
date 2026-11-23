@@ -1,0 +1,18 @@
+{
+  "description": "The PC's quick actions: weapon_keys are the weapons of the number keys 1..0 and '-' in order (the mouse wheel walks the same list), weapon_cycle the order of the cycle bind (acquisition order). quick_heal: no heal at or over full_health; the first tier whose condition holds (below_health: health under it; missing_at_most: at most that much under full) spends the first owned item of its order, the next tiers are not tried. report: the items the toast after a heal names and counts. Items by name; a mod patches this file like any data file.",
+  "weapon_keys": ["KitchenKnife", "SteelPipe", "Handgun", "Shotgun", "HuntingRifle", "Hammer", "Axe", "Chainsaw", "Katana", "RockDrill", "HyperBlaster"],
+  "weapon_cycle": ["KitchenKnife", "SteelPipe", "RockDrill", "Hammer", "Chainsaw", "Katana", "Axe", "Handgun", "HuntingRifle", "Shotgun", "HyperBlaster"],
+  "quick_heal": {
+    "full_health": 100,
+    "tiers": [
+      {"description": "critical: the strongest first (the ampoule also refills the regeneration)", "below_health": 10, "order": ["Ampoule", "FirstAidKit", "HealthDrink"]},
+      {"description": "light: a drink fills it with no waste", "missing_at_most": 40, "order": ["HealthDrink", "FirstAidKit", "Ampoule"]},
+      {"description": "moderate: the first aid kit is the tight fit", "order": ["FirstAidKit", "HealthDrink", "Ampoule"]}
+    ],
+    "report": [
+      {"item": "FirstAidKit", "name": "First Aid Kit", "count_label": "Kits"},
+      {"item": "HealthDrink", "name": "Health Drink", "count_label": "Drinks"},
+      {"item": "Ampoule", "name": "Ampoule", "count_label": "Ampoules"}
+    ]
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "format": "sh-item-screens",
+  "version": 1,
+  "description": "Small layout pieces of the item screens (inventory, results). rule_*: the flat rectangle along the top edge of every item screen (corners in screen units from the centre, colour [r, g, b]). notice_*: the message the inventory's MAP entry shows when the map cannot be looked at (too dark, no map); the strings are in the game font's form ('_' = space, '\\t' = indent) and are translated by their English text. notice_color is a menu font colour name (gold, dark_grey, green, red, light_grey, white). A mod patches it with its own menu/item_screens.json.",
+  "rule_x0": -160,
+  "rule_x1": 160,
+  "rule_y0": -224,
+  "rule_y1": -222,
+  "rule_color": [0, 0, 0],
+  "notice_x": 30,
+  "notice_y": 232,
+  "notice_color": "white",
+  "notice_too_dark": "Too_dark_to_look_at\n\t\tthe_map_here.",
+  "notice_no_map": "I_don't_have_the_map\n\t\tfor_this_place."
+}

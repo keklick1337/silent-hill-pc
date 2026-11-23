@@ -1,0 +1,9 @@
+{
+  "description": "Named variables of the Incubus's behaviour (chara/Incubus/behavior.lua reads and writes them by name). Each character instance owns a small block of bytes; every entry of \"fields\" names one value in it: \"name\" is the name the script uses, \"kind\" the storage type (s8, u8, s16, u16, s32, u32: a write keeps the low bits, a read sign- or zero-extends), \"at\" the byte offset in the block (absent: the next naturally aligned offset), \"note\" what the value means. Values are raw integers in the units the behaviour uses (usually Q12, 4096 = 1.0 or 1 m; angles Q12, 4096 = a full turn). A mod adds or changes fields with a state.json of the same path; keep the offsets of fields the behaviour already uses.",
+  "fields": [
+    {"name": "incubus_timer", "kind": "s32", "at": 0, "note": "The countdown of the current attack step (Q12 seconds)."},
+    {"name": "incubus_flags", "kind": "s32", "at": 4, "note": "Bit 2: the boss is armed (its effects are drawn while it fights)."},
+    {"name": "incubus_defeats", "kind": "s32", "at": 8, "note": "Counts the defeats; damage is taken only while it is 0."},
+    {"name": "incubus_fight_timer", "kind": "s32", "at": 12, "note": "Runs down while Harry has no usable long gun ammo; below 0 the boss falls."}
+  ]
+}

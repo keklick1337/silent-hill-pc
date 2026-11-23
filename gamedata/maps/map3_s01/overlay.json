@@ -1,0 +1,7 @@
+{
+  "description": "Engine setup of map3_s01 (Hospital - 1F and basement after Kaufmann), a map made only of data and Lua: \"map_type\" is the map type HP, the entry of gamedata/config/map_info.json that gives its zones, scenery file and environment. \"characters\" lists the character types this map runs, each by its gamedata/chara/<Name>/behavior.lua; a character type that is not listed cannot act here (this map: Creeper). A mod changes it with its own maps/map3_s01/overlay.json.",
+  "map_type": "HP",
+  "characters": [
+    "Creeper"
+  ]
+}

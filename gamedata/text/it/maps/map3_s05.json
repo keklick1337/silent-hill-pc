@@ -1,0 +1,33 @@
+{
+  "format": "sh-text",
+  "version": 1,
+  "lang": "it",
+  "map": "map3_s05",
+  "strings": {
+    "map3_s05.there_is_a_video_tape": "C'è una {color 2}videocassetta{/color}.\nPrenderla?{choice 4}",
+    "map3_s05.alessa": "{color 3}Alessa{end}",
+    "map3_s05.alessa_2": "Alessa...?{end}",
+    "map3_s05.whats_this": "{wait 1.2}E questo cos'è?{end}",
+    "map3_s05.looks_like_someones_been_here": "{wait 2.6}Sembra che qui ci sia\nstato qualcuno...{end}",
+    "map3_s05.msg20": "{wait 0.4}{end}",
+    "map3_s05.there_is_an_examination_room": "C'è una {color 2}chiave dell'ambulatorio{/color}.\nPrenderla?{choice 4}",
+    "map3_s05.looks_like_a_hallway_under": "Sotto la grata\nsembra esserci un corridoio.",
+    "map3_s05.cant_move_it_since_the": "Non riesco a spostarla:\ni rampicanti l'hanno avvolta.{end}",
+    "map3_s05.no_the_fire_goes_out": "Niente.\nSe do fuoco ai rampicanti\nla fiamma si spegne subito.{end}",
+    "map3_s05.poured_disinfecting_alcohol_on": "Ho versato l'{color 2}alcol disinfettante{/color}\nsui rampicanti.{end}",
+    "map3_s05.the_vines_absorbed_the_alcohol": "I rampicanti hanno\nassorbito l'alcol.{end}",
+    "map3_s05.used_the_basement_storeroom": "Ho usato la {color 2}chiave del magazzino{/color}.{end}",
+    "map3_s05.do_you_want_to_push": "Spingere\nl'armadio?{choice 4}",
+    "map3_s05.the_generator_is_on": "Il generatore è acceso.{end}",
+    "map3_s05.there_are_skid_marks_from": "Ci sono i segni lasciati\ndall'armadio spostato.{end}",
+    "map3_s05.there_is_a_hammer_take": "C'è una {color 2}mazza{/color}.\nPrenderla?{choice 4}",
+    "map3_s05.a_bed_whats_it_doing": "Un letto? Che ci fa qui?\nChi mai...{end}",
+    "map3_s05.a_body_is_laid_out": "C'è un corpo disteso sul letto.\nNon ho voglia di guardare meglio.{end}",
+    "map3_s05.nothing_helpful": "Niente che mi aiuti.{end}",
+    "map3_s05.nothing_useful_in_the_boxes": "Niente di utile negli scatoloni.{end}",
+    "map3_s05.theres_a_bottle_filled_with": "C'è un flacone pieno\ndi chissà quale farmaco.\nMeglio lasciarlo stare.{end}",
+    "map3_s05.there_are_some_empty_bottles": "Ci sono dei flaconi vuoti.{end}",
+    "map3_s05.nothing_special_in_the_box": "Niente di speciale nella scatola.\nNiente di cui preoccuparsi.{end}",
+    "map3_s05.nothing_inside": "Dentro non c'è niente.{end}"
+  }
+}

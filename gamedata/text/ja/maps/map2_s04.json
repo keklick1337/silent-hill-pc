@@ -1,0 +1,20 @@
+{
+  "format": "sh-text",
+  "version": 1,
+  "lang": "ja",
+  "map": "map2_s04",
+  "strings": {
+    "map2_s04.theres_a_memo_on_the": "机の上にメモがある。",
+    "map2_s04.coroner_seals_called": "{color 3}シールズ検死官より電話。",
+    "map2_s04.officer_gucci_is_unlikely_to": "{color 3}グッチ巡査が殺害された\n可能性は低い。\n自然死と思われる。",
+    "map2_s04.but_medical_records_show": "{color 3}ただし、診療記録によれば、\nグッチ巡査に心臓疾患の\n兆候は以前なかった。{end}",
+    "map2_s04.theres_something_on_it": "何か書いてある。",
+    "map2_s04.product_only_available_in": "{color 3}ブツはサイレントヒルの\n限られた地域でしか手に入らない。",
+    "map2_s04.raw_material_is_white_claudia": "{color 3}原料はこの地方特有の植物、\nホワイト・クロジェア。",
+    "map2_s04.manufactured_here_dealer": "{color 3}ここで製造？\n売人＝製造者？{end}",
+    "map2_s04.there_is_a_shopping_district": "{hires}{color 5}商業地区の地図{/color}がある。\n取りますか？{choice 4}",
+    "map2_s04.nothing_helpful": "役に立ちそうな物はない。{end}",
+    "map2_s04.the_desk_is_messy": "机の上は散らかっている。{end}",
+    "map2_s04.there_is_a_shotgun_take": "{color 2}ショットガン{/color}がある。\n取りますか？{choice 4}"
+  }
+}

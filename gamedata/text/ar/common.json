@@ -1,0 +1,22 @@
+{
+  "format": "sh-text",
+  "version": 1,
+  "lang": "ar",
+  "strings": {
+    "common.yes": "نعم",
+    "common.no": "لا",
+    "common.notes_useful": "قد يمر أحدهم ذات يوم\nبهذه الأحداث الغريبة.\nعسى أن تنفعه ملاحظاتي.{end}",
+    "common.no_map": "{instant}ليست لدي خريطة لهذا المكان.{end}",
+    "common.too_dark_for_map": "{instant}الظلام هنا أشد من أن أقرأ الخريطة.{end}",
+    "common.take_first_aid_kit": "يوجد هنا {color 2}حقيبة إسعاف{/color}.\nهل تأخذها؟{choice 4}",
+    "common.take_health_drink": "يوجد هنا {color 2}مشروب صحي{/color}.\nهل تأخذه؟{choice 4}",
+    "common.take_ampoule": "يوجد هنا {color 2}أمبولة{/color}.\nهل تأخذها؟{choice 4}",
+    "common.take_handgun_bullets": "يوجد هنا {color 2}رصاص مسدس{/color}.\nهل تأخذه؟{choice 4}",
+    "common.take_rifle_shells": "يوجد هنا {color 2}رصاص بندقية الصيد{/color}.\nهل تأخذه؟{choice 4}",
+    "common.take_shotgun_shells": "يوجد هنا {color 2}خرطوش{/color}.\nهل تأخذه؟{choice 4}",
+    "common.lock_jammed": "القفل معطل.\nلا يمكن فتح هذا الباب.{end}",
+    "common.locked": "مقفل.{end}",
+    "common.unlocked": "فتح القفل.{end}",
+    "common.now_making": "{color 6}قيد الإنشاء!{/color}{end}"
+  }
+}

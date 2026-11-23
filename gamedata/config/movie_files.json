@@ -1,0 +1,28 @@
+{
+  "format": "sh-movie-files",
+  "version": 1,
+  "description": "The disc files that are movies, in disc order. file: the disc path; its last part is the name a replacement goes by (a mod's FMV/<name>.avi or .mp4, gamedata/fmv/<name>.avi). sectors: the length of the file on the disc, in sectors. How many frames a movie plays comes from the disc's file table. The console command fmv lists these by position. A mod replaces the whole file with its own copy at the same path.",
+  "movies": [
+    {"file": "XA/C1_20670", "sectors": 20670, "description": "Intro, shown after the logos."},
+    {"file": "XA/C2_20670", "sectors": 20670, "description": "Intro shown while the extra options are on."},
+    {"file": "XA/M1_03500", "sectors": 3500, "description": "Opening of a new game."},
+    {"file": "XA/M2_01190", "sectors": 1190, "description": "First street: Cheryl in the fog."},
+    {"file": "XA/M3_02570", "sectors": 2570, "description": "Story movie."},
+    {"file": "XA/M4_02490", "sectors": 2490, "description": "Arrival in the school after Split Head."},
+    {"file": "XA/M5_03140", "sectors": 3140, "description": "Story movie."},
+    {"file": "XA/M6_02112", "sectors": 2112, "description": "Entering the church."},
+    {"file": "XA/M7_01536", "sectors": 1536, "description": "Story movie: the static before Lisa is met."},
+    {"file": "XA/M8_03039", "sectors": 3039, "description": "Story movie."},
+    {"file": "XA/M9_01730", "sectors": 1730, "description": "Story movie."},
+    {"file": "XA/MA_03590", "sectors": 3590, "description": "Story movie."},
+    {"file": "XA/MB_04850", "sectors": 4850, "description": "After Cybil is killed."},
+    {"file": "XA/MC_01930", "sectors": 1930, "description": "Entering Nowhere."},
+    {"file": "XA/MD_03780", "sectors": 3780, "description": "After the scene in Lisa's ward."},
+    {"file": "XA/ME_03300", "sectors": 3300, "description": "After the last boss dies."},
+    {"file": "XA/Z1_16180", "sectors": 16180, "description": "Good+ ending."},
+    {"file": "XA/Z3_02340", "sectors": 2340, "description": "Good ending."},
+    {"file": "XA/Z4_01590", "sectors": 1590, "description": "Bad ending."},
+    {"file": "XA/ZC_14392", "sectors": 14392, "description": "The last movie every ending shares."},
+    {"file": "XA/ZZ_14239", "sectors": 14239, "description": "A movie no event of the game starts."}
+  ]
+}

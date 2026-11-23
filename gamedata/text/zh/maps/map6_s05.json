@@ -1,0 +1,9 @@
+{
+  "format": "sh-text",
+  "version": 1,
+  "lang": "zh",
+  "map": "map6_s05",
+  "strings": {
+    "map6_s05.no_stage": "没有关卡！{end}"
+  }
+}

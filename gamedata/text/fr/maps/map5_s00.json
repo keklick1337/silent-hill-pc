@@ -1,0 +1,14 @@
+{
+  "format": "sh-text",
+  "version": 1,
+  "lang": "fr",
+  "map": "map5_s00",
+  "strings": {
+    "map5_s00.used_the_sewer_key": "{color 2}Clé des égouts{/color} utilisée.{end}",
+    "map5_s00.used_the_sewer_exit_key": "{color 2}Clé de sortie des égouts{/color} utilisée.{end}",
+    "map5_s00.there_is_a_sewer_key": "Il y a une {color 2}clé des égouts{/color}.\nPrendre ?{choice 4}",
+    "map5_s00.there_is_a_sewer_exit": "Il y a une {color 2}clé de sortie des égouts{/color}\ndans l'eau. Prendre ?{choice 4}",
+    "map5_s00.got_to_find_cheryl_no": "Je dois retrouver Cheryl.\nPas le temps de revenir en arrière.{end}",
+    "map5_s00.there_is_a_sewer_map": "{hires}Il y a un {color 5}plan des égouts\n(vers le quartier touristique){/color}.\nPrendre ?{choice 4}"
+  }
+}

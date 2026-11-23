@@ -1,0 +1,14 @@
+{
+  "group": "portable",
+  "inventory": {
+    "order": 19,
+    "counts_ammo_in_hand": true,
+    "command": "Use",
+    "pickup": "special",
+    "used_up_on_event": true
+  },
+  "display_tilt": {
+    "x": 45.0
+  },
+  "close_up_model": "ITEM/UNQE2.TMD"
+}

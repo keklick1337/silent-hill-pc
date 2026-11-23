@@ -1,0 +1,21 @@
+{
+  "format": "sh-map-lights",
+  "version": 1,
+  "map": "map1_s01",
+  "description": "The lights of the school (2F) for the modern lighting (rt_lights, docs/RENDER.md section 10). By day: the sun through the windows.",
+  "sun": {
+    "description": "The overcast sun behind the fog: one fixed direction for the whole location (direction is the way the light travels, PS1 axes, y down). The fog dims it with the distance from the eye, so its shadows are only crisp near Harry and the fog keeps its own soft colour; light passes through the gaps of fences and leaves (alpha holes of the textures).",
+    "direction": [0.5, 1.0, -0.35],
+    "color": [1.0, 0.96, 0.88],
+    "intensity": 0.8,
+    "angular_radius": 1.5,
+    "ceilings": [
+      {"description": "The roof over the whole second floor: the cells end at the walls' tops, so without it the sun fell into every room from above and lit the inner side of the windows.", "rect": [-160, -80, 160, 200], "height": -6.0}
+    ]
+  },
+  "sky": {
+    "description": "The grey sky's light on surfaces open to it: the bounce rays that find nothing above see it.",
+    "color": [0.78, 0.8, 0.86],
+    "intensity": 0.3
+  }
+}

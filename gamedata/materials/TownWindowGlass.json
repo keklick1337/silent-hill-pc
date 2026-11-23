@@ -1,0 +1,19 @@
+{
+  "description": "The window panes of the town's houses: smooth glass that mirrors the street, the flashlight and the lamps. Regions of the house pages (pixels of convert/textures/BG/THR7501F.png and of THR0003F.png, the town's common page of doors and windows, in most street cells); the frames around them stay part of the wall.",
+  "regions": [
+    {"page": "THR7501F", "rect": [8, 78, 58, 122]},
+    {"page": "THR7501F", "rect": [72, 136, 118, 184]},
+    {"page": "THR7501F", "rect": [134, 198, 188, 248]},
+    {"page": "THR7501F", "rect": [198, 198, 252, 244]},
+    {"page": "THR0003F", "rect": [70, 6, 93, 30]},
+    {"page": "THR0003F", "rect": [100, 6, 124, 30]},
+    {"page": "THR0003F", "rect": [70, 35, 93, 60]},
+    {"page": "THR0003F", "rect": [100, 35, 124, 60]},
+    {"page": "THR0003F", "rect": [70, 68, 93, 93]},
+    {"page": "THR0003F", "rect": [100, 68, 124, 93]},
+    {"page": "THR0003F", "rect": [70, 98, 93, 122]},
+    {"page": "THR0003F", "rect": [100, 98, 124, 122]}
+  ],
+  "roughness": 0.05,
+  "reflective": 0.45
+}

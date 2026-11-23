@@ -1,0 +1,12 @@
+{
+  "description": "Engine setup of map2_s00 (Old Silent Hill - streets), a map made only of data and Lua: \"map_type\" is the map type THR, the entry of gamedata/config/map_info.json that gives its zones, scenery file and environment. \"characters\" lists the character types this map runs, each by its gamedata/chara/<Name>/behavior.lua; a character type that is not listed cannot act here (this map: AirScreamer, NightFlutter, Groaner and Wormhead). A mod changes it with its own maps/map2_s00/overlay.json.",
+  "map_type": "THR",
+  "characters": [
+    "AirScreamer",
+    "NightFlutter",
+    "Groaner",
+    "Wormhead"
+  ],
+  "player_updates": ["padlock_update"],
+  "pin_reactions": true
+}

@@ -1,0 +1,15 @@
+{
+  "format": "sh-text",
+  "version": 1,
+  "lang": "fr",
+  "map": "map0_s02",
+  "strings": {
+    "map0_s02.there_is_a_chain_saw": "Il y a une {color 2}tronçonneuse{/color}.\nPrendre ?{choice 4}",
+    "map0_s02.some_oil_cans_are_on": "Des bidons d'huile sur l'étagère.{end}",
+    "map0_s02.a_car_engine_no_problem": "Un moteur de voiture.\nRien à signaler.{end}",
+    "map0_s02.theres_a_tv_set_it": "Il y a un téléviseur.\nIl ne s'allume pas.{end}",
+    "map0_s02.there_is_a_gasoline_tank": "Il y a un {color 2}bidon d'essence{/color}.\nPrendre ?{choice 4}",
+    "map0_s02.there_is_a_katana_take": "Il y a un {color 2}katana{/color}.\nPrendre ?{choice 4}",
+    "map0_s02.there_is_a_channeling_stone": "Il y a une {color 2}pierre de contact{/color}.\nPrendre ?{choice 4}"
+  }
+}

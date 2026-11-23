@@ -1,0 +1,9 @@
+{
+  "format": 1,
+  "id": "broken_dependency",
+  "name": "Broken dependency (example)",
+  "version": "0.1.0",
+  "description": "Needs a mod that is not installed: the game switches it off and says why.",
+  "authors": ["Silent Hill PC"],
+  "dependencies": { "missing_library": ">=2.0" }
+}

@@ -1,0 +1,31 @@
+{
+  "format": "sh-text",
+  "version": 1,
+  "lang": "en",
+  "map": "map5_s00",
+  "description": "The map's messages: the keys by message number from \"first\" (the numbers before it are common.json's), and the English text of the original game.",
+  "index": {
+    "map": {
+      "first": 15,
+      "keys": [
+        "map5_s00.used_the_sewer_key",
+        "map5_s00.used_the_sewer_exit_key",
+        "map5_s00.there_is_a_sewer_key",
+        "map5_s00.there_is_a_sewer_exit",
+        "map5_s00.got_to_find_cheryl_no",
+        "map5_s00.there_is_a_sewer_map"
+      ]
+    }
+  },
+  "strings": {
+    "map5_s00.used_the_sewer_key": "Used the {color 2}Sewer key{/color}.{end}",
+    "map5_s00.used_the_sewer_exit_key": "Used the {color 2}Sewer exit key{/color}.{end}",
+    "map5_s00.there_is_a_sewer_key": "There is a {color 2}Sewer key{/color}.\nTake it?{choice 4}",
+    "map5_s00.there_is_a_sewer_exit": "There is a {color 2}Sewer exit key{/color}\nin the water. Take it?{choice 4}",
+    "map5_s00.got_to_find_cheryl_no": "Got to find Cheryl.\nNo time to go back.{end}",
+    "map5_s00.there_is_a_sewer_map": "{hires}There is a {color 5}Sewer map\n(connecting to resort area){/color}.\nTake it?{choice 4}"
+  },
+  "ws": {
+    "map5_s00.there_is_a_sewer_map": "58e8c5af:1=t"
+  }
+}

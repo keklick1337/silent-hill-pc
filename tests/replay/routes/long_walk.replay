@@ -1,0 +1,174 @@
+# Long walk on map0_s00 from the skip_intros start (opening scene skipped with Start at 300):
+# movement, run, turns, sidesteps, aim, action. Regenerate: see the "generated" line, then add the 300/304 lines.
+#@config skip_intros = 2
+#@timeout 900
+# generated: gen_route.py --seed 1500 --start 400 --end 4500 --min-gap 10 --max-gap 40
+1 -
+300 Start
+304 -
+400 Cross
+411 Up Square
+431 Up
+451 Up Cross
+485 Circle
+525 Left
+559 Up Left
+597 Up
+618 Up Left
+631 Right
+641 Up
+676 R1
+704 Right
+721 Square
+754 Up Right
+790 Up Cross
+816 R2
+835 Square
+871 Circle
+883 Up Cross
+904 -
+939 Left
+954 -
+994 L1
+1034 Up Square
+1059 Circle
+1079 Cross
+1091 Cross
+1105 R2
+1117 Up
+1140 Left
+1171 Down
+1210 Circle
+1230 Right
+1242 Up Square
+1256 Up
+1291 Left
+1301 Right
+1331 Circle
+1371 Up Square
+1405 -
+1438 Up Square
+1451 Square
+1480 Right
+1502 Down Square
+1517 L2
+1550 Up Circle
+1589 L2
+1605 L1
+1644 Down Square
+1668 Left
+1699 Cross
+1717 Up Circle
+1731 -
+1753 Up Cross
+1770 R1
+1799 Up Square
+1833 Up Cross
+1853 Up
+1877 Up Circle
+1902 Right
+1913 Circle
+1936 Down
+1958 Up Square
+1994 Down
+2022 L2
+2062 Left
+2093 Up Square
+2117 Circle
+2145 Up
+2155 R2
+2193 Up
+2226 Up
+2239 R1
+2255 Up Square
+2283 Square
+2300 Up Left
+2333 Down
+2367 Up Circle
+2390 Up Circle
+2412 L1
+2422 Cross
+2460 Up Circle
+2487 Up
+2504 Up
+2543 L1
+2583 Up
+2611 Up Left
+2646 Circle
+2679 Up Left
+2693 Up Cross
+2710 Square
+2736 Circle
+2760 Down Square
+2780 Up Square
+2820 Right
+2830 Circle
+2851 Up Left
+2889 Up Square
+2911 Up Right
+2927 Down
+2960 Up
+2999 Down Square
+3025 Up Square
+3056 Cross
+3067 Up
+3080 Circle
+3113 L1
+3130 L1
+3154 R1
+3175 Down
+3192 Up Square
+3205 -
+3230 Right
+3256 L2
+3292 Up Square
+3313 Circle
+3337 Up Cross
+3353 Up
+3389 Right
+3413 Up
+3449 R1
+3479 Up Right
+3502 Left
+3515 Up Right
+3549 Up Circle
+3574 Up Right
+3594 Up Right
+3621 Square
+3650 R1
+3683 Down Square
+3705 Circle
+3722 R2
+3734 Up
+3754 Down Square
+3766 Down
+3792 Up Square
+3809 -
+3819 R1
+3850 Circle
+3873 Square
+3911 Cross
+3925 Down
+3949 Up Left
+3964 Circle
+3979 Cross
+4011 Up Square
+4047 Up Right
+4061 Up
+4093 Up Cross
+4106 R1
+4128 R1
+4168 Up
+4192 Cross
+4226 Up Circle
+4248 Up Left
+4268 Up
+4308 Up
+4326 Up
+4356 L1
+4383 Up Left
+4407 Up Circle
+4441 Up
+4461 -
+4492 Right
+end 4500

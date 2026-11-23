@@ -1,0 +1,18 @@
+{
+  "format": "sh-text",
+  "version": 1,
+  "lang": "fr",
+  "map": "map6_s02",
+  "strings": {
+    "map6_s02.msg15": "{wait 1.0}...!{end}",
+    "map6_s02.wait": "{wait 1.0}Attends !{end}",
+    "map6_s02.damn_i_was_too_late": "{wait 1.7}Bon sang !\nJ'arrive trop tard ?{end}",
+    "map6_s02.sorry": "{wait 1.5}Désolé...",
+    "map6_s02.ah": "{wait 0.6}Ah...",
+    "map6_s02.msg20": "{wait 1.5} ",
+    "map6_s02.let_me_ask_you_have": "{wait 3.6}Dites-moi, vous n'auriez pas vu\nune petite fille par ici ?{end}",
+    "map6_s02.short_black_hair": "{wait 2.8}Cheveux noirs, courts...{end}",
+    "map6_s02.what": "{wait 1.0}Quoi ?{end}",
+    "map6_s02.that_light": "{wait 2.5}Cette lumière !?{end}"
+  }
+}

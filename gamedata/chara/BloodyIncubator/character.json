@@ -1,0 +1,47 @@
+{
+  "description": "Bloodied form of the Incubator in the final boss scene in Nowhere.",
+  "category": "Bosses",
+  "maps": ["map7_s03"],
+  "model": "models/CHARA/BAR.glb",
+  "animations": "anim/ANIM/BAR.anim.json",
+  "clip_tables": ["bloody_incubator"],
+  "textures": ["textures/CHARA/BAR.png"],
+  "shadow": 0.25,
+  "blend_mode": "additive",
+  "camera_anchor": "character",
+  "camera_offset_y": -0.5,
+  "anims": {
+    "still": 0,
+    "scene_a": 1,
+    "scene_b": 2,
+    "scene_c": 3,
+    "transform": 4,
+    "hover": 5,
+    "approach": 6,
+    "fight_hover": 7,
+    "fall": 8,
+    "rise": 9,
+    "unused_hover": 10,
+    "dead_hold": 11
+  },
+  "controls": {
+    "none": 0,
+    "rise": 1,
+    "scene_a": 2,
+    "scene_b": 3,
+    "scene_c": 4,
+    "unused_hover": 5,
+    "transform": 6,
+    "hover": 7,
+    "approach": 8,
+    "fight_hover": 9,
+    "fall": 10,
+    "dead_hold": 11
+  },
+  "spawn": {
+    "state": 0,
+    "kind": "actor",
+    "auto": "fallback",
+    "note": "its own AI plays the cutscene state the map sets"
+  }
+}

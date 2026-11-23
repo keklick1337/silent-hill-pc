@@ -1,0 +1,18 @@
+{
+  "format": "sh-text-lang",
+  "version": 1,
+  "code": "ar",
+  "name": "العربية",
+  "english_name": "Arabic",
+  "direction": "rtl",
+  "glyph_cell_height": 21,
+  "menu_order": 1,
+  "fonts": [
+    "Noto Sans Arabic",
+    "Noto Kufi Arabic",
+    "Segoe UI",
+    "Tahoma",
+    "Arial",
+    "DejaVu Sans"
+  ]
+}

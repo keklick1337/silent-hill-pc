@@ -1,0 +1,33 @@
+{
+  "format": "sh-text",
+  "version": 1,
+  "lang": "pt",
+  "map": "map3_s05",
+  "strings": {
+    "map3_s05.there_is_a_video_tape": "Há uma {color 2}fita de vídeo{/color} aqui.\nPegar?{choice 4}",
+    "map3_s05.alessa": "{color 3}Alessa{end}",
+    "map3_s05.alessa_2": "Alessa...?{end}",
+    "map3_s05.whats_this": "{wait 1.2}O que é isso?{end}",
+    "map3_s05.looks_like_someones_been_here": "{wait 2.6}Parece que alguém esteve aqui...{end}",
+    "map3_s05.msg20": "{wait 0.4}{end}",
+    "map3_s05.there_is_an_examination_room": "Há uma {color 2}chave da sala de exames{/color}\naqui. Pegar?{choice 4}",
+    "map3_s05.looks_like_a_hallway_under": "Parece haver um corredor\nsob a grade.",
+    "map3_s05.cant_move_it_since_the": "Não dá para movê-la: as trepadeiras\ncresceram em volta dela.{end}",
+    "map3_s05.no_the_fire_goes_out": "Não.\nO fogo se apaga na hora\nquando acendo as trepadeiras.{end}",
+    "map3_s05.poured_disinfecting_alcohol_on": "Despejei o {color 2}álcool desinfetante{/color}\nnas trepadeiras.{end}",
+    "map3_s05.the_vines_absorbed_the_alcohol": "As trepadeiras absorveram o álcool.{end}",
+    "map3_s05.used_the_basement_storeroom": "Usei a {color 2}chave do depósito{/color}.{end}",
+    "map3_s05.do_you_want_to_push": "Empurrar\no armário?{choice 4}",
+    "map3_s05.the_generator_is_on": "O gerador está ligado.{end}",
+    "map3_s05.there_are_skid_marks_from": "Há marcas de arrasto\ndeixadas pelo armário.{end}",
+    "map3_s05.there_is_a_hammer_take": "Há uma {color 2}marreta{/color} aqui.\nPegar?{choice 4}",
+    "map3_s05.a_bed_whats_it_doing": "Uma cama? O que ela faz aqui?\nQuem iria...{end}",
+    "map3_s05.a_body_is_laid_out": "Há um corpo estendido na cama.\nNão tenho vontade de examinar.{end}",
+    "map3_s05.nothing_helpful": "Nada que ajude.{end}",
+    "map3_s05.nothing_useful_in_the_boxes": "Nada de útil nas caixas.{end}",
+    "map3_s05.theres_a_bottle_filled_with": "Há um frasco cheio\nde algum tipo de remédio.\nMelhor deixar aí.{end}",
+    "map3_s05.there_are_some_empty_bottles": "Há alguns frascos vazios.{end}",
+    "map3_s05.nothing_special_in_the_box": "Nada de especial na caixa.\nNada com que se preocupar.{end}",
+    "map3_s05.nothing_inside": "Não há nada dentro.{end}"
+  }
+}

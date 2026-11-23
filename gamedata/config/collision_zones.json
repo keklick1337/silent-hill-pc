@@ -1,0 +1,9 @@
+{
+  "format": "sh-collision-zones",
+  "version": 1,
+  "description": "Ground boxes that switch an NPC's collision sets while it stands inside them. Each zone: maps (map type tags of config/map_info.json), min_x / max_x / min_z / max_z (inclusive bounds in Q12 metres as raw integers: 191.6 m = 784793), clear and set (collision set names: Map, Objects, AltObjects, Unused3). The town has two such spots, where the object collisions give way to the alternative set. A mod changes it with a file of the same path in its own folder; objects are merged key by key, so the patch only needs the keys it changes.",
+  "zones": [
+    {"maps": ["THR"], "min_x": 784793, "max_x": 814284, "min_z": -393216, "max_z": -369868, "clear": ["Objects"], "set": ["AltObjects"]},
+    {"maps": ["SPR", "SPU"], "min_x": -409600, "max_x": -387072, "min_z": -287948, "max_z": -253952, "clear": ["Objects"], "set": ["AltObjects"]}
+  ]
+}

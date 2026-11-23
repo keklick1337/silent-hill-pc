@@ -1,0 +1,14 @@
+{
+  "format": "sh-text",
+  "version": 1,
+  "lang": "ru",
+  "strings": {
+    "ambush_dogs:ui.title": "ЗАСАДА: СОБАКИ",
+    "ambush_dogs:ui.enabled": "Засада",
+    "ambush_dogs:ui.extra": "Лишние собаки",
+    "ambush_dogs:ui.help": "Когда Гарри берёт патроны со скамейки у кафе, сзади появляются собаки.",
+    "ambush_dogs:ui.where": "Скамейка у кафе",
+    "ambush_dogs:ui.count": "Собак по сложности",
+    "ambush_dogs:ui.version": "Версия"
+  }
+}

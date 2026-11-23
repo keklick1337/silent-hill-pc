@@ -1,0 +1,37 @@
+#version 460
+// Model upscaling, mesh path (RENDER.md section 7.11): one invocation per triangle of the draw. A triangle whose PN
+// patch lies wholly outside the view is dropped (GPU culling); the others, in the draw's order, each get one mesh
+// workgroup. The order is kept so blended surfaces draw as the plain path draws them.
+#extension GL_EXT_mesh_shader : require
+#extension GL_GOOGLE_include_directive : require
+
+layout(local_size_x = 32) in;
+
+#define SH_SCENE_LIB 1
+#include "scene_lib.glsl"
+#include "scene_pn.glsl"
+#include "scene_pn_data.glsl"
+
+taskPayloadSharedEXT PnTaskPayload payload;
+shared uint s_keep[kPnTasks];
+
+void main() {
+    uint local = gl_LocalInvocationID.x;
+    uint tri = gl_WorkGroupID.x * kPnTasks + local;
+    bool keep = false;
+    if (tri < u_pnDraw.y) {
+        uint a = CornerVertex(tri, 0u), b = CornerVertex(tri, 1u), c = CornerVertex(tri, 2u);
+        PnPatch p = PnMake(CornerPosition(a), CornerPosition(b), CornerPosition(c), CornerNormal(a), CornerNormal(b),
+                           CornerNormal(c));
+        keep = !PnPatchCulled(p);
+    }
+    s_keep[local] = keep ? 1u : 0u;
+    barrier();
+    uint slot = 0u, count = 0u;
+    for (uint k = 0u; k < kPnTasks; ++k) {
+        if (k < local) slot += s_keep[k];
+        count += s_keep[k];
+    }
+    if (keep) payload.tri[slot] = tri;
+    EmitMeshTasksEXT(count, 1u, 1u);
+}

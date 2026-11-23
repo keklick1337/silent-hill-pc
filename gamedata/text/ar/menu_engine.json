@@ -1,0 +1,11 @@
+{
+  "format": "sh-text",
+  "version": 1,
+  "lang": "ar",
+  "strings": {
+    "ui.bind.debug_options": "خيارات التصحيح",
+    "ui.menu.off": "مطفأ",
+    "ui.menu.on": "مفعل",
+    "ui.pause.debug_options": "خيارات التصحيح"
+  }
+}

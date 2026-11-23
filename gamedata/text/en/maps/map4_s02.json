@@ -1,0 +1,24 @@
+{
+  "format": "sh-text",
+  "version": 1,
+  "lang": "en",
+  "map": "map4_s02",
+  "description": "The map's messages: the keys by message number from \"first\" (the numbers before it are common.json's), and the English text of the original game.",
+  "index": {
+    "map": {
+      "first": 15,
+      "keys": [
+        "map4_s02.green_lion",
+        "map4_s02.alchemilla_hospital"
+      ]
+    }
+  },
+  "strings": {
+    "map4_s02.green_lion": "{color 3}green lion{end}",
+    "map4_s02.alchemilla_hospital": "{color 3}Alchemilla Hospital{end}"
+  },
+  "ws": {
+    "map4_s02.green_lion": "6d7845c1:1=t",
+    "map4_s02.alchemilla_hospital": "e3a5a2b2:1=t"
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "format": "sh-soft-reset",
+  "version": 1,
+  "description": "The soft reset back to the title screen. hold: holding all of these buttons for longer than vblanks (60 per second) resets; name is the cause written to the log. combos: holding exactly \"held\" and newly pressing any of \"pressed\" resets. demo_vblanks: a demo running longer than this returns to the title. blocked_below_state: no reset in any game state before this one (boot, logos, intro); blocked_steps: no reset at these steps of these states (while a save is being read or written). Button names: Select, Start, Triangle, Circle, Cross, Square, L1, L2, R1, R2. A mod changes it with a file of the same path in its own folder; objects are merged key by key, so the patch only needs the keys it changes.",
+  "hold": {"buttons": ["Select", "Start"], "vblanks": 120, "name": "select+start-2s"},
+  "demo_vblanks": 1800,
+  "combos": [
+    {"held": ["Select", "Start", "L2", "R2", "L1", "R1"], "pressed": ["Select", "Start", "L2", "R2", "L1", "R1"], "name": "combo"},
+    {"held": ["Start", "Triangle", "Square"], "pressed": ["Start"], "name": "combo-alt"}
+  ],
+  "blocked_below_state": "MovieIntroAlternate",
+  "blocked_steps": [
+    {"state": "LoadSavegameScreen", "steps": [4]},
+    {"state": "SaveScreen", "steps": [2, 3]}
+  ]
+}

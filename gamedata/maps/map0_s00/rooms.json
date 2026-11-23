@@ -1,0 +1,4 @@
+{
+  "zones": {"rule": "rooms_town_streets", "table": "street_rooms"},
+  "grid": {"min_x": -320, "max_x": 240, "min_z": -240, "max_z": 400, "empty_room": 26}
+}

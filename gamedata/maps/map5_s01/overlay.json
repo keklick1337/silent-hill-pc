@@ -1,0 +1,16 @@
+{
+  "description": "Engine setup of map5_s01 (Resort Area), a map made only of data and Lua: \"map_type\" is the map type RSR, the entry of gamedata/config/map_info.json that gives its zones, scenery file and environment. \"characters\" lists the character types this map runs, each by its gamedata/chara/<Name>/behavior.lua; a character type that is not listed cannot act here (this map: AirScreamer, NightFlutter, Groaner, Wormhead and Romper). \"effect_draws\" lists the effect slot drawers the map has; an effect slot of any other kind is not drawn. Here: light_glow (glowing light sprites). A mod changes it with its own maps/map5_s01/overlay.json.",
+  "map_type": "RSR",
+  "characters": [
+    "AirScreamer",
+    "NightFlutter",
+    "Groaner",
+    "Wormhead",
+    "Romper"
+  ],
+  "effect_draws": [
+    "light_glow"
+  ],
+  "pin_reactions": true,
+  "void_drop": {"no_ground": true, "no_ground_max_z": 0.0}
+}

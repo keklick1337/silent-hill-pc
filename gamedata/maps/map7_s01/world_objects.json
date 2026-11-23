@@ -1,0 +1,355 @@
+{
+  "format": "sh-map-world-objects",
+  "version": 2,
+  "map": "map7_s01",
+  "description": "Static world objects of map7_s01 (Nowhere): 45 objects, drawn in file order. An object is drawn while the player is in one of its \"zones\" (each {\"x\": [...], \"z\": [...]} lists 40 m cells along that axis: cell c holds 40c..40(c+1) m; no zones = everywhere) and every flag of \"flags_set\" is set and every flag of \"flags_clear\" is clear (event flag names, e.g. the pickup flags). \"name\" is the object's id for scripts and mods, \"model\" its model (at most 8 characters, the map's or an item model), \"position\" in metres and \"rotation\" in degrees (x, y, z). \"pose\" instead takes position and rotation from a table of the map's overlay on the disc (\"disc_table\" from tables.json, row \"index\"), resolved when the map loads; pickups use it. \"script\": true lets world_objects.lua and events.lua move, turn, re-model or hide the object. \"pc_near_pickup\": true (not in the original) also draws the pickup while the player is in a neighbouring cell of the same floor. TimeStone, LisaDoor and SlidingDoor<i> are script objects: world_objects.lua sets the stone's model and pose (M7S01_StoneOfTimeReleased) and the doors' placement (M7S01_SlidingDoorsOpened) at load; events.lua moves them through the map variables time_stone, lisa_door and sliding_doors. A mod's maps/map7_s01/world_objects.json changes or adds objects by name.",
+  "objects": [
+    {
+      "name": "Diary",
+      "model": "DIARY_HI",
+      "position": [-180.0, 0.0, -140.755],
+      "rotation": [0, 180.0, 0],
+      "zones": [{"x": -5, "z": -4}],
+      "flags_set": ["M7S01_LisaDiaryAppeared"]
+    },
+    {
+      "name": "KeyOfPhaleg",
+      "model": "KEY_HIDE",
+      "position": [-181.05, 0.0, -20.0],
+      "rotation": [0, 180.0, 0],
+      "zones": [{"x": -5, "z": -1}],
+      "flags_clear": ["M7S01_PickupKeyOfPhaleg"]
+    },
+    {
+      "name": "PaintingRight",
+      "model": "KAIGAR_H",
+      "position": [56.0, -1.9, -19.25],
+      "rotation": [0, 180.0, 0],
+      "zones": [{"x": 1, "z": -1}],
+      "flags_clear": ["M7S01_DarknessPicturePhotographed"]
+    },
+    {
+      "name": "PaintingRightOpen",
+      "model": "KAIGAR2_",
+      "position": [56.0, -1.9, -19.25],
+      "rotation": [0, 180.0, 0],
+      "zones": [{"x": 1, "z": -1}],
+      "flags_set": ["M7S01_DarknessPicturePhotographed"]
+    },
+    {
+      "name": "PaintingLeft",
+      "model": "KAIGAL_H",
+      "position": [56.0, -1.9, -21.45],
+      "rotation": [0, 180.0, 0],
+      "zones": [{"x": 1, "z": -1}],
+      "flags_clear": ["M7S01_FuturePicturePhotographed"]
+    },
+    {
+      "name": "PaintingLeftOpen",
+      "model": "KAIGAL2_",
+      "position": [56.0, -1.9, -21.45],
+      "rotation": [0, 180.0, 0],
+      "zones": [{"x": 1, "z": -1}],
+      "flags_set": ["M7S01_FuturePicturePhotographed"]
+    },
+    {
+      "name": "ClockKey",
+      "model": "KEY1_HID",
+      "position": [-140.0, 0.0, -20.0],
+      "rotation": [0, 90.0, 0],
+      "zones": [{"x": -4, "z": -1}],
+      "flags_clear": ["M7S01_FaucetOpenedWithPliers"]
+    },
+    {
+      "name": "ClockKeyOpen",
+      "model": "KEY2_HID",
+      "position": [-140.0, 0.0, -20.0],
+      "rotation": [0, 90.0, 0],
+      "zones": [{"x": -4, "z": -1}],
+      "flags_set": ["M7S01_FaucetOpenedWithPliers"],
+      "flags_clear": ["M7S01_PickupKeyOfOphiel"]
+    },
+    {
+      "name": "AmuletOfSolomon",
+      "model": "GOFU_HID",
+      "position": [17.072, -1.6, -19.2],
+      "zones": [{"x": 0, "z": -1}],
+      "flags_clear": ["M7S01_PickupAmuletOfSolomon"]
+    },
+    {
+      "name": "BirdCageKey",
+      "model": "KEY_HIDE",
+      "position": [141.811, -0.4, -21.4512],
+      "zones": [{"x": 3, "z": -1}],
+      "flags_clear": ["M7S01_PickupBirdCageKey"]
+    },
+    {
+      "name": "Pliers",
+      "model": "PENCHI_H",
+      "position": [-19.2, 0.0, -97.45],
+      "zones": [{"x": -1, "z": -3}],
+      "flags_clear": ["M7S01_PickupPliers"]
+    },
+    {
+      "name": "Screwdriver",
+      "model": "DRIVER_H",
+      "position": [-19.2, 0.0, -97.45],
+      "zones": [{"x": -1, "z": -3}],
+      "flags_clear": ["M7S01_PickupScrewdriver"]
+    },
+    {
+      "name": "PlantBook",
+      "model": "ZUKAN_HI",
+      "position": [99.8, 0.0, -20.0],
+      "zones": [{"x": 2, "z": -1}]
+    },
+    {
+      "name": "Newspaper",
+      "model": "SCRAP_HI",
+      "position": [100.0, 0.0, -20.0],
+      "zones": [{"x": 2, "z": -1}],
+      "flags_set": ["M5S03_SeenSecondNewspaper"]
+    },
+    {
+      "name": "FaucetKey",
+      "model": "KEY_HIDE",
+      "position": [-60.0, 0.0, -140.8],
+      "rotation": [0, 180.0, 0],
+      "zones": [{"x": -2, "z": -4}],
+      "flags_set": ["M7S01_FuseBoxPlateRemoved"],
+      "flags_clear": ["M7S02_PickupKeyOfAratron"]
+    },
+    {
+      "name": "FaucetCoverOpen",
+      "model": "FUTA2_HI",
+      "position": [-60.0, 0.0, -140.8],
+      "rotation": [0, 180.0, 0],
+      "zones": [{"x": -2, "z": -4}],
+      "flags_set": ["M7S01_FuseBoxPlateRemoved"]
+    },
+    {
+      "name": "FaucetCover",
+      "model": "FUTA1_HI",
+      "position": [-60.0, 0.0, -140.8],
+      "rotation": [0, 180.0, 0],
+      "zones": [{"x": -2, "z": -4}],
+      "flags_clear": ["M7S01_FuseBoxPlateRemoved"]
+    },
+    {
+      "name": "Camera",
+      "model": "CAMERA_H",
+      "position": [-19.6, -0.8, -142.2],
+      "rotation": [0, 126.7, 0],
+      "zones": [{"x": -1, "z": -4}],
+      "flags_clear": ["M7S01_PickupCamera"]
+    },
+    {
+      "name": "TimeStone",
+      "model": "STONE1_H",
+      "position": [-139.5, -1.35, -140.6],
+      "rotation": [0, 90.0, 0],
+      "script": true,
+      "zones": [{"x": -4, "z": -4}],
+      "flags_clear": ["M7S01_PickupStoneOfTime"]
+    },
+    {
+      "name": "Hollow",
+      "model": "KUBOMI_H",
+      "position": [-139.5, 0.0, -138.1],
+      "zones": [{"x": -4, "z": -4}]
+    },
+    {
+      "name": "LisaDoor",
+      "model": "DOOR_HID",
+      "position": [182.5247, 0.0, -106.064],
+      "script": true,
+      "zones": [{"x": 4, "z": -3}]
+    },
+    {
+      "name": "SlidingDoor0",
+      "model": "DR1L_HID",
+      "position": [-20.9, 0.0, -20.9],
+      "script": true,
+      "zones": [{"x": -1, "z": -1}, {"x": -3, "z": -2}]
+    },
+    {
+      "name": "SlidingDoor1",
+      "model": "DR1R_HID",
+      "position": [-20.9, 0.0, -20.9],
+      "script": true,
+      "zones": [{"x": -1, "z": -1}, {"x": -3, "z": -2}]
+    },
+    {
+      "name": "SlidingDoor2",
+      "model": "DR3L_HID",
+      "position": [-20.9, 0.0, -20.9],
+      "script": true,
+      "zones": [{"x": -1, "z": -1}, {"x": -3, "z": -2}]
+    },
+    {
+      "name": "SlidingDoor3",
+      "model": "DR3R_HID",
+      "position": [-20.9, 0.0, -20.9],
+      "script": true,
+      "zones": [{"x": -1, "z": -1}, {"x": -3, "z": -2}]
+    },
+    {
+      "name": "SlidingDoor4",
+      "model": "DR2L_HID",
+      "position": [-20.9, 0.0, -20.9],
+      "script": true,
+      "zones": [{"x": -1, "z": -1}, {"x": -3, "z": -2}]
+    },
+    {
+      "name": "SlidingDoor5",
+      "model": "DR2R_HID",
+      "position": [-20.9, 0.0, -20.9],
+      "script": true,
+      "zones": [{"x": -1, "z": -1}, {"x": -3, "z": -2}]
+    },
+    {
+      "name": "RingOfContract",
+      "model": "RING_NEA",
+      "position": [-178.381, -0.5716, -98.846],
+      "rotation": [0, 0, -32.5],
+      "zones": [{"x": -5, "z": -3}],
+      "flags_clear": ["M7S01_PickupRingOfContract"]
+    },
+    {
+      "name": "CrestOfMercury",
+      "model": "GOFU_B_H",
+      "position": [-181.9, -0.57, -101.2],
+      "rotation": [0, 59.0, 0],
+      "zones": [{"x": -5, "z": -3}],
+      "flags_clear": ["M7S01_PickupCrestOfMercury"]
+    },
+    {
+      "name": "StoneSlot",
+      "model": "STONE_HI",
+      "position": [-16.6692, -0.71, -61.533],
+      "rotation": [0, 90.0, 0],
+      "zones": [{"x": -1, "z": -2}],
+      "flags_set": ["M7S01_StoneOfTimeInClock"]
+    },
+    {
+      "name": "StoneHole",
+      "model": "ANA_HIDE",
+      "position": [-16.6661, -0.7271, -61.6368],
+      "rotation": [0, 90.0, 0],
+      "zones": [{"x": -1, "z": -2}],
+      "flags_clear": ["M7S01_StoneOfTimeInClock"]
+    },
+    {
+      "name": "ClockHand1",
+      "model": "KEYX1_HI",
+      "position": [-16.6692, -1.23, -61.6],
+      "rotation": [25.6, 90.0, 0],
+      "zones": [{"x": -1, "z": -2}],
+      "flags_clear": ["M7S01_ClockOpened"]
+    },
+    {
+      "name": "ClockHand2",
+      "model": "KEYX2_HI",
+      "position": [-16.6692, -1.23, -61.6],
+      "rotation": [126.8, 90.0, 0],
+      "zones": [{"x": -1, "z": -2}],
+      "flags_clear": ["M7S01_ClockOpened"]
+    },
+    {
+      "name": "ClockWindow",
+      "model": "WINDOW_H",
+      "position": [-16.666, -1.235, -61.503],
+      "rotation": [0, 90.0, 0],
+      "zones": [{"x": -1, "z": -2}],
+      "flags_set": ["M7S01_ClockOpened"]
+    },
+    {
+      "name": "ClockHand1Open",
+      "model": "KEYX1_HI",
+      "position": [-16.6692, -1.23, -61.6],
+      "rotation": [-113.0, 90.0, 0],
+      "zones": [{"x": -1, "z": -2}],
+      "flags_set": ["M7S01_ClockOpened"],
+      "flags_clear": ["M7S01_PickupKeyOfHagith"]
+    },
+    {
+      "name": "ClockHand2Open",
+      "model": "KEYX2_HI",
+      "position": [-16.6692, -1.23, -61.6],
+      "rotation": [90.9, 90.0, 0],
+      "zones": [{"x": -1, "z": -2}],
+      "flags_set": ["M7S01_ClockOpened"]
+    },
+    {
+      "name": "SavePad",
+      "model": "PAD_NEAR",
+      "position": [-16.6226, -1.2396, -59.0691],
+      "rotation": [0, 105.21, 0],
+      "zones": [{"x": -1, "z": -2}]
+    },
+    {
+      "name": "RifleShells",
+      "model": "SHELL_NE",
+      "pose": {"disc_table": "CommonWorldObjectPoses", "index": 0},
+      "pc_near_pickup": true,
+      "zones": [{"x": -5, "z": -3}],
+      "flags_clear": ["M7S01_RifleShells"]
+    },
+    {
+      "name": "HandgunBullets0",
+      "model": "BULLET_N",
+      "pose": {"disc_table": "CommonWorldObjectPoses", "index": 1},
+      "pc_near_pickup": true,
+      "zones": [{"x": -1, "z": -4}],
+      "flags_clear": ["M7S01_HandgunBullets0"]
+    },
+    {
+      "name": "HealthDrink0",
+      "model": "DRINK_NE",
+      "pose": {"disc_table": "CommonWorldObjectPoses", "index": 2},
+      "pc_near_pickup": true,
+      "zones": [{"x": 2, "z": -1}],
+      "flags_clear": ["M7S01_HealthDrink0"]
+    },
+    {
+      "name": "HandgunBullets1",
+      "model": "BULLET_N",
+      "pose": {"disc_table": "CommonWorldObjectPoses", "index": 3},
+      "pc_near_pickup": true,
+      "zones": [{"x": -5, "z": -1}],
+      "flags_clear": ["M7S01_HandgunBullets1"]
+    },
+    {
+      "name": "ShotgunShells",
+      "model": "SHOT_NEA",
+      "pose": {"disc_table": "CommonWorldObjectPoses", "index": 4},
+      "pc_near_pickup": true,
+      "zones": [{"x": -1, "z": -2}],
+      "flags_clear": ["M7S01_ShotgunShells"]
+    },
+    {
+      "name": "FirstAidKit",
+      "model": "AIDKIT_N",
+      "pose": {"disc_table": "CommonWorldObjectPoses", "index": 5},
+      "pc_near_pickup": true,
+      "zones": [{"x": -1, "z": -2}],
+      "flags_clear": ["M7S01_FirstAidKit"]
+    },
+    {
+      "name": "HandgunBullets2",
+      "model": "BULLET_N",
+      "pose": {"disc_table": "CommonWorldObjectPoses", "index": 6},
+      "pc_near_pickup": true,
+      "zones": [{"x": 1, "z": -2}],
+      "flags_clear": ["M7S01_HandgunBullets2"]
+    },
+    {
+      "name": "HealthDrink1",
+      "model": "DRINK_NE",
+      "pose": {"disc_table": "CommonWorldObjectPoses", "index": 7},
+      "pc_near_pickup": true,
+      "zones": [{"x": 1, "z": -2}],
+      "flags_clear": ["M7S01_HealthDrink1"]
+    }
+  ]
+}

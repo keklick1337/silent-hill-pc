@@ -1,0 +1,31 @@
+{
+  "description": "Cybil Bennett in the final boss and ending scenes in Nowhere, with her own set of ending animations.",
+  "category": "StoryCharacters",
+  "maps": ["map7_s03"],
+  "model": "models/CHARA/SIBYL.glb",
+  "animations": "anim/ANIM/SBL2.anim.json",
+  "clip_tables": ["cybil"],
+  "textures": ["textures/CHARA/SIBYL.png"],
+  "shadow": 0.25,
+  "blend_mode": "subtractive",
+  "camera_anchor": "character",
+  "camera_offset_y": -0.5,
+  "sounds": {
+    "cue": "cybil_cue",
+    "cue_2": "cybil_cue_2",
+    "cue_3": "cybil_cue_3",
+    "cue_4": "cybil_cue_4",
+    "cue_5": "cybil_cue_5",
+    "footstep_map6_s01": "cybil_footstep_map6_s01",
+    "hit": "cybil_hit",
+    "shot": "cybil_handgun_shot",
+    "shot_echo": "cybil_bullet_impact"
+  },
+  "spawn": {
+    "state": 0,
+    "kind": "actor",
+    "auto": "fallback",
+    "note": "its own AI plays the cutscene state the map sets"
+  },
+  "behavior": "Cybil"
+}

@@ -1,0 +1,35 @@
+{
+  "description": "Cat that leaps out of a locker and startles Harry in Midwich Elementary School.",
+  "category": "Animals",
+  "maps": ["map1_s01"],
+  "model": "models/CHARA/CAT.glb",
+  "animations": "anim/ANIM/CAT.anim.json",
+  "clip_tables": ["cat"],
+  "textures": ["textures/CHARA/CAT.png"],
+  "shadow": 0.25,
+  "blend_mode": "subtractive",
+  "camera_anchor": "character",
+  "camera_offset_y": -0.5,
+  "sounds": {
+    "idle": "cat_meow"
+  },
+  "anims": {
+    "still": 0,
+    "jump": 1,
+    "run": 2,
+    "idle_to_jump": 3,
+    "jump_to_run": 4
+  },
+  "controls": {
+    "none": 0,
+    "in_locker": 1,
+    "jump_out": 2,
+    "run_off": 3
+  },
+  "spawn": {
+    "state": 0,
+    "kind": "actor",
+    "auto": "fallback",
+    "note": "its own AI jumps out of the school locker on a cutscene cue"
+  }
+}

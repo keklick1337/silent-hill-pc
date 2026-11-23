@@ -1,0 +1,13 @@
+{
+  "group": "puzzle",
+  "inventory": {
+    "order": 34,
+    "command": "Unusable",
+    "used_up_on_event": true,
+    "selectable": false
+  },
+  "display_tilt": {
+    "x": 45.0
+  },
+  "close_up_model": "ITEM/UNQ64.TMD"
+}

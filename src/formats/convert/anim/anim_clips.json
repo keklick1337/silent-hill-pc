@@ -1,0 +1,3702 @@
+{
+ "_comment": "The clip names of every ANM file, edited by hand (tools/scripts/check_anim_clips.py checks the ranges against an import). Names the glTF animations of the converted models (keyframes start..end inclusive).",
+ "format": "sh-anim-clips/1",
+ "anm": {
+  "ANIM/AR.ANM": {
+   "tables": [
+    "alessa"
+   ],
+   "clips": [
+    {
+     "name": "Still",
+     "start": 1,
+     "end": 1,
+     "fps": 30,
+     "loop": true,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "StandIdle",
+     "start": 0,
+     "end": 15,
+     "fps": 5,
+     "loop": true,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "WalkForward",
+     "start": 16,
+     "end": 44,
+     "fps": 15,
+     "loop": true,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "WalkForwardTurnStumble",
+     "start": 45,
+     "end": 131,
+     "fps": 10,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "ForcePush",
+     "start": 132,
+     "end": 170,
+     "fps": 10,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "StumbleForwardCrumple",
+     "start": 171,
+     "end": 216,
+     "fps": 10,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "CrumpleLookUp",
+     "start": 217,
+     "end": 237,
+     "fps": 10,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "CrumpleShakeHead",
+     "start": 238,
+     "end": 288,
+     "fps": 10,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "StandLookRight",
+     "start": 289,
+     "end": 309,
+     "fps": 10,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "CrumpleIdle",
+     "start": 310,
+     "end": 325,
+     "fps": 3,
+     "loop": true,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Kneel",
+     "start": 326,
+     "end": 341,
+     "fps": 3,
+     "loop": true,
+     "variable_speed": false,
+     "reverse": false
+    }
+   ]
+  },
+  "ANIM/BAR.ANM": {
+   "tables": [
+    "bloody_incubator"
+   ],
+   "clips": [
+    {
+     "name": "Still",
+     "start": 1,
+     "end": 1,
+     "fps": 30,
+     "loop": true,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim1",
+     "start": 0,
+     "end": 54,
+     "fps": 10,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim2",
+     "start": 55,
+     "end": 117,
+     "fps": 10,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim3",
+     "start": 118,
+     "end": 152,
+     "fps": 10,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim4",
+     "start": 153,
+     "end": 213,
+     "fps": 10,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim5",
+     "start": 214,
+     "end": 229,
+     "fps": 10,
+     "loop": true,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim6",
+     "start": 230,
+     "end": 260,
+     "fps": 10,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim7",
+     "start": 261,
+     "end": 276,
+     "fps": 10,
+     "loop": true,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim8",
+     "start": 277,
+     "end": 295,
+     "fps": 10,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim9",
+     "start": 296,
+     "end": 365,
+     "fps": 8,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim10",
+     "start": 366,
+     "end": 382,
+     "fps": 10,
+     "loop": true,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim11",
+     "start": 295,
+     "end": 295,
+     "fps": 10,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    }
+   ]
+  },
+  "ANIM/BFLU.ANM": {
+   "tables": [
+    "flauros"
+   ],
+   "clips": [
+    {
+     "name": "Anim1",
+     "start": 0,
+     "end": 80,
+     "fps": 10,
+     "loop": true,
+     "variable_speed": false,
+     "reverse": false
+    }
+   ]
+  },
+  "ANIM/BLS.ANM": {
+   "tables": [
+    "bloody_lisa"
+   ],
+   "clips": [
+    {
+     "name": "Still",
+     "start": 1,
+     "end": 1,
+     "fps": 30,
+     "loop": true,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Walk",
+     "start": 0,
+     "end": 100,
+     "fps": 10,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    }
+   ]
+  },
+  "ANIM/BOS.ANM": {
+   "tables": [
+    "incubus"
+   ],
+   "clips": [
+    {
+     "name": "Anim1",
+     "start": 0,
+     "end": 104,
+     "fps": 10,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim2",
+     "start": 105,
+     "end": 313,
+     "fps": 10,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim3",
+     "start": 314,
+     "end": 338,
+     "fps": 20,
+     "loop": true,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim4",
+     "start": 313,
+     "end": 313,
+     "fps": 0,
+     "loop": true,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim5",
+     "start": 338,
+     "end": 338,
+     "fps": 0,
+     "loop": true,
+     "variable_speed": false,
+     "reverse": false
+    }
+   ]
+  },
+  "ANIM/CAT.ANM": {
+   "tables": [
+    "cat"
+   ],
+   "clips": [
+    {
+     "name": "Jump",
+     "start": 7,
+     "end": 22,
+     "fps": 15.83984375,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Run",
+     "start": 23,
+     "end": 43,
+     "fps": 35,
+     "loop": true,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "IdleToJump",
+     "start": 7,
+     "end": 8,
+     "fps": 0,
+     "loop": true,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "JumpToRun",
+     "start": 22,
+     "end": 23,
+     "fps": 0,
+     "loop": true,
+     "variable_speed": false,
+     "reverse": false
+    }
+   ]
+  },
+  "ANIM/CLD1.ANM": {
+   "tables": [
+    "larval_stalker"
+   ],
+   "clips": [
+    {
+     "name": "GrabAttack",
+     "start": 0,
+     "end": 11,
+     "fps": 16,
+     "loop": true,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "StunBackEnd",
+     "start": 12,
+     "end": 21,
+     "fps": 1,
+     "loop": true,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "DeathBackStart",
+     "start": 22,
+     "end": 32,
+     "fps": 2,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "DeathFrontStart",
+     "start": 33,
+     "end": 40,
+     "fps": 2,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "StunBackToIdle",
+     "start": 41,
+     "end": 85,
+     "fps": 16,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "StunFrontToIdle",
+     "start": 86,
+     "end": 120,
+     "fps": 10,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "StunBackStart",
+     "start": 121,
+     "end": 142,
+     "fps": 10,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "StunFrontStart",
+     "start": 143,
+     "end": 153,
+     "fps": 10,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "StunFrontEnd",
+     "start": 154,
+     "end": 161,
+     "fps": 4,
+     "loop": true,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Idle",
+     "start": 162,
+     "end": 184,
+     "fps": 4,
+     "loop": true,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "WalkForward",
+     "start": 185,
+     "end": 200,
+     "fps": 16.7998046875,
+     "loop": true,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "WalkForwardAlt",
+     "start": 185,
+     "end": 200,
+     "fps": 0,
+     "loop": true,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "DeathFrontEnd",
+     "start": 40,
+     "end": 41,
+     "fps": 0,
+     "loop": true,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "DeathBackCont",
+     "start": 32,
+     "end": 33,
+     "fps": 0,
+     "loop": true,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "StunBackToIdleAlt",
+     "start": 41,
+     "end": 85,
+     "fps": 0,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "StunFrontToIdleAlt",
+     "start": 86,
+     "end": 120,
+     "fps": 0,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "StunFrontCont",
+     "start": 154,
+     "end": 161,
+     "fps": 12,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "StunBackRecoil",
+     "start": 22,
+     "end": 32,
+     "fps": 8,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    }
+   ]
+  },
+  "ANIM/COC.ANM": {
+   "tables": [
+    "creeper"
+   ],
+   "clips": [
+    {
+     "name": "AttackToWalkForward",
+     "start": 0,
+     "end": 3,
+     "fps": 16,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Attack",
+     "start": 4,
+     "end": 14,
+     "fps": 27,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "DeathStart",
+     "start": 15,
+     "end": 20,
+     "fps": 4,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "RunForwardStunCont",
+     "start": 22,
+     "end": 27,
+     "fps": 4,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Recoil",
+     "start": 29,
+     "end": 40,
+     "fps": 16,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Unused6",
+     "start": 41,
+     "end": 49,
+     "fps": 16,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "StunLoop",
+     "start": 50,
+     "end": 63,
+     "fps": 33,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "IdleToRunForward",
+     "start": 64,
+     "end": 70,
+     "fps": 15,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Stun",
+     "start": 71,
+     "end": 83,
+     "fps": 15,
+     "loop": true,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "RunForward",
+     "start": 84,
+     "end": 93,
+     "fps": 20,
+     "loop": true,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Idle",
+     "start": 94,
+     "end": 105,
+     "fps": 4,
+     "loop": true,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "AttackStart",
+     "start": 106,
+     "end": 111,
+     "fps": 16,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "WalkForward",
+     "start": 112,
+     "end": 131,
+     "fps": 34.5,
+     "loop": true,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "DeathEnd",
+     "start": 20,
+     "end": 21,
+     "fps": 0.199951171875,
+     "loop": true,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "RunForwardStunEnd",
+     "start": 27,
+     "end": 28,
+     "fps": 0.199951171875,
+     "loop": true,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "StunOnce",
+     "start": 50,
+     "end": 63,
+     "fps": 22,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "RunForwardStunStart",
+     "start": 64,
+     "end": 70,
+     "fps": 10,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    }
+   ]
+  },
+  "ANIM/DA.ANM": {
+   "tables": [
+    "dahlia"
+   ],
+   "clips": [
+    {
+     "name": "Still",
+     "start": 1,
+     "end": 1,
+     "fps": 30,
+     "loop": true,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim1",
+     "start": 0,
+     "end": 15,
+     "fps": 5,
+     "loop": true,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim2",
+     "start": 16,
+     "end": 44,
+     "fps": 15,
+     "loop": true,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim3",
+     "start": 45,
+     "end": 85,
+     "fps": 15,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim4",
+     "start": 86,
+     "end": 109,
+     "fps": 4.199951171875,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim5",
+     "start": 110,
+     "end": 175,
+     "fps": 7,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim6",
+     "start": 176,
+     "end": 226,
+     "fps": 7,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim7",
+     "start": 227,
+     "end": 247,
+     "fps": 10,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim8",
+     "start": 248,
+     "end": 263,
+     "fps": 5,
+     "loop": true,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim9",
+     "start": 264,
+     "end": 304,
+     "fps": 6,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim10",
+     "start": 305,
+     "end": 335,
+     "fps": 10,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim11",
+     "start": 336,
+     "end": 349,
+     "fps": 10,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim12",
+     "start": 350,
+     "end": 369,
+     "fps": 10,
+     "loop": true,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim13",
+     "start": 370,
+     "end": 395,
+     "fps": 10,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim14",
+     "start": 16,
+     "end": 80,
+     "fps": 15,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim15",
+     "start": 81,
+     "end": 96,
+     "fps": 10,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim16",
+     "start": 97,
+     "end": 103,
+     "fps": 10,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim17",
+     "start": 104,
+     "end": 139,
+     "fps": 10,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim18",
+     "start": 140,
+     "end": 155,
+     "fps": 10,
+     "loop": true,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim19",
+     "start": 156,
+     "end": 193,
+     "fps": 10,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim20",
+     "start": 194,
+     "end": 209,
+     "fps": 10,
+     "loop": true,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim21",
+     "start": 210,
+     "end": 228,
+     "fps": 10,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim22",
+     "start": 229,
+     "end": 244,
+     "fps": 10,
+     "loop": true,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim23",
+     "start": 245,
+     "end": 259,
+     "fps": 10,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim24",
+     "start": 260,
+     "end": 296,
+     "fps": 10,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim25",
+     "start": 260,
+     "end": 296,
+     "fps": 0,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    }
+   ]
+  },
+  "ANIM/DEAD.ANM": {
+   "tables": [
+    "locker_dead_body"
+   ],
+   "clips": [
+    {
+     "name": "Anim1",
+     "start": 0,
+     "end": 16,
+     "fps": 20,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim2",
+     "start": 0,
+     "end": 1,
+     "fps": 0,
+     "loop": true,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim3",
+     "start": 16,
+     "end": 17,
+     "fps": 0,
+     "loop": true,
+     "variable_speed": false,
+     "reverse": false
+    }
+   ]
+  },
+  "ANIM/DOC.ANM": {
+   "tables": [
+    "ghost_doctor"
+   ],
+   "clips": [
+    {
+     "name": "Still",
+     "start": 1,
+     "end": 1,
+     "fps": 30,
+     "loop": true,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim1",
+     "start": 0,
+     "end": 15,
+     "fps": 15,
+     "loop": true,
+     "variable_speed": false,
+     "reverse": false
+    }
+   ]
+  },
+  "ANIM/DOG.ANM": {
+   "tables": [
+    "groaner"
+   ],
+   "clips": [
+    {
+     "name": "StunFromJumpDeathStart",
+     "start": 0,
+     "end": 15,
+     "fps": 3,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "StandRecoilFront",
+     "start": 19,
+     "end": 36,
+     "fps": 24.75,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "JumpToStun",
+     "start": 39,
+     "end": 77,
+     "fps": 0,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "StunFromJump",
+     "start": 78,
+     "end": 93,
+     "fps": 4,
+     "loop": true,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "StunFromStandRightDeathStart",
+     "start": 94,
+     "end": 110,
+     "fps": 3.5,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "StandRecoilRight",
+     "start": 114,
+     "end": 130,
+     "fps": 24.25,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "StandToStunRight",
+     "start": 134,
+     "end": 164,
+     "fps": 0,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "StunFromStandRight",
+     "start": 165,
+     "end": 190,
+     "fps": 6,
+     "loop": true,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "StandIdle",
+     "start": 191,
+     "end": 206,
+     "fps": 7,
+     "loop": true,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "JumpAttack",
+     "start": 214,
+     "end": 243,
+     "fps": 0,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "StunFromStandLeftDeathStart",
+     "start": 244,
+     "end": 264,
+     "fps": 3.5,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "StandRecoilLeft",
+     "start": 268,
+     "end": 284,
+     "fps": 24.25,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "StandToStunLeft",
+     "start": 288,
+     "end": 318,
+     "fps": 0,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "StunFromStandLeft",
+     "start": 319,
+     "end": 345,
+     "fps": 6,
+     "loop": true,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "StandToJumpAttack",
+     "start": 346,
+     "end": 362,
+     "fps": 54,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "RunForward",
+     "start": 363,
+     "end": 370,
+     "fps": 0,
+     "loop": true,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "WalkForward",
+     "start": 371,
+     "end": 396,
+     "fps": 11.5,
+     "loop": true,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "StunFromJumpDeathEnd",
+     "start": 15,
+     "end": 16,
+     "fps": 0,
+     "loop": true,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "StunFromStandRightDeathEnd",
+     "start": 110,
+     "end": 111,
+     "fps": 0,
+     "loop": true,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "StunFromStandLeftDeathEnd",
+     "start": 264,
+     "end": 265,
+     "fps": 0,
+     "loop": true,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "StunFromJumpRecoil",
+     "start": 0,
+     "end": 15,
+     "fps": 12,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "StunFromStandRightRecoil",
+     "start": 94,
+     "end": 110,
+     "fps": 12,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "StunFromStandLeftRecoil",
+     "start": 244,
+     "end": 264,
+     "fps": 12,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    }
+   ]
+  },
+  "ANIM/FAT.ANM": {
+   "tables": [
+    "split_head"
+   ],
+   "clips": [
+    {
+     "name": "Anim1",
+     "start": 0,
+     "end": 13,
+     "fps": 3.5,
+     "loop": true,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "BiteAttack",
+     "start": 14,
+     "end": 40,
+     "fps": 0,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim3",
+     "start": 41,
+     "end": 50,
+     "fps": 12,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim4",
+     "start": 51,
+     "end": 60,
+     "fps": 12,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim5",
+     "start": 61,
+     "end": 63,
+     "fps": 12,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim6",
+     "start": 78,
+     "end": 80,
+     "fps": 12,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim7",
+     "start": 94,
+     "end": 114,
+     "fps": 2,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim8",
+     "start": 115,
+     "end": 131,
+     "fps": 1.5,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim9",
+     "start": 132,
+     "end": 161,
+     "fps": 0,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "StandIdle",
+     "start": 162,
+     "end": 171,
+     "fps": 6,
+     "loop": true,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "WalkForward",
+     "start": 172,
+     "end": 201,
+     "fps": 0,
+     "loop": true,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim12",
+     "start": 114,
+     "end": 115,
+     "fps": 0,
+     "loop": true,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim13",
+     "start": 131,
+     "end": 132,
+     "fps": 0,
+     "loop": true,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim14",
+     "start": 34,
+     "end": 36,
+     "fps": 2,
+     "loop": true,
+     "variable_speed": false,
+     "reverse": false
+    }
+   ]
+  },
+  "ANIM/HB_BASE.ANM": {
+   "tables": [
+    "harry_base"
+   ],
+   "clips": [
+    {
+     "name": "Still",
+     "start": 1,
+     "end": 1,
+     "fps": 12.0,
+     "loop": true,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "TransitionToStill",
+     "start": 0,
+     "end": 0,
+     "fps": 12.0,
+     "loop": true,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "WalkForward",
+     "start": 1,
+     "end": 23,
+     "fps": 30.0,
+     "loop": true,
+     "variable_speed": true,
+     "reverse": false
+    },
+    {
+     "name": "RunForward",
+     "start": 26,
+     "end": 45,
+     "fps": 30.0,
+     "loop": true,
+     "variable_speed": true,
+     "reverse": false
+    },
+    {
+     "name": "WalkBackward",
+     "start": 46,
+     "end": 69,
+     "fps": 30.0,
+     "loop": true,
+     "variable_speed": true,
+     "reverse": false
+    },
+    {
+     "name": "SidestepLeft",
+     "start": 70,
+     "end": 94,
+     "fps": 12.0,
+     "loop": true,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "SidestepRight",
+     "start": 95,
+     "end": 119,
+     "fps": 12.0,
+     "loop": true,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "RunLeft",
+     "start": 121,
+     "end": 133,
+     "fps": 12.0,
+     "loop": true,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "RunRight",
+     "start": 136,
+     "end": 148,
+     "fps": 12.0,
+     "loop": true,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "RunForwardWallStopRight",
+     "start": 150,
+     "end": 159,
+     "fps": 12.0,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "RunForwardWallStopLeft",
+     "start": 160,
+     "end": 169,
+     "fps": 12.0,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "RunForwardStumble",
+     "start": 170,
+     "end": 179,
+     "fps": 12.0,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "TurnLeft",
+     "start": 180,
+     "end": 192,
+     "fps": 12.0,
+     "loop": true,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "TurnRight",
+     "start": 193,
+     "end": 205,
+     "fps": 12.0,
+     "loop": true,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "QuickTurnRight",
+     "start": 206,
+     "end": 217,
+     "fps": 12.0,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "QuickTurnLeft",
+     "start": 219,
+     "end": 230,
+     "fps": 12.0,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "JumpBackward",
+     "start": 240,
+     "end": 247,
+     "fps": 12.0,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "LookAround",
+     "start": 248,
+     "end": 320,
+     "fps": 12.0,
+     "loop": true,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "RunLeftWallStop",
+     "start": 321,
+     "end": 336,
+     "fps": 12.0,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "RunLeftStumble",
+     "start": 337,
+     "end": 349,
+     "fps": 12.0,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "RunRightWallStop",
+     "start": 350,
+     "end": 365,
+     "fps": 12.0,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "RunRightStumble",
+     "start": 366,
+     "end": 378,
+     "fps": 12.0,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "FallForward",
+     "start": 387,
+     "end": 417,
+     "fps": 12.0,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "FallBackward",
+     "start": 418,
+     "end": 456,
+     "fps": 12.0,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Kick",
+     "start": 457,
+     "end": 484,
+     "fps": 12.0,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Stomp",
+     "start": 485,
+     "end": 502,
+     "fps": 12.0,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Idle",
+     "start": 503,
+     "end": 542,
+     "fps": 12.0,
+     "loop": true,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "IdleExhausted",
+     "start": 543,
+     "end": 567,
+     "fps": 30.0,
+     "loop": true,
+     "variable_speed": true,
+     "reverse": false
+    },
+    {
+     "name": "HandgunAim",
+     "start": 503,
+     "end": 542,
+     "fps": 12.0,
+     "loop": true,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Unk29",
+     "start": 503,
+     "end": 542,
+     "fps": 12.0,
+     "loop": true,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Unk30",
+     "start": 503,
+     "end": 542,
+     "fps": 12.0,
+     "loop": true,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "HandgunRecoil",
+     "start": 503,
+     "end": 542,
+     "fps": 12.0,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    }
+   ]
+  },
+  "ANIM/HB_M6S04.ANM": {
+   "tables": [
+    "harry_m6s04_extra"
+   ],
+   "clips": [
+    {
+     "name": "Anim46",
+     "start": 805,
+     "end": 819,
+     "fps": 18,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim47",
+     "start": 820,
+     "end": 834,
+     "fps": 18,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim48",
+     "start": 835,
+     "end": 868,
+     "fps": 30,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim49",
+     "start": 869,
+     "end": 902,
+     "fps": 30,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    }
+   ]
+  },
+  "ANIM/ICU.ANM": {
+   "tables": [
+    "parasite"
+   ],
+   "clips": [
+    {
+     "name": "Anim1",
+     "start": 0,
+     "end": 19,
+     "fps": 10,
+     "loop": true,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim2",
+     "start": 20,
+     "end": 70,
+     "fps": 10,
+     "loop": true,
+     "variable_speed": false,
+     "reverse": false
+    }
+   ]
+  },
+  "ANIM/JACK.ANM": {
+   "tables": [
+    "romper"
+   ],
+   "clips": [
+    {
+     "name": "Still",
+     "start": 0,
+     "end": 1,
+     "fps": 10,
+     "loop": true,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim2",
+     "start": 2,
+     "end": 7,
+     "fps": 12,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim3",
+     "start": 8,
+     "end": 14,
+     "fps": 15,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim4",
+     "start": 15,
+     "end": 19,
+     "fps": 12,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim5",
+     "start": 20,
+     "end": 33,
+     "fps": 15,
+     "loop": true,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim6",
+     "start": 34,
+     "end": 38,
+     "fps": 5,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim7",
+     "start": 39,
+     "end": 49,
+     "fps": 8,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim8",
+     "start": 50,
+     "end": 60,
+     "fps": 8,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim9",
+     "start": 61,
+     "end": 87,
+     "fps": 10,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim10",
+     "start": 88,
+     "end": 92,
+     "fps": 5,
+     "loop": true,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim11",
+     "start": 93,
+     "end": 99,
+     "fps": 6.5,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim12",
+     "start": 100,
+     "end": 108,
+     "fps": 6,
+     "loop": true,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim13",
+     "start": 109,
+     "end": 130,
+     "fps": 0,
+     "loop": true,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim14",
+     "start": 131,
+     "end": 146,
+     "fps": 0,
+     "loop": true,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim15",
+     "start": 147,
+     "end": 162,
+     "fps": 4,
+     "loop": true,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim16",
+     "start": 38,
+     "end": 39,
+     "fps": 0,
+     "loop": true,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim17",
+     "start": 120,
+     "end": 127,
+     "fps": 0,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim18",
+     "start": 110,
+     "end": 116,
+     "fps": 0,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim19",
+     "start": 109,
+     "end": 130,
+     "fps": 0,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim20",
+     "start": 109,
+     "end": 130,
+     "fps": 0,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim21",
+     "start": 18,
+     "end": 19,
+     "fps": 6,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    }
+   ]
+  },
+  "ANIM/KAU.ANM": {
+   "tables": [
+    "kaufmann"
+   ],
+   "clips": [
+    {
+     "name": "Still",
+     "start": 1,
+     "end": 1,
+     "fps": 30,
+     "loop": true,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim1",
+     "start": 0,
+     "end": 15,
+     "fps": 5,
+     "loop": true,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim2",
+     "start": 16,
+     "end": 36,
+     "fps": 10,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim3",
+     "start": 37,
+     "end": 59,
+     "fps": 12,
+     "loop": true,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim4",
+     "start": 60,
+     "end": 89,
+     "fps": 20,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim5",
+     "start": 90,
+     "end": 104,
+     "fps": 4,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim6",
+     "start": 105,
+     "end": 115,
+     "fps": 5,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim7",
+     "start": 116,
+     "end": 181,
+     "fps": 15,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim8",
+     "start": 182,
+     "end": 202,
+     "fps": 15,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim9",
+     "start": 203,
+     "end": 290,
+     "fps": 10,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim10",
+     "start": 291,
+     "end": 321,
+     "fps": 10,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim11",
+     "start": 322,
+     "end": 346,
+     "fps": 10,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim12",
+     "start": 347,
+     "end": 383,
+     "fps": 10,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim13",
+     "start": 384,
+     "end": 404,
+     "fps": 15,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim14",
+     "start": 405,
+     "end": 420,
+     "fps": 5,
+     "loop": true,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim15",
+     "start": 0,
+     "end": 62,
+     "fps": 10,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim16",
+     "start": 63,
+     "end": 85,
+     "fps": 10,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim17",
+     "start": 86,
+     "end": 101,
+     "fps": 10,
+     "loop": true,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim18",
+     "start": 102,
+     "end": 201,
+     "fps": 10,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim19",
+     "start": 202,
+     "end": 225,
+     "fps": 10,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim20",
+     "start": 226,
+     "end": 241,
+     "fps": 5,
+     "loop": true,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim21",
+     "start": 242,
+     "end": 262,
+     "fps": 10,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim22",
+     "start": 208,
+     "end": 290,
+     "fps": 10,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    }
+   ]
+  },
+  "ANIM/LITL.ANM": {
+   "tables": [
+    "little_incubus"
+   ],
+   "clips": [
+    {
+     "name": "Anim1",
+     "start": 0,
+     "end": 80,
+     "fps": 10,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim2",
+     "start": 80,
+     "end": 81,
+     "fps": 0,
+     "loop": true,
+     "variable_speed": false,
+     "reverse": false
+    }
+   ]
+  },
+  "ANIM/LS.ANM": {
+   "tables": [
+    "lisa"
+   ],
+   "clips": [
+    {
+     "name": "Still",
+     "start": 1,
+     "end": 1,
+     "fps": 30,
+     "loop": true,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim1",
+     "start": 0,
+     "end": 9,
+     "fps": 5,
+     "loop": true,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim2",
+     "start": 10,
+     "end": 37,
+     "fps": 20,
+     "loop": true,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim3",
+     "start": 38,
+     "end": 58,
+     "fps": 1.5,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim4",
+     "start": 59,
+     "end": 72,
+     "fps": 5,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim5",
+     "start": 73,
+     "end": 189,
+     "fps": 9,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim6",
+     "start": 190,
+     "end": 205,
+     "fps": 5,
+     "loop": true,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim7",
+     "start": 206,
+     "end": 227,
+     "fps": 10,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim8",
+     "start": 228,
+     "end": 248,
+     "fps": 10,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim9",
+     "start": 249,
+     "end": 283,
+     "fps": 8,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim10",
+     "start": 284,
+     "end": 353,
+     "fps": 10,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim11",
+     "start": 354,
+     "end": 403,
+     "fps": 3.5,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim12",
+     "start": 404,
+     "end": 415,
+     "fps": 8,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim13",
+     "start": 416,
+     "end": 436,
+     "fps": 7.5,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim14",
+     "start": 437,
+     "end": 547,
+     "fps": 10,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim15",
+     "start": 548,
+     "end": 572,
+     "fps": 10,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim16",
+     "start": 573,
+     "end": 602,
+     "fps": 10,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim17",
+     "start": 603,
+     "end": 618,
+     "fps": 5,
+     "loop": true,
+     "variable_speed": false,
+     "reverse": false
+    }
+   ]
+  },
+  "ANIM/MAR.ANM": {
+   "tables": [
+    "incubator",
+    "unkkown_23"
+   ],
+   "clips": [
+    {
+     "name": "Still",
+     "start": 1,
+     "end": 1,
+     "fps": 30,
+     "loop": true,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim1",
+     "start": 0,
+     "end": 74,
+     "fps": 6.099853515625,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim2",
+     "start": 75,
+     "end": 115,
+     "fps": 10,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim3",
+     "start": 116,
+     "end": 132,
+     "fps": 10,
+     "loop": true,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim4",
+     "start": 115,
+     "end": 115,
+     "fps": 0,
+     "loop": true,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim5",
+     "start": 74,
+     "end": 74,
+     "fps": 0,
+     "loop": true,
+     "variable_speed": false,
+     "reverse": false
+    }
+   ]
+  },
+  "ANIM/MSB.ANM": {
+   "tables": [
+    "monster_cybil"
+   ],
+   "clips": [
+    {
+     "name": "Still",
+     "start": 1,
+     "end": 1,
+     "fps": 30,
+     "loop": true,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim1",
+     "start": 0,
+     "end": 23,
+     "fps": 30.0,
+     "loop": true,
+     "variable_speed": true,
+     "reverse": false
+    },
+    {
+     "name": "Anim2",
+     "start": 24,
+     "end": 35,
+     "fps": 15,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim3",
+     "start": 36,
+     "end": 46,
+     "fps": 20,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim4",
+     "start": 47,
+     "end": 72,
+     "fps": 10,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim5",
+     "start": 73,
+     "end": 90,
+     "fps": 50,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim6",
+     "start": 91,
+     "end": 101,
+     "fps": 10,
+     "loop": true,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim7",
+     "start": 102,
+     "end": 158,
+     "fps": 25,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim8",
+     "start": 159,
+     "end": 191,
+     "fps": 30,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim9",
+     "start": 192,
+     "end": 203,
+     "fps": 10,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim10",
+     "start": 204,
+     "end": 215,
+     "fps": 5,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": true
+    },
+    {
+     "name": "Anim11",
+     "start": 216,
+     "end": 226,
+     "fps": 10,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": true
+    },
+    {
+     "name": "Anim12",
+     "start": 227,
+     "end": 233,
+     "fps": 5,
+     "loop": true,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim13",
+     "start": 234,
+     "end": 239,
+     "fps": 5,
+     "loop": true,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim14",
+     "start": 240,
+     "end": 320,
+     "fps": 10,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim15",
+     "start": 321,
+     "end": 343,
+     "fps": 5,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim16",
+     "start": 344,
+     "end": 345,
+     "fps": 10,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim17",
+     "start": 346,
+     "end": 357,
+     "fps": 10,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim18",
+     "start": 24,
+     "end": 35,
+     "fps": 5,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim19",
+     "start": 36,
+     "end": 46,
+     "fps": 10,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim20",
+     "start": 0,
+     "end": 23,
+     "fps": 8,
+     "loop": true,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim21",
+     "start": 358,
+     "end": 373,
+     "fps": 5,
+     "loop": true,
+     "variable_speed": false,
+     "reverse": false
+    }
+   ]
+  },
+  "ANIM/MTH.ANM": {
+   "tables": [
+    "floatstinger"
+   ],
+   "clips": [
+    {
+     "name": "Anim1",
+     "start": 1,
+     "end": 31,
+     "fps": 32,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim2",
+     "start": 32,
+     "end": 57,
+     "fps": 20,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim3",
+     "start": 58,
+     "end": 78,
+     "fps": 20,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim4",
+     "start": 116,
+     "end": 136,
+     "fps": 0,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim5",
+     "start": 85,
+     "end": 115,
+     "fps": 4,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim6",
+     "start": 116,
+     "end": 136,
+     "fps": 0,
+     "loop": true,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim7",
+     "start": 137,
+     "end": 158,
+     "fps": 0,
+     "loop": true,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim8",
+     "start": 159,
+     "end": 190,
+     "fps": 20,
+     "loop": true,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim9",
+     "start": 191,
+     "end": 222,
+     "fps": 0,
+     "loop": true,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim10",
+     "start": 223,
+     "end": 254,
+     "fps": 20,
+     "loop": true,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim11",
+     "start": 78,
+     "end": 79,
+     "fps": 0,
+     "loop": true,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim12",
+     "start": 1,
+     "end": 31,
+     "fps": 32,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    }
+   ]
+  },
+  "ANIM/ROD.ANM": {
+   "tables": [
+    "bloodsucker"
+   ],
+   "clips": [
+    {
+     "name": "Anim1",
+     "start": 0,
+     "end": 7,
+     "fps": 2.5,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim2",
+     "start": 8,
+     "end": 15,
+     "fps": 1.7998046875,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim3",
+     "start": 16,
+     "end": 23,
+     "fps": 3.199951171875,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim4",
+     "start": 24,
+     "end": 42,
+     "fps": 20,
+     "loop": true,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim5",
+     "start": 43,
+     "end": 61,
+     "fps": 20,
+     "loop": true,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim6",
+     "start": 62,
+     "end": 80,
+     "fps": 20,
+     "loop": true,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim7",
+     "start": 81,
+     "end": 187,
+     "fps": 0,
+     "loop": true,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim8",
+     "start": 188,
+     "end": 197,
+     "fps": 20,
+     "loop": true,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim9",
+     "start": 198,
+     "end": 207,
+     "fps": 20,
+     "loop": true,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim10",
+     "start": 208,
+     "end": 217,
+     "fps": 20,
+     "loop": true,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim11",
+     "start": 218,
+     "end": 232,
+     "fps": 20,
+     "loop": true,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim12",
+     "start": 233,
+     "end": 247,
+     "fps": 20,
+     "loop": true,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim13",
+     "start": 248,
+     "end": 262,
+     "fps": 20,
+     "loop": true,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim14",
+     "start": 81,
+     "end": 187,
+     "fps": 0,
+     "loop": true,
+     "variable_speed": false,
+     "reverse": false
+    }
+   ]
+  },
+  "ANIM/SBL.ANM": {
+   "tables": [
+    "cybil"
+   ],
+   "clips": [
+    {
+     "name": "Still",
+     "start": 1,
+     "end": 1,
+     "fps": 30,
+     "loop": true,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim1",
+     "start": 0,
+     "end": 15,
+     "fps": 5,
+     "loop": true,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim2",
+     "start": 16,
+     "end": 21,
+     "fps": 1,
+     "loop": true,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim3",
+     "start": 22,
+     "end": 49,
+     "fps": 20,
+     "loop": true,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim4",
+     "start": 50,
+     "end": 62,
+     "fps": 15,
+     "loop": true,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim5",
+     "start": 63,
+     "end": 75,
+     "fps": 15,
+     "loop": true,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim6",
+     "start": 76,
+     "end": 79,
+     "fps": 1,
+     "loop": true,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim7",
+     "start": 80,
+     "end": 108,
+     "fps": 3,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim8",
+     "start": 109,
+     "end": 122,
+     "fps": 10,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim9",
+     "start": 123,
+     "end": 151,
+     "fps": 18,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim10",
+     "start": 152,
+     "end": 162,
+     "fps": 7,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim11",
+     "start": 163,
+     "end": 173,
+     "fps": 12,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim12",
+     "start": 174,
+     "end": 180,
+     "fps": 1,
+     "loop": true,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim13",
+     "start": 181,
+     "end": 228,
+     "fps": 6,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim14",
+     "start": 229,
+     "end": 249,
+     "fps": 10,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim15",
+     "start": 250,
+     "end": 270,
+     "fps": 10,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim16",
+     "start": 271,
+     "end": 281,
+     "fps": 10,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim17",
+     "start": 282,
+     "end": 292,
+     "fps": 10,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim18",
+     "start": 293,
+     "end": 302,
+     "fps": 10,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim19",
+     "start": 303,
+     "end": 368,
+     "fps": 10,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim20",
+     "start": 369,
+     "end": 403,
+     "fps": 10,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim21",
+     "start": 0,
+     "end": 21,
+     "fps": 20,
+     "loop": true,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim22",
+     "start": 22,
+     "end": 104,
+     "fps": 10,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim23",
+     "start": 105,
+     "end": 144,
+     "fps": 10,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim24",
+     "start": 155,
+     "end": 184,
+     "fps": 10,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim25",
+     "start": 185,
+     "end": 278,
+     "fps": 10,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim26",
+     "start": 279,
+     "end": 295,
+     "fps": 10,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim27",
+     "start": 296,
+     "end": 310,
+     "fps": 10,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim28",
+     "start": 311,
+     "end": 324,
+     "fps": 10,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim29",
+     "start": 325,
+     "end": 355,
+     "fps": 10,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim30",
+     "start": 167,
+     "end": 184,
+     "fps": 10,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim31",
+     "start": 356,
+     "end": 371,
+     "fps": 2,
+     "loop": true,
+     "variable_speed": false,
+     "reverse": false
+    }
+   ]
+  },
+  "ANIM/SLT.ANM": {
+   "tables": [
+    "hanged_scratcher"
+   ],
+   "clips": [
+    {
+     "name": "JumpDownFromWall",
+     "start": 0,
+     "end": 50,
+     "fps": 0,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "EmergeFromWater",
+     "start": 51,
+     "end": 86,
+     "fps": 0,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "JumpDownFromCeiling",
+     "start": 87,
+     "end": 97,
+     "fps": 0,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim4",
+     "start": 98,
+     "end": 115,
+     "fps": 19.5,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim5",
+     "start": 116,
+     "end": 135,
+     "fps": 23,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim6",
+     "start": 136,
+     "end": 147,
+     "fps": 2,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim7",
+     "start": 148,
+     "end": 153,
+     "fps": 1,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim8",
+     "start": 154,
+     "end": 165,
+     "fps": 14,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim9",
+     "start": 168,
+     "end": 175,
+     "fps": 0,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim10",
+     "start": 176,
+     "end": 191,
+     "fps": 0,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim11",
+     "start": 192,
+     "end": 201,
+     "fps": 0,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim12",
+     "start": 202,
+     "end": 215,
+     "fps": 3,
+     "loop": true,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim13",
+     "start": 216,
+     "end": 221,
+     "fps": 3,
+     "loop": true,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim14",
+     "start": 222,
+     "end": 231,
+     "fps": 0,
+     "loop": true,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim15",
+     "start": 232,
+     "end": 243,
+     "fps": 0,
+     "loop": true,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim16",
+     "start": 244,
+     "end": 266,
+     "fps": 0,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "RunForward",
+     "start": 267,
+     "end": 276,
+     "fps": 0,
+     "loop": true,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "WalkForward",
+     "start": 277,
+     "end": 292,
+     "fps": 0,
+     "loop": true,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim19",
+     "start": 147,
+     "end": 148,
+     "fps": 0,
+     "loop": true,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim20",
+     "start": 153,
+     "end": 154,
+     "fps": 0,
+     "loop": true,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim21",
+     "start": 136,
+     "end": 147,
+     "fps": 16,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim22",
+     "start": 148,
+     "end": 153,
+     "fps": 8,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim23",
+     "start": 168,
+     "end": 174,
+     "fps": 0,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim24",
+     "start": 50,
+     "end": 51,
+     "fps": 0,
+     "loop": true,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim25",
+     "start": 86,
+     "end": 87,
+     "fps": 0,
+     "loop": true,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim26",
+     "start": 97,
+     "end": 98,
+     "fps": 0,
+     "loop": true,
+     "variable_speed": false,
+     "reverse": false
+    }
+   ]
+  },
+  "ANIM/SRL.ANM": {
+   "tables": [
+    "cheryl"
+   ],
+   "clips": [
+    {
+     "name": "Still",
+     "start": 1,
+     "end": 1,
+     "fps": 30,
+     "loop": true,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Idle",
+     "start": 0,
+     "end": 5,
+     "fps": 5,
+     "loop": true,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "WalkForward",
+     "start": 6,
+     "end": 32,
+     "fps": 30,
+     "loop": true,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "RunForward",
+     "start": 34,
+     "end": 55,
+     "fps": 30,
+     "loop": true,
+     "variable_speed": false,
+     "reverse": false
+    }
+   ]
+  },
+  "ANIM/TAR.ANM": {
+   "tables": [
+    "ghost_child_alessa"
+   ],
+   "clips": [
+    {
+     "name": "Still",
+     "start": 1,
+     "end": 1,
+     "fps": 30,
+     "loop": true,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim1",
+     "start": 0,
+     "end": 27,
+     "fps": 15,
+     "loop": true,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim2",
+     "start": 28,
+     "end": 49,
+     "fps": 15,
+     "loop": true,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim3",
+     "start": 50,
+     "end": 63,
+     "fps": 10,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim4",
+     "start": 64,
+     "end": 83,
+     "fps": 10,
+     "loop": true,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim5",
+     "start": 84,
+     "end": 109,
+     "fps": 10,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim6",
+     "start": 110,
+     "end": 111,
+     "fps": 5,
+     "loop": true,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim7",
+     "start": 112,
+     "end": 127,
+     "fps": 5,
+     "loop": true,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim8",
+     "start": 128,
+     "end": 137,
+     "fps": 5,
+     "loop": true,
+     "variable_speed": false,
+     "reverse": false
+    }
+   ]
+  },
+  "ANIM/WRM.ANM": {
+   "tables": [
+    "twinfeeler"
+   ],
+   "clips": [
+    {
+     "name": "Anim1",
+     "start": 0,
+     "end": 31,
+     "fps": 16,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim2",
+     "start": 32,
+     "end": 72,
+     "fps": 14,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim3",
+     "start": 73,
+     "end": 104,
+     "fps": 14,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim4",
+     "start": 105,
+     "end": 130,
+     "fps": 14,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim5",
+     "start": 131,
+     "end": 162,
+     "fps": 14,
+     "loop": true,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim6",
+     "start": 163,
+     "end": 194,
+     "fps": 14,
+     "loop": true,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim7",
+     "start": 195,
+     "end": 226,
+     "fps": 14,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim8",
+     "start": 227,
+     "end": 258,
+     "fps": 14,
+     "loop": true,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim9",
+     "start": 259,
+     "end": 290,
+     "fps": 14,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim10",
+     "start": 291,
+     "end": 322,
+     "fps": 14,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim11",
+     "start": 323,
+     "end": 354,
+     "fps": 14,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim12",
+     "start": 355,
+     "end": 386,
+     "fps": 14,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim13",
+     "start": 387,
+     "end": 407,
+     "fps": 14,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim14",
+     "start": 408,
+     "end": 428,
+     "fps": 14,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim15",
+     "start": 429,
+     "end": 459,
+     "fps": 14,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim16",
+     "start": 460,
+     "end": 490,
+     "fps": 14,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim17",
+     "start": 491,
+     "end": 521,
+     "fps": 30,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim18",
+     "start": 258,
+     "end": 258,
+     "fps": 0,
+     "loop": true,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim19",
+     "start": 104,
+     "end": 104,
+     "fps": 0,
+     "loop": true,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim20",
+     "start": 226,
+     "end": 226,
+     "fps": 0,
+     "loop": true,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim21",
+     "start": 459,
+     "end": 459,
+     "fps": 0,
+     "loop": true,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim22",
+     "start": 490,
+     "end": 490,
+     "fps": 0,
+     "loop": true,
+     "variable_speed": false,
+     "reverse": false
+    },
+    {
+     "name": "Anim23",
+     "start": 0,
+     "end": 31,
+     "fps": 13,
+     "loop": false,
+     "variable_speed": false,
+     "reverse": false
+    }
+   ]
+  }
+ }
+}

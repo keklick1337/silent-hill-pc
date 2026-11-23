@@ -1,0 +1,13 @@
+{
+  "format": "sh-text",
+  "version": 1,
+  "lang": "ko",
+  "map": "map5_s01",
+  "strings": {
+    "map5_s01.there_is_a_resort_area": "{hires}{color 5}휴양지 지도{/color}가 있다.\n가져갈까?{choice 4}",
+    "map5_s01.nothing_unusual": "특별히 이상한 점은 없다.{end}",
+    "map5_s01.used_the_kaufmann_key": "{color 2}카우프만의 열쇠{/color}를 사용했다.{end}",
+    "map5_s01.what": "{wait 1.0}뭐지?{end}",
+    "map5_s01.that_light": "{wait 2.5}저 빛은!?{end}"
+  }
+}

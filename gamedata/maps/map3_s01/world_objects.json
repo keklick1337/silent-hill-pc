@@ -1,0 +1,133 @@
+{
+  "format": "sh-map-world-objects",
+  "version": 2,
+  "map": "map3_s01",
+  "description": "Static world objects of map3_s01 (Hospital - 1F and basement after Kaufmann): 17 objects, drawn in file order. An object is drawn while the player is in one of its \"zones\" (each {\"x\": [...], \"z\": [...]} lists 40 m cells along that axis: cell c holds 40c..40(c+1) m; no zones = everywhere) and every flag of \"flags_set\" is set and every flag of \"flags_clear\" is clear (event flag names, e.g. the pickup flags). \"name\" is the object's id for scripts and mods, \"model\" its model (at most 8 characters, the map's or an item model), \"position\" in metres and \"rotation\" in degrees (x, y, z). \"pose\" instead takes position and rotation from a table of the map's overlay on the disc (\"disc_table\" from tables.json, row \"index\"), resolved when the map loads; pickups use it. \"script\": true lets world_objects.lua and events.lua move, turn, re-model or hide the object. ElevatorDoor* are script objects: world_objects.lua closes them when the player enters the shaft and the elevator panel of events.lua slides them through the map variable sliding_doors. ElevatorButtons3/3b: the 3F button panel, BT3 unless both map-mark flags are set. HealthDrink takes its pose from the overlay on the disc, as in the original. A mod's maps/map3_s01/world_objects.json changes or adds objects by name.",
+  "objects": [
+    {
+      "name": "PlasticBottle",
+      "model": "BOT_HIDE",
+      "position": [20.3, 0.0, 59.25],
+      "zones": [{"x": 0, "z": 1}],
+      "flags_clear": ["M3S01_PickupPlasticBottle"]
+    },
+    {
+      "name": "Map",
+      "model": "MAP_HIDE",
+      "position": [60.0, 0.0, 60.0],
+      "rotation": [0, 9.7, 0],
+      "zones": [{"x": 1, "z": 1}],
+      "flags_clear": ["M3S01_PickupMap"]
+    },
+    {
+      "name": "BasementKey",
+      "model": "KEY_HIDE",
+      "position": [100.3, 0.0, 58.9],
+      "rotation": [0, 72.8, 0],
+      "zones": [{"x": 2, "z": 1}],
+      "flags_clear": ["M3S01_PickupBasementKey"]
+    },
+    {
+      "name": "ElevatorDoor1Left",
+      "model": "DR1L_HID",
+      "position": [59.1, 0.0, 19.1],
+      "script": true,
+      "zones": [{"x": 1, "z": 0}]
+    },
+    {
+      "name": "ElevatorDoor1Right",
+      "model": "DR1R_HID",
+      "position": [59.1, 0.0, 19.1],
+      "script": true,
+      "zones": [{"x": 1, "z": 0}]
+    },
+    {
+      "name": "ElevatorDoor3Left",
+      "model": "DR3L_HID",
+      "position": [59.1, 0.0, 19.1],
+      "script": true,
+      "zones": [{"x": 1, "z": 0}]
+    },
+    {
+      "name": "ElevatorDoor3Right",
+      "model": "DR3R_HID",
+      "position": [59.1, 0.0, 19.1],
+      "script": true,
+      "zones": [{"x": 1, "z": 0}]
+    },
+    {
+      "name": "ElevatorDoor2Left",
+      "model": "DR2L_HID",
+      "position": [59.1, 0.0, 19.1],
+      "script": true,
+      "zones": [{"x": 1, "z": 0}]
+    },
+    {
+      "name": "ElevatorDoor2Right",
+      "model": "DR2R_HID",
+      "position": [59.1, 0.0, 19.1],
+      "script": true,
+      "zones": [{"x": 1, "z": 0}]
+    },
+    {
+      "name": "ElevatorButtons4",
+      "model": "BT4_HIDE",
+      "position": [59.1, 0.0, 19.1],
+      "zones": [{"x": 1, "z": 0}],
+      "flags_set": ["MapMark_FogHospital2F_NearElevatorBroken", "MapMark_FogHospital3F_NearElevatorBroken"]
+    },
+    {
+      "name": "ElevatorButtons3",
+      "model": "BT3_HIDE",
+      "position": [59.1, 0.0, 19.1],
+      "zones": [{"x": 1, "z": 0}],
+      "flags_clear": ["MapMark_FogHospital2F_NearElevatorBroken"]
+    },
+    {
+      "name": "ElevatorButtons3b",
+      "model": "BT3_HIDE",
+      "position": [59.1, 0.0, 19.1],
+      "zones": [{"x": 1, "z": 0}],
+      "flags_set": ["MapMark_FogHospital2F_NearElevatorBroken"],
+      "flags_clear": ["MapMark_FogHospital3F_NearElevatorBroken"]
+    },
+    {
+      "name": "SavePad",
+      "model": "PAD_NEAR",
+      "position": [26.0, -1.0198, 144.5498],
+      "rotation": [0, 163.8, 0],
+      "zones": [{"x": 0, "z": 3}]
+    },
+    {
+      "name": "Map3F",
+      "model": "MAP_HIDE",
+      "position": [24.6, -1.56, 143.16],
+      "rotation": [0, 180.0, 0],
+      "zones": [{"x": 0, "z": 3}],
+      "flags_clear": ["M3S00_PickupMap"]
+    },
+    {
+      "name": "Map3FTaken",
+      "model": "MAP2_HID",
+      "position": [24.6, -1.56, 143.16],
+      "rotation": [0, 180.0, 0],
+      "zones": [{"x": 0, "z": 3}],
+      "flags_set": ["M3S00_PickupMap"]
+    },
+    {
+      "name": "FirstAidKit",
+      "model": "AIDKIT_N",
+      "position": [27.6, -0.45, 143.6],
+      "rotation": [0, -90.0, 0],
+      "zones": [{"x": 0, "z": 3}],
+      "flags_clear": ["M3S00_FirstAidKit"]
+    },
+    {
+      "name": "HealthDrink",
+      "model": "DRINK_NE",
+      "pose": {"disc_table": "CommonWorldObjectPoses", "index": 0, "disc_address": "0x800D4CF0"},
+      "zones": [{"x": 0, "z": 1}],
+      "flags_clear": ["M3S01_HealthDrink"]
+    }
+  ]
+}

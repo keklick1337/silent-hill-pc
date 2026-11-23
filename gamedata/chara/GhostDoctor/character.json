@@ -1,0 +1,27 @@
+{
+  "description": "Ghost of a doctor seen in Alessa's memory visions in Nowhere.",
+  "category": "StoryCharacters",
+  "maps": ["map7_s02"],
+  "model": "models/CHARA/DOC.glb",
+  "animations": "anim/ANIM/DOC.anim.json",
+  "clip_tables": ["ghost_doctor"],
+  "textures": ["textures/CHARA/DOC.png"],
+  "shadow": 0.25,
+  "blend_mode": "additive",
+  "camera_anchor": "character",
+  "camera_offset_y": 0.0,
+  "anims": {
+    "still": 0,
+    "stand": 1
+  },
+  "controls": {
+    "still": 0,
+    "stand": 1
+  },
+  "spawn": {
+    "state": 0,
+    "kind": "actor",
+    "auto": "fallback",
+    "note": "its own AI plays the cutscene state the map sets"
+  }
+}

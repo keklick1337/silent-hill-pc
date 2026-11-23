@@ -1,0 +1,58 @@
+{
+  "format": "sh-map-world-objects",
+  "version": 2,
+  "map": "map6_s00",
+  "description": "Static world objects of map6_s00 (Resort Area Otherworld): 7 objects, drawn in file order. An object is drawn while the player is in one of its \"zones\" (each {\"x\": [...], \"z\": [...]} lists 40 m cells along that axis: cell c holds 40c..40(c+1) m; no zones = everywhere) and every flag of \"flags_set\" is set and every flag of \"flags_clear\" is clear (event flag names, e.g. the pickup flags). \"name\" is the object's id for scripts and mods, \"model\" its model (at most 8 characters, the map's or an item model), \"position\" in metres and \"rotation\" in degrees (x, y, z). \"pose\" instead takes position and rotation from a table of the map's overlay on the disc (\"disc_table\" from tables.json, row \"index\"), resolved when the map loads; pickups use it. \"pc_near_pickup\": true (not in the original) also draws the pickup while the player is in a neighbouring cell of the same floor. The window and doors of the Resort Area Otherworld and its pickups. A mod's maps/map6_s00/world_objects.json changes or adds objects by name.",
+  "objects": [
+    {
+      "name": "Window",
+      "model": "WINDOW_H",
+      "position": [-155.0, 3.0, 20.0],
+      "zones": [{"x": [-5, -4], "z": 0}]
+    },
+    {
+      "name": "DoorOpen1",
+      "model": "DROPEN1_",
+      "position": [-190.5, 0.0, 132.5],
+      "zones": [{"x": -5, "z": [2, 3]}],
+      "flags_set": ["M6S01_CybilDahliaCutsceneDone"]
+    },
+    {
+      "name": "DoorOpen2",
+      "model": "DROPEN2_",
+      "position": [-190.5, -0.05, 132.214],
+      "zones": [{"x": -5, "z": [2, 3]}],
+      "flags_set": ["M6S01_CybilDahliaCutsceneDone"]
+    },
+    {
+      "name": "DoorClosed",
+      "model": "DRCLOSE_",
+      "position": [-189.5, 0.0, 132.5],
+      "zones": [{"x": -5, "z": [2, 3]}],
+      "flags_clear": ["M6S01_CybilDahliaCutsceneDone"]
+    },
+    {
+      "name": "HealthDrink",
+      "model": "DRINK_NE",
+      "pose": {"disc_table": "CommonWorldObjectPoses", "index": 0},
+      "pc_near_pickup": true,
+      "zones": [{"x": -2, "z": 3}],
+      "flags_clear": ["M6S00_HealthDrink"]
+    },
+    {
+      "name": "ShotgunShells",
+      "model": "SHOT_NEA",
+      "pose": {"disc_table": "CommonWorldObjectPoses", "index": 1},
+      "pc_near_pickup": true,
+      "zones": [{"x": -2, "z": 3}],
+      "flags_clear": ["M6S00_ShotgunShells"]
+    },
+    {
+      "name": "FirstAidKit",
+      "model": "AIDKIT_N",
+      "pose": {"disc_table": "CommonWorldObjectPoses", "index": 2},
+      "zones": [{"x": -5, "z": -2}],
+      "flags_clear": ["M6S00_FirstAidKit"]
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "format": "sh-load-screen",
+  "version": 1,
+  "description": "The loading screen with Harry running. All values are Q12 (4096 = 1.0 or 1 m): look_height, cam_height and player_height are heights (negative = up), cam_angle_offset is an angle (4096 = full turn) added to Harry's heading, cam_distance_mul scales how far behind him the camera sits (by sin / cos of the heading plus the offset), pose_time is the animation time the run starts at and light_tint the tint of the light on him (4096 = neutral).",
+  "look_height": -2457,
+  "cam_height": -4096,
+  "cam_angle_offset": -256,
+  "cam_distance_mul": 2,
+  "pose_time": 106496,
+  "player_height": 819,
+  "light_tint": 4096
+}

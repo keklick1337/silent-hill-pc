@@ -1,0 +1,10 @@
+{
+  "rain": { "boundary": true, "pool_splash": true, "after_rest": true, "sound": true },
+  "rest_gate": true,
+  "update": [
+    {
+      "rooms": [17],
+      "skip": true
+    }
+  ]
+}

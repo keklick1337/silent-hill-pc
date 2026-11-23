@@ -1,0 +1,29 @@
+{
+  "description": "Colours and geometry of the menus' selection widgets: the underline of the selected row and its shadow band, the selection arrows, the gradient bullet points (vertex colours in drawing order) and the dark bands at the screen edges (vignette). Colours are [r, g, b] in 0..255. Every key is checked: an unknown key is an error.",
+  "underline": {
+    "colors": [[176, 176, 176], [160, 128, 64]],
+    "shadow_height": 16,
+    "shadow_colors": [[0, 0, 0], [96, 96, 96]]
+  },
+  "arrow": {
+    "flash_base": [0, 0, 255],
+    "flash_green_step": 7,
+    "solid": [0, 240, 240]
+  },
+  "bullet": {
+    "front": [[160, 128, 64], [255, 255, 255], [255, 255, 255]],
+    "front_inactive": [[80, 64, 32], [160, 160, 160], [160, 160, 160]],
+    "border": [[255, 255, 255], [160, 128, 64], [64, 64, 64]],
+    "border_inactive": [[128, 128, 128], [40, 32, 16], [16, 16, 16]]
+  },
+  "vignette": {
+    "edge_color": [96, 96, 96],
+    "inner_color": [0, 0, 0],
+    "left": -160,
+    "right": 160,
+    "bands": [
+      {"edge_y": -112, "inner_y": -96},
+      {"edge_y": 112, "inner_y": 72}
+    ]
+  }
+}

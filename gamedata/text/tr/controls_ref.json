@@ -1,0 +1,24 @@
+{
+  "format": "sh-text",
+  "version": 1,
+  "lang": "tr",
+  "strings": {
+    "ui.bind.attack": "Saldırı",
+    "ui.bind.back_cancel": "Geri / İptal",
+    "ui.bind.confirm_skip": "Onayla / Geç",
+    "ui.bind.view": "Bakış",
+    "ui.controls_ref.category.camera": "Kamera",
+    "ui.controls_ref.category.combat": "Dövüş",
+    "ui.controls_ref.category.debug": "Hata ayıklama",
+    "ui.controls_ref.category.menu": "Menü",
+    "ui.controls_ref.category.movement": "Hareket",
+    "ui.controls_ref.category.system": "Sistem",
+    "ui.controls_ref.close_hint": "Kapatmak için bir tuşa basın",
+    "ui.controls_ref.scheme_altcam": "alternatif kamera",
+    "ui.controls_ref.scheme_classic": "klasik kamera",
+    "ui.controls_ref.stick": "Çubuk/Yön tuşları",
+    "ui.controls_ref.title": "Kontroller",
+    "ui.options.controls_reference": "Kontrol özeti",
+    "ui.options.controls_reference.help": "Geçerli bütün tuş ve düğmeleri gösterir."
+  }
+}

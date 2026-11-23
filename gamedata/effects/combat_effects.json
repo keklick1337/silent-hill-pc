@@ -1,0 +1,54 @@
+{
+  "description": "Blood and gunfire effects. Positions and offsets in Q12 metres (4096 = 1 m), times in Q12 seconds. blood_hits: by hit strength (the attack's blood_splatter, the list index), the sprays and splats ([min, max], a random number) and their size. body_pools: by death pose, the blood pool patches under a corpse. muzzle_flashes and gun_smoke: the flash and smoke kinds a gun can use. guns: per weapon or shooter name, flash and smoke are indices into muzzle_flashes and gun_smoke (flash null: no flash, the smoke comes anyway), puffs the number of smoke slots taken, flash_angles a fixed [yaw, pitch] instead of the shot's aim, bones and muzzle where the flash sits, muzzle_light the light of the flash (colour, intensity, range, radius in metres, fade, casts_shadows, gi; rendering only) for the guns of story characters that have no weapon file, as gamedata/weapons/<Name>.json gives it to the player's guns. Every key is checked: an unknown key is an error. A mod changes it with a file of the same path in its own folder; objects are merged key by key, so the patch only needs the keys it changes.",
+  "blood_hits": [
+    {"description": "Strength 0: nothing.", "sprays": 0, "splats": 0, "size": 0},
+    {"sprays": 1, "splats": 0, "size": 6},
+    {"sprays": 2, "splats": 1, "size": 12},
+    {"description": "splats [min, max]: a random number of splats.", "sprays": 3, "splats": [1, 2], "size": 18},
+    {"sprays": 3, "splats": [1, 4], "size": 24},
+    {"sprays": 4, "splats": [2, 5], "size": 30},
+    {"sprays": 4, "splats": [1, 8], "size": 36},
+    {"sprays": 5, "splats": [2, 9], "size": 42},
+    {"description": "Strength 8 follows no character.", "sprays": 3, "splats": 0, "size": 16},
+    {"description": "Strength 9 sprays at the point itself and ages twice as fast.", "sprays": 1, "splats": 0, "size": 16}
+  ],
+  "body_pools": [
+    {"description": "By death pose: size of each patch (grows by up to a quarter at random); patches [forward_range, forward_base, side_range, side_base], each offset base + rand % range, laid last first.", "size": 100, "patches": [[1, 0, 1, 0]]},
+    {"size": 72, "patches": [[864, 192, 992, -624], [992, -992, 800, -432], [2496, -1712, 256, -32]]},
+    {"size": 72, "patches": [[352, 1504, 448, -464], [864, 240, 704, -592], [864, -656, 704, -448]]},
+    {"size": 60, "patches": [[1600, 304, 544, -192], [1248, -96, 672, -320]]},
+    {"size": 60, "patches": [[1248, -1344, 640, -400], [1500, -850, 200, -100]]},
+    {"size": 110, "patches": [[768, -848, 704, 192], [1760, -64, 480, -144]]},
+    {"size": 110, "patches": [[832, 160, 864, -144], [1760, -1376, 352, -64]]},
+    {"size": 110, "patches": [[928, 112, 800, -752], [1952, -1552, 352, -272]]},
+    {"size": 58, "patches": [[3264, -624, 256, -16], [1216, 128, 448, -256], [1024, -704, 608, -352]]},
+    {"size": 80, "patches": [[448, 3392, 384, 112], [1440, 496, 2866, -1328], [2720, -1360, 512, -240]]},
+    {"size": 60, "patches": [[1440, -368, 352, -224]]},
+    {"size": 60, "patches": [[1568, -896, 320, -208]]},
+    {"size": 72, "patches": [[1568, 288, 576, -400], [2592, 144, 224, -144], [320, 2336, 224, -144]]},
+    {"size": 94, "patches": [[1408, 384, 544, -528], [1408, -640, 544, -480]]},
+    {"size": 100, "patches": [[768, 4832, 736, 240], [2784, 2912, 736, 528]]},
+    {"size": 100, "patches": [[2208, -4624, 672, 544], [768, -4704, 736, -656]]}
+  ],
+  "muzzle_flashes": [
+    {"description": "Effect slot kinds 15..19 in order. life: Q12 seconds; length and half_width: size of a flash blade in the bone's units; swirl: the wobble of its spin; muzzle: the point in the bone's space; bones: 'weapon' (the shooter's gun) or 'second' (an NPC's gun).", "life": 204, "length": 819, "half_width": 163, "swirl": 256, "muzzle": [2, -15, 71], "bones": "weapon"},
+    {"life": 204, "length": 655, "half_width": 204, "swirl": 384, "muzzle": [3, -18, 109], "bones": "weapon"},
+    {"life": 163, "length": 737, "half_width": 81, "swirl": 192, "muzzle": [-2, -35, 221], "bones": "weapon"},
+    {"life": 122, "length": 819, "half_width": 163, "swirl": 256, "muzzle": [3, -24, 91], "bones": "second"},
+    {"life": 204, "length": 819, "half_width": 163, "swirl": 256, "muzzle": [2, -13, 67], "bones": "second"}
+  ],
+  "gun_smoke": [
+    {"description": "Effect slot kinds 20..22 in order; a puff starts drifting once older than drift_after and is gone at life (Q12 seconds).", "drift_after": 204, "life": 1638},
+    {"drift_after": 204, "life": 1638},
+    {"drift_after": 163, "life": 1433}
+  ],
+  "guns": {
+    "Handgun": {"bones": "weapon", "muzzle": [2, -15, 71], "flash": 0, "smoke": 0, "puffs": 3},
+    "Shotgun": {"bones": "weapon", "muzzle": [3, -18, 109], "flash": 1, "smoke": 1, "puffs": 5},
+    "HuntingRifle": {"bones": "weapon", "muzzle": [-2, -35, 221], "flash": 2, "smoke": 2, "puffs": 3},
+    "KaufmannGun": {"bones": "second", "muzzle": [3, -24, 91], "flash": 3, "smoke": 0, "puffs": 3, "flash_angles": [-1024, 1024], "muzzle_light": {"color": [1.0, 0.72, 0.4], "intensity": 4.0, "range": 6.0, "radius": 0.03, "fade": 0.5}},
+    "CybilGun": {"bones": "second", "muzzle": [2, -13, 67], "flash": 4, "smoke": 0, "puffs": 3, "muzzle_light": {"color": [1.0, 0.72, 0.4], "intensity": 4.0, "range": 6.0, "radius": 0.03, "fade": 0.5}},
+    "Chainsaw": {"bones": "weapon", "muzzle": [2, 20, 57], "flash": null, "smoke": 0, "puffs": 3},
+    "RockDrill": {"bones": "weapon", "muzzle": [2, 24, 67], "flash": null, "smoke": 0, "puffs": 3}
+  }
+}

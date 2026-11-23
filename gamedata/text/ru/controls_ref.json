@@ -1,0 +1,24 @@
+{
+  "format": "sh-text",
+  "version": 1,
+  "lang": "ru",
+  "strings": {
+    "ui.bind.attack": "Атака",
+    "ui.bind.back_cancel": "Назад / Отмена",
+    "ui.bind.confirm_skip": "Подтвердить / Пропуск",
+    "ui.bind.view": "Осмотр",
+    "ui.controls_ref.category.camera": "Камера",
+    "ui.controls_ref.category.combat": "Бой",
+    "ui.controls_ref.category.debug": "Отладка",
+    "ui.controls_ref.category.menu": "Меню",
+    "ui.controls_ref.category.movement": "Движение",
+    "ui.controls_ref.category.system": "Система",
+    "ui.controls_ref.close_hint": "Нажмите любую клавишу",
+    "ui.controls_ref.scheme_altcam": "альтернативная камера",
+    "ui.controls_ref.scheme_classic": "классическая камера",
+    "ui.controls_ref.stick": "Стик/крестовина",
+    "ui.controls_ref.title": "Управление",
+    "ui.options.controls_reference": "Справка по управлению",
+    "ui.options.controls_reference.help": "Все текущие клавиши и кнопки."
+  }
+}

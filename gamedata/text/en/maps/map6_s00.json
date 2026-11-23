@@ -1,0 +1,43 @@
+{
+  "format": "sh-text",
+  "version": 1,
+  "lang": "en",
+  "map": "map6_s00",
+  "description": "The map's messages: the keys by message number from \"first\" (the numbers before it are common.json's), and the English text of the original game.",
+  "index": {
+    "map": {
+      "first": 15,
+      "keys": [
+        "map6_s00.whats_this",
+        "map6_s00.msg16",
+        "map6_s00.msg17",
+        "map6_s00.msg18",
+        "map6_s00.not_again_no_this_time",
+        "map6_s00.rather_than_shifting_from",
+        "map6_s00.this_is_more_like_reality",
+        "map6_s00.i_dont_like_this_feeling",
+        "map6_s00.no_doubt_something_terrible_is",
+        "map6_s00.the_cover_has_been_removed",
+        "map6_s00.could_cybil_have_gotten_to",
+        "map6_s00.lake_side_amusement_park"
+      ]
+    }
+  },
+  "strings": {
+    "map6_s00.whats_this": "{wait 1.5}What's this!{end}",
+    "map6_s00.msg16": "{wait 0.1}{end}",
+    "map6_s00.msg17": "{wait 0.1}{end}",
+    "map6_s00.msg18": "{wait 0.1}{end}",
+    "map6_s00.not_again_no_this_time": "{wait1 4.0}Not again...!?\nNo, this time it feels different.",
+    "map6_s00.rather_than_shifting_from": "{wait1 4.5}Rather than shifting\nfrom reality to a nightmare,",
+    "map6_s00.this_is_more_like_reality": "{wait1 4.5}this is more like reality\nbecoming a nightmare.",
+    "map6_s00.i_dont_like_this_feeling": "{wait1 6.0}I don't like this feeling.\nLike something bad\nwill happen...",
+    "map6_s00.no_doubt_something_terrible_is": "{wait1 4.0}No doubt, something terrible\nis going on...{end}",
+    "map6_s00.the_cover_has_been_removed": "The cover has been removed...",
+    "map6_s00.could_cybil_have_gotten_to": "Could Cybil have gotten\nto the Amusement Park from here?{end}",
+    "map6_s00.lake_side_amusement_park": "{color 3}LAKE SIDE AMUSEMENT PARK{end}"
+  },
+  "ws": {
+    "map6_s00.lake_side_amusement_park": "72433197:1=t"
+  }
+}

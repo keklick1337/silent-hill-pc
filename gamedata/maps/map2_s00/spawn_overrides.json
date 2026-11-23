@@ -1,0 +1,21 @@
+{
+  "format": "sh-map-spawn-overrides",
+  "version": 1,
+  "description": "Which enemies walk the Old Town streets of map2_s00. \"spawn_variants\" picks one of three whole spawn tables: the first \"choices\" entry whose condition holds wins, checked when the map's world objects are set up and again when a script changes M2S00_StreetSpawnCafe..M2S00_StreetSpawnChurch (events.lua, then sh.map.spawn_variants_apply). The rows of each table are the overlay's own, imported into map.json spawn_variant_rows under the same names. CafeStreets covers the centre around Cafe 5to2 (the default at the start of the game), SchoolStreets the west strip on the way to Midwich Elementary (also chosen by the water works cutscene), ChurchStreets is a sparse table in the south around the Balkan Church: it replaces SchoolStreets after Split Head is beaten (M1S05_SplitHeadKilled) until the church scene of map2_s01 (M2S01_ChurchFmvSeen). Killed enemies are remembered per table: applying a variant copies its save word enemy_state_load into the map's active word (enemy_state_active, 10), and while the map runs the active word is copied back to enemy_state_save every frame. \"spawn_overrides\" (empty here) would hold single-row changes: Each entry has \"when\" (all of: \"difficulty\" easy/normal/hard, \"flags_set\" and \"flags_clear\" event flag names that must be set / clear; nested \"all\"/\"any\" lists combine conditions) and \"set\", a list of writes: \"chara\" is a character name, \"slot\" the row of the map's spawn table for that character (as the second argument of sh.chara_spawn_flags_set) and \"flags\" the spawn flags the row gets, which the spawned character starts its state from (\"none\" = 0, the row stays empty; spawn_0.. spawn_4 are the bits). Entries apply when the map loads, in file order (a later one wins); a mod's own entries are appended unless they carry an \"id\" that replaces an entry.",
+  "spawn_overrides": [],
+  "spawn_variants": {
+    "enemy_state_active": 10,
+    "variants": [
+      { "name": "CafeStreets", "enemy_state_load": 0, "enemy_state_save": 0 },
+      { "name": "SchoolStreets", "enemy_state_load": 1, "enemy_state_save": 1 },
+      { "name": "ChurchStreets", "enemy_state_load": 2, "enemy_state_save": 2 }
+    ],
+    "choices": [
+      { "when": { "flags_set": ["M2S00_StreetSpawnCafe"] }, "variant": "CafeStreets" },
+      { "when": { "flags_set": ["M2S00_StreetSpawnSchool", "M1S05_SplitHeadKilled"], "flags_clear": ["M2S01_ChurchFmvSeen"] }, "variant": "ChurchStreets" },
+      { "when": { "flags_set": ["M2S00_StreetSpawnSchool"] }, "variant": "SchoolStreets" },
+      { "when": { "flags_set": ["M2S00_StreetSpawnChurch"] }, "variant": "ChurchStreets" },
+      { "when": {}, "variant": "CafeStreets", "set_flags": ["M2S00_StreetSpawnCafe"] }
+    ]
+  }
+}

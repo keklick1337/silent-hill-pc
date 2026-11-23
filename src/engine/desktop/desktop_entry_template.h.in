@@ -1,0 +1,8 @@
+// Generated from assets/linux/silent-hill-pc.desktop.in (src/engine/desktop/CMakeLists.txt).
+#pragma once
+
+namespace sh::desktop {
+
+inline constexpr char kEntryTemplate[] = R"SHDESKTOP(@SH_DESKTOP_ENTRY_TEMPLATE@)SHDESKTOP";
+
+}  // namespace sh::desktop

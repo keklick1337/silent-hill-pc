@@ -1,0 +1,14 @@
+{
+  "format": "sh-text",
+  "version": 1,
+  "lang": "it",
+  "map": "map5_s00",
+  "strings": {
+    "map5_s00.used_the_sewer_key": "Ho usato la {color 2}chiave delle fogne{/color}.{end}",
+    "map5_s00.used_the_sewer_exit_key": "Ho usato la {color 2}chiave uscita fogne{/color}.{end}",
+    "map5_s00.there_is_a_sewer_key": "C'è una {color 2}chiave delle fogne{/color}.\nPrenderla?{choice 4}",
+    "map5_s00.there_is_a_sewer_exit": "C'è una {color 2}chiave uscita fogne{/color}\nnell'acqua. Prenderla?{choice 4}",
+    "map5_s00.got_to_find_cheryl_no": "Devo trovare Cheryl.\nNon c'è tempo per tornare indietro.{end}",
+    "map5_s00.there_is_a_sewer_map": "{hires}C'è una {color 5}mappa delle fogne\n(verso la zona turistica){/color}.\nPrenderla?{choice 4}"
+  }
+}

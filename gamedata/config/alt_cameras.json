@@ -1,0 +1,65 @@
+{
+  "format": "sh-alt-cameras",
+  "version": 1,
+  "description": "Tuning of the PC's optional cameras (config.cfg control_style tps = third person, ots = over the shoulder, fps = first person). Distances are metres with +Y pointing down (negative heights are above the floor), angles in degrees unless the key says otherwise, mouse and stick turn rates in Q12 angle units (4096 = a full turn). Player-facing options (sensitivity, zoom, shoulder offsets, wall collision, head tracking, melee swing) stay in config.cfg; this file holds the fixed numbers behind them. Every section and key is checked: an unknown key is an error. A mod changes it with a file of the same path in its own folder; objects are merged key by key, so the patch only needs the keys it changes.",
+  "orbit": {
+    "description": "Third person and over the shoulder orbit. distance: orbit radius in metres; aim_distance: the radius at the default 100% aim zoom (200% goes as far in again, 2 * aim_distance - distance, which is also the nearest the orbit may come); height / look_at_height / head_height: heights above Harry's feet (negative = up); look_at_distance: how far ahead the aim ray reaches; zoom_percent_limit: highest aim zoom option.",
+    "distance": 2.5,
+    "aim_distance": 1.3,
+    "height": -1.4,
+    "look_at_height": -0.85,
+    "head_height": -1.55,
+    "look_at_distance": 25.0,
+    "zoom_percent_limit": 200
+  },
+  "look": {
+    "description": "Look input. mouse_*: Q12 angle units per mouse pixel. stick_dead_zone: dead zone out of 128; stick_*: Q12 angle units per 30 fps frame at full deflection. pitch_min_deg / pitch_max_deg: orbit pitch limits (negative looks up). Third person only: stick_exponent is the response curve past the dead zone (1 = linear); smoothing_time is the look smoothing in seconds at 100% of the tps_look_smoothing option.",
+    "mouse_yaw": 6,
+    "mouse_pitch": 2,
+    "stick_dead_zone": 24,
+    "stick_yaw": 40,
+    "stick_pitch": 28,
+    "pitch_min_deg": -40.0,
+    "pitch_max_deg": 50.0,
+    "stick_exponent": 1.6,
+    "smoothing_time": 0.12
+  },
+  "first_person": {
+    "description": "First person look limits in degrees: pitch (up/down) and yaw (left/right of Harry's body), and the limit with the head look added (view_pitch_limit_deg). head_follow_shift: the head sway reference low-pass (1/2^n per frame). The head look eases in between head_look_delay_ms and head_look_full_ms after Harry stops moving. sway_limit: the eye follows the head's sway no farther than this from its tuned spot, in metres.",
+    "pitch_limit_deg": 82.0,
+    "yaw_limit_deg": 90.0,
+    "view_pitch_limit_deg": 87.0,
+    "head_follow_shift": 8,
+    "head_look_delay_ms": 1500,
+    "head_look_full_ms": 3500,
+    "sway_limit": 0.12
+  },
+  "melee_swing": {
+    "description": "First person melee camera dolly, distances in metres: it starts when a forearm or hand comes nearer the eye than near, keeps wall metres away from level geometry behind the eye, draws Harry's head beyond head_show and hides it below head_hide, and snaps back home within snap.",
+    "near": 0.55,
+    "wall": 0.15,
+    "head_show": 0.32,
+    "head_hide": 0.22,
+    "snap": 0.005859375
+  },
+  "walls": {
+    "description": "Third person wall pull-in, in metres: the eye stays margin short of a wall and never closer than min to Harry's head.",
+    "margin": 0.25,
+    "min": 0.35
+  },
+  "spring_arm": {
+    "description": "Third person and over the shoulder camera smoothing. Times are spring smooth times in seconds (critically damped, the same at any frame rate); distances in metres. follow_time: pivot follow at 100% of the tps_camera_smoothing option (50% halves it); vertical follow is follow_vertical_scale times softer and aiming follow is follow_aim_scale times tighter; the pivot never trails Harry by more than max_lag and a jump beyond teleport_distance snaps the camera. zoom_time eases the orbit radius and shoulder offset when aiming in and out. Walls: a cone of five rays from the shoulder point to the eye with probe_radius around it; the eye comes in at once and goes back out over ease_out_time, rises by up to close_lift as it comes in (so Harry's head does not fill the view; a ceiling limits it) and keeps only close_shoulder of the shoulder offset at the closest (so Harry stays in frame). While Harry moves and the view has not been turned for tps_recenter_delay seconds, the pitch levels toward recenter_pitch_deg over recenter_time.",
+    "follow_time": 0.3,
+    "follow_vertical_scale": 1.6,
+    "follow_aim_scale": 0.35,
+    "max_lag": 0.6,
+    "teleport_distance": 3.0,
+    "zoom_time": 0.22,
+    "probe_radius": 0.18,
+    "ease_out_time": 0.45,
+    "close_lift": 0.12,
+    "close_shoulder": 0.3,
+    "recenter_time": 0.9,
+    "recenter_pitch_deg": 4.0
+  }
+}

@@ -1,0 +1,152 @@
+# School 1F (map1_s00): New Game on the map, random walk through doors into the basement corridor and back (two NPCs)
+#@config skip_intros = 2
+#@config map = map1_s00
+# generated: gen_route.py --seed 1101 --start 300 --end 4000 --min-gap 10 --max-gap 40
+1 -
+300 Up Cross
+336 Up Square
+357 Down
+372 Up Right
+412 Up Left
+442 L2
+456 Up Circle
+489 Up Square
+526 Up Left
+543 Cross
+556 Up Square
+593 L1
+611 Up Circle
+650 L1
+682 Down
+698 Cross
+709 Cross
+720 L1
+749 Up Circle
+770 Up Circle
+780 Down Square
+820 Up Square
+855 Down
+888 Down
+900 -
+912 Cross
+935 Up Left
+948 L2
+984 R2
+1023 Square
+1040 R2
+1072 Circle
+1111 Square
+1135 Up Right
+1149 Up
+1159 R1
+1192 Cross
+1213 L2
+1232 L2
+1269 Right
+1306 Cross
+1320 Up Square
+1360 Square
+1391 R1
+1419 Up Cross
+1442 Up
+1481 Circle
+1520 L1
+1542 R2
+1578 L1
+1607 Down
+1636 Up Square
+1674 Cross
+1684 Up Cross
+1713 Up Circle
+1742 Up Square
+1758 Up Cross
+1795 -
+1813 Square
+1848 -
+1873 Up Square
+1898 R1
+1926 R2
+1956 Up Cross
+1968 -
+1979 Up
+2002 Down Square
+2016 Up Cross
+2028 Up
+2060 R2
+2092 Up Circle
+2120 L1
+2140 R1
+2173 -
+2209 Up Cross
+2234 Up Square
+2256 Up Cross
+2293 Cross
+2306 R2
+2339 L2
+2365 R1
+2403 Down Square
+2437 Down Square
+2474 R2
+2509 Up Circle
+2547 Up
+2574 Up
+2593 Left
+2620 Up Square
+2631 Up
+2660 Up
+2695 Up Square
+2734 Up Square
+2758 Down Square
+2768 Left
+2806 Down Square
+2825 Left
+2856 Down
+2869 Up Square
+2905 Right
+2939 Up Cross
+2956 Up
+2980 L2
+3009 Up Right
+3033 Up Square
+3048 Up Cross
+3058 Up
+3073 L2
+3109 Left
+3130 Up
+3157 Square
+3180 R2
+3217 Up Right
+3239 Right
+3273 Up
+3290 L2
+3317 Up Left
+3342 L1
+3355 L2
+3378 Up Right
+3410 Right
+3432 L2
+3454 Down
+3479 Up Right
+3513 -
+3524 Up Circle
+3564 Up Square
+3601 Up Cross
+3618 Up Square
+3628 Up Square
+3665 -
+3687 Up Right
+3711 Up Cross
+3735 R2
+3769 Up
+3793 R2
+3824 Up Square
+3840 Up Cross
+3875 Up
+3895 Right
+3925 Down
+3936 Up Square
+3959 Up
+3973 Up
+3985 Up
+3998 Square
+end 4000

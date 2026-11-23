@@ -1,0 +1,47 @@
+{
+  "description": "Lisa Garland in her last, blood-soaked form, met in the closing scenes of Nowhere.",
+  "category": "StoryCharacters",
+  "maps": ["map7_s01", "map7_s02"],
+  "model": "models/CHARA/BLISA.glb",
+  "animations": "anim/ANIM/BLS.anim.json",
+  "clip_tables": ["bloody_lisa"],
+  "textures": ["textures/CHARA/BLISA.png"],
+  "shadow": 0.25,
+  "blend_mode": "subtractive",
+  "camera_anchor": "character",
+  "camera_offset_y": -0.5,
+  "footsteps": {
+    "default": "footstep_concrete",
+    "concrete": "footstep_concrete",
+    "planks": "footstep_planks",
+    "grass": "footstep_grass",
+    "gravel": "footstep_gravel",
+    "metal_mesh": "footstep_metal_mesh",
+    "metal": "footstep_metal",
+    "sewer_floor": "footstep_concrete",
+    "wood": "footstep_wood",
+    "carpet": "footstep_carpet",
+    "metal_plate": "footstep_metal",
+    "metal_grating": "footstep_metal",
+    "*": "footstep_concrete"
+  },
+  "anims": {
+    "still": 0,
+    "walk": 1
+  },
+  "controls": {
+    "none": 0,
+    "unused_a": 1,
+    "unused_b": 2,
+    "unused_c": 3,
+    "unused_d": 4,
+    "unused_e": 5,
+    "appear": 6
+  },
+  "spawn": {
+    "state": 0,
+    "kind": "actor",
+    "auto": "fallback",
+    "note": "its own AI plays the cutscene state the map sets"
+  }
+}

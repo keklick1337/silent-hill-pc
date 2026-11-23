@@ -1,0 +1,14 @@
+{
+  "format": "sh-text",
+  "version": 1,
+  "lang": "ar",
+  "map": "map5_s00",
+  "strings": {
+    "map5_s00.used_the_sewer_key": "استخدمت {color 2}مفتاح المجاري{/color}.{end}",
+    "map5_s00.used_the_sewer_exit_key": "استخدمت {color 2}مفتاح مخرج المجاري{/color}.{end}",
+    "map5_s00.there_is_a_sewer_key": "يوجد هنا {color 2}مفتاح المجاري{/color}.\nهل تأخذه؟{choice 4}",
+    "map5_s00.there_is_a_sewer_exit": "يوجد في الماء {color 2}مفتاح مخرج المجاري{/color}.\nهل تأخذه؟{choice 4}",
+    "map5_s00.got_to_find_cheryl_no": "علي أن أجد شيريل.\nلا وقت للعودة.{end}",
+    "map5_s00.there_is_a_sewer_map": "{hires}يوجد هنا {color 5}خريطة المجاري\n(المؤدية إلى منطقة المنتجع){/color}.\nهل تأخذها؟{choice 4}"
+  }
+}

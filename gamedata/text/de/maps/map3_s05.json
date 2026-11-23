@@ -1,0 +1,33 @@
+{
+  "format": "sh-text",
+  "version": 1,
+  "lang": "de",
+  "map": "map3_s05",
+  "strings": {
+    "map3_s05.there_is_a_video_tape": "{color 2}Videokassette{/color} gefunden.\nMitnehmen?{choice 4}",
+    "map3_s05.alessa": "{color 3}Alessa{end}",
+    "map3_s05.alessa_2": "Alessa...?{end}",
+    "map3_s05.whats_this": "{wait 1.2}Was ist das?{end}",
+    "map3_s05.looks_like_someones_been_here": "{wait 2.6}Sieht aus, als wäre\njemand hier gewesen...{end}",
+    "map3_s05.msg20": "{wait 0.4}{end}",
+    "map3_s05.there_is_an_examination_room": "{color 2}Sprechzimmerschlüssel{/color} gefunden.\nMitnehmen?{choice 4}",
+    "map3_s05.looks_like_a_hallway_under": "Unter dem Gitter scheint\nein Gang zu sein.",
+    "map3_s05.cant_move_it_since_the": "Es lässt sich nicht bewegen, weil\nes von Ranken umwuchert ist.{end}",
+    "map3_s05.no_the_fire_goes_out": "Nein. Das Feuer geht sofort aus,\nwenn ich die Ranken anzünde.{end}",
+    "map3_s05.poured_disinfecting_alcohol_on": "{color 2}Desinfektionsalkohol{/color}\nüber die Ranken gegossen.{end}",
+    "map3_s05.the_vines_absorbed_the_alcohol": "Die Ranken haben\nden Alkohol aufgesogen.{end}",
+    "map3_s05.used_the_basement_storeroom": "{color 2}Lagerraumschlüssel{/color} benutzt.{end}",
+    "map3_s05.do_you_want_to_push": "Den Schrank verschieben?{choice 4}",
+    "map3_s05.the_generator_is_on": "Der Generator läuft.{end}",
+    "map3_s05.there_are_skid_marks_from": "Auf dem Boden sind Schleifspuren\nvom Verschieben des Schranks.{end}",
+    "map3_s05.there_is_a_hammer_take": "{color 2}Hammer{/color} gefunden.\nMitnehmen?{choice 4}",
+    "map3_s05.a_bed_whats_it_doing": "Ein Bett? Was hat das hier\nzu suchen? Wer würde...{end}",
+    "map3_s05.a_body_is_laid_out": "Auf dem Bett ist eine Leiche\naufgebahrt. Die will ich\nmir nicht näher ansehen.{end}",
+    "map3_s05.nothing_helpful": "Nichts, was mir weiterhilft.{end}",
+    "map3_s05.nothing_useful_in_the_boxes": "Nichts Brauchbares in den Kartons.{end}",
+    "map3_s05.theres_a_bottle_filled_with": "Eine Flasche mit irgendeinem\nMedikament. Die lasse\nich lieber stehen.{end}",
+    "map3_s05.there_are_some_empty_bottles": "Da stehen ein paar leere Flaschen.{end}",
+    "map3_s05.nothing_special_in_the_box": "Nichts Besonderes in der Kiste.\nKein Grund zur Sorge.{end}",
+    "map3_s05.nothing_inside": "Nichts drin.{end}"
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "format": "sh-map-spawn-overrides",
+  "version": 1,
+  "description": "Difficulty-dependent enemies of map5_s00 (Sewers - lower and upper levels): on Easy some rows of Creeper are emptied (\"none\"), on Hard more rows get spawn bits, as the original's Easy/Hard blocks did. Spawns that depend on story flags during play stay in the map's Lua. Each entry has \"when\" (all of: \"difficulty\" easy/normal/hard, \"flags_set\" and \"flags_clear\" event flag names that must be set / clear; nested \"all\"/\"any\" lists combine conditions) and \"set\", a list of writes: \"chara\" is a character name, \"slot\" the row of the map's spawn table for that character (as the second argument of sh.chara_spawn_flags_set) and \"flags\" the spawn flags the row gets, which the spawned character starts its state from (\"none\" = 0, the row stays empty; spawn_0.. spawn_4 are the bits). Entries apply when the map loads, in file order (a later one wins); a mod's own entries are appended unless they carry an \"id\" that replaces an entry.",
+  "spawn_overrides": [
+    {
+      "when": { "difficulty": "easy" },
+      "set": [
+        { "chara": "Creeper", "slot": 0, "flags": ["none"] },
+        { "chara": "Creeper", "slot": 1, "flags": ["none"] },
+        { "chara": "Creeper", "slot": 4, "flags": ["none"] },
+        { "chara": "Creeper", "slot": 7, "flags": ["none"] },
+        { "chara": "Creeper", "slot": 12, "flags": ["none"] }
+      ]
+    },
+    {
+      "when": { "difficulty": "hard" },
+      "set": [
+        { "chara": "Creeper", "slot": 5, "flags": ["spawn_2", "spawn_3"] },
+        { "chara": "Creeper", "slot": 6, "flags": ["spawn_2", "spawn_3"] },
+        { "chara": "Creeper", "slot": 7, "flags": ["none"] },
+        { "chara": "Creeper", "slot": 8, "flags": ["spawn_0", "spawn_2", "spawn_3"] },
+        { "chara": "Creeper", "slot": 9, "flags": ["spawn_0", "spawn_2", "spawn_3"] }
+      ]
+    }
+  ]
+}

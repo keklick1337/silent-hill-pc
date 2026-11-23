@@ -1,0 +1,9 @@
+{
+  "format": "sh-text",
+  "version": 1,
+  "lang": "de",
+  "map": "map4_s00",
+  "strings": {
+    "map4_s00.no_stage": "KEIN LEVEL!{end}"
+  }
+}

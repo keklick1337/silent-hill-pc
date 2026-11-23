@@ -1,0 +1,32 @@
+{
+  "format": "sh-text",
+  "version": 1,
+  "lang": "pt",
+  "map": "map0_s00",
+  "strings": {
+    "map0_s00.cheryl_where_could_you_be": "{wait 2.5}Cheryl. Onde você se meteu?{end}",
+    "map0_s00.its_strange": "{wait 1.5}Que estranho...",
+    "map0_s00.its_quiet_too_quiet": "{wait 2.0}Está quieto. Quieto demais.",
+    "map0_s00.this_place_is_like_a": "{wait 3.0}Este lugar parece\numa cidade-fantasma.{end}",
+    "map0_s00.cheryl": "{wait 3.0}Cheryl.{end}",
+    "map0_s00.footsteps": "{wait 1.5}Passos?{end}",
+    "map0_s00.cheryl_is_that_cheryl": "{wait 2.8}Cheryl?\nÉ a Cheryl!?{end}",
+    "map0_s00.where_are_you_going": "{wait 1.2}Aonde você vai?{end}",
+    "map0_s00.hey_wait_stop": "{wait 1.8}Ei, espere... pare!{end}",
+    "map0_s00.id_better_follow_cheryl": "É melhor eu seguir a Cheryl...{end}",
+    "map0_s00.thats_strange_its_getting": "Que estranho,\nestá escurecendo.{end}",
+    "map0_s00.a_dead_end_what_the": "Um beco sem saída?\nMas que diabo!?{end}",
+    "map0_s00.what_is_this": "{wait 1.6}O que é isto?",
+    "map0_s00.whats_going_on_here": "{wait 2.5}O que está acontecendo aqui!?{end}",
+    "map0_s00.whats_this": "O que é isso?{end}",
+    "map0_s00.better_than_nothing_i_guess": "......melhor que nada,\neu acho.{end}",
+    "map0_s00.what_whats_this_doing_here": "O quê?\nO que isto está fazendo aqui?{end}",
+    "map0_s00.blocked_by_a_fence": "Bloqueado por uma cerca?{end}",
+    "map0_s00.a_broken_wheelchair_whats_this": "Uma cadeira de rodas quebrada?\nO que isto está fazendo aqui?{end}",
+    "map0_s00.what_the_what_is_it": "Mas o que..?\nO que é aquilo?{end}",
+    "map0_s00.the_street_is_blocked": "A rua está bloqueada.",
+    "map0_s00.cant_get_out_of_town": "Não dá para sair\nda cidade por aqui.{end}",
+    "map0_s00.my_car_too_banged_up": "Meu carro...\ndestruído demais para andar.",
+    "map0_s00.wheres_cheryl_hope_shes_safe": "Onde está a Cheryl?\nTomara que esteja bem.{end}"
+  }
+}

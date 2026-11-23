@@ -1,0 +1,135 @@
+{
+  "format": "sh-map-world-objects",
+  "version": 2,
+  "map": "map4_s02",
+  "description": "Static world objects of map4_s02 (Central Silent Hill Otherworld - streets): 17 objects, drawn in file order. An object is drawn while the player is in one of its \"zones\" (each {\"x\": [...], \"z\": [...]} lists 40 m cells along that axis: cell c holds 40c..40(c+1) m; no zones = everywhere) and every flag of \"flags_set\" is set and every flag of \"flags_clear\" is clear (event flag names, e.g. the pickup flags). \"name\" is the object's id for scripts and mods, \"model\" its model (at most 8 characters, the map's or an item model), \"position\" in metres and \"rotation\" in degrees (x, y, z). \"script\": true lets world_objects.lua and events.lua move, turn, re-model or hide the object. Fan0..Fan15 are turned about x by world_objects.lua, starting from the map variable fan_angles (a table of the overlay). A mod's maps/map4_s02/world_objects.json changes or adds objects by name.",
+  "objects": [
+    {
+      "name": "Kidn04",
+      "model": "KIDN04_H",
+      "position": [-119.8019, 5.0, 107.861],
+      "zones": [{"x": [-4, -3], "z": 2}]
+    },
+    {
+      "name": "Fan0",
+      "model": "FAN0_HID",
+      "position": [53.211, -2.375, 32.5],
+      "script": true,
+      "zones": [{"x": 1, "z": 0}]
+    },
+    {
+      "name": "Fan1",
+      "model": "FAN0_HID",
+      "position": [53.211, -2.375, 27.5],
+      "script": true,
+      "zones": [{"x": 1, "z": 0}]
+    },
+    {
+      "name": "Fan2",
+      "model": "FAN0_HID",
+      "position": [53.211, -2.375, 22.5],
+      "script": true,
+      "zones": [{"x": 1, "z": 0}]
+    },
+    {
+      "name": "Fan3",
+      "model": "FAN0_HID",
+      "position": [53.211, -2.375, 17.5],
+      "script": true,
+      "zones": [{"x": 1, "z": 0}]
+    },
+    {
+      "name": "Fan4",
+      "model": "FAN0_HID",
+      "position": [56.575, -2.875, 27.5],
+      "script": true,
+      "zones": [{"x": 1, "z": 0}]
+    },
+    {
+      "name": "Fan5",
+      "model": "FAN0_HID",
+      "position": [56.575, -2.875, 22.5],
+      "script": true,
+      "zones": [{"x": 1, "z": 0}]
+    },
+    {
+      "name": "Fan6",
+      "model": "FAN0_HID",
+      "position": [56.575, -2.875, 17.5],
+      "script": true,
+      "zones": [{"x": 1, "z": 0}]
+    },
+    {
+      "name": "Fan7",
+      "model": "FAN0_HID",
+      "position": [65.45, -2.875, 27.5],
+      "rotation": [0, 180.0, 0],
+      "script": true,
+      "zones": [{"x": 1, "z": 0}]
+    },
+    {
+      "name": "Fan8",
+      "model": "FAN0_HID",
+      "position": [65.45, -2.875, 22.5],
+      "rotation": [0, 180.0, 0],
+      "script": true,
+      "zones": [{"x": 1, "z": 0}]
+    },
+    {
+      "name": "Fan9",
+      "model": "FAN0_HID",
+      "position": [65.45, -2.875, 17.5],
+      "rotation": [0, 180.0, 0],
+      "script": true,
+      "zones": [{"x": 1, "z": 0}]
+    },
+    {
+      "name": "Fan10",
+      "model": "FAN0_HID",
+      "position": [65.45, -2.875, 12.5],
+      "rotation": [0, 180.0, 0],
+      "script": true,
+      "zones": [{"x": 1, "z": 0}]
+    },
+    {
+      "name": "Fan11",
+      "model": "FAN0_HID",
+      "position": [68.8, -2.375, 32.5],
+      "rotation": [0, 180.0, 0],
+      "script": true,
+      "zones": [{"x": 1, "z": 0}]
+    },
+    {
+      "name": "Fan12",
+      "model": "FAN0_HID",
+      "position": [68.8, -2.375, 27.5],
+      "rotation": [0, 180.0, 0],
+      "script": true,
+      "zones": [{"x": 1, "z": 0}]
+    },
+    {
+      "name": "Fan13",
+      "model": "FAN0_HID",
+      "position": [68.8, -2.375, 22.5],
+      "rotation": [0, 180.0, 0],
+      "script": true,
+      "zones": [{"x": 1, "z": 0}]
+    },
+    {
+      "name": "Fan14",
+      "model": "FAN0_HID",
+      "position": [68.8, -2.375, 17.5],
+      "rotation": [0, 180.0, 0],
+      "script": true,
+      "zones": [{"x": 1, "z": 0}]
+    },
+    {
+      "name": "Fan15",
+      "model": "FAN0_HID",
+      "position": [68.8, -2.375, 12.5],
+      "rotation": [0, 180.0, 0],
+      "script": true,
+      "zones": [{"x": 1, "z": 0}]
+    }
+  ]
+}

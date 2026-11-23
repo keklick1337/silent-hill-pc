@@ -1,0 +1,8 @@
+{
+  "format": "sh-flags",
+  "version": 1,
+  "flags": {
+    "ampoule_taken": {"description": "The Ampoule next to the Kitchen Knife on the cafe counter (map0_s01) was taken."},
+    "kit_taken": {"description": "The First Aid Kit at the south end of the cafe counter (map0_s01) was taken."}
+  }
+}

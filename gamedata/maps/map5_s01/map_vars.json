@@ -1,0 +1,11 @@
+{
+  "description": "Named variables of map5_s01 (Resort Area) that its Lua reads and writes with sh.map.get / sh.map.set or passes by name (\"name[i]\"). Each entry says where the value lives: \"symbol\" (an array of tables.json or a game variable shared with the engine; with \"storage\" too, the storage is used where the symbol is missing), \"object\" (the draw records of world_objects.json, starting at that object) or \"storage\" (a value only the scripts keep, alive for the whole run); \"type\" is s8/u8/s16/u16/s32/u32 (default s32) or ref (an address); \"count\" elements lie \"stride\" bytes apart from \"offset\". \"layout\" gives several names at once: vec3 (.x/.y/.z, s32 Q12 metres), svec3 (s16, Q12 turns for angles), pose (.pos, .rot) and placement (.pos). Variables every map shares are in gamedata/config/map_vars.json; this file is looked up first, and a mod patches it with its own copy. On map5_s01 (Resort Area): code_panel_* belong to the code panel (x/y of its 12 buttons, the 4 digits of the solution); ufo_* to the UFO scene (voice commands, glow texture, position).",
+  "vars": {
+    "code_panel_buttons.x": {"symbol": "code_panel_buttons", "type": "u8", "stride": 2, "count": 12},
+    "code_panel_buttons.y": {"symbol": "code_panel_buttons", "offset": 1, "type": "u8", "stride": 2, "count": 12},
+    "code_panel_solution": {"symbol": "code_panel_solution", "type": "u8", "count": 4},
+    "ufo_msg_voice_cmds": {"symbol": "ufo_msg_voice_cmds", "type": "u16", "count": 12},
+    "ufo_glow_tex": {"symbol": "ufo_glow_tex", "type": "ref", "stride": 8},
+    "ufo_pos": {"symbol": "ufo_pos", "layout": "vec3"}
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "format": "sh-text",
+  "version": 1,
+  "lang": "ru",
+  "map": "map1_s00",
+  "strings": {
+    "map1_s00.the_tower_door_is_locked": "Дверь башни заперта.{end}",
+    "map1_s00.the_hands_are_stopped_at": "Стрелки замерли на 10:00.{end}",
+    "map1_s00.the_hands_are_stopped_at_2": "Стрелки замерли на 12:00.{end}",
+    "map1_s00.the_hands_are_stopped_at_3": "Стрелки замерли на 5:00.{end}",
+    "map1_s00.a_golden_sun": "{color 3}Золотое Солнце{end}",
+    "map1_s00.a_silver_moon": "{color 3}Серебряная Луна{end}",
+    "map1_s00.the_door_wont_open": "Дверь не открывается.{end}",
+    "map1_s00.10_00_alchemy_laboratory_gold": "{pos 4}{center}{color 3}10:00\n«Лаборатория алхимии»\n\nЗолото в ладони старца.\nГрядущее скрыто в кулаке.\nОбменяй на воду мудреца.{end}",
+    "map1_s00.12_00_a_place_with": "{pos 4}{center}{color 3}12:00\n«Место песен и звуков»\n\nСеребряный указатель дремлет\nв умолкших языках.\nПроснётся в должном порядке.{end}",
+    "map1_s00.5_00_darkness_that_brings": "{pos 4}{center}{color 3}5:00\n«Тьма, несущая\nудушливый жар»\n\nПламя разорвёт тишину\nи разбудит голодного зверя.\nОткрой дверь времени,\nчтобы приманить добычу.{end}",
+    "map1_s00.its_written_in_blood": "Написано кровью.{end}",
+    "map1_s00.cheryl_might_be_here_i": "Шерил может быть здесь.\nНадо её поискать.{end}",
+    "map1_s00.a_picture_of_a_door": "Нарисованная дверь.",
+    "map1_s00.i_dont_know_who_drew": "Не знаю, кто это рисовал,\nно вкус у него дурной.{end}",
+    "map1_s00.there_is_a_switch_do": "Здесь выключатель.\nНажать?{choice 4}",
+    "map1_s00.nothing_appears_to_happen": "Похоже, ничего не произошло.{end}",
+    "map1_s00.the_boiler_is_working": "Котёл работает.{end}",
+    "map1_s00.it_appears_to_be_broken": "Похоже, сломано.{end}",
+    "map1_s00.the_valve_is_tightly_shut": "Вентиль туго закручен.\nНе повернуть.",
+    "map1_s00.dont_know_what_it_is": "Не знаю, для чего он.\nЛучше не трогать.{end}",
+    "map1_s00.nothing_special_is_written": "Ничего особенного не написано.{end}",
+    "map1_s00.nothing_useful_in_the_desk": "В ящике стола ничего полезного.{end}",
+    "map1_s00.there_is_a_school_map": "{hires}Здесь {color 5}карта школы{/color}.\nВзять?{choice 4}",
+    "map1_s00.moore_ranaldo_gordon_this_must": "Мур, Ранальдо, Гордон...\nПохоже, это список учителей.{end}",
+    "map1_s00.nothing_inside": "Внутри пусто.{end}"
+  }
+}

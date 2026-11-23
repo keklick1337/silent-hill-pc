@@ -1,0 +1,32 @@
+{
+  "format": "sh-text",
+  "version": 1,
+  "lang": "de",
+  "map": "map0_s00",
+  "strings": {
+    "map0_s00.cheryl_where_could_you_be": "{wait 2.5}Cheryl. Wo steckst du nur?{end}",
+    "map0_s00.its_strange": "{wait 1.5}Seltsam...",
+    "map0_s00.its_quiet_too_quiet": "{wait 2.0}Es ist still. Zu still.",
+    "map0_s00.this_place_is_like_a": "{wait 3.0}Der Ort ist wie eine Geisterstadt.{end}",
+    "map0_s00.cheryl": "{wait 3.0}Cheryl.{end}",
+    "map0_s00.footsteps": "{wait 1.5}Schritte?{end}",
+    "map0_s00.cheryl_is_that_cheryl": "{wait 2.8}Cheryl?\nIst das Cheryl!?{end}",
+    "map0_s00.where_are_you_going": "{wait 1.2}Wo willst du hin?{end}",
+    "map0_s00.hey_wait_stop": "{wait 1.8}Hey, warte... bleib stehen!{end}",
+    "map0_s00.id_better_follow_cheryl": "Ich folge Cheryl besser...{end}",
+    "map0_s00.thats_strange_its_getting": "Merkwürdig,\nes wird dunkler.{end}",
+    "map0_s00.a_dead_end_what_the": "Eine Sackgasse?\nWas zum Teufel!?{end}",
+    "map0_s00.what_is_this": "{wait 1.6}Was ist das?",
+    "map0_s00.whats_going_on_here": "{wait 2.5}Was geht hier vor!?{end}",
+    "map0_s00.whats_this": "Was ist das?{end}",
+    "map0_s00.better_than_nothing_i_guess": "......besser als nichts,\nschätze ich.{end}",
+    "map0_s00.what_whats_this_doing_here": "Was?\nWas hat das hier zu suchen?{end}",
+    "map0_s00.blocked_by_a_fence": "Von einem Zaun versperrt?{end}",
+    "map0_s00.a_broken_wheelchair_whats_this": "Ein kaputter Rollstuhl?\nWas hat der hier zu suchen?{end}",
+    "map0_s00.what_the_what_is_it": "Was zum..?\nWas ist das?{end}",
+    "map0_s00.the_street_is_blocked": "Die Straße ist versperrt.",
+    "map0_s00.cant_get_out_of_town": "Hier komme ich nicht aus der Stadt.{end}",
+    "map0_s00.my_car_too_banged_up": "Mein Wagen...\nzu ramponiert zum Fahren.",
+    "map0_s00.wheres_cheryl_hope_shes_safe": "Wo ist Cheryl?\nHoffentlich ist sie in Sicherheit.{end}"
+  }
+}

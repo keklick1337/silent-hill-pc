@@ -1,0 +1,48 @@
+{
+  "format": "sh-map-world-objects",
+  "version": 2,
+  "map": "map2_s02",
+  "description": "Static world objects of map2_s02 (Central Silent Hill - streets): 5 objects, drawn in file order. An object is drawn while the player is in one of its \"zones\" (each {\"x\": [...], \"z\": [...]} lists 40 m cells along that axis: cell c holds 40c..40(c+1) m; no zones = everywhere) and every flag of \"flags_set\" is set and every flag of \"flags_clear\" is clear (event flag names, e.g. the pickup flags). \"name\" is the object's id for scripts and mods, \"model\" its model (at most 8 characters, the map's or an item model), \"position\" in metres and \"rotation\" in degrees (x, y, z). \"pose\" instead takes position and rotation from a table of the map's overlay on the disc (\"disc_table\" from tables.json, row \"index\"), resolved when the map loads; pickups use it. \"pc_near_pickup\": true (not in the original) also draws the pickup while the player is in a neighbouring cell of the same floor. The pickups of the Central Silent Hill streets. A mod's maps/map2_s02/world_objects.json changes or adds objects by name.",
+  "objects": [
+    {
+      "name": "HealthDrink0",
+      "model": "DRINK_NE",
+      "pose": {"disc_table": "CommonWorldObjectPoses", "index": 0},
+      "pc_near_pickup": true,
+      "zones": [{"x": -1, "z": -2}],
+      "flags_clear": ["M2S02_HealthDrink0"]
+    },
+    {
+      "name": "HealthDrink1",
+      "model": "DRINK_NE",
+      "pose": {"disc_table": "CommonWorldObjectPoses", "index": 1},
+      "pc_near_pickup": true,
+      "zones": [{"x": -1, "z": -3}],
+      "flags_clear": ["M2S02_HealthDrink1"]
+    },
+    {
+      "name": "HandgunBullets0",
+      "model": "BULLET_N",
+      "pose": {"disc_table": "CommonWorldObjectPoses", "index": 2},
+      "pc_near_pickup": true,
+      "zones": [{"x": -1, "z": -3}],
+      "flags_clear": ["M2S02_HandgunBullets0"]
+    },
+    {
+      "name": "HandgunBullets1",
+      "model": "BULLET_N",
+      "pose": {"disc_table": "CommonWorldObjectPoses", "index": 3},
+      "pc_near_pickup": true,
+      "zones": [{"x": -4, "z": -1}],
+      "flags_clear": ["M2S02_HandgunBullets1"]
+    },
+    {
+      "name": "HealthDrink2",
+      "model": "DRINK_NE",
+      "pose": {"disc_table": "CommonWorldObjectPoses", "index": 4},
+      "pc_near_pickup": true,
+      "zones": [{"x": -5, "z": 0}],
+      "flags_clear": ["M2S02_HealthDrink2"]
+    }
+  ]
+}

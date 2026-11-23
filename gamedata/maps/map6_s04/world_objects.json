@@ -1,0 +1,488 @@
+{
+  "format": "sh-map-world-objects",
+  "version": 2,
+  "map": "map6_s04",
+  "description": "Static world objects of map6_s04 (Amusement Park - Cybil boss, Alessa kidnapping): 47 objects, drawn in file order. An object is drawn while the player is in one of its \"zones\" (each {\"x\": [...], \"z\": [...]} lists 40 m cells along that axis: cell c holds 40c..40(c+1) m; no zones = everywhere) and every flag of \"flags_set\" is set and every flag of \"flags_clear\" is clear (event flag names, e.g. the pickup flags). \"name\" is the object's id for scripts and mods, \"model\" its model (at most 8 characters, the map's or an item model), \"position\" in metres and \"rotation\" in degrees (x, y, z). \"script\": true lets world_objects.lua and events.lua move, turn, re-model or hide the object. The firework rockets (five of each part, the box alternating between its two models) and the twelve balls of the wheel are placed and shown by world_objects.lua; the carousel parts are never drawn from this file (world_objects.lua hides them): its carousel_update draws each part where the turning carousel puts it, some several times a frame. A mod's maps/map6_s04/world_objects.json changes or adds objects by name.",
+  "objects": [
+    {
+      "name": "SavePad",
+      "model": "PAD_NEAR",
+      "position": [
+        -13.6,
+        -1.0,
+        -28.3
+      ],
+      "rotation": [
+        0,
+        -165.0,
+        0
+      ],
+      "zones": [
+        {
+          "x": -1,
+          "z": -1
+        }
+      ]
+    },
+    {
+      "name": "FireworkBack10",
+      "model": "FW1_BACK",
+      "position": [
+        0,
+        0,
+        0
+      ],
+      "script": true
+    },
+    {
+      "name": "FireworkBack20",
+      "model": "FW2_BACK",
+      "position": [
+        0,
+        0,
+        0
+      ],
+      "script": true
+    },
+    {
+      "name": "FireworkWires0",
+      "model": "FW3WIR_H",
+      "position": [
+        0,
+        0,
+        0
+      ],
+      "script": true
+    },
+    {
+      "name": "FireworkBoxA0",
+      "model": "FWBOX1_B",
+      "position": [
+        0,
+        0,
+        0
+      ],
+      "script": true
+    },
+    {
+      "name": "FireworkBoxB0",
+      "model": "FWBOX2_B",
+      "position": [
+        0,
+        0,
+        0
+      ],
+      "script": true
+    },
+    {
+      "name": "FireworkBack11",
+      "model": "FW1_BACK",
+      "position": [
+        0,
+        0,
+        0
+      ],
+      "script": true
+    },
+    {
+      "name": "FireworkBack21",
+      "model": "FW2_BACK",
+      "position": [
+        0,
+        0,
+        0
+      ],
+      "script": true
+    },
+    {
+      "name": "FireworkWires1",
+      "model": "FW3WIR_H",
+      "position": [
+        0,
+        0,
+        0
+      ],
+      "script": true
+    },
+    {
+      "name": "FireworkBoxA1",
+      "model": "FWBOX1_B",
+      "position": [
+        0,
+        0,
+        0
+      ],
+      "script": true
+    },
+    {
+      "name": "FireworkBoxB1",
+      "model": "FWBOX2_B",
+      "position": [
+        0,
+        0,
+        0
+      ],
+      "script": true
+    },
+    {
+      "name": "FireworkBack12",
+      "model": "FW1_BACK",
+      "position": [
+        0,
+        0,
+        0
+      ],
+      "script": true
+    },
+    {
+      "name": "FireworkBack22",
+      "model": "FW2_BACK",
+      "position": [
+        0,
+        0,
+        0
+      ],
+      "script": true
+    },
+    {
+      "name": "FireworkWires2",
+      "model": "FW3WIR_H",
+      "position": [
+        0,
+        0,
+        0
+      ],
+      "script": true
+    },
+    {
+      "name": "FireworkBoxA2",
+      "model": "FWBOX1_B",
+      "position": [
+        0,
+        0,
+        0
+      ],
+      "script": true
+    },
+    {
+      "name": "FireworkBoxB2",
+      "model": "FWBOX2_B",
+      "position": [
+        0,
+        0,
+        0
+      ],
+      "script": true
+    },
+    {
+      "name": "FireworkBack13",
+      "model": "FW1_BACK",
+      "position": [
+        0,
+        0,
+        0
+      ],
+      "script": true
+    },
+    {
+      "name": "FireworkBack23",
+      "model": "FW2_BACK",
+      "position": [
+        0,
+        0,
+        0
+      ],
+      "script": true
+    },
+    {
+      "name": "FireworkWires3",
+      "model": "FW3WIR_H",
+      "position": [
+        0,
+        0,
+        0
+      ],
+      "script": true
+    },
+    {
+      "name": "FireworkBoxA3",
+      "model": "FWBOX1_B",
+      "position": [
+        0,
+        0,
+        0
+      ],
+      "script": true
+    },
+    {
+      "name": "FireworkBoxB3",
+      "model": "FWBOX2_B",
+      "position": [
+        0,
+        0,
+        0
+      ],
+      "script": true
+    },
+    {
+      "name": "FireworkBack14",
+      "model": "FW1_BACK",
+      "position": [
+        0,
+        0,
+        0
+      ],
+      "script": true
+    },
+    {
+      "name": "FireworkBack24",
+      "model": "FW2_BACK",
+      "position": [
+        0,
+        0,
+        0
+      ],
+      "script": true
+    },
+    {
+      "name": "FireworkWires4",
+      "model": "FW3WIR_H",
+      "position": [
+        0,
+        0,
+        0
+      ],
+      "script": true
+    },
+    {
+      "name": "FireworkBoxA4",
+      "model": "FWBOX1_B",
+      "position": [
+        0,
+        0,
+        0
+      ],
+      "script": true
+    },
+    {
+      "name": "FireworkBoxB4",
+      "model": "FWBOX2_B",
+      "position": [
+        0,
+        0,
+        0
+      ],
+      "script": true
+    },
+    {
+      "name": "WheelBall0",
+      "model": "WHEEL_BA",
+      "position": [
+        0,
+        0,
+        0
+      ],
+      "script": true
+    },
+    {
+      "name": "WheelBall1",
+      "model": "WHEEL_BA",
+      "position": [
+        0,
+        0,
+        0
+      ],
+      "script": true
+    },
+    {
+      "name": "WheelBall2",
+      "model": "WHEEL_BA",
+      "position": [
+        0,
+        0,
+        0
+      ],
+      "script": true
+    },
+    {
+      "name": "WheelBall3",
+      "model": "WHEEL_BA",
+      "position": [
+        0,
+        0,
+        0
+      ],
+      "script": true
+    },
+    {
+      "name": "WheelBall4",
+      "model": "WHEEL_BA",
+      "position": [
+        0,
+        0,
+        0
+      ],
+      "script": true
+    },
+    {
+      "name": "WheelBall5",
+      "model": "WHEEL_BA",
+      "position": [
+        0,
+        0,
+        0
+      ],
+      "script": true
+    },
+    {
+      "name": "WheelBall6",
+      "model": "WHEEL_BA",
+      "position": [
+        0,
+        0,
+        0
+      ],
+      "script": true
+    },
+    {
+      "name": "WheelBall7",
+      "model": "WHEEL_BA",
+      "position": [
+        0,
+        0,
+        0
+      ],
+      "script": true
+    },
+    {
+      "name": "WheelBall8",
+      "model": "WHEEL_BA",
+      "position": [
+        0,
+        0,
+        0
+      ],
+      "script": true
+    },
+    {
+      "name": "WheelBall9",
+      "model": "WHEEL_BA",
+      "position": [
+        0,
+        0,
+        0
+      ],
+      "script": true
+    },
+    {
+      "name": "WheelBall10",
+      "model": "WHEEL_BA",
+      "position": [
+        0,
+        0,
+        0
+      ],
+      "script": true
+    },
+    {
+      "name": "WheelBall11",
+      "model": "WHEEL_BA",
+      "position": [
+        0,
+        0,
+        0
+      ],
+      "script": true
+    },
+    {
+      "name": "CarouselHorseA",
+      "model": "UMA1_HID",
+      "position": [
+        0,
+        0,
+        0
+      ],
+      "script": true
+    },
+    {
+      "name": "CarouselHorseB",
+      "model": "UMA2_HID",
+      "position": [
+        0,
+        0,
+        0
+      ],
+      "script": true
+    },
+    {
+      "name": "CarouselHouse",
+      "model": "MGR_KOYA",
+      "position": [
+        0,
+        0,
+        0
+      ],
+      "script": true
+    },
+    {
+      "name": "CarouselStructure",
+      "model": "MGR_STR_",
+      "position": [
+        0,
+        0,
+        0
+      ],
+      "script": true
+    },
+    {
+      "name": "CarouselFenceGate",
+      "model": "SAKU2_BA",
+      "position": [
+        0,
+        0,
+        0
+      ],
+      "script": true
+    },
+    {
+      "name": "CarouselFence",
+      "model": "SAK_POL_",
+      "position": [
+        0,
+        0,
+        0
+      ],
+      "script": true
+    },
+    {
+      "name": "CarouselCenter",
+      "model": "MGR_DRL_",
+      "position": [
+        0,
+        0,
+        0
+      ],
+      "script": true
+    },
+    {
+      "name": "CarouselCenterLights",
+      "model": "DRL2_ILI",
+      "position": [
+        0,
+        0,
+        0
+      ],
+      "script": true
+    },
+    {
+      "name": "CarouselChair",
+      "model": "CHAIR_HI",
+      "position": [
+        0,
+        0,
+        0
+      ],
+      "script": true
+    }
+  ]
+}

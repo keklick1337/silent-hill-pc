@@ -1,0 +1,8 @@
+{
+  "description": "Memory for the draw packets of each frame: two zeroed buffers of size_bytes, one per display buffer, each followed by canary_bytes of canary_value that are checked after every frame to catch an overrun. Whole-town drawing submits 60 or more map chunks at once, so 16 MB fits about 400 chunks; normal play stays under 2 MB. stats_window_frames and headroom_log_percent control the usage log. A mod changes it with a file of the same path in its own folder; objects are merged key by key, so the patch only needs the keys it changes.",
+  "size_bytes": 16777216,
+  "canary_bytes": 64,
+  "canary_value": 222,
+  "stats_window_frames": 120,
+  "headroom_log_percent": 50
+}

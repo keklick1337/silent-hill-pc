@@ -1,0 +1,21 @@
+{
+  "format": "sh-part-variants",
+  "description": "Stalker's alternative part meshes. A non-zero slot value first hides the slot's \"hide\" parts, then the variant's \"hide\", then shows its \"show\" parts (model indices of the skeleton).",
+  "slots": [
+    {
+      "name": "variant",
+      "shift": 0,
+      "bits": 4,
+      "variants": {
+        "1": {
+          "hide": [6],
+          "show": [5]
+        },
+        "2": {
+          "hide": [5],
+          "show": [6]
+        }
+      }
+    }
+  ]
+}

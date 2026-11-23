@@ -1,0 +1,33 @@
+{
+  "format": "sh-text",
+  "version": 1,
+  "lang": "zh",
+  "map": "map1_s00",
+  "strings": {
+    "map1_s00.the_tower_door_is_locked": "钟楼的门锁着。{end}",
+    "map1_s00.the_hands_are_stopped_at": "指针停在10:00。{end}",
+    "map1_s00.the_hands_are_stopped_at_2": "指针停在12:00。{end}",
+    "map1_s00.the_hands_are_stopped_at_3": "指针停在5:00。{end}",
+    "map1_s00.a_golden_sun": "{color 3}金色的太阳{end}",
+    "map1_s00.a_silver_moon": "{color 3}银色的月亮{end}",
+    "map1_s00.the_door_wont_open": "门打不开。{end}",
+    "map1_s00.10_00_alchemy_laboratory_gold": "{pos 4}{center}{color 3}10:00\n“炼金术实验室”\n\n老人掌中的黄金。\n未来藏在他紧握的拳中。\n以贤者之水换取。{end}",
+    "map1_s00.12_00_a_place_with": "{pos 4}{center}{color 3}12:00\n“歌与声之所”\n\n银色的路标\n藏于无人叩响的哑舌之中。\n依既定之序而苏醒。{end}",
+    "map1_s00.5_00_darkness_that_brings": "{pos 4}{center}{color 3}5:00\n“带来窒息灼热的\n黑暗”\n\n烈焰撕裂寂静，\n唤醒饥饿的野兽。\n开启时间之门，引来猎物。{end}",
+    "map1_s00.its_written_in_blood": "是用血写的。{end}",
+    "map1_s00.cheryl_might_be_here_i": "雪柔也许在这儿。\n我得找找看。{end}",
+    "map1_s00.a_picture_of_a_door": "一幅画着门的画。",
+    "map1_s00.i_dont_know_who_drew": "不知道是谁画的，\n品味实在糟糕。{end}",
+    "map1_s00.there_is_a_switch_do": "这里有个开关。\n要按下开关吗？{choice 4}",
+    "map1_s00.nothing_appears_to_happen": "好像什么也没发生。{end}",
+    "map1_s00.the_boiler_is_working": "锅炉正在运转。{end}",
+    "map1_s00.it_appears_to_be_broken": "看样子是坏了。{end}",
+    "map1_s00.the_valve_is_tightly_shut": "阀门关得死死的。\n拧不动。",
+    "map1_s00.dont_know_what_it_is": "不知道是干什么用的，\n还是别碰为好。{end}",
+    "map1_s00.nothing_special_is_written": "没写什么特别的东西。{end}",
+    "map1_s00.nothing_useful_in_the_desk": "抽屉里没什么有用的东西。{end}",
+    "map1_s00.there_is_a_school_map": "{hires}这里有{color 5}学校地图{/color}。\n要拿走吗？{choice 4}",
+    "map1_s00.moore_ranaldo_gordon_this_must": "摩尔、拉纳尔多、戈登……\n这应该是教师名单。{end}",
+    "map1_s00.nothing_inside": "里面什么也没有。{end}"
+  }
+}

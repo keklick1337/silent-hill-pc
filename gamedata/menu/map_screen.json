@@ -1,0 +1,645 @@
+{
+  "format": "sh-map-screen",
+  "version": 1,
+  "description": "The paper map screen (pause > MAP, or the map button in game): zoom and pan, the player arrow, the page arrows, which page Up and Down turn to, where the player arrow stands on each page, and the map marks (sprites of the marking textures and where each one goes). Pages are named as in paper_maps.json. Colours are [r, g, b] in 0..255 as the original primitives take them. The keys starting with '_' explain the key of the same name. A mod patches it with its own menu/map_screen.json (newest mod first).",
+  "zoom": {
+    "description": "Cross zooms in to twice the size around the player arrow and back. step: zoom change per frame (Q12, 4096 = 1.0). focus_offset: added to the arrow's cell to centre it. pan_max: pan limit in map cells. cursor_divisor: the pan per frame is left stick value * 16384 / divisor (Q12).",
+    "step": 196,
+    "focus_offset": [80, 60],
+    "pan_max": [160, 120],
+    "cursor_divisor": 75
+  },
+  "_image_shade": "Grey level of the map image and of the marks (128 = the texture as it is).",
+  "image_shade": 128,
+  "marking_shade": 128,
+  "player_arrow": {
+    "description": "The player arrow, a triangle in map cells: the tip is \"tip\" cells ahead of the player, the back corners \"back\" cells behind and half_width to each side. outline: the colour of the closed line around it.",
+    "tip": 6,
+    "back": 6,
+    "half_width": 4,
+    "outline": [16, 16, 16],
+    "tip_color": [0, 0, 255],
+    "back_color": [0, 255, 0]
+  },
+  "page_arrows": {
+    "description": "Triangles at the top and the bottom edge, shown when Up or Down turns to a page the player has (tip at y = -tip_y / +tip_y, base at base_y).",
+    "tip_y": 216,
+    "base_y": 200,
+    "half_width": 8,
+    "tip_color": [16, 16, 196],
+    "base_color": [128, 128, 196]
+  },
+  "_links": "Page shown by Up / Down from a page (only when the player has it).",
+  "links": {
+    "FogSchoolBF": {"up": "FogSchool1F"},
+    "FogSchool1F": {"up": "FogSchool2F", "down": "FogSchoolBF"},
+    "FogSchool2F": {"up": "FogSchoolRF", "down": "FogSchool1F"},
+    "FogSchoolRF": {"down": "FogSchool2F"},
+    "AltSchoolBF": {"up": "AltSchool1F"},
+    "AltSchool1F": {"up": "AltSchool2F", "down": "AltSchoolBF"},
+    "AltSchool2F": {"up": "AltSchoolRF", "down": "AltSchool1F"},
+    "AltSchoolRF": {"down": "AltSchool2F"},
+    "FogSewer1F": {"up": "FogSewer2F"},
+    "FogSewer2F": {"down": "FogSewer1F"},
+    "FogHospitalBF": {"up": "FogHospital1F"},
+    "FogHospital1F": {"up": "FogHospital2F", "down": "FogHospitalBF"},
+    "FogHospital2F": {"up": "FogHospital3F", "down": "FogHospital1F"},
+    "FogHospital3F": {"down": "FogHospital2F"},
+    "AltHospitalBF": {"up": "AltHospital1F"},
+    "AltHospital1F": {"up": "AltHospital2F", "down": "AltHospitalBF"},
+    "AltHospital2F": {"up": "AltHospital3F", "down": "AltHospital1F"},
+    "AltHospital3F": {"down": "AltHospital2F"}
+  },
+  "_page_files": "Disc files of each page: image is the map picture (MP_*.TIM), markings the marking texture (MR_*.TIM; a page without one draws no marks). Opening the map or turning a page loads the image; the marking texture loads only when it differs from the one already in memory.",
+  "page_files": {
+    "OtherPlaces": {"image": "TIM/MP_0TOWN.TIM"},
+    "OldTown": {"image": "TIM/MP_0TOWN.TIM", "markings": "TIM/MR_0TOWN.TIM"},
+    "FogCentralTown": {"image": "TIM/MP_BSTLN.TIM", "markings": "TIM/MR_BSTLN.TIM"},
+    "AltCentralTown": {"image": "TIM/MP_BSTLN.TIM", "markings": "TIM/MR_BSTLN.TIM"},
+    "ResortTown": {"image": "TIM/MP_RSORT.TIM", "markings": "TIM/MR_BSTLN.TIM"},
+    "FogSchoolBF": {"image": "TIM/MP_SCLBF.TIM", "markings": "TIM/MR_SCL.TIM"},
+    "FogSchool1F": {"image": "TIM/MP_SCL1F.TIM", "markings": "TIM/MR_SCL.TIM"},
+    "FogSchool2F": {"image": "TIM/MP_SCL2F.TIM", "markings": "TIM/MR_SCL.TIM"},
+    "FogSchoolRF": {"image": "TIM/MP_SCLRF.TIM", "markings": "TIM/MR_SCL.TIM"},
+    "AltSchoolBF": {"image": "TIM/MP_SCLBF.TIM", "markings": "TIM/MR_SCL.TIM"},
+    "AltSchool1F": {"image": "TIM/MP_SCL1F.TIM", "markings": "TIM/MR_SCL.TIM"},
+    "AltSchool2F": {"image": "TIM/MP_SCL2F.TIM", "markings": "TIM/MR_SCL.TIM"},
+    "AltSchoolRF": {"image": "TIM/MP_SCLRF.TIM", "markings": "TIM/MR_SCL.TIM"},
+    "FogSewer1F": {"image": "TIM/MP_DRN1F.TIM", "markings": "TIM/MR_DRN.TIM"},
+    "FogSewer2F": {"image": "TIM/MP_DRN2F.TIM", "markings": "TIM/MR_DRN.TIM"},
+    "AltSewer": {"image": "TIM/MP_DRNBK.TIM", "markings": "TIM/MR_DRN.TIM"},
+    "FogHospitalBF": {"image": "TIM/MP_HSPBF.TIM", "markings": "TIM/MR_HSP.TIM"},
+    "FogHospital1F": {"image": "TIM/MP_HSP1F.TIM", "markings": "TIM/MR_HSP.TIM"},
+    "FogHospital2F": {"image": "TIM/MP_HSP2F.TIM", "markings": "TIM/MR_HSP.TIM"},
+    "FogHospital3F": {"image": "TIM/MP_HSP3F.TIM", "markings": "TIM/MR_HSP.TIM"},
+    "AltHospitalBF": {"image": "TIM/MP_HSPBF.TIM", "markings": "TIM/MR_HSP.TIM"},
+    "AltHospital1F": {"image": "TIM/MP_HSP1F.TIM", "markings": "TIM/MR_HSP.TIM"},
+    "AltHospital2F": {"image": "TIM/MP_HSP2F.TIM", "markings": "TIM/MR_HSP.TIM"},
+    "AltHospital3F": {"image": "TIM/MP_HSP3F.TIM", "markings": "TIM/MR_HSP.TIM"}
+  },
+  "_player_placement": "Where the player arrow stands on a page. Each group lists pages and rules; the first rule whose conditions all hold places the arrow, no rule = no arrow. Conditions: maps (the current map is one of them), cells (the player's world cell [x, z]; a cell is 40 m, cell -1 starts at 0 and goes down), chunks ([x, z] counted from 1 above 0 and from -1 at 0 and below), cell_z_below, cell_x_in [lo, hi]. Result: x and z, each a map point or a grid {from: x, -x, z or -z of the position plus add metres, divided by 2^shift toward zero, plus offset}, or anchor {grid of player_anchors; x and z as [mul, div] applied to the position inside the cell from its centre}; turn: degrees added to the player's heading.",
+  "player_placement": [
+    {"pages": ["OldTown"], "rules": [
+      {"maps": ["map0_s00", "map2_s00"], "cell_z_below": 4, "x": {"from": "x", "shift": 13, "offset": 19}, "z": {"from": "-z", "shift": 13, "offset": 1}},
+      {"maps": ["map0_s00", "map2_s00"], "cell_z_below": 6, "cell_x_in": [-1, 0], "x": {"from": "x", "shift": 13, "offset": 19}, "z": {"from": "-z", "shift": 13, "offset": 1}},
+      {"maps": ["map0_s00", "map2_s00"], "cells": [[-5, 9]], "x": 43, "z": -34},
+      {"maps": ["map0_s00", "map2_s00"], "cells": [[-5, 7], [-3, 5], [-3, 6]], "x": -11, "z": -19},
+      {"maps": ["map0_s00", "map2_s00"], "cells": [[1, 9]], "x": -63, "z": 73},
+      {"maps": ["map0_s00", "map2_s00"], "cells": [[3, 9]], "x": -63, "z": -28},
+      {"maps": ["map0_s00", "map2_s00"], "cells": [[2, 7], [3, 7]], "x": -58, "z": 73},
+      {"maps": ["map0_s00", "map2_s00"], "cells": [[2, 5], [3, 5]], "x": -58, "z": -28},
+      {"maps": ["map0_s00", "map2_s00"], "cells": [[5, 5]], "x": -112, "z": 51},
+      {"maps": ["map0_s00", "map2_s00"], "cells": [[-2, 8], [5, 8]], "x": 116, "z": 47},
+      {"maps": ["map0_s02"], "cells": [[-3, 0]], "x": -103, "z": 103},
+      {"maps": ["map0_s02"], "cells": [[-4, 0]], "x": 36, "z": -76, "turn": 90},
+      {"maps": ["map0_s02"], "cells": [[-5, 0]], "x": 62, "z": 50, "turn": 180},
+      {"maps": ["map2_s01"], "x": 38, "z": 50, "turn": 180},
+      {"maps": ["map0_s01"], "x": 33, "z": -28},
+      {"maps": ["map1_s06"], "x": -123, "z": 81, "turn": -90}
+    ]},
+    {"pages": ["FogSchoolBF", "FogSchool1F", "FogSchool2F", "FogSchoolRF", "AltSchoolBF", "AltSchool1F", "AltSchool2F", "AltSchoolRF"], "rules": [
+      {"cells": [[-2, 0]], "anchor": {"grid": "school", "x": [1, -819], "z": [1, 819]}, "turn": 180},
+      {"anchor": {"grid": "school", "x": [1, 819], "z": [1, -819]}}
+    ]},
+    {"pages": ["FogHospitalBF", "FogHospital1F", "FogHospital2F", "FogHospital3F"], "rules": [
+      {"anchor": {"grid": "fog_hospital", "x": [1, 546], "z": [6, -3276]}}
+    ]},
+    {"pages": ["AltHospitalBF", "AltHospital1F", "AltHospital2F", "AltHospital3F"], "rules": [
+      {"anchor": {"grid": "alt_hospital", "x": [1, 546], "z": [6, -3276]}}
+    ]},
+    {"pages": ["ResortTown"], "rules": [
+      {"maps": ["map5_s01"], "chunks": [[-4, -1], [-5, -1]], "x": {"from": "x", "shift": 13, "offset": 147}, "z": {"from": "-z", "shift": 13, "offset": -24}},
+      {"maps": ["map5_s01"], "x": {"from": "x", "shift": 13, "offset": 60}, "z": {"from": "-z", "shift": 13, "offset": -85}},
+      {"maps": ["map5_s02"], "chunks": [[4, 2]], "x": 87, "z": -56, "turn": 90},
+      {"maps": ["map5_s02"], "chunks": [[4, 1]], "x": 54, "z": -53, "turn": 90},
+      {"maps": ["map5_s03"], "cells": [[2, 1]], "x": 69, "z": -19},
+      {"maps": ["map5_s03"], "cells": [[2, 0]], "x": 74, "z": -12, "turn": -90},
+      {"maps": ["map5_s03"], "cells": [[1, 0]], "x": 74, "z": -14},
+      {"maps": ["map5_s03"], "cells": [[1, 1]], "x": 73, "z": -14},
+      {"maps": ["map6_s00"], "x": {"from": "x", "shift": 13, "offset": 0}, "z": {"from": "-z", "shift": 13, "offset": 55}},
+      {"maps": ["map6_s01"], "chunks": [[-2, 2]], "x": -77, "z": 43},
+      {"maps": ["map6_s01"], "x": -77, "z": 46},
+      {"maps": ["map6_s02"], "chunks": [[2, -1]], "x": -55, "z": 84},
+      {"maps": ["map6_s02"], "x": -55, "z": 84, "turn": 90}
+    ]},
+    {"pages": ["FogCentralTown", "AltCentralTown"], "rules": [
+      {"maps": ["map2_s02", "map4_s02", "map4_s05"], "cells": [[-6, 2]], "x": 94, "z": -103},
+      {"maps": ["map2_s02", "map4_s02", "map4_s05"], "cells": [[-3, 2], [-4, 2]], "x": -12, "z": 63, "turn": 180},
+      {"maps": ["map2_s02", "map4_s02", "map4_s05"], "cells": [[3, -1]], "x": -16, "z": 91},
+      {"maps": ["map2_s02", "map4_s02", "map4_s05"], "cells": [[-3, 4], [-3, 5]], "x": {"from": "x", "shift": 12, "offset": 80}, "z": {"from": "-z", "add": 280, "shift": 12, "offset": 0}},
+      {"maps": ["map2_s02", "map4_s02", "map4_s05"], "x": {"from": "x", "shift": 12, "offset": 80}, "z": {"from": "-z", "shift": 12, "offset": 0}},
+      {"maps": ["map4_s01"], "x": 95, "z": -103},
+      {"maps": ["map4_s03"], "cells": [[3, 1], [4, 1]], "x": 100, "z": -61},
+      {"maps": ["map4_s03"], "cells": [[2, -3], [3, -3]], "x": 115, "z": -61},
+      {"maps": ["map4_s03"], "cells": [[5, -1]], "x": 115, "z": -63, "turn": 90},
+      {"maps": ["map4_s03"], "cells": [[2, 3], [3, 3]], "x": 125, "z": -60},
+      {"maps": ["map2_s04"], "cells": [[-3, 1], [-1, 0]], "x": -19, "z": -14},
+      {"maps": ["map2_s04"], "cells": [[-2, 0]], "x": -21, "z": -14}
+    ]},
+    {"pages": ["FogSewer1F"], "rules": [
+      {"x": {"from": "-z", "shift": 11, "offset": 0}, "z": {"from": "-x", "shift": 11, "offset": 40}, "turn": -90}
+    ]},
+    {"pages": ["FogSewer2F"], "rules": [
+      {"x": {"from": "-z", "shift": 11, "offset": -80}, "z": {"from": "-x", "shift": 11, "offset": -140}, "turn": -90}
+    ]},
+    {"pages": ["AltSewer"], "rules": [
+      {"x": {"from": "-x", "shift": 11, "offset": 55}, "z": {"from": "z", "shift": 11, "offset": -80}, "turn": 180}
+    ]}
+  ],
+  "_player_anchors": "Where the player arrow stands on the school and hospital pages: the map point of each world cell (cells[x - first_cell.x][z - first_cell.z] = [map x, map y]); the position inside the cell is added to it.",
+  "player_anchors": {
+    "school": {
+      "first_cell": [-4, -2],
+      "cells": [
+        [[0, 0], [0, 0], [-43, 90], [-48, 72], [-51, 42], [-48, -32], [-47, 68]],
+        [[0, 0], [0, 0], [-1, 82], [-33, -2], [-8, -80], [64, -80], [0, 0]],
+        [[0, 0], [-36, -74], [72, 80], [37, 1], [28, -80], [104, -75], [0, 0]],
+        [[31, -3], [33, -43], [32, 56], [112, 32], [112, -32], [0, 0], [54, 1]],
+        [[66, 100], [65, 65], [-48, 88], [-48, 72], [-43, 37], [-48, -32], [0, 0]],
+        [[64, 65], [111, 77], [4, 83], [-28, -2], [0, 0], [68, 84], [0, 0]],
+        [[0, 0], [0, 0], [32, 80], [47, 1], [-4, -82], [32, -80], [0, 0]],
+        [[0, 0], [0, 0], [32, 56], [107, 32], [117, -32], [89, -80], [64, 1]]
+      ]
+    },
+    "fog_hospital": {
+      "first_cell": [-1, -2],
+      "cells": [
+        [[0, 0], [60, -83], [87, -81], [0, 0], [0, 0], [0, 0]],
+        [[0, 0], [98, -36], [68, -19], [102, -1], [0, 0], [-53, -25]],
+        [[0, 0], [59, -40], [111, -84], [104, 41], [32, 11], [0, 0]],
+        [[0, 0], [0, 0], [102, -49], [102, 69], [1, 6], [0, 0]],
+        [[0, 0], [104, -25], [104, -24], [0, 0], [-10, -41], [0, 0]]
+      ]
+    },
+    "alt_hospital": {
+      "first_cell": [-4, -4],
+      "cells": [
+        [[0, 0], [32, 11], [-40, 48], [-5, 72], [62, 71], [-39, -62], [68, -66], [0, 0]],
+        [[0, 0], [68, -66], [-40, -66], [0, 0], [98, 79], [-35, -3], [60, 1], [0, 0]],
+        [[0, 0], [68, 38], [-40, -12], [56, 78], [110, 24], [0, 0], [14, -13], [0, 0]],
+        [[0, 0], [-4, -17], [-40, 13], [104, -18], [109, -53], [0, 0], [-46, 66], [32, 12]],
+        [[0, 0], [0, 0], [31, -66], [32, 12], [-10, 48], [110, -83], [0, 0], [31, 10]],
+        [[0, 0], [0, 0], [59, -39], [32, -24], [0, 0], [116, -48], [0, 0], [1, 7]],
+        [[0, 0], [0, 0], [98, -37], [0, 0], [0, 0], [104, -24], [68, 71], [-52, -24]],
+        [[0, 0], [0, 0], [0, 0], [103, -23], [68, -24], [101, -5], [41, 86], [0, 0]]
+      ]
+    }
+  },
+  "_marking_atlases": "Sprites of the marking textures (mr_*.tim): [u, v, w, h]. A mark names its sprites by number from 1; 0 = none.",
+  "marking_atlases": {
+    "OldTown": [
+      [0, 0, 15, 31],
+      [16, 0, 15, 31],
+      [32, 0, 15, 31],
+      [48, 0, 15, 31],
+      [64, 0, 15, 31],
+      [80, 0, 15, 31],
+      [96, 0, 15, 31],
+      [80, 112, 31, 47],
+      [32, 32, 31, 31],
+      [64, 32, 31, 31],
+      [0, 64, 31, 63],
+      [32, 64, 15, 47],
+      [0, 128, 79, 95],
+      [80, 64, 31, 47],
+      [96, 32, 31, 31],
+      [112, 64, 15, 95],
+      [80, 160, 31, 63]
+    ],
+    "CentralTown": [
+      [0, 128, 63, 31],
+      [48, 64, 31, 63],
+      [80, 64, 31, 31],
+      [0, 64, 31, 63],
+      [0, 0, 15, 31],
+      [16, 0, 15, 31],
+      [32, 0, 15, 31],
+      [64, 0, 15, 31]
+    ],
+    "School": [
+      [0, 0, 15, 31],
+      [16, 0, 15, 31],
+      [32, 0, 15, 31],
+      [48, 0, 15, 31],
+      [64, 0, 15, 31],
+      [80, 0, 15, 31],
+      [96, 0, 15, 31],
+      [0, 32, 31, 31],
+      [32, 32, 31, 31],
+      [80, 32, 15, 31],
+      [64, 32, 15, 31],
+      [96, 32, 15, 31],
+      [0, 64, 31, 31]
+    ],
+    "Sewer": [
+      [64, 0, 7, 15],
+      [56, 0, 7, 15],
+      [16, 0, 7, 15],
+      [24, 0, 7, 15],
+      [0, 16, 31, 47]
+    ],
+    "Hospital": [
+      [0, 0, 15, 31],
+      [16, 0, 15, 31],
+      [32, 0, 15, 31],
+      [48, 0, 15, 31],
+      [64, 0, 15, 31],
+      [80, 0, 15, 31],
+      [96, 0, 15, 31],
+      [80, 32, 15, 31],
+      [64, 32, 15, 31],
+      [0, 32, 31, 31]
+    ]
+  },
+  "_markings": "Marks of a page: at = [x, y] in half map pixels from the centre, sprites = [first half, second half]. Each mark has two event flags, one per half, in a run of consecutive save bits: flag is the name of the bit of slot flag_slot (slot = 2 * mark + half, default 0), the other slots follow it. A half is drawn when its flag is set and its sprite is not 0.",
+  "markings": {
+    "OldTown": {
+      "atlas": "OldTown",
+      "marks": [
+        {"at": [7, -114], "sprites": [1, 0], "flags": ["MapMark_OldTown_BachmanRdTopCross", "MapMark_OldTown_BachmanRdTopCrossBlank"]},
+        {"at": [10, -30], "sprites": [4, 0], "flags": ["MapMark_OldTown_CofeArrowOnly", "MapMark_OldTown_CofeArrowBlank"]},
+        {"at": [12, -23], "sprites": [5, 0], "flags": ["MapMark_OldTown_CofeSignOnly", "MapMark_OldTown_CofeSignBlank"]},
+        {"at": [-8, -66], "sprites": [14, 0], "flags": ["MapMark_OldTown_CherylArrowAndSign", "MapMark_OldTown_CherylArrowAndSignBlank"]},
+        {"at": [-33, -67], "sprites": [1, 0], "flags": ["MapMark_OldTown_FinneyStLeftCross", "MapMark_OldTown_FinneyStLeftCrossBlank"]},
+        {"at": [-54, -83], "sprites": [1, 0], "flags": ["MapMark_OldTown_MidwitchStTopCross", "MapMark_OldTown_MidwitchStTopCrossBlank"]},
+        {"at": [-63, -35], "sprites": [1, 0], "flags": ["MapMark_OldTown_UntitledStLeftCross", "MapMark_OldTown_UntitledStLeftCrossBlank"]},
+        {"at": [-54, 106], "sprites": [1, 0], "flags": ["MapMark_OldTown_MidwitchStBotCross", "MapMark_OldTown_MidwitchStBotCrossBlank"]},
+        {"at": [-35, 92], "sprites": [1, 0], "flags": ["MapMark_OldTown_BradburyStMidCross", "MapMark_OldTown_BradburyStMidCrossBlank"]},
+        {"at": [0, 92], "sprites": [1, 0], "flags": ["MapMark_OldTown_BradburyStLeftCross", "MapMark_OldTown_BradburyStLeftCrossBlank"]},
+        {"at": [6, 54], "sprites": [1, 0], "flags": ["MapMark_OldTown_BachmanRdBotCross", "MapMark_OldTown_BachmanRdBotCrossBlank"]},
+        {"at": [36, 67], "sprites": [1, 0], "flags": ["MapMark_OldTown_ElroyStBotCross", "MapMark_OldTown_ElroyStBotCrossBlank"]},
+        {"at": [3, 71], "sprites": [13, 0], "flags": ["MapMark_OldTown_BotRightHugeComboCross", "MapMark_OldTown_BotRightHugeComboCrossBlank"]},
+        {"at": [36, 15], "sprites": [1, 0], "flags": ["MapMark_OldTown_ElroyStMidCross", "MapMark_OldTown_ElroyStMidCrossBlank"]},
+        {"at": [7, 14], "sprites": [1, 0], "flags": ["MapMark_OldTown_BachmanRdMidCross", "MapMark_OldTown_BachmanRdMidCrossBlank"]},
+        {"at": [55, -68], "sprites": [1, 0], "flags": ["MapMark_OldTown_FinneyStRightCross", "MapMark_OldTown_FinneyStRightCrossBlank"]},
+        {"at": [-34, 32], "sprites": [1, 0], "flags": ["MapMark_OldTown_BlochStLeftCross", "MapMark_OldTown_BlochStLeftCrossBlank"]},
+        {"at": [-24, 26], "sprites": [1, 0], "flags": ["MapMark_OldTown_LevinStTopCross", "MapMark_OldTown_LevinStTopCrossBlank"]},
+        {"at": [-17, 34], "sprites": [1, 0], "flags": ["MapMark_OldTown_BlochStRightCross", "MapMark_OldTown_BlochStRightCrossBlank"]},
+        {"at": [-24, 55], "sprites": [1, 0], "flags": ["MapMark_OldTown_LevinStBotCross", "MapMark_OldTown_LevinStBotCrossBlank"]},
+        {"at": [-30, 32], "sprites": [11, 0], "flags": ["MapMark_OldTown_LevinBlochBigCombo", "MapMark_OldTown_LevinBlochBigComboBlank"]},
+        {"at": [-35, -7], "sprites": [1, 0], "flags": ["MapMark_OldTown_MathesonStCross", "MapMark_OldTown_MathesonStCrossBlank"]},
+        {"at": [-37, -33], "sprites": [9, 0], "flags": ["MapMark_OldTown_DoghouseArrowsOnly", "MapMark_OldTown_DoghouseArrowsBlank"]},
+        {"at": [-37, 68], "sprites": [9, 0], "flags": ["MapMark_OldTown_KGordonArrowsOnly", "MapMark_OldTown_KGordonArrowsBlank"]},
+        {"at": [37, -69], "sprites": [15, 0], "flags": ["MapMark_OldTown_FineyStRightKeyArrow", "MapMark_OldTown_FineyStRightKeyArrowBlank"]},
+        {"at": [21, -57], "sprites": [16, 0], "flags": ["MapMark_OldTown_DogYardKeyLine", "MapMark_OldTown_DogYardKeyLineBlank"]},
+        {"at": [31, 0], "sprites": [17, 0], "flags": ["MapMark_OldTown_EllroyStKeyCircle", "MapMark_OldTown_EllroyStKeyCircleBlank"]},
+        {"at": [60, 32], "sprites": [1, 6], "flags": ["MapMark_OldTown_BotBridgeCross", "MapMark_OldTown_BotBridgeCorrection"]},
+        {"at": [57, 19], "sprites": [10, 0], "flags": ["MapMark_OldTown_BotBridgeArrow", "MapMark_OldTown_BotBridgeArrowBlank"]},
+        {"at": [13, 43], "sprites": [2, 3], "flags": ["MapMark_OldTown_BalkanChurchCircle", "MapMark_OldTown_BalkanChurchCheck"]},
+        {"at": [-60, 41], "sprites": [0, 0], "flags": ["MapMark_OldTown_LakesideFirstHalfBlank", "MapMark_OldTown_LakesideSecondHalfBlank"]},
+        {"at": [-67, 78], "sprites": [2, 3], "flags": ["MapMark_OldTown_SchoolCircle", "MapMark_OldTown_SchoolCheck"]},
+        {"at": [-37, 68], "sprites": [8, 0], "flags": ["MapMark_OldTown_KGordonDotAndSignOnly", "MapMark_OldTown_KGordonDotAndSignBlank"]},
+        {"at": [-33, -32], "sprites": [7, 0], "flags": ["MapMark_OldTown_DoghouseDotOnly", "MapMark_OldTown_DoghouseDotBlank"]}
+      ]
+    },
+    "FogCentralTown": {
+      "atlas": "CentralTown",
+      "marks": [
+        {"at": [44, -106], "sprites": [1, 0], "flags": ["MapMark_FogCentralTown_AntiqueWholeSign", "MapMark_FogCentralTown_AntiqueWholeSignBlank"]},
+        {"at": [-16, 91], "sprites": [6, 0], "flags": ["MapMark_FogCentralTown_HospitalCircle", "MapMark_FogCentralTown_HospitalCircleBlank"]},
+        {"at": [-28, -52], "sprites": [2, 0], "flags": ["MapMark_FogCentralTown_CrichtonStTotBigCross", "MapMark_FogCentralTown_CrichtonStTotBigCrossBlank"]},
+        {"at": [-28, 105], "sprites": [3, 0], "flags": ["MapMark_FogCentralTown_CrichtonStBotBigCross", "MapMark_FogCentralTown_CrichtonStBotBigCrossBlank"]},
+        {"at": [50, -14], "sprites": [2, 0], "flags": ["MapMark_FogCentralTown_SaganStBigCross", "MapMark_FogCentralTown_SaganStBigCrossBlank"]},
+        {"at": [49, 65], "sprites": [2, 0], "flags": ["MapMark_FogCentralTown_KoontzStBigCross", "MapMark_FogCentralTown_KoontzStBigCrossBlank"]},
+        {"at": [32, -120], "sprites": [3, 0], "flags": ["MapMark_FogCentralTown_SimmonsStBigCross", "MapMark_FogCentralTown_SimmonsStBigCrossBlank"]}
+      ]
+    },
+    "AltCentralTown": {
+      "atlas": "CentralTown",
+      "marks": [
+        {"at": [44, -106], "sprites": [1, 0], "flags": ["MapMark_AltCentralTown_AntiqueWholeSign", "MapMark_AltCentralTown_AntiqueWholeSignBlank"]},
+        {"at": [-16, 91], "sprites": [6, 0], "flags": ["MapMark_AltCentralTown_HospitalCircle", "MapMark_AltCentralTown_HospitalCircleBlank"]},
+        {"at": [-28, -54], "sprites": [2, 0], "flags": ["MapMark_AltCentralTown_CrichtonStTopBigCross", "MapMark_AltCentralTown_CrichtonStTopBigCrossBlank"]},
+        {"at": [-28, 105], "sprites": [3, 0], "flags": ["MapMark_AltCentralTown_CrichtonStBotBigCross", "MapMark_AltCentralTown_CrichtonStBotBigCrossBlank"]},
+        {"at": [32, -120], "sprites": [3, 0], "flags": ["MapMark_AltCentralTown_SimmonsStTopBigCross", "MapMark_AltCentralTown_SimmonsStTopBigCrossBlank"]},
+        {"at": [36, -47], "sprites": [5, 0], "flags": ["MapMark_AltCentralTown_SimmonsStMidCross", "MapMark_AltCentralTown_SimmonsStMidCrossBlank"]},
+        {"at": [36, 34], "sprites": [5, 0], "flags": ["MapMark_AltCentralTown_SimmonsStBotCross", "MapMark_AltCentralTown_SimmonsStBotCrossBlank"]},
+        {"at": [6, 28], "sprites": [5, 0], "flags": ["MapMark_AltCentralTown_WilsonStCross", "MapMark_AltCentralTown_WilsonStCrossBlank"]},
+        {"at": [-7, 63], "sprites": [2, 0], "flags": ["MapMark_AltCentralTown_KoontzStBigCross", "MapMark_AltCentralTown_KoontzStBigCrossBlank"]},
+        {"at": [69, -14], "sprites": [2, 0], "flags": ["MapMark_AltCentralTown_SaganStRightBigCross", "MapMark_AltCentralTown_SaganStRightBigCrossBlank"]},
+        {"at": [-50, -17], "sprites": [2, 0], "flags": ["MapMark_AltCentralTown_SaganStLeftBigCross", "MapMark_AltCentralTown_SaganStLeftBigCrossBlank"]},
+        {"at": [60, -95], "sprites": [2, 0], "flags": ["MapMark_AltCentralTown_ParkingLotBigCross", "MapMark_AltCentralTown_ParkingLotBigCrossBlank"]},
+        {"at": [66, 4], "sprites": [5, 0], "flags": ["MapMark_AltCentralTown_UntatiledStBotCross", "MapMark_AltCentralTown_UntatiledStBotCrossBlank"]},
+        {"at": [-80, -120], "sprites": [0, 0], "flags": ["MapMark_AltCentralTown_TopLeftCornerFirstHalfBlank", "MapMark_AltCentralTown_TopLeftCornerSecondHalfBlank"]},
+        {"at": [-24, 62], "sprites": [2, 0], "flags": ["MapMark_AltCentralTown_CrichtonKoontzBigCross", "MapMark_AltCentralTown_CrichtonKoontzBigCrossBlank"]}
+      ]
+    },
+    "ResortTown": {
+      "atlas": "CentralTown",
+      "marks": [
+        {"at": [16, -105], "sprites": [5, 0], "flags": ["MapMark_ResortTown_BachmanRdCross", "MapMark_ResortTown_BachmanRdCrossBlank"]},
+        {"at": [44, -84], "sprites": [2, 0], "flags": ["MapMark_ResortTown_CraigStBigCross", "MapMark_ResortTown_CraigStBigCrossBlank"]},
+        {"at": [-15, 9], "sprites": [5, 0], "flags": ["MapMark_ResortTown_EastGarageRightCross", "MapMark_ResortTown_EastGarageRightCrossBlank"]},
+        {"at": [-22, 15], "sprites": [5, 0], "flags": ["MapMark_ResortTown_EastGarageBotCross", "MapMark_ResortTown_EastGarageBotCrossBlank"]},
+        {"at": [-64, -19], "sprites": [2, 0], "flags": ["MapMark_ResortTown_SandfordStLeftBigCross", "MapMark_ResortTown_SandfordStLeftBigCrossBlank"]},
+        {"at": [0, -13], "sprites": [5, 0], "flags": ["MapMark_ResortTown_SandfordStRightCross", "MapMark_ResortTown_SandfordStRightCrossBlank"]},
+        {"at": [-31, 77], "sprites": [6, 7], "flags": ["MapMark_ResortTown_LighthouseCircle", "MapMark_ResortTown_LighthouseCheck"]},
+        {"at": [-56, -22], "sprites": [8, 0], "flags": ["MapMark_ResortTown_ThemeParkArrow", "MapMark_ResortTown_ThemeParkArrowBlank"]}
+      ]
+    },
+    "FogSchoolBF": {
+      "atlas": "School",
+      "marks": [
+        {"at": [36, 82], "sprites": [2, 4], "flags": ["MapMark_FogSchoolBF_StorageBroken", "MapMark_FogSchoolBF_StorageArrows"]},
+        {"at": [36, 56], "sprites": [0, 4], "flags": ["MapMark_FogSchoolBF_BoilerRoomBlank", "MapMark_FogSchoolBF_BoilerRoomArrows"]}
+      ]
+    },
+    "FogSchool1F": {
+      "atlas": "School",
+      "marks": [
+        {"at": [12, 88], "sprites": [0, 3], "flags": ["MapMark_FogSchool1F_EntranceBlank", "MapMark_FogSchool1F_EntranceArrows"]},
+        {"at": [12, 56], "sprites": [0, 3], "flags": ["MapMark_FogSchool1F_LobbyBlank", "MapMark_FogSchool1F_LobbyArrows"]},
+        {"at": [-12, 48], "sprites": [11, 4], "flags": ["MapMark_FogSchool1F_BotLeftCorridorLocked", "MapMark_FogSchool1F_BotLeftCorridorArrows"]},
+        {"at": [-10, 68], "sprites": [1, 3], "flags": ["MapMark_FogSchool1F_ReceptionBroken", "MapMark_FogSchool1F_ReceptionArrows"]},
+        {"at": [23, 56], "sprites": [0, 3], "flags": ["MapMark_FogSchool1F_InfirmaryBlank", "MapMark_FogSchool1F_InfirmaryArrows"]},
+        {"at": [12, 32], "sprites": [1, 3], "flags": ["MapMark_FogSchool1F_CourtyardBotBroken", "MapMark_FogSchool1F_CourtyardBotArrows"]},
+        {"at": [36, 48], "sprites": [11, 4], "flags": ["MapMark_FogSchool1F_BotRightCorridorLocked", "MapMark_FogSchool1F_BotRightCorridorArrows"]},
+        {"at": [36, -64], "sprites": [11, 4], "flags": ["MapMark_FogSchool1F_TopRightCorridorLocked", "MapMark_FogSchool1F_TopRightCorridorArrows"]},
+        {"at": [38, -72], "sprites": [1, 0], "flags": ["MapMark_FogSchool1F_HallMidBroken", "MapMark_FogSchool1F_HallMidBlank"]},
+        {"at": [44, -66], "sprites": [2, 4], "flags": ["MapMark_FogSchool1F_TopClassRoomTopBroken", "MapMark_FogSchool1F_TopClassRoomTopArrows"]},
+        {"at": [44, -14], "sprites": [2, 4], "flags": ["MapMark_FogSchool1F_TopClassRoomBotBroken", "MapMark_FogSchool1F_TopClassRoomBotArrows"]},
+        {"at": [44, -2], "sprites": [2, 4], "flags": ["MapMark_FogSchool1F_BotClassRoomTopBroken", "MapMark_FogSchool1F_BotClassRoomTopArrows"]},
+        {"at": [44, 50], "sprites": [2, 4], "flags": ["MapMark_FogSchool1F_BotClassRoomBotBroken", "MapMark_FogSchool1F_BotClassRoomBotArrows"]},
+        {"at": [57, -8], "sprites": [0, 3], "flags": ["MapMark_FogSchool1F_ClassRoomMidBlank", "MapMark_FogSchool1F_ClassRoomMidArrows"]},
+        {"at": [12, -48], "sprites": [0, 3], "flags": ["MapMark_FogSchool1F_CourtyardTopBlank", "MapMark_FogSchool1F_CourtyardTopArrows"]},
+        {"at": [23, -72], "sprites": [1, 0], "flags": ["MapMark_FogSchool1F_HallLeftBroken", "MapMark_FogSchool1F_HallLeftBlank"]},
+        {"at": [12, -72], "sprites": [0, 3], "flags": ["MapMark_FogSchool1F_UntitledLobbyBotBlank", "MapMark_FogSchool1F_UntitledLobbyBotArrows"]},
+        {"at": [-7, -72], "sprites": [1, 0], "flags": ["MapMark_FogSchool1F_StorageBroken", "MapMark_FogSchool1F_StorageBlank"]},
+        {"at": [-12, -64], "sprites": [0, 4], "flags": ["MapMark_FogSchool1F_TopLeftCorridorBlank", "MapMark_FogSchool1F_TopLeftCorridorArrows"]},
+        {"at": [12, -104], "sprites": [1, 0], "flags": ["MapMark_FogSchool1F_UntitledLobbyTopBroken", "MapMark_FogSchool1F_UntitledLobbyTopBlank"]},
+        {"at": [-20, -67], "sprites": [2, 0], "flags": ["MapMark_FogSchool1F_TopTeachersRoomTopBroken", "MapMark_FogSchool1F_TopTeachersRoomTopBlank"]},
+        {"at": [-20, -15], "sprites": [2, 0], "flags": ["MapMark_FogSchool1F_TopTeachersRoomBotBroken", "MapMark_FogSchool1F_TopTeachersRoomBotBlank"]},
+        {"at": [-20, -2], "sprites": [2, 0], "flags": ["MapMark_FogSchool1F_BotTeachersRoomTopBroken", "MapMark_FogSchool1F_BotTeachersRoomTopBlank"]},
+        {"at": [-20, 49], "sprites": [2, 0], "flags": ["MapMark_FogSchool1F_BotTeachersRoomBotBroken", "MapMark_FogSchool1F_BotTeachersRoomBotBlank"]},
+        {"at": [-20, 68], "sprites": [0, 4], "flags": ["MapMark_FogSchool1F_MensBathroomBlank", "MapMark_FogSchool1F_MensBathroomArrows"]},
+        {"at": [-20, 84], "sprites": [0, 4], "flags": ["MapMark_FogSchool1F_WomensBathroomBlank", "MapMark_FogSchool1F_WomensBathroomArrow"]},
+        {"at": [-2, 60], "sprites": [7, 0], "flags": ["MapMark_FogSchool1F_ReceptionQuestion", "MapMark_FogSchool1F_ReceptionQuestionBlank"]},
+        {"at": [30, 28], "sprites": [6, 0], "flags": ["MapMark_FogSchool1F_ClockTowerCircle", "MapMark_FogSchool1F_ClockTowerCircleBlank"]},
+        {"at": [-12, 48], "sprites": [2, 0], "flags": ["MapMark_FogSchool1F_BotLeftCorridorBroken", "MapMark_FogSchool1F_BotLeftCorridorBlank"]},
+        {"at": [36, -64], "sprites": [2, 0], "flags": ["MapMark_FogSchool1F_TopRightCorridorBroken", "MapMark_FogSchool1F_TopRightCorridorBlank"]}
+      ]
+    },
+    "FogSchool2F": {
+      "atlas": "School",
+      "marks": [
+        {"at": [-12, 48], "sprites": [11, 4], "flags": ["MapMark_FogSchool2F_BotLeftCorridorLocked", "MapMark_FogSchool2F_BotLeftCorridorArrows"]},
+        {"at": [-9, 56], "sprites": [0, 3], "flags": ["MapMark_FogSchool2F_MusicRoomBlank", "MapMark_FogSchool2F_MusicRoomArrows"]},
+        {"at": [23, 56], "sprites": [0, 3], "flags": ["MapMark_FogSchool2F_LockerRoomBlank", "MapMark_FogSchool2F_LockerRoomArrows"]},
+        {"at": [36, 48], "sprites": [2, 4], "flags": ["MapMark_FogSchool2F_BotRightCorridorBroken", "MapMark_FogSchool2F_BotRightCorridorArrows"]},
+        {"at": [36, -64], "sprites": [2, 4], "flags": ["MapMark_FogSchool2F_TopRightCorridorBroken", "MapMark_FogSchool2F_TopRightCorridorArrows"]},
+        {"at": [39, -72], "sprites": [1, 3], "flags": ["MapMark_FogSchool2F_LibraryBroken", "MapMark_FogSchool2F_LibraryArrows"]},
+        {"at": [44, -66], "sprites": [2, 4], "flags": ["MapMark_FogSchool2F_TopRightClassRoomTopBroken", "MapMark_FogSchool2F_TopRightClassRoomTopArrows"]},
+        {"at": [44, -14], "sprites": [2, 4], "flags": ["MapMark_FogSchool2F_TopRightClassRoomBotBroken", "MapMark_FogSchool2F_TopRightClassRoomBotArrows"]},
+        {"at": [44, -2], "sprites": [2, 4], "flags": ["MapMark_FogSchool2F_BotRightClassRoomTopBroken", "MapMark_FogSchool2F_BotRightClassRoomTopArrows"]},
+        {"at": [44, 50], "sprites": [2, 4], "flags": ["MapMark_FogSchool2F_BotRightClassRoomBotBroken", "MapMark_FogSchool2F_BotRightClassRoomBotArrows"]},
+        {"at": [58, -8], "sprites": [0, 3], "flags": ["MapMark_FogSchool2F_RightClassRoomMidBlank", "MapMark_FogSchool2F_RightClassRoomMidArrows"]},
+        {"at": [33, -72], "sprites": [10, 3], "flags": ["MapMark_FogSchool2F_LibraryReserveLocked", "MapMark_FogSchool2F_LibraryReserveArrows"]},
+        {"at": [0, -72], "sprites": [0, 3], "flags": ["MapMark_FogSchool2F_ChemistryLabBlank", "MapMark_FogSchool2F_ChemistryLabArrows"]},
+        {"at": [-6, -72], "sprites": [0, 3], "flags": ["MapMark_FogSchool2F_LabEquipmentRoomBlank", "MapMark_FogSchool2F_LabEquipmentRoomArrows"]},
+        {"at": [-12, -64], "sprites": [0, 4], "flags": ["MapMark_FogSchool2F_TopLeftBlank", "MapMark_FogSchool2F_TopLeftArrows"]},
+        {"at": [-20, -66], "sprites": [0, 4], "flags": ["MapMark_FogSchool2F_TopLeftClassRoomTopBlank", "MapMark_FogSchool2F_TopLeftClassRoomTopArrows"]},
+        {"at": [-20, -14], "sprites": [0, 4], "flags": ["MapMark_FogSchool2F_TopLeftClassRoomBotBlank", "MapMark_FogSchool2F_TopLeftClassRoomBotArrows"]},
+        {"at": [-20, -2], "sprites": [0, 4], "flags": ["MapMark_FogSchool2F_BotLeftClassRoomTopBlank", "MapMark_FogSchool2F_BotLeftClassRoomTopArrows"]},
+        {"at": [-20, 50], "sprites": [0, 4], "flags": ["MapMark_FogSchool2F_BotLeftClassRoomBotBlank", "MapMark_FogSchool2F_BotLeftClassRoomBotArrows"]},
+        {"at": [-33, -8], "sprites": [0, 3], "flags": ["MapMark_FogSchool2F_LeftClassRoomMidBlank", "MapMark_FogSchool2F_LeftClassRoomMidArrows"]},
+        {"at": [-20, 68], "sprites": [0, 4], "flags": ["MapMark_FogSchool2F_MensBathroomBlank", "MapMark_FogSchool2F_MensBathroomArrows"]},
+        {"at": [-20, 84], "sprites": [0, 4], "flags": ["MapMark_FogSchool2F_WomensBathroomBlank", "MapMark_FogSchool2F_WomensBathroomArrows"]},
+        {"at": [36, -98], "sprites": [0, 4], "flags": ["MapMark_FogSchool2F_ReserveLibraryMidBlank", "MapMark_FogSchool2F_ReserveLibraryMidArrows"]},
+        {"at": [8, -81], "sprites": [9, 0], "flags": ["MapMark_FogSchool2F_StatueOfHandSign", "MapMark_FogSchool2F_StatueOfHandSignBlank"]},
+        {"at": [-8, 84], "sprites": [8, 0], "flags": ["MapMark_FogSchool2F_PianoSign", "MapMark_FogSchool2F_PianoSignBlank"]},
+        {"at": [30, 68], "sprites": [7, 0], "flags": ["MapMark_FogSchool2F_LockerRoomQuestion", "MapMark_FogSchool2F_LockerRoomQuestionBlank"]}
+      ]
+    },
+    "FogSchoolRF": {
+      "atlas": "School",
+      "marks": [
+        {"at": [-13, -96], "sprites": [2, 4], "flags": ["MapMark_FogSchoolRF_RoofBroken", "MapMark_FogSchoolRF_RoofArrows"]},
+        {"at": [34, -87], "sprites": [13, 0], "flags": ["MapMark_FogSchoolRF_ValveSign", "MapMark_FogSchoolRF_ValveSignBlank"]}
+      ]
+    },
+    "AltSchoolBF": {
+      "atlas": "School",
+      "marks": [
+        {"at": [36, 82], "sprites": [2, 4], "flags": ["MapMark_AltSchoolBF_StorageBroken", "MapMark_AltSchoolBF_StorageArrows"]},
+        {"at": [36, 56], "sprites": [0, 4], "flags": ["MapMark_AltSchoolBF_BoilerRoomBlank", "MapMark_AltSchoolBF_BoilerRoomArrows"]}
+      ]
+    },
+    "AltSchool1F": {
+      "atlas": "School",
+      "marks": [
+        {"at": [12, 88], "sprites": [1, 0], "flags": ["MapMark_AltSchool1F_LobbyBotBroken", "MapMark_AltSchool1F_LobbyBotBlank"]},
+        {"at": [12, 56], "sprites": [0, 3], "flags": ["MapMark_AltSchool1F_LobbyTopBlank", "MapMark_AltSchool1F_LobbyTopArrows"]},
+        {"at": [-12, 48], "sprites": [11, 4], "flags": ["MapMark_AltSchool1F_BotLeftCorridorLocked", "MapMark_AltSchool1F_BotLeftCorridorArrows"]},
+        {"at": [-10, 68], "sprites": [0, 3], "flags": ["MapMark_AltSchool1F_ReceptionBlank", "MapMark_AltSchool1F_ReceptionArrows"]},
+        {"at": [22, 56], "sprites": [0, 3], "flags": ["MapMark_AltSchool1F_InfirmaryBlank", "MapMark_AltSchool1F_InfirmaryArrows"]},
+        {"at": [12, 32], "sprites": [10, 3], "flags": ["MapMark_AltSchool1F_CourtyardBotLocked", "MapMark_AltSchool1F_CourtyardBotArrows"]},
+        {"at": [36, 48], "sprites": [0, 4], "flags": ["MapMark_AltSchool1F_BotRightCorridorBlank", "MapMark_AltSchool1F_BotRightCorridorArrows"]},
+        {"at": [36, -64], "sprites": [11, 4], "flags": ["MapMark_AltSchool1F_TopRightCorridorLocked", "MapMark_AltSchool1F_TopRightCorridorArrows"]},
+        {"at": [38, -72], "sprites": [0, 3], "flags": ["MapMark_AltSchool1F_HallMidBlank", "MapMark_AltSchool1F_HallMidArrows"]},
+        {"at": [44, -66], "sprites": [0, 4], "flags": ["MapMark_AltSchool1F_TopClassRoomTopBlank", "MapMark_AltSchool1F_TopClassRoomTopArrows"]},
+        {"at": [44, -14], "sprites": [0, 4], "flags": ["MapMark_AltSchool1F_TopClassRoomBotBlank", "MapMark_AltSchool1F_TopClassRoomBotArrows"]},
+        {"at": [44, -2], "sprites": [2, 4], "flags": ["MapMark_AltSchool1F_BotClassRoomTopBroken", "MapMark_AltSchool1F_BotClassRoomTopArrows"]},
+        {"at": [44, 50], "sprites": [0, 4], "flags": ["MapMark_AltSchool1F_BotClassRoomBotBlank", "MapMark_AltSchool1F_BotClassRoomBotArrows"]},
+        {"at": [57, -8], "sprites": [0, 3], "flags": ["MapMark_AltSchool1F_ClassRoomMidBlank", "MapMark_AltSchool1F_ClassRoomMidArrows"]},
+        {"at": [12, -48], "sprites": [0, 3], "flags": ["MapMark_AltSchool1F_CourtyardTopBlank", "MapMark_AltSchool1F_CourtyardTopArrows"]},
+        {"at": [23, -72], "sprites": [0, 3], "flags": ["MapMark_AltSchool1F_HallLeftBlank", "MapMark_AltSchool1F_HallLeftArrows"]},
+        {"at": [12, -72], "sprites": [0, 3], "flags": ["MapMark_AltSchool1F_UntitledLobbyBotBlank", "MapMark_AltSchool1F_UntitledLobbyBotArrows"]},
+        {"at": [-7, -72], "sprites": [0, 3], "flags": ["MapMark_AltSchool1F_StorageBlank", "MapMark_AltSchool1F_StorageArrows"]},
+        {"at": [-12, -64], "sprites": [11, 4], "flags": ["MapMark_AltSchool1F_TopLeftCorridorLocked", "MapMark_AltSchool1F_TopLeftCorridorArrows"]},
+        {"at": [-20, -67], "sprites": [0, 4], "flags": ["MapMark_AltSchool1F_TopTeachersRoomTopBlank", "MapMark_AltSchool1F_TopTeachersRoomTopArrows"]},
+        {"at": [-20, -15], "sprites": [2, 0], "flags": ["MapMark_AltSchool1F_TopTeachersRoomBotBroken", "MapMark_AltSchool1F_TopTeachersRoomBotBlank"]},
+        {"at": [-20, -2], "sprites": [0, 4], "flags": ["MapMark_AltSchool1F_BotTeachersRoomTopBlank", "MapMark_AltSchool1F_BotTeachersRoomTopArrows"]},
+        {"at": [-20, 49], "sprites": [0, 4], "flags": ["MapMark_AltSchool1F_BotTeachersRoomBotBlank", "MapMark_AltSchool1F_BotTeachersRoomBotArrows"]},
+        {"at": [-20, 68], "sprites": [0, 4], "flags": ["MapMark_AltSchool1F_MensBathroomBlank", "MapMark_AltSchool1F_MensBathroomArrows"]},
+        {"at": [-20, 84], "sprites": [0, 4], "flags": ["MapMark_AltSchool1F_WomensBathroomBlank", "MapMark_AltSchool1F_WomensBathroomArrows"]},
+        {"at": [-33, -8], "sprites": [0, 3], "flags": ["MapMark_AltSchool1F_TeacherMidBlank", "MapMark_AltSchool1F_TeacherMidArrows"]},
+        {"at": [-16, -8], "sprites": [1, 0], "flags": ["MapMark_AltSchool1F_LeftMidCorridorBroken", "MapMark_AltSchool1F_LeftMidCorridorBlank"]},
+        {"at": [40, -8], "sprites": [1, 0], "flags": ["MapMark_AltSchool1F_RightCorridorMidBroken", "MapMark_AltSchool1F_RightCorridorMidBlank"]},
+        {"at": [40, 56], "sprites": [10, 3], "flags": ["MapMark_AltSchool1F_RightCorridorBotLocked", "MapMark_AltSchool1F_RightCorridorBotArrows"]},
+        {"at": [12, -8], "sprites": [7, 0], "flags": ["MapMark_AltSchool1F_CourtyardQuestion", "MapMark_AltSchool1F_CourtyardQuestionBlank"]},
+        {"at": [12, -100], "sprites": [5, 0], "flags": ["MapMark_AltSchool1F_UntitledLobbyTopCross", "MapMark_AltSchool1F_UntitledLobbyTopCrossBlank"]},
+        {"at": [-12, 78], "sprites": [11, 4], "flags": ["MapMark_AltSchool1F_SecretDoorLocked", "MapMark_AltSchool1F_SecretDoorArrows"]},
+        {"at": [40, 57], "sprites": [12, 0], "flags": ["MapMark_AltSchool1F_RightCorridorBotDots", "MapMark_AltSchool1F_RightCorridorBotDotsBlank"]}
+      ]
+    },
+    "AltSchool2F": {
+      "atlas": "School",
+      "marks": [
+        {"at": [-12, 48], "sprites": [0, 4], "flags": ["MapMark_AltSchool2F_BotLeftCorridorBlank", "MapMark_AltSchool2F_BotLeftCorridorArrows"]},
+        {"at": [-9, 56], "sprites": [1, 0], "flags": ["MapMark_AltSchool2F_MusicRoomBroken", "MapMark_AltSchool2F_MusicRoomBlank"]},
+        {"at": [23, 56], "sprites": [0, 3], "flags": ["MapMark_AltSchool2F_LockerRoomBlank", "MapMark_AltSchool2F_LockerRoomArrows"]},
+        {"at": [36, 48], "sprites": [11, 4], "flags": ["MapMark_AltSchool2F_BotRightCorridorLocked", "MapMark_AltSchool2F_BotRightCorridorArrows"]},
+        {"at": [36, -64], "sprites": [11, 4], "flags": ["MapMark_AltSchool2F_TopRightCorridorLocked", "MapMark_AltSchool2F_TopRightCorridorArrows"]},
+        {"at": [40, -72], "sprites": [0, 3], "flags": ["MapMark_AltSchool2F_LibraryBlank", "MapMark_AltSchool2F_LibraryArrows"]},
+        {"at": [44, -66], "sprites": [11, 4], "flags": ["MapMark_AltSchool2F_TopRightClassRoomTopLocked", "MapMark_AltSchool2F_TopRightClassRoomTopArrows"]},
+        {"at": [44, -14], "sprites": [11, 4], "flags": ["MapMark_AltSchool2F_TopRightClassRoomBotLocked", "MapMark_AltSchool2F_TopRightClassRoomBotArrows"]},
+        {"at": [44, -2], "sprites": [0, 4], "flags": ["MapMark_AltSchool2F_BotRightClassRoomTopBlank", "MapMark_AltSchool2F_BotRightClassRoomTopArrows"]},
+        {"at": [44, 50], "sprites": [0, 4], "flags": ["MapMark_AltSchool2F_BotRightClassRoomBotBlank", "MapMark_AltSchool2F_BotRightClassRoomBotArrows"]},
+        {"at": [58, -8], "sprites": [0, 3], "flags": ["MapMark_AltSchool2F_RightClassRoomMidBlank", "MapMark_AltSchool2F_RightClassRoomMidArrows"]},
+        {"at": [33, -72], "sprites": [10, 3], "flags": ["MapMark_AltSchool2F_LibraryReserveLocked", "MapMark_AltSchool2F_LibraryReserveArrows"]},
+        {"at": [1, -72], "sprites": [1, 0], "flags": ["MapMark_AltSchool2F_ChemistryLabBroken", "MapMark_AltSchool2F_ChemistryLabBlank"]},
+        {"at": [-5, -72], "sprites": [1, 0], "flags": ["MapMark_AltSchool2F_LabEquipmentRoomBroken", "MapMark_AltSchool2F_LabEquipmentRoomBlank"]},
+        {"at": [-12, -64], "sprites": [0, 4], "flags": ["MapMark_AltSchool2F_TopLeftCorridorBlank", "MapMark_AltSchool2F_TopLeftCorridorArrows"]},
+        {"at": [-20, -66], "sprites": [0, 4], "flags": ["MapMark_AltSchool2F_TopLeftClassRoomTopBlank", "MapMark_AltSchool2F_TopLeftClassRoomTopArrows"]},
+        {"at": [-20, -14], "sprites": [0, 4], "flags": ["MapMark_AltSchool2F_TopLeftClassRoomBotBlank", "MapMark_AltSchool2F_TopLeftClassRoomBotArrows"]},
+        {"at": [-20, -2], "sprites": [0, 4], "flags": ["MapMark_AltSchool2F_BotLeftClassRoomTopBlank", "MapMark_AltSchool2F_BotLeftClassRoomTopArrows"]},
+        {"at": [-20, 50], "sprites": [0, 4], "flags": ["MapMark_AltSchool2F_BotLeftClassRoomBotBlank", "MapMark_AltSchool2F_BotLeftClassRoomBotArrows"]},
+        {"at": [-33, -8], "sprites": [0, 3], "flags": ["MapMark_AltSchool2F_LeftClassRoomMidBlank", "MapMark_AltSchool2F_LeftClassRoomMidArrows"]},
+        {"at": [-20, 68], "sprites": [0, 4], "flags": ["MapMark_AltSchool2F_MensBathroomBlank", "MapMark_AltSchool2F_MensBathroomArrows"]},
+        {"at": [-20, 84], "sprites": [0, 4], "flags": ["MapMark_AltSchool2F_WomensBathroomBlank", "MapMark_AltSchool2F_WomensBathroomArrows"]},
+        {"at": [-16, -8], "sprites": [1, 0], "flags": ["MapMark_AltSchool2F_LeftCorridorMidBroken", "MapMark_AltSchool2F_LeftCorridorMidBlank"]},
+        {"at": [-16, 56], "sprites": [1, 0], "flags": ["MapMark_AltSchool2F_LeftCorridorBotBroken", "MapMark_AltSchool2F_LeftCorridorBotBlank"]},
+        {"at": [40, -8], "sprites": [1, 0], "flags": ["MapMark_AltSchool2F_RightCorridorMidBroken", "MapMark_AltSchool2F_RightCorridorMidBlank"]},
+        {"at": [36, -98], "sprites": [0, 4], "flags": ["MapMark_AltSchool2F_ReserveLibraryMidBlank", "MapMark_AltSchool2F_ReserveLibraryMidArrows"]}
+      ]
+    },
+    "AltSchoolRF": {
+      "atlas": "School",
+      "marks": [
+        {"at": [-13, -96], "sprites": [2, 4], "flags": ["MapMark_AltSchoolRF_RoofBroken", "MapMark_AltSchoolRF_RoofArrows"]},
+        {"at": [34, -87], "sprites": [13, 0], "flags": ["MapMark_AltSchoolRF_ValveSign", "MapMark_AltSchoolRF_ValveSignBlank"]}
+      ]
+    },
+    "FogSewer1F": {
+      "atlas": "Sewer",
+      "marks": [
+        {"at": [12, 36], "sprites": [1, 3], "flags": ["MapMark_FogSewer1F_MidLocked", "MapMark_FogSewer1F_MidArrows"]},
+        {"at": [46, -61], "sprites": [2, 4], "flags": ["MapMark_FogSewer1F_RightMidLocked", "MapMark_FogSewer1F_RightMidArrows"]},
+        {"at": [46, -73], "sprites": [2, 4], "flags": ["MapMark_FogSewer1F_RightTopLocked", "MapMark_FogSewer1F_RightTopArrows"]},
+        {"at": [47, -53], "sprites": [1, 3], "flags": ["MapMark_FogSewer1F_RightBotLocked", "MapMark_FogSewer1F_RightBotArrows"]}
+      ]
+    },
+    "FogSewer2F": {
+      "atlas": "Sewer",
+      "marks": [
+        {"at": [54, 35], "sprites": [2, 4], "flags": ["MapMark_FogSewer2F_OuterRightLocked", "MapMark_FogSewer2F_OuterRightArrows"]},
+        {"at": [34, 35], "sprites": [2, 4], "flags": ["MapMark_FogSewer2F_MidRightLocked", "MapMark_FogSewer2F_MidRightArrows"]},
+        {"at": [-2, 36], "sprites": [2, 4], "flags": ["MapMark_FogSewer2F_MidLeftLocked", "MapMark_FogSewer2F_MidLeftArrows"]},
+        {"at": [-26, 45], "sprites": [2, 4], "flags": ["MapMark_FogSewer2F_OuterLeftLocked", "MapMark_FogSewer2F_OuterLeftArrows"]},
+        {"at": [-36, 9], "sprites": [5, 0], "flags": ["MapMark_FogSewer2F_BigCross", "MapMark_FogSewer2F_BigCrossBlank"]}
+      ]
+    },
+    "AltSewer": {
+      "atlas": "Sewer",
+      "marks": [
+        {"at": [40, -27], "sprites": [5, 0], "flags": ["MapMark_AltSewer_BigCross", "MapMark_AltSewer_BigCrossBlank"]}
+      ]
+    },
+    "FogHospitalBF": {
+      "atlas": "Hospital",
+      "marks": [
+        {"at": [36, -51], "sprites": [0, 4], "flags": ["MapMark_FogHospitalBF_StairsBlank", "MapMark_FogHospitalBF_StairsArrows"]},
+        {"at": [24, -80], "sprites": [2, 0], "flags": ["MapMark_FogHospitalBF_MorgueBroken", "MapMark_FogHospitalBF_MorgueBlank"]},
+        {"at": [24, -37], "sprites": [2, 0], "flags": ["MapMark_FogHospitalBF_StoreroomBroken", "MapMark_FogHospitalBF_StoreroomBlank"]},
+        {"at": [36, -26], "sprites": [0, 4], "flags": ["MapMark_FogHospitalBF_GeneratorRoomBlank", "MapMark_FogHospitalBF_GeneratorRoomArrows"]},
+        {"at": [36, -2], "sprites": [2, 0], "flags": ["MapMark_FogHospitalBF_BoilerBroken", "MapMark_FogHospitalBF_BoilerBlank"]}
+      ]
+    },
+    "FogHospital1F": {
+      "atlas": "Hospital",
+      "marks": [
+        {"at": [-31, 16], "sprites": [1, 0], "flags": ["MapMark_FogHospital1F_CorridorLeftBroken", "MapMark_FogHospital1F_CorridorLeftBlank"]},
+        {"at": [-24, -13], "sprites": [0, 4], "flags": ["MapMark_FogHospital1F_ExaminationRoomLeftBlank", "MapMark_FogHospital1F_ExaminationRoomLeftArrows"]},
+        {"at": [-9, -56], "sprites": [0, 3], "flags": ["MapMark_FogHospital1F_ReceptionOfficeBlank", "MapMark_FogHospital1F_ReceptionOfficeArrows"]},
+        {"at": [-21, -31], "sprites": [0, 3], "flags": ["MapMark_FogHospital1F_OfficeExaminationBlank", "MapMark_FogHospital1F_OfficeExaminationArrows"]},
+        {"at": [0, -1], "sprites": [0, 4], "flags": ["MapMark_FogHospital1F_ExaminationMedicineBlank", "MapMark_FogHospital1F_ExaminationMedicineArrows"]},
+        {"at": [20, 16], "sprites": [0, 3], "flags": ["MapMark_FogHospital1F_MedicineRoomBotBlank", "MapMark_FogHospital1F_MedicineRoomBotArrows"]},
+        {"at": [18, 40], "sprites": [1, 0], "flags": ["MapMark_FogHospital1F_StorageRoomBroken", "MapMark_FogHospital1F_StorageRoomBlank"]},
+        {"at": [30, 40], "sprites": [1, 0], "flags": ["MapMark_FogHospital1F_BotOfficeBroken", "MapMark_FogHospital1F_BotOfficeBlank"]},
+        {"at": [45, 52], "sprites": [0, 3], "flags": ["MapMark_FogHospital1F_DoctorConferenceBlank", "MapMark_FogHospital1F_DoctorConferenceArrows"]},
+        {"at": [36, 28], "sprites": [2, 4], "flags": ["MapMark_FogHospital1F_DoctorOfficeLeftBroken", "MapMark_FogHospital1F_DoctorOfficeLeftArrows"]},
+        {"at": [36, -2], "sprites": [2, 4], "flags": ["MapMark_FogHospital1F_KitchenBroken", "MapMark_FogHospital1F_KitchenArrows"]},
+        {"at": [36, -27], "sprites": [2, 4], "flags": ["MapMark_FogHospital1F_DirectorsOfficeBroken", "MapMark_FogHospital1F_DirectorsOfficeArrows"]},
+        {"at": [36, -61], "sprites": [9, 4], "flags": ["MapMark_FogHospital1F_StairsLocked", "MapMark_FogHospital1F_StairsArrows"]},
+        {"at": [36, -61], "sprites": [2, 0], "flags": ["MapMark_FogHospital1F_StairsBroken", "MapMark_FogHospital1F_StairsBrokenBlank"]},
+        {"at": [12, 29], "sprites": [2, 0], "flags": ["MapMark_FogHospital1F_CorridorMidBroken", "MapMark_FogHospital1F_CorridorMidBlank"]},
+        {"at": [24, -96], "sprites": [2, 4], "flags": ["MapMark_FogHospital1F_RightEntranceBroken", "MapMark_FogHospital1F_RightEntranceArrows"]}
+      ]
+    },
+    "FogHospital2F": {
+      "atlas": "Hospital",
+      "marks": [
+        {"at": [30, -68], "sprites": [1, 0], "flags": ["MapMark_FogHospital2F_NearElevatorBroken", "MapMark_FogHospital2F_NearElevatorBlank"]}
+      ]
+    },
+    "FogHospital3F": {
+      "atlas": "Hospital",
+      "marks": [
+        {"at": [30, -68], "sprites": [1, 0], "flags": ["MapMark_FogHospital3F_NearElevatorBroken", "MapMark_FogHospital3F_NearElevatorBlank"]}
+      ]
+    },
+    "AltHospitalBF": {
+      "atlas": "Hospital",
+      "marks": [
+        {"at": [36, -51], "sprites": [0, 4], "flags": ["MapMark_AltHospitalBF_StairsBlank", "MapMark_AltHospitalBF_StairsArrows"]},
+        {"at": [24, -80], "sprites": [0, 4], "flags": ["MapMark_AltHospitalBF_MorgueBlank", "MapMark_AltHospitalBF_MorgueArrows"]},
+        {"at": [24, -37], "sprites": [9, 4], "flags": ["MapMark_AltHospitalBF_StoreroomLocked", "MapMark_AltHospitalBF_StoreroomArrows"]},
+        {"at": [36, -26], "sprites": [0, 4], "flags": ["MapMark_AltHospitalBF_GeneratorRoomBlank", "MapMark_AltHospitalBF_GeneratorRoomArrows"]},
+        {"at": [36, -2], "sprites": [2, 0], "flags": ["MapMark_AltHospitalBF_BoilerRoomBroken", "MapMark_AltHospitalBF_BoilerRoomBlank"]}
+      ]
+    },
+    "AltHospital1F": {
+      "atlas": "Hospital",
+      "marks": [
+        {"at": [-31, 16], "sprites": [1, 0], "flags": ["MapMark_AltHospital1F_CorridorLeftBroken", "MapMark_AltHospital1F_CorridorLeftBlank"]},
+        {"at": [-24, -13], "sprites": [0, 4], "flags": ["MapMark_AltHospital1F_ExaminationRoomLeftBlank", "MapMark_AltHospital1F_ExaminationRoomLeftArrows"]},
+        {"at": [-21, -31], "sprites": [1, 0], "flags": ["MapMark_AltHospital1F_OfficeExaminationBroken", "MapMark_AltHospital1F_OfficeExaminationBlank"]},
+        {"at": [0, -1], "sprites": [9, 4], "flags": ["MapMark_AltHospital1F_ExaminationMedicineLocked", "MapMark_AltHospital1F_ExaminationMedicineArrows"]},
+        {"at": [20, 16], "sprites": [1, 3], "flags": ["MapMark_AltHospital1F_MedicineRoomBotBroken", "MapMark_AltHospital1F_MedicineRoomBotArrows"]},
+        {"at": [18, 40], "sprites": [0, 3], "flags": ["MapMark_AltHospital1F_StoreRoomBlank", "MapMark_AltHospital1F_StoreRoomArrows"]},
+        {"at": [30, 40], "sprites": [0, 3], "flags": ["MapMark_AltHospital1F_BotOfficeBlank", "MapMark_AltHospital1F_BotOfficeArrows"]},
+        {"at": [36, 28], "sprites": [2, 0], "flags": ["MapMark_AltHospital1F_DoctorOfficeBroken", "MapMark_AltHospital1F_DoctorOfficeBlank"]},
+        {"at": [36, -2], "sprites": [0, 4], "flags": ["MapMark_AltHospital1F_KitchenBlank", "MapMark_AltHospital1F_KitchenArrows"]},
+        {"at": [36, -27], "sprites": [0, 4], "flags": ["MapMark_AltHospital1F_DirectorsOfficeBlank", "MapMark_AltHospital1F_DirectorsOfficeArrows"]},
+        {"at": [36, -61], "sprites": [0, 4], "flags": ["MapMark_AltHospital1F_StairsBlank", "MapMark_AltHospital1F_StairsArrows"]},
+        {"at": [12, 29], "sprites": [0, 4], "flags": ["MapMark_AltHospital1F_CorridorMidBlank", "MapMark_AltHospital1F_CorridorMidArrows"]},
+        {"at": [24, -96], "sprites": [2, 0], "flags": ["MapMark_AltHospital1F_RightEntranceBroken", "MapMark_AltHospital1F_RightEntranceBlank"]},
+        {"at": [-4, 40], "sprites": [1, 0], "flags": ["MapMark_AltHospital1F_MensBathroomBroken", "MapMark_AltHospital1F_MensBathroomBlank"]},
+        {"at": [4, 40], "sprites": [1, 0], "flags": ["MapMark_AltHospital1F_WomensBathroomBroken", "MapMark_AltHospital1F_WomensBathroomBlank"]}
+      ]
+    },
+    "AltHospital2F": {
+      "atlas": "Hospital",
+      "marks": [
+        {"at": [30, -68], "sprites": [8, 3], "flags": ["MapMark_AltHospital2F_NearElevatorLocked", "MapMark_AltHospital2F_NearElevatorArrows"]},
+        {"at": [36, -61], "sprites": [0, 4], "flags": ["MapMark_AltHospital2F_Room206Blank", "MapMark_AltHospital2F_Room206Arrows"]},
+        {"at": [36, -26], "sprites": [2, 0], "flags": ["MapMark_AltHospital2F_Room205Broken", "MapMark_AltHospital2F_Room205Blank"]},
+        {"at": [36, 13], "sprites": [0, 4], "flags": ["MapMark_AltHospital2F_IntensiveCareUnitBlank", "MapMark_AltHospital2F_IntensiveCareUnitArrows"]},
+        {"at": [24, 40], "sprites": [0, 3], "flags": ["MapMark_AltHospital2F_OperatingPrepRoomBlank", "MapMark_AltHospital2F_OperatingPrepRoomArrows"]},
+        {"at": [36, 64], "sprites": [0, 4], "flags": ["MapMark_AltHospital2F_OperatingRoomBlank", "MapMark_AltHospital2F_OperatingRoomArrows"]},
+        {"at": [21, 16], "sprites": [8, 3], "flags": ["MapMark_AltHospital2F_NurseCenterBotLocked", "MapMark_AltHospital2F_NurseCenterBotArrows"]},
+        {"at": [12, 29], "sprites": [9, 4], "flags": ["MapMark_AltHospital2F_CorridorMidLocked", "MapMark_AltHospital2F_CorridorMidArrows"]},
+        {"at": [4, 40], "sprites": [1, 0], "flags": ["MapMark_AltHospital2F_WomensBathroomBroken", "MapMark_AltHospital2F_WomensBathroomBlank"]},
+        {"at": [-4, 40], "sprites": [1, 0], "flags": ["MapMark_AltHospital2F_MensBathroomBroken", "MapMark_AltHospital2F_MensBathroomBlank"]},
+        {"at": [-12, 29], "sprites": [0, 4], "flags": ["MapMark_AltHospital2F_StairsBlank", "MapMark_AltHospital2F_StairsArrows"]},
+        {"at": [-12, 8], "sprites": [0, 4], "flags": ["MapMark_AltHospital2F_Room201Blank", "MapMark_AltHospital2F_Room201Arrows"]},
+        {"at": [-12, -17], "sprites": [2, 0], "flags": ["MapMark_AltHospital2F_Room202Broken", "MapMark_AltHospital2F_Room202Blank"]},
+        {"at": [-12, -36], "sprites": [2, 0], "flags": ["MapMark_AltHospital2F_Room203Broken", "MapMark_AltHospital2F_Room203Blank"]},
+        {"at": [-12, -64], "sprites": [0, 4], "flags": ["MapMark_AltHospital2F_Room204Blank", "MapMark_AltHospital2F_Room204Arrows"]},
+        {"at": [0, -1], "sprites": [0, 4], "flags": ["MapMark_AltHospital2F_NurseCenterLeftBlank", "MapMark_AltHospital2F_NurseCenterLeftArrows"]}
+      ]
+    },
+    "AltHospital3F": {
+      "atlas": "Hospital",
+      "marks": [
+        {"at": [30, -68], "sprites": [8, 3], "flags": ["MapMark_AltHospital3F_NearElevatorLocked", "MapMark_AltHospital3F_NearElevatorArrows"]},
+        {"at": [36, -61], "sprites": [2, 0], "flags": ["MapMark_AltHospital3F_Room307Broken", "MapMark_AltHospital3F_Room307Blank"]},
+        {"at": [36, -36], "sprites": [0, 4], "flags": ["MapMark_AltHospital3F_Room306Blank", "MapMark_AltHospital3F_Room306Arrows"]},
+        {"at": [36, 12], "sprites": [2, 0], "flags": ["MapMark_AltHospital3F_Room305Broken", "MapMark_AltHospital3F_Room305Blank"]},
+        {"at": [24, 40], "sprites": [0, 3], "flags": ["MapMark_AltHospital3F_StorageRoomBlank", "MapMark_AltHospital3F_StorageRoomArrows"]},
+        {"at": [36, 64], "sprites": [2, 0], "flags": ["MapMark_AltHospital3F_StoreRoomBroken", "MapMark_AltHospital3F_StoreRoomBlank"]},
+        {"at": [21, 16], "sprites": [0, 3], "flags": ["MapMark_AltHospital3F_LinenRoomBotBlank", "MapMark_AltHospital3F_LinenRoomBotArrows"]},
+        {"at": [12, 28], "sprites": [0, 4], "flags": ["MapMark_AltHospital3F_CorridorMidBlank", "MapMark_AltHospital3F_CorridorMidArrows"]},
+        {"at": [-4, 40], "sprites": [0, 3], "flags": ["MapMark_AltHospital3F_MensBathroomBlank", "MapMark_AltHospital3F_MensBathroomArrows"]},
+        {"at": [3, 40], "sprites": [1, 0], "flags": ["MapMark_AltHospital3F_WomensBathroomBroken", "MapMark_AltHospital3F_WomensBathroomBlank"]},
+        {"at": [-12, 29], "sprites": [0, 4], "flags": ["MapMark_AltHospital3F_StairsBlank", "MapMark_AltHospital3F_StairsArrows"]},
+        {"at": [-12, 9], "sprites": [0, 4], "flags": ["MapMark_AltHospital3F_Room301Blank", "MapMark_AltHospital3F_Room301Arrows"]},
+        {"at": [-12, -15], "sprites": [0, 4], "flags": ["MapMark_AltHospital3F_Room302Blank", "MapMark_AltHospital3F_Room302Arrows"]},
+        {"at": [-12, -36], "sprites": [2, 0], "flags": ["MapMark_AltHospital3F_Room303Broken", "MapMark_AltHospital3F_Room303Blank"]},
+        {"at": [-12, -64], "sprites": [0, 4], "flags": ["MapMark_AltHospital3F_Room304Blank", "MapMark_AltHospital3F_Room304Arrows"]},
+        {"at": [0, 0], "sprites": [0, 4], "flags": ["MapMark_AltHospital3F_LinenRoomLeftBlank", "MapMark_AltHospital3F_LinenRoomLeftArrows"]},
+        {"at": [-32, -27], "sprites": [10, 0], "flags": ["MapMark_AltHospital3F_VideoSign", "MapMark_AltHospital3F_VideoSignBlank"]}
+      ]
+    }
+  }
+}

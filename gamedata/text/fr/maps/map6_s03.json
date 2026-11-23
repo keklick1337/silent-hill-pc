@@ -1,0 +1,10 @@
+{
+  "format": "sh-text",
+  "version": 1,
+  "lang": "fr",
+  "map": "map6_s03",
+  "strings": {
+    "map6_s03.there_is_a_sewer_map": "{hires}Il y a un {color 5}plan des égouts\n(vers le parc d'attractions){/color}.\nPrendre ?{choice 4}",
+    "map6_s03.gotta_go_find_cybil_no": "Je dois retrouver Cybil !\nPas le temps de revenir en arrière.{end}"
+  }
+}

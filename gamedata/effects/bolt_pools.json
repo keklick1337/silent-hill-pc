@@ -1,0 +1,80 @@
+{
+  "description": "Lightning bolt pools (the Incubus's bolts). A bolt is a chain of \"segments\" straight segments of \"step\" length (Q12 metres). A spawner throws a bolt from a point toward a target; its walker moves the aim along a path (Seek: straight at the target until within half a step; Sweep: walk.sweep_steps steps toward it; Lob: up over the middle of the way, down near the target, then to the ground there; Waypoint: to one of the first walk.waypoint_count waypoints, then down below the ground line; Drift, Roam, Wander: see walk.*) and each segment turns toward the aim by at most \"turn\" (Q12 angle, 4096 = full turn; pitch by half of it). A bolt grows from its start to its end in half its life (grow_rate segments per half life) and withers from the start in the other half. Each visible segment is drawn as a ribbon: a textured quad between the crosses of two segments (half width step * width / 4096), twisted by a roll of twist[0]..twist[1] per segment; a segment starts at \"color\" and loses \"fade\" every frame it is drawn. A segment within hit.radius_sq (Q8 squared, the squares summed >> 4) of Harry's chest hurts him (the owner's damage, halved for each earlier hit within hit.streak_window), flashes the fire pool there, plays the owner's hit sounds and ends the bolt. head_burst: a fire burst at the head once the bolt is fully grown. end_bolt: when the bolt ends, that spawner throws a bolt from its head to the owner's bone. scatter: the start is that far from the point in a random direction and the bolt aims back at it. sounds: slots with a minimum gap (interval + a roll of 0..interval/8, Q12 seconds; first_gap after the map loads). lead: how far the boss leads its aim by Harry's movement (Q12 gain per second; easy and other difficulties). Every key is checked. A mod replaces the whole file with its own copy at the same path.",
+  "pools": {
+    "BossBolts": {
+      "description": "map7_s03: the Incubus fights and the endings (bound through sh.entity.boss_fx_* and the ending scenes). Numbers, sound table and waypoints from the original MAP7_S03.BIN.",
+      "capacity": 30,
+      "segments": 29,
+      "grow_rate": 30,
+      "width": 3686,
+      "twist": [-1024, 1023],
+      "color": [192, 192, 192],
+      "fade": [8, 8, 8],
+      "elapsed_after_reset": 4096,
+      "texture": {
+        "tpage": 53,
+        "clut": 67,
+        "clut_when": {"npc": 2, "chara": "Incubus", "clut": 3},
+        "u": [0, 64],
+        "v": [127, 0],
+        "v_height": 127
+      },
+      "hit": {"radius_sq": 1472, "attack": 67, "streak_window": 3276},
+      "lead": {"gain_easy": 819, "gain": 2867},
+      "walk": {
+        "wander_mask": 240,
+        "wander_step": 819,
+        "wander_low": 2048,
+        "wander_drift_mask": 128,
+        "wander_turn": 170,
+        "waypoint_count": 6,
+        "waypoint_reach": 1228,
+        "drift_steps": 4,
+        "lob_height": -15564,
+        "lob_spread": 4095,
+        "lob_jitter_shift": 2,
+        "lob_reach_divisor": 4,
+        "dive_spread": 2047,
+        "dive_jitter_shift": 3,
+        "dive_height": 17611,
+        "dive_reach": 6144,
+        "dive_lead_divisor": 8,
+        "roam_length": 16384,
+        "roam_mask": 240,
+        "home": 6,
+        "sweep_steps": 25
+      },
+      "waypoints": [
+        [568524, -11059, -400998],
+        [572211, -13926, -398131],
+        [569753, -16384, -397721],
+        [572620, -16384, -397721],
+        [574259, -13926, -398131],
+        [575488, -11059, -400998],
+        [572211, -15564, -401408]
+      ],
+      "sounds": [
+        {"sound": "incubus_motion_6", "volume": 255, "interval": 4096, "first_gap": 4096},
+        {"sound": "incubus_motion_7", "volume": 255, "interval": 2048, "first_gap": 2048},
+        {"sound": "incubus_motion_8", "volume": 255, "interval": 6144, "first_gap": 6144},
+        {"sound": "incubus_motion_9", "volume": 255, "interval": 2048, "first_gap": 2048},
+        {"sound": "incubus_motion_8", "volume": 50, "interval": 4096, "first_gap": 4096}
+      ],
+      "owners": [
+        {"name": "Incubus", "hits": true, "damage": 122880, "hit_palette": 0, "hit_sounds": [1, 3], "burst_palette": 0},
+        {"name": "Unknown23", "hits": true, "damage": 81920, "hit_palette": 1, "hit_sounds": [3], "burst_palette": 1},
+        {"name": "Ending", "hits": false, "burst_palette": 1}
+      ],
+      "spawners": {
+        "spark": {"path": "Seek", "step": 1228, "life": 4096, "turn": 170, "scatter": 6144, "sounds": [4], "owner_sounds": {"Incubus": [2]}, "end_bolt": "arc"},
+        "arc": {"path": "Sweep", "step": 491, "life": 2048, "turn": 512},
+        "arc_wide": {"path": "Sweep", "step": 2048, "life": 2048, "turn": 512},
+        "bolt": {"path": "Lob", "step": 2457, "life": 8192, "turn": 512, "head_burst": true, "sounds": [2], "owner_sounds": {"Incubus": [0, 2]}},
+        "bolt_player": {"path": "Lob", "step": 2457, "life": 8192, "turn": 512, "aim_at_player": true, "head_burst": true, "sounds": [2], "owner_sounds": {"Incubus": [0, 2]}},
+        "flash": {"path": "Waypoint", "step": 1024, "life": 6144, "turn": 227, "head_burst": true},
+        "strike": {"path": "Seek", "turn": 512, "sounds": [4], "strong": {"step_above": 1228, "sounds": [0]}}
+      },
+      "fire_pool": "BossFire"
+    }
+  }
+}

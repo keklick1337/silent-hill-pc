@@ -1,0 +1,27 @@
+{
+  "description": "Small form of the Incubus that appears in the final boss scene in Nowhere.",
+  "category": "Bosses",
+  "maps": ["map7_s03"],
+  "model": "models/CHARA/LITL.glb",
+  "animations": "anim/ANIM/LITL.anim.json",
+  "clip_tables": ["little_incubus"],
+  "textures": ["textures/CHARA/LITL.png"],
+  "shadow": 0.25,
+  "blend_mode": "additive",
+  "camera_anchor": "character",
+  "camera_offset_y": 0.0,
+  "anims": {
+    "still": 0,
+    "growth": 1
+  },
+  "controls": {
+    "none": 0,
+    "appear": 1
+  },
+  "spawn": {
+    "state": 0,
+    "kind": "actor",
+    "auto": "fallback",
+    "note": "its own AI plays the cutscene state the map sets"
+  }
+}

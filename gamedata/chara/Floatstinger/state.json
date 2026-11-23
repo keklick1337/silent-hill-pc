@@ -1,0 +1,19 @@
+{
+  "description": "Named variables of the Floatstinger's behaviour (chara/Floatstinger/behavior.lua reads and writes them by name). Each character instance owns a small block of bytes; every entry of \"fields\" names one value in it: \"name\" is the name the script uses, \"kind\" the storage type (s8, u8, s16, u16, s32, u32: a write keeps the low bits, a read sign- or zero-extends), \"at\" the byte offset in the block (absent: the next naturally aligned offset), \"note\" what the value means. Values are raw integers in the units the behaviour uses (usually Q12, 4096 = 1.0 or 1 m; angles Q12, 4096 = a full turn). A mod adds or changes fields with a state.json of the same path; keep the offsets of fields the behaviour already uses.",
+  "fields": [
+    {"name": "floatstinger_flags", "kind": "s16", "at": 0, "note": "0x1 fast (hard difficulty or enraged), 0x2 enraged by heavy damage, 0x4 sting counted, 0x8 spit cooling down, 0x10 vocal of the current clip window played."},
+    {"name": "floatstinger_prev_rot_y", "kind": "s16", "at": 4},
+    {"name": "floatstinger_turn_rate", "kind": "s16", "at": 6, "note": "Turn rate (angle per second): flying turns build up and ease off."},
+    {"name": "floatstinger_drift_timer", "kind": "s32", "at": 8},
+    {"name": "floatstinger_steer_angle", "kind": "s16", "at": 12, "note": "The heading the flight steers along (towards the target or around Harry)."},
+    {"name": "floatstinger_stagger_damage", "kind": "u16", "at": 16, "note": "Damage points since the last stagger, and since the last rage."},
+    {"name": "floatstinger_rage_damage", "kind": "u16", "at": 18},
+    {"name": "floatstinger_spit_timer", "kind": "u16", "at": 20},
+    {"name": "floatstinger_rage_timer", "kind": "s32", "at": 24},
+    {"name": "floatstinger_sting_sound", "kind": "u8", "at": 28},
+    {"name": "floatstinger_vocal_volume", "kind": "s16", "at": 30},
+    {"name": "floatstinger_damage_window", "kind": "s32", "at": 32, "note": "Damage taken in the recent window (it drains): a burst of hits counts only up to a cap."},
+    {"name": "floatstinger_detour_angle", "kind": "s16", "at": 36, "note": "A detour heading around Harry kept for a while once found."},
+    {"name": "floatstinger_detour_timer", "kind": "s16", "at": 38}
+  ]
+}

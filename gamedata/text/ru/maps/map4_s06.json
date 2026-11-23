@@ -1,0 +1,9 @@
+{
+  "format": "sh-text",
+  "version": 1,
+  "lang": "ru",
+  "map": "map4_s06",
+  "strings": {
+    "map4_s06.no_stage": "НЕТ УРОВНЯ!{end}"
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "format": "sh-text",
+  "version": 1,
+  "lang": "zh",
+  "strings": {
+    "common.yes": "是",
+    "common.no": "否",
+    "common.notes_useful": "也许有一天，还会有人\n遭遇这些离奇的事。\n但愿我的笔记能帮上忙。{end}",
+    "common.no_map": "{instant}我没有这里的地图。{end}",
+    "common.too_dark_for_map": "{instant}这里太暗，\n看不清地图。{end}",
+    "common.take_first_aid_kit": "这里有{color 2}急救包{/color}。\n要拿走吗？{choice 4}",
+    "common.take_health_drink": "这里有{color 2}营养饮料{/color}。\n要拿走吗？{choice 4}",
+    "common.take_ampoule": "这里有{color 2}安瓿{/color}。\n要拿走吗？{choice 4}",
+    "common.take_handgun_bullets": "这里有{color 2}手枪子弹{/color}。\n要拿走吗？{choice 4}",
+    "common.take_rifle_shells": "这里有{color 2}猎枪子弹{/color}。\n要拿走吗？{choice 4}",
+    "common.take_shotgun_shells": "这里有{color 2}霰弹枪子弹{/color}。\n要拿走吗？{choice 4}",
+    "common.lock_jammed": "锁卡死了。\n这扇门打不开。{end}",
+    "common.locked": "锁着。{end}",
+    "common.unlocked": "锁开了。{end}",
+    "common.now_making": "{color 6}制作中！{/color}{end}"
+  }
+}

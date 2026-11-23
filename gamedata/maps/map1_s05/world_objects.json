@@ -1,0 +1,20 @@
+{
+  "format": "sh-map-world-objects",
+  "version": 2,
+  "map": "map1_s05",
+  "description": "Static world objects of map1_s05 (School - boss fight (Split Head)): 2 objects, drawn in file order. An object is drawn while the player is in one of its \"zones\" (each {\"x\": [...], \"z\": [...]} lists 40 m cells along that axis: cell c holds 40c..40(c+1) m; no zones = everywhere) and every flag of \"flags_set\" is set and every flag of \"flags_clear\" is clear (event flag names, e.g. the pickup flags). \"name\" is the object's id for scripts and mods, \"model\" its model (at most 8 characters, the map's or an item model), \"position\" in metres and \"rotation\" in degrees (x, y, z). \"script\": true lets world_objects.lua and events.lua move, turn, re-model or hide the object. Sphere and Wheel are script objects of the Split Head boss room, placed and shown by world_objects.lua. A mod's maps/map1_s05/world_objects.json changes or adds objects by name.",
+  "objects": [
+    {
+      "name": "Sphere",
+      "model": "SPHERE_H",
+      "position": [19.7, 1.58, -19.1],
+      "script": true
+    },
+    {
+      "name": "Wheel",
+      "model": "WHEEL_HI",
+      "position": [19.7, -0.06, -19.1],
+      "script": true
+    }
+  ]
+}

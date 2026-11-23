@@ -1,0 +1,34 @@
+{
+  "description": "Incubator: the god's form that possesses Alessa, the final boss of the bad endings in Nowhere.",
+  "category": "Bosses",
+  "maps": ["map7_s03"],
+  "model": "models/CHARA/MAR.glb",
+  "animations": "anim/ANIM/MAR.anim.json",
+  "clip_tables": ["incubator"],
+  "textures": ["textures/CHARA/MAR.png"],
+  "shadow": 0.25,
+  "blend_mode": "additive",
+  "camera_anchor": "character",
+  "camera_offset_y": -0.5,
+  "anims": {
+    "still": 0,
+    "rise": 1,
+    "appear": 2,
+    "float": 3
+  },
+  "controls": {
+    "none": 0,
+    "appear": 1,
+    "float": 2,
+    "rise": 3
+  },
+  "spawn": {
+    "state": 0,
+    "kind": "actor",
+    "auto": "fallback",
+    "note": "its own AI plays the cutscene state the map sets"
+  },
+  "fresh_hit_blood_strength": 7,
+  "fresh_hit_blood_strength_scatter": 4,
+  "is_boss": true
+}

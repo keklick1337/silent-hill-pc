@@ -1,0 +1,10 @@
+{
+  "format": "sh-map-lights",
+  "version": 1,
+  "map": "map4_s01",
+  "description": "The lamps of the antique shop (cell ER0401) for the setting extra_lights: the shop draws two shades lit, the white shade of the table lamps on the red table and the pink shade of the standard lamp by the east wall (their textures are the brightest parts of the room), so each gets a weak warm bulb inside its shade. The ceiling (flat at 3.04 m, with a plaster rosette over the middle of the room) holds no fixture, so no ceiling light. Positions are metres, PS1 axes (y down); short ranges keep the shop's darkness around them, and the flashlight stays the main light.",
+  "lights": [
+    {"name": "TableLamps", "description": "The two table lamps on the red table, one bulb for both (white shade).", "extra": true, "position": [182.5, -1.15, 62.92], "color": [1.0, 0.8, 0.55], "intensity": 1.1, "range": 3.5, "radius": 0.06, "casts_shadows": true, "gi": true},
+    {"name": "StandardLamp", "description": "The standard lamp with the pink shade by the east wall.", "extra": true, "position": [184.0, -1.4, 60.9], "color": [1.0, 0.72, 0.58], "intensity": 1.0, "range": 3.0, "radius": 0.08, "casts_shadows": true, "gi": true}
+  ]
+}

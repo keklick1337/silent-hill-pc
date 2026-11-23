@@ -1,0 +1,15 @@
+{
+  "format": "sh-text",
+  "version": 1,
+  "lang": "it",
+  "map": "map0_s02",
+  "strings": {
+    "map0_s02.there_is_a_chain_saw": "C'è una {color 2}motosega{/color}.\nPrenderla?{choice 4}",
+    "map0_s02.some_oil_cans_are_on": "Sullo scaffale ci sono\ndelle latte d'olio.{end}",
+    "map0_s02.a_car_engine_no_problem": "Un motore d'auto.\nSembra a posto.{end}",
+    "map0_s02.theres_a_tv_set_it": "C'è un televisore.\nNon si accende.{end}",
+    "map0_s02.there_is_a_gasoline_tank": "C'è una {color 2}tanica di benzina{/color}.\nPrenderla?{choice 4}",
+    "map0_s02.there_is_a_katana_take": "C'è una {color 2}katana{/color}.\nPrenderla?{choice 4}",
+    "map0_s02.there_is_a_channeling_stone": "C'è una {color 2}pietra del contatto{/color}.\nPrenderla?{choice 4}"
+  }
+}

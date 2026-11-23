@@ -1,0 +1,4217 @@
+{
+  "description": "What the modding tools' Lua editor shows about the script API: \"functions\" maps a name the scripts can call to its signature (arguments in call order, [optional], -> results) and a one-line description. Units: positions and lengths are Q12 (4096 = 1 m), angles Q12 (4096 = a full turn), times Q12 seconds, unless the description says otherwise. A character is its slot number (0 the player). The names are checked against the running game with tools/scripts/lua_api_docs.py; a mod describes the API it adds in its own tools/lua_api.json.",
+  "functions": {
+    "assert": {
+      "signature": "assert(v[, message]) -> v",
+      "description": "Raises an error when v is false or nil."
+    },
+    "error": {
+      "signature": "error(message[, level])",
+      "description": "Raises an error."
+    },
+    "extend": {
+      "signature": "extend(name, function(base, ...) ... end)",
+      "description": "In a mod's layer: wraps the function of that name; base is its definition before this layer."
+    },
+    "fmv": {
+      "signature": "fmv(param[, complete_flag])",
+      "description": "Plays a movie."
+    },
+    "getmetatable": {
+      "signature": "getmetatable(v) -> mt",
+      "description": "The metatable of a value."
+    },
+    "ipairs": {
+      "signature": "ipairs(t) -> iterator",
+      "description": "Iterates over t[1], t[2], ... up to the first nil."
+    },
+    "load_map": {
+      "signature": "load_map(map, point[, complete_flag])",
+      "description": "Goes through a door to another map the game's usual way (fade, loading screen)."
+    },
+    "math.abs": {
+      "signature": "math.abs(x) -> number",
+      "description": "The absolute value."
+    },
+    "math.ceil": {
+      "signature": "math.ceil(x) -> integer",
+      "description": "The smallest integer not below x."
+    },
+    "math.floor": {
+      "signature": "math.floor(x) -> integer",
+      "description": "The largest integer not above x."
+    },
+    "math.max": {
+      "signature": "math.max(x, ...) -> number",
+      "description": "The largest argument."
+    },
+    "math.min": {
+      "signature": "math.min(x, ...) -> number",
+      "description": "The smallest argument."
+    },
+    "math.random": {
+      "signature": "math.random([m[, n]]) -> number",
+      "description": "A random number of Lua's own generator (not the game's: see sh.rng)."
+    },
+    "math.sqrt": {
+      "signature": "math.sqrt(x) -> number",
+      "description": "The square root."
+    },
+    "math.tointeger": {
+      "signature": "math.tointeger(x) -> integer",
+      "description": "x as an integer when it has no fraction, else nil."
+    },
+    "next": {
+      "signature": "next(t[, key]) -> key, value",
+      "description": "The entry of a table after key."
+    },
+    "pairs": {
+      "signature": "pairs(t) -> iterator",
+      "description": "Iterates over every key and value of a table."
+    },
+    "pcall": {
+      "signature": "pcall(f, ...) -> ok, results",
+      "description": "Calls f and catches an error: false and the message instead of raising it."
+    },
+    "print": {
+      "signature": "print(...)",
+      "description": "Writes its arguments to the game log."
+    },
+    "say": {
+      "signature": "say(msg) -> choice",
+      "description": "In a coroutine: shows a map message until it ends; returns the chosen answer."
+    },
+    "select": {
+      "signature": "select(n, ...)",
+      "description": "The arguments from the n-th on; select(\"#\", ...) is their count."
+    },
+    "setmetatable": {
+      "signature": "setmetatable(t, mt) -> t",
+      "description": "Sets the metatable of a table."
+    },
+    "sh.ambient_sfx": {
+      "signature": "sh.ambient_sfx()",
+      "description": "Updates the map's ambient sounds."
+    },
+    "sh.api_version": {
+      "signature": "sh.api_version() -> number",
+      "description": "The version of the script API (3)."
+    },
+    "sh.audio.bgm": {
+      "signature": "sh.audio.bgm(track)",
+      "description": "Changes the music track."
+    },
+    "sh.audio.sfx": {
+      "signature": "sh.audio.sfx(sound)",
+      "description": "Plays a sound by registry name or number."
+    },
+    "sh.audio.sfx_stop": {
+      "signature": "sh.audio.sfx_stop(sound)",
+      "description": "Stops a sound."
+    },
+    "sh.background_gamma": {
+      "signature": "sh.background_gamma(q8)",
+      "description": "Sets the brightness of the background picture."
+    },
+    "sh.bg_img_transition": {
+      "signature": "sh.bg_img_transition(which, alpha)",
+      "description": ""
+    },
+    "sh.bgm": {
+      "signature": "sh.bgm(track)",
+      "description": "Changes the music track."
+    },
+    "sh.bgm_status_flags_get": {
+      "signature": "sh.bgm_status_flags_get() -> flags",
+      "description": "The music status flags."
+    },
+    "sh.bgm_status_flags_set": {
+      "signature": "sh.bgm_status_flags_set(flags)",
+      "description": "Sets the music status flags."
+    },
+    "sh.camera.angle_speed_to_target": {
+      "signature": "sh.camera.angle_speed_to_target(speed, angle, target, accel, max_speed, decel)",
+      "description": "The camera's new turning speed towards a target angle."
+    },
+    "sh.camera.auto_return": {
+      "signature": "sh.camera.auto_return(...)",
+      "description": "Gives the camera back to the game's automatic control."
+    },
+    "sh.camera.exec": {
+      "signature": "sh.camera.exec()",
+      "description": "Runs one step of the camera now."
+    },
+    "sh.camera.is_chase": {
+      "signature": "sh.camera.is_chase() -> bool",
+      "description": "True while the camera follows Harry on its own."
+    },
+    "sh.camera.look": {
+      "signature": "sh.camera.look(x, y, z, a0, a1, a2, a3, a4, a5, a6, warp)",
+      "description": "The point the event camera looks at: x, y, z in metres, the rest as camera_pos."
+    },
+    "sh.camera.look_at": {
+      "signature": "sh.camera.look_at(...)",
+      "description": "Sets the point the event camera looks at; a reference is a map variable name or a scratch vector."
+    },
+    "sh.camera.look_at_bone": {
+      "signature": "sh.camera.look_at_bone(...)",
+      "description": ""
+    },
+    "sh.camera.look_at_height": {
+      "signature": "sh.camera.look_at_height() -> q12",
+      "description": "The height of the point the camera looks at."
+    },
+    "sh.camera.look_at_now": {
+      "signature": "sh.camera.look_at_now(...)",
+      "description": ""
+    },
+    "sh.camera.look_at_point_update": {
+      "signature": "sh.camera.look_at_point_update(...)",
+      "description": ""
+    },
+    "sh.camera.pos": {
+      "signature": "sh.camera.pos(x, y, z, a0, a1, a2, a3, a4, a5, a6, warp)",
+      "description": "The event camera's position: x, y, z in metres, a0..a6 the offsets, accelerations and speeds in Q12, warp jumps there at once."
+    },
+    "sh.camera.position": {
+      "signature": "sh.camera.position(...)",
+      "description": "Sets where the event camera moves to."
+    },
+    "sh.camera.position_now": {
+      "signature": "sh.camera.position_now(...)",
+      "description": ""
+    },
+    "sh.camera.projection": {
+      "signature": "sh.camera.projection(...)",
+      "description": ""
+    },
+    "sh.camera.self_view_enabled": {
+      "signature": "sh.camera.self_view_enabled()",
+      "description": "True when the \"view mode\" option is Self View."
+    },
+    "sh.camera.set_user_max_speed_xz": {
+      "signature": "sh.camera.set_user_max_speed_xz(value)",
+      "description": "Sets: the largest horizontal speed of the script's camera."
+    },
+    "sh.camera.set_user_max_speed_y": {
+      "signature": "sh.camera.set_user_max_speed_y(value)",
+      "description": "Sets: the largest vertical speed of the script's camera."
+    },
+    "sh.camera.user_max_speed_xz": {
+      "signature": "sh.camera.user_max_speed_xz() -> value",
+      "description": "The largest horizontal speed of the script's camera."
+    },
+    "sh.camera.user_max_speed_y": {
+      "signature": "sh.camera.user_max_speed_y() -> value",
+      "description": "The largest vertical speed of the script's camera."
+    },
+    "sh.camera.user_target": {
+      "signature": "sh.camera.user_target(...)",
+      "description": ""
+    },
+    "sh.camera.user_watch": {
+      "signature": "sh.camera.user_watch(...)",
+      "description": ""
+    },
+    "sh.camera.view_button_active": {
+      "signature": "sh.camera.view_button_active()",
+      "description": "The look-view request of this frame (\"view control: reverse\" flips the held button)."
+    },
+    "sh.camera.view_button_was_active": {
+      "signature": "sh.camera.view_button_was_active()",
+      "description": "The look-view request of the frame before."
+    },
+    "sh.camera_auto_return": {
+      "signature": "sh.camera_auto_return()",
+      "description": "Gives the camera back to the game's automatic control."
+    },
+    "sh.camera_default_speeds": {
+      "signature": "sh.camera_default_speeds() -> xz, y, angle_x, angle_y",
+      "description": "The camera's default speeds."
+    },
+    "sh.camera_look": {
+      "signature": "sh.camera_look(x, y, z, a0, a1, a2, a3, a4, a5, a6, warp)",
+      "description": "The point the event camera looks at: x, y, z in metres, the rest as camera_pos."
+    },
+    "sh.camera_pos": {
+      "signature": "sh.camera_pos(x, y, z, a0, a1, a2, a3, a4, a5, a6, warp)",
+      "description": "The event camera's position: x, y, z in metres, a0..a6 the offsets, accelerations and speeds in Q12, warp jumps there at once."
+    },
+    "sh.chara.anim_data_alloc": {
+      "signature": "sh.chara.anim_data_alloc(anim_slot, type, buffer, bones)",
+      "description": "Loads the type's animations into an animation slot from a file buffer."
+    },
+    "sh.chara.anim_file_set": {
+      "signature": "sh.chara.anim_file_set(type, file)",
+      "description": "Sets the animation file the type loads from now on."
+    },
+    "sh.chara.model_load": {
+      "signature": "sh.chara.model_load(type, model_slot, buffer, page, u, v, palette_x, palette_y)",
+      "description": "Loads the type's model from a file buffer, its texture at the place given."
+    },
+    "sh.chara.model_loads_process": {
+      "signature": "sh.chara.model_loads_process()",
+      "description": "Finishes the queued model loads."
+    },
+    "sh.chara.spawn": {
+      "signature": "sh.chara.spawn(chara, spawn_flags, x, z[, rot[, step]]) -> slot",
+      "description": "Spawns a character at x, z; -1 when it cannot be placed."
+    },
+    "sh.chara.spawn_entry_set": {
+      "signature": "sh.chara.spawn_entry_set(entry, on)",
+      "description": "Marks an entry of the map's spawn table as in play, so the map's spawner leaves it alone."
+    },
+    "sh.chara.spawn_flags_set": {
+      "signature": "sh.chara.spawn_flags_set(chara, idx, flags)",
+      "description": "Sets the flags of a placed spawn."
+    },
+    "sh.chara.update_as": {
+      "signature": "sh.chara.update_as(\"Incubator\", \"Unknown23\")",
+      "description": "The type runs its own behaviour or another type's (a boss playing another fight)."
+    },
+    "sh.chara.update_variant_set": {
+      "signature": "sh.chara.update_variant_set(type, variant)",
+      "description": "The type's map update becomes its behavior.lua, variant 0 or 1."
+    },
+    "sh.chara_anim": {
+      "signature": "sh.chara_anim(chara, name[, fallback]) -> clip",
+      "description": "A clip of a character's data by name (\"anims\")."
+    },
+    "sh.chara_anim_play_to_end": {
+      "signature": "sh.chara_anim_play_to_end(slot, state)",
+      "description": "Plays the character's clip to its end."
+    },
+    "sh.chara_anim_start_keyframe_get": {
+      "signature": "sh.chara_anim_start_keyframe_get(slot)",
+      "description": "The first keyframe of the character's active clip."
+    },
+    "sh.chara_anim_unlock_play_to_end": {
+      "signature": "sh.chara_anim_unlock_play_to_end(slot)",
+      "description": "Unlocks the character's animation and plays the clip to its end."
+    },
+    "sh.chara_bones_init": {
+      "signature": "sh.chara_bones_init(idx)",
+      "description": ""
+    },
+    "sh.chara_field_get": {
+      "signature": "sh.chara_field_get(slot, field) -> value",
+      "description": "A field of a character: health, move_speed, fall_speed, control_state, state_step, anim_time, anim_status, anim_keyframe, anim_flags, collision_state, flags, chara_id."
+    },
+    "sh.chara_field_set": {
+      "signature": "sh.chara_field_set(slot, field, v)",
+      "description": "Writes a field of a character (see chara_field_get)."
+    },
+    "sh.chara_id": {
+      "signature": "sh.chara_id(name) -> id",
+      "description": "The number of a character type by its folder name in chara/; nil when unknown."
+    },
+    "sh.chara_load": {
+      "signature": "sh.chara_load(model, chara, force_free)",
+      "description": "Loads a character's model; force_free 255 frees every slot first."
+    },
+    "sh.chara_model_clear": {
+      "signature": "sh.chara_model_clear(slot)",
+      "description": "Clears the model of a character slot."
+    },
+    "sh.chara_param": {
+      "signature": "sh.chara_param(chara, name[, fallback]) -> value",
+      "description": "A parameter of a character's data (\"params\")."
+    },
+    "sh.chara_param_q12": {
+      "signature": "sh.chara_param_q12(chara, name, fallback) -> value",
+      "description": "A parameter of a character's data as Q12."
+    },
+    "sh.chara_process_loads": {
+      "signature": "sh.chara_process_loads()",
+      "description": "Processes the queued character loads."
+    },
+    "sh.chara_props_reset": {
+      "signature": "sh.chara_props_reset(slot)",
+      "description": "Resets the properties of a character slot."
+    },
+    "sh.chara_sfx": {
+      "signature": "sh.chara_sfx(chara, slot[, fallback]) -> sound",
+      "description": "A sound of a character's data (the \"sounds\" slot)."
+    },
+    "sh.chara_slot_anim_flags_clear": {
+      "signature": "sh.chara_slot_anim_flags_clear(slot, flags)",
+      "description": "Clears animation flags of a character."
+    },
+    "sh.chara_slot_anim_flags_set": {
+      "signature": "sh.chara_slot_anim_flags_set(slot, flags)",
+      "description": "Sets animation flags of a character (slot 0 is the player)."
+    },
+    "sh.chara_slot_chara_id_get": {
+      "signature": "sh.chara_slot_chara_id_get(slot) -> id",
+      "description": "The character type in a slot; -1 when the slot is empty."
+    },
+    "sh.chara_slot_control_set": {
+      "signature": "sh.chara_slot_control_set(slot, control_state, step)",
+      "description": "Sets the control state of the character in a slot."
+    },
+    "sh.chara_slot_transform_get": {
+      "signature": "sh.chara_slot_transform_get(slot) -> x, y, z, rot_y",
+      "description": "The position and rotation of the character in a slot."
+    },
+    "sh.chara_slot_transform_set": {
+      "signature": "sh.chara_slot_transform_set(slot, x, y, z, rot_y)",
+      "description": "Moves and turns the character in a slot."
+    },
+    "sh.chara_spawn": {
+      "signature": "sh.chara_spawn(chara, spawn_flags, x, z[, rot[, step]]) -> slot",
+      "description": "Spawns a character at x, z; -1 when it cannot be placed."
+    },
+    "sh.chara_spawn_entry_set": {
+      "signature": "sh.chara_spawn_entry_set(entry, on)",
+      "description": "Marks an entry of the map's spawn table as in play, so the map's spawner leaves it alone."
+    },
+    "sh.chara_spawn_flags_set": {
+      "signature": "sh.chara_spawn_flags_set(chara, idx, flags)",
+      "description": "Sets the flags of a placed spawn."
+    },
+    "sh.chara_state": {
+      "signature": "sh.chara_state(chara, name[, fallback]) -> state",
+      "description": "The number of a scene state of a character by name."
+    },
+    "sh.collision.flag_bits_clear": {
+      "signature": "sh.collision.flag_bits_clear(...)",
+      "description": ""
+    },
+    "sh.collision.flag_bits_set": {
+      "signature": "sh.collision.flag_bits_set(...)",
+      "description": ""
+    },
+    "sh.combat.table_point_set": {
+      "signature": "sh.combat.table_point_set(x, y, z, kind, value)",
+      "description": "Sets a point of the combat table that the map's effects read."
+    },
+    "sh.config.declare": {
+      "signature": "sh.config.declare{key, type, default, min, max, step, choices, restart}",
+      "description": "Declares a setting of the mod (\"<mod id>.<key>\"): type number, bool, choice or string. The saved value wins over default."
+    },
+    "sh.config.default": {
+      "signature": "sh.config.default(key) -> value",
+      "description": "The default of a declared setting."
+    },
+    "sh.config.get": {
+      "signature": "sh.config.get(key) -> value",
+      "description": "The value of a declared setting; nil when it is not declared."
+    },
+    "sh.config.needs_restart": {
+      "signature": "sh.config.needs_restart() -> bool",
+      "description": "True when a changed setting takes effect only after a restart."
+    },
+    "sh.config.on_change": {
+      "signature": "sh.config.on_change(key, fn)",
+      "description": "Calls fn when the setting changes (menu scripts only)."
+    },
+    "sh.config.reset": {
+      "signature": "sh.config.reset(key)",
+      "description": "Puts a setting back to its default."
+    },
+    "sh.config.set": {
+      "signature": "sh.config.set(key, value) -> bool",
+      "description": "Sets a setting after checking its type and range, saves it and calls the on_change handlers."
+    },
+    "sh.console.exec": {
+      "signature": "sh.console.exec(line)",
+      "description": "Runs a console command line."
+    },
+    "sh.console.print": {
+      "signature": "sh.console.print(text)",
+      "description": "Prints a line in the console."
+    },
+    "sh.console.register": {
+      "signature": "sh.console.register{name, aliases, group, help, details, args, run}",
+      "description": "Adds a console command: args are {name, type, optional, values, complete}; run(args) returns the text to print."
+    },
+    "sh.console.unregister": {
+      "signature": "sh.console.unregister(name) -> bool",
+      "description": "Removes a console command this script registered."
+    },
+    "sh.cursor_draw": {
+      "signature": "sh.cursor_draw(12 integers)",
+      "description": ""
+    },
+    "sh.cutscene.border_reset": {
+      "signature": "sh.cutscene.border_reset(...)",
+      "description": "Removes the cutscene's black bars."
+    },
+    "sh.cutscene.border_show": {
+      "signature": "sh.cutscene.border_show(...)",
+      "description": "Shows the cutscene's black bars."
+    },
+    "sh.cutscene.border_state": {
+      "signature": "sh.cutscene.border_state(...)",
+      "description": ""
+    },
+    "sh.cutscene.camera": {
+      "signature": "sh.cutscene.camera(t, buf, pos_ref, look_ref)",
+      "description": "Moves the camera as the cutscene has it at time t."
+    },
+    "sh.cutscene.camera_target": {
+      "signature": "sh.cutscene.camera_target(pos_ref, look_ref, angle_ref, t, buf) -> projection",
+      "description": "Writes the cutscene camera's position and look-at point at time t into references."
+    },
+    "sh.cutscene.chara": {
+      "signature": "sh.cutscene.chara(slot, name, t, buf)",
+      "description": "Puts a character in the pose of a cutscene track at time t."
+    },
+    "sh.cutscene.frames": {
+      "signature": "sh.cutscene.frames(buf) -> frames",
+      "description": "The length of the cutscene in a buffer; -1 when there is none."
+    },
+    "sh.cutscene.light": {
+      "signature": "sh.cutscene.light(t, buf[, light, target])",
+      "description": "The light follows the cutscene's light tracks at time t (\"LIGHT\" and \"L_INT\" unless named)."
+    },
+    "sh.cutscene.load": {
+      "signature": "sh.cutscene.load(path, buf) -> 1 or 0",
+      "description": "Loads convert/cutscenes/<path>.dms.json into a buffer slot to play at once (a mod's own cutscene)."
+    },
+    "sh.cutscene.prepare": {
+      "signature": "sh.cutscene.prepare(buf)",
+      "description": "Makes the cutscene read into a file buffer ready."
+    },
+    "sh.cutscene.set_border_state": {
+      "signature": "sh.cutscene.set_border_state(...)",
+      "description": ""
+    },
+    "sh.cutscene.timer_advance": {
+      "signature": "sh.cutscene.timer_advance(timer_ref, rate, start, end, hold_at_end, advance_step)",
+      "description": "Runs a cutscene clock inside a window; past its end the event steps on when advance_step is set."
+    },
+    "sh.cutscene.transform": {
+      "signature": "sh.cutscene.transform(name, t, buf) -> x, y, z, rx, ry, rz",
+      "description": "The pose of a cutscene track at time t."
+    },
+    "sh.cutscene.transform_to": {
+      "signature": "sh.cutscene.transform_to(pos_ref, rot_ref, name, t, buf)",
+      "description": "Writes a track's position and rotation at time t into two references."
+    },
+    "sh.cutscene_border": {
+      "signature": "sh.cutscene_border(state)",
+      "description": "The cutscene's black bars; 20 shows them."
+    },
+    "sh.cutscene_flag": {
+      "signature": "sh.cutscene_flag(on)",
+      "description": "Sets or clears the cutscene flag."
+    },
+    "sh.cutscene_timer_get": {
+      "signature": "sh.cutscene_timer_get() -> t",
+      "description": "The cutscene clock."
+    },
+    "sh.cutscene_timer_set": {
+      "signature": "sh.cutscene_timer_set(t)",
+      "description": "Sets the cutscene clock."
+    },
+    "sh.delta_time_get": {
+      "signature": "sh.delta_time_get() -> dt",
+      "description": "The frame's time step, Q12 seconds."
+    },
+    "sh.delta_time_reset": {
+      "signature": "sh.delta_time_reset()",
+      "description": "Puts the frame's time step back."
+    },
+    "sh.delta_time_set": {
+      "signature": "sh.delta_time_set(dt)",
+      "description": "Sets the frame's time step (halve it to slow a scene down)."
+    },
+    "sh.dms_camera_apply": {
+      "signature": "sh.dms_camera_apply(t, buf)",
+      "description": "Moves the camera as the cutscene has it at time t."
+    },
+    "sh.dms_chara_apply": {
+      "signature": "sh.dms_chara_apply(slot, track, t, buf)",
+      "description": "Puts a character in the pose of a cutscene track (\"HERO\") at time t."
+    },
+    "sh.dms_fix": {
+      "signature": "sh.dms_fix(buf)",
+      "description": "Prepares the cutscene data of a buffer."
+    },
+    "sh.dms_ready": {
+      "signature": "sh.dms_ready()",
+      "description": "Starts the cutscene that was read into the buffer."
+    },
+    "sh.effects.bolt_pool_attach": {
+      "signature": "sh.effects.bolt_pool_attach(...)",
+      "description": ""
+    },
+    "sh.effects.bolt_pool_update": {
+      "signature": "sh.effects.bolt_pool_update(...)",
+      "description": ""
+    },
+    "sh.effects.fire_pool_attach": {
+      "signature": "sh.effects.fire_pool_attach(...)",
+      "description": ""
+    },
+    "sh.effects.fire_pool_attached_reset": {
+      "signature": "sh.effects.fire_pool_attached_reset(...)",
+      "description": ""
+    },
+    "sh.effects.fire_pool_draw_attached": {
+      "signature": "sh.effects.fire_pool_draw_attached(...)",
+      "description": ""
+    },
+    "sh.effects.glow_field_add_bones": {
+      "signature": "sh.effects.glow_field_add_bones(name, pos_ref, bones_ref, timer_ref)",
+      "description": "Adds an emitter that follows bones to a glow field."
+    },
+    "sh.effects.glow_field_add_flash": {
+      "signature": "sh.effects.glow_field_add_flash(name, timer_ref)",
+      "description": "Adds a flash driven by a timer to a glow field."
+    },
+    "sh.effects.glow_field_add_point": {
+      "signature": "sh.effects.glow_field_add_point(name, pos_ref, rot_ref)",
+      "description": "Adds a point emitter to a glow field of effects/glow_fields.json."
+    },
+    "sh.effects.glow_field_add_ray": {
+      "signature": "sh.effects.glow_field_add_ray(name, from_ref, to_ref)",
+      "description": "Adds a ray emitter between two points to a glow field."
+    },
+    "sh.effects.glow_field_clear_emitters": {
+      "signature": "sh.effects.glow_field_clear_emitters(name)",
+      "description": "Removes a glow field's emitters."
+    },
+    "sh.effects.glow_field_decay": {
+      "signature": "sh.effects.glow_field_decay(name)",
+      "description": "Lets a glow field decay by one step."
+    },
+    "sh.effects.glow_field_draw": {
+      "signature": "sh.effects.glow_field_draw(name)",
+      "description": "Draws a glow field."
+    },
+    "sh.effects.glow_field_draw_mesh": {
+      "signature": "sh.effects.glow_field_draw_mesh(name, mesh)",
+      "description": "Draws a glow field over a mesh."
+    },
+    "sh.effects.glow_field_emit": {
+      "signature": "sh.effects.glow_field_emit(name)",
+      "description": "Runs a glow field's emitters."
+    },
+    "sh.effects.glow_field_remove": {
+      "signature": "sh.effects.glow_field_remove(name, kind)",
+      "description": "Removes the emitters of one kind from a glow field."
+    },
+    "sh.effects.glow_field_reset": {
+      "signature": "sh.effects.glow_field_reset(name)",
+      "description": "Resets a glow field."
+    },
+    "sh.effects.heat_field_spawn": {
+      "signature": "sh.effects.heat_field_spawn(...)",
+      "description": ""
+    },
+    "sh.effects.heat_field_start": {
+      "signature": "sh.effects.heat_field_start(...)",
+      "description": ""
+    },
+    "sh.effects.heat_field_start_between": {
+      "signature": "sh.effects.heat_field_start_between(...)",
+      "description": ""
+    },
+    "sh.effects.heat_field_update": {
+      "signature": "sh.effects.heat_field_update(...)",
+      "description": ""
+    },
+    "sh.effects.slot_free": {
+      "signature": "sh.effects.slot_free(type, count)",
+      "description": "Frees the slots of an effect type among the first count slots."
+    },
+    "sh.effects.slot_y_add": {
+      "signature": "sh.effects.slot_y_add(type, dy, count)",
+      "description": "Moves the slots of an effect type among the first count slots up by dy."
+    },
+    "sh.effects.smoke_column_start": {
+      "signature": "sh.effects.smoke_column_start()",
+      "description": "Starts the map's smoke column."
+    },
+    "sh.engine.at_least": {
+      "signature": "sh.engine.at_least(major [, minor [, patch]]) -> boolean",
+      "description": "True when the engine is this version or newer. The version itself: sh.engine.version (\"1.0.0\"), sh.engine.major, .minor, .patch (numbers), sh.engine.build (with the build number and commit)."
+    },
+    "sh.entity.aabb_visible": {
+      "signature": "sh.entity.aabb_visible(x0, x1, y0, y1, z0, z1) -> 1 or 0",
+      "description": "Whether a box is inside the camera's view."
+    },
+    "sh.entity.aim_assist_find": {
+      "signature": "sh.entity.aim_assist_find(...)",
+      "description": ""
+    },
+    "sh.entity.angles_between": {
+      "signature": "sh.entity.angles_between(...)",
+      "description": ""
+    },
+    "sh.entity.anim": {
+      "signature": "sh.entity.anim(slot) -> clip, phase, keyframe, time",
+      "description": "The state of the character's clip."
+    },
+    "sh.entity.anim_play": {
+      "signature": "sh.entity.anim_play(slot[, frozen])",
+      "description": "Steps the clip; frozen steps it without time passing."
+    },
+    "sh.entity.anim_set": {
+      "signature": "sh.entity.anim_set(slot, status[, time])",
+      "description": "Sets the clip table status directly."
+    },
+    "sh.entity.anim_status_handover": {
+      "signature": "sh.entity.anim_status_handover(...)",
+      "description": ""
+    },
+    "sh.entity.anim_status_set": {
+      "signature": "sh.entity.anim_status_set(slot, status, kf)",
+      "description": "Switches the character to a clip status at a keyframe."
+    },
+    "sh.entity.anim_step": {
+      "signature": "sh.entity.anim_step(slot)",
+      "description": "One tick of the character's clip table entry."
+    },
+    "sh.entity.any_npc_active": {
+      "signature": "sh.entity.any_npc_active(...)",
+      "description": ""
+    },
+    "sh.entity.attack": {
+      "signature": "sh.entity.attack(slot, arm, weapon_attack, x, y, z, target, angle_y, angle_x) -> result",
+      "description": "An attack the engine resolves; -1 when it misses."
+    },
+    "sh.entity.attack_number": {
+      "signature": "sh.entity.attack_number(name) -> number",
+      "description": "The row of config/attacks.json by its name (\"StalkerLunge\"); take it once when the script loads."
+    },
+    "sh.entity.attack_sound_class": {
+      "signature": "sh.entity.attack_sound_class(...)",
+      "description": ""
+    },
+    "sh.entity.bone": {
+      "signature": "sh.entity.bone(slot, i) -> x, y, z",
+      "description": "The world position of a bone in geometry units (256 = 1 m)."
+    },
+    "sh.entity.bone_count": {
+      "signature": "sh.entity.bone_count(slot) -> count",
+      "description": "The number of bones of the character's skeleton."
+    },
+    "sh.entity.bone_flag_set": {
+      "signature": "sh.entity.bone_flag_set(...)",
+      "description": ""
+    },
+    "sh.entity.bone_matrix_scale": {
+      "signature": "sh.entity.bone_matrix_scale(...)",
+      "description": ""
+    },
+    "sh.entity.bone_multiply": {
+      "signature": "sh.entity.bone_multiply(...)",
+      "description": ""
+    },
+    "sh.entity.bone_point": {
+      "signature": "sh.entity.bone_point(...)",
+      "description": ""
+    },
+    "sh.entity.bone_points": {
+      "signature": "sh.entity.bone_points(...)",
+      "description": ""
+    },
+    "sh.entity.bone_rotate": {
+      "signature": "sh.entity.bone_rotate(...)",
+      "description": ""
+    },
+    "sh.entity.bone_rotate_xyx": {
+      "signature": "sh.entity.bone_rotate_xyx(...)",
+      "description": ""
+    },
+    "sh.entity.bone_rotation_set": {
+      "signature": "sh.entity.bone_rotation_set(...)",
+      "description": ""
+    },
+    "sh.entity.bone_scale": {
+      "signature": "sh.entity.bone_scale(...)",
+      "description": ""
+    },
+    "sh.entity.bone_scale_xyz": {
+      "signature": "sh.entity.bone_scale_xyz(...)",
+      "description": ""
+    },
+    "sh.entity.bone_translation_set": {
+      "signature": "sh.entity.bone_translation_set(...)",
+      "description": ""
+    },
+    "sh.entity.bone_turn": {
+      "signature": "sh.entity.bone_turn(...)",
+      "description": ""
+    },
+    "sh.entity.bone_world_translation": {
+      "signature": "sh.entity.bone_world_translation(...)",
+      "description": ""
+    },
+    "sh.entity.boss_aim_lead": {
+      "signature": "sh.entity.boss_aim_lead(...)",
+      "description": ""
+    },
+    "sh.entity.boss_fx_arc": {
+      "signature": "sh.entity.boss_fx_arc(...)",
+      "description": ""
+    },
+    "sh.entity.boss_fx_arc_wide": {
+      "signature": "sh.entity.boss_fx_arc_wide(...)",
+      "description": ""
+    },
+    "sh.entity.boss_fx_attach": {
+      "signature": "sh.entity.boss_fx_attach(...)",
+      "description": ""
+    },
+    "sh.entity.boss_fx_bolt": {
+      "signature": "sh.entity.boss_fx_bolt(...)",
+      "description": ""
+    },
+    "sh.entity.boss_fx_bolt_player": {
+      "signature": "sh.entity.boss_fx_bolt_player(...)",
+      "description": ""
+    },
+    "sh.entity.boss_fx_draw": {
+      "signature": "sh.entity.boss_fx_draw(...)",
+      "description": ""
+    },
+    "sh.entity.boss_fx_fire": {
+      "signature": "sh.entity.boss_fx_fire(...)",
+      "description": ""
+    },
+    "sh.entity.boss_fx_flash": {
+      "signature": "sh.entity.boss_fx_flash(...)",
+      "description": ""
+    },
+    "sh.entity.boss_fx_spark": {
+      "signature": "sh.entity.boss_fx_spark(...)",
+      "description": ""
+    },
+    "sh.entity.boss_fx_track": {
+      "signature": "sh.entity.boss_fx_track(...)",
+      "description": ""
+    },
+    "sh.entity.camera_look_at_y": {
+      "signature": "sh.entity.camera_look_at_y(...)",
+      "description": ""
+    },
+    "sh.entity.chara": {
+      "signature": "sh.entity.chara(slot) -> id",
+      "description": "The character type in the slot."
+    },
+    "sh.entity.chara_param_int": {
+      "signature": "sh.entity.chara_param_int(...)",
+      "description": ""
+    },
+    "sh.entity.chara_param_q12": {
+      "signature": "sh.entity.chara_param_q12(...)",
+      "description": ""
+    },
+    "sh.entity.chara_spawn": {
+      "signature": "sh.entity.chara_spawn(...)",
+      "description": ""
+    },
+    "sh.entity.clear_heading": {
+      "signature": "sh.entity.clear_heading(...)",
+      "description": ""
+    },
+    "sh.entity.clip": {
+      "signature": "sh.entity.clip(slot, name) -> index",
+      "description": "The index of a clip by name; -1 when the character has none."
+    },
+    "sh.entity.clip_duration": {
+      "signature": "sh.entity.clip_duration(slot, status) -> q12",
+      "description": "The duration of a clip table entry."
+    },
+    "sh.entity.clip_duration_set": {
+      "signature": "sh.entity.clip_duration_set(slot, status, q12)",
+      "description": "Sets the duration of a clip table entry."
+    },
+    "sh.entity.clip_end": {
+      "signature": "sh.entity.clip_end(slot, status) -> keyframe",
+      "description": "The last keyframe of a clip table entry."
+    },
+    "sh.entity.clip_end_set": {
+      "signature": "sh.entity.clip_end_set(...)",
+      "description": ""
+    },
+    "sh.entity.clip_info": {
+      "signature": "sh.entity.clip_info(slot, status) -> first, last, variable_speed, speed, link",
+      "description": "A clip table entry."
+    },
+    "sh.entity.clip_link_set": {
+      "signature": "sh.entity.clip_link_set(...)",
+      "description": ""
+    },
+    "sh.entity.clip_start": {
+      "signature": "sh.entity.clip_start(slot, status) -> keyframe",
+      "description": "The first keyframe of a clip table entry."
+    },
+    "sh.entity.clip_start_set": {
+      "signature": "sh.entity.clip_start_set(...)",
+      "description": ""
+    },
+    "sh.entity.clip_table_attach": {
+      "signature": "sh.entity.clip_table_attach(...)",
+      "description": ""
+    },
+    "sh.entity.clip_table_set": {
+      "signature": "sh.entity.clip_table_set(...)",
+      "description": ""
+    },
+    "sh.entity.clip_variable": {
+      "signature": "sh.entity.clip_variable(...)",
+      "description": ""
+    },
+    "sh.entity.collide": {
+      "signature": "sh.entity.collide(slot, dx, dy, dz)",
+      "description": "Moves the character by a step against walls and other characters."
+    },
+    "sh.entity.collider_set": {
+      "signature": "sh.entity.collider_set(...)",
+      "description": ""
+    },
+    "sh.entity.colliders_attach": {
+      "signature": "sh.entity.colliders_attach(...)",
+      "description": ""
+    },
+    "sh.entity.collision_state": {
+      "signature": "sh.entity.collision_state(slot) -> state",
+      "description": "The character's 4-bit collision state."
+    },
+    "sh.entity.create": {
+      "signature": "sh.entity.create(chara, x, z, rot_y[, state[, ai]]) -> slot",
+      "description": "Creates a character on the ground at x, z; -1 when it cannot be placed. ai is \"auto\", \"full\", \"fallback\" or \"none\"."
+    },
+    "sh.entity.darkness_at": {
+      "signature": "sh.entity.darkness_at(x, y, z) -> 0..255",
+      "description": "How dark a point of the world is."
+    },
+    "sh.entity.effect_spawn": {
+      "signature": "sh.entity.effect_spawn(slot, x, y, z, kind, variant)",
+      "description": "Spawns a character effect at a point."
+    },
+    "sh.entity.enemy_defeated": {
+      "signature": "sh.entity.enemy_defeated(slot)",
+      "description": "Marks the enemy as defeated: it does not come back."
+    },
+    "sh.entity.engine_spawn": {
+      "signature": "sh.entity.engine_spawn(slot) -> 1 or 0",
+      "description": "1 when the engine created the character (console, menu, create), not the map's room spawner."
+    },
+    "sh.entity.event_npc": {
+      "signature": "sh.entity.event_npc(...)",
+      "description": ""
+    },
+    "sh.entity.exists": {
+      "signature": "sh.entity.exists(slot) -> 1 or 0",
+      "description": "1 when the slot holds a character."
+    },
+    "sh.entity.file_queue_ready": {
+      "signature": "sh.entity.file_queue_ready(...)",
+      "description": ""
+    },
+    "sh.entity.floatstinger_acid": {
+      "signature": "sh.entity.floatstinger_acid(...)",
+      "description": ""
+    },
+    "sh.entity.floatstinger_flap_speed": {
+      "signature": "sh.entity.floatstinger_flap_speed(...)",
+      "description": ""
+    },
+    "sh.entity.floatstinger_set_flap_speed": {
+      "signature": "sh.entity.floatstinger_set_flap_speed(...)",
+      "description": ""
+    },
+    "sh.entity.floatstinger_trail": {
+      "signature": "sh.entity.floatstinger_trail(...)",
+      "description": ""
+    },
+    "sh.entity.floatstinger_trail_push": {
+      "signature": "sh.entity.floatstinger_trail_push(...)",
+      "description": ""
+    },
+    "sh.entity.flyby_active": {
+      "signature": "sh.entity.flyby_active(...)",
+      "description": ""
+    },
+    "sh.entity.footstep_sfx": {
+      "signature": "sh.entity.footstep_sfx(ground_type[, chara_id]) -> sound, walk_pitch, run_pitch",
+      "description": "The footstep sound for a ground type from the data."
+    },
+    "sh.entity.footstep_sound": {
+      "signature": "sh.entity.footstep_sound(...)",
+      "description": ""
+    },
+    "sh.entity.get": {
+      "signature": "sh.entity.get(slot, field) -> value",
+      "description": "A field of the character's record by name (control_state, state_step, anim_status, pos_x, rot_y, move_speed, health, flags, ...)."
+    },
+    "sh.entity.grab_escape_count": {
+      "signature": "sh.entity.grab_escape_count(...)",
+      "description": ""
+    },
+    "sh.entity.grab_fallback_playable": {
+      "signature": "sh.entity.grab_fallback_playable(...)",
+      "description": ""
+    },
+    "sh.entity.grab_playable": {
+      "signature": "sh.entity.grab_playable(...)",
+      "description": ""
+    },
+    "sh.entity.ground_at": {
+      "signature": "sh.entity.ground_at(x, z) -> y",
+      "description": "The ground under a point."
+    },
+    "sh.entity.ground_height": {
+      "signature": "sh.entity.ground_height(x, z) -> y",
+      "description": "The height of the ground under a point."
+    },
+    "sh.entity.ground_kind": {
+      "signature": "sh.entity.ground_kind(x, z) -> kind",
+      "description": "The kind of the collision cell under a point."
+    },
+    "sh.entity.harry": {
+      "signature": "sh.entity.harry(name) -> value",
+      "description": "A value of Harry's state outside his record (lower_body, upper_body, state, aiming, weapon_attack, ammo, ...)."
+    },
+    "sh.entity.harry_anim_flags_set": {
+      "signature": "sh.entity.harry_anim_flags_set(...)",
+      "description": ""
+    },
+    "sh.entity.harry_anim_playback_state": {
+      "signature": "sh.entity.harry_anim_playback_state(...)",
+      "description": ""
+    },
+    "sh.entity.harry_bone_world": {
+      "signature": "sh.entity.harry_bone_world(bone) -> x, y, z",
+      "description": "The world position of one of Harry's bones."
+    },
+    "sh.entity.harry_clip_duration": {
+      "signature": "sh.entity.harry_clip_duration(...)",
+      "description": ""
+    },
+    "sh.entity.harry_clip_playback": {
+      "signature": "sh.entity.harry_clip_playback(...)",
+      "description": ""
+    },
+    "sh.entity.harry_collision_state_reset": {
+      "signature": "sh.entity.harry_collision_state_reset(...)",
+      "description": ""
+    },
+    "sh.entity.harry_cutscene_pose_update": {
+      "signature": "sh.entity.harry_cutscene_pose_update(...)",
+      "description": ""
+    },
+    "sh.entity.harry_cutscene_root_set": {
+      "signature": "sh.entity.harry_cutscene_root_set(...)",
+      "description": ""
+    },
+    "sh.entity.harry_cutscene_weapon_effect": {
+      "signature": "sh.entity.harry_cutscene_weapon_effect(...)",
+      "description": ""
+    },
+    "sh.entity.harry_damage_hook": {
+      "signature": "sh.entity.harry_damage_hook(...)",
+      "description": ""
+    },
+    "sh.entity.harry_damage_rumble": {
+      "signature": "sh.entity.harry_damage_rumble(...)",
+      "description": ""
+    },
+    "sh.entity.harry_game_over": {
+      "signature": "sh.entity.harry_game_over()",
+      "description": "Ends the game: Harry is dead."
+    },
+    "sh.entity.harry_ground_tilt": {
+      "signature": "sh.entity.harry_ground_tilt(...)",
+      "description": ""
+    },
+    "sh.entity.harry_held_item_attach": {
+      "signature": "sh.entity.harry_held_item_attach(...)",
+      "description": ""
+    },
+    "sh.entity.harry_held_item_hide": {
+      "signature": "sh.entity.harry_held_item_hide(...)",
+      "description": ""
+    },
+    "sh.entity.harry_held_item_previous": {
+      "signature": "sh.entity.harry_held_item_previous(...)",
+      "description": ""
+    },
+    "sh.entity.harry_held_item_show": {
+      "signature": "sh.entity.harry_held_item_show(...)",
+      "description": ""
+    },
+    "sh.entity.harry_light_angle": {
+      "signature": "sh.entity.harry_light_angle(...)",
+      "description": ""
+    },
+    "sh.entity.harry_path_angle": {
+      "signature": "sh.entity.harry_path_angle(...)",
+      "description": ""
+    },
+    "sh.entity.harry_path_point": {
+      "signature": "sh.entity.harry_path_point(...)",
+      "description": ""
+    },
+    "sh.entity.harry_pin_get": {
+      "signature": "sh.entity.harry_pin_get(...)",
+      "description": ""
+    },
+    "sh.entity.harry_pin_set": {
+      "signature": "sh.entity.harry_pin_set(...)",
+      "description": ""
+    },
+    "sh.entity.harry_player_anim_lock": {
+      "signature": "sh.entity.harry_player_anim_lock(...)",
+      "description": ""
+    },
+    "sh.entity.harry_pose_matrix_update": {
+      "signature": "sh.entity.harry_pose_matrix_update(...)",
+      "description": ""
+    },
+    "sh.entity.harry_push_total": {
+      "signature": "sh.entity.harry_push_total(...)",
+      "description": ""
+    },
+    "sh.entity.harry_push_vector": {
+      "signature": "sh.entity.harry_push_vector(...)",
+      "description": ""
+    },
+    "sh.entity.harry_pusher": {
+      "signature": "sh.entity.harry_pusher(...)",
+      "description": ""
+    },
+    "sh.entity.harry_reaction_row": {
+      "signature": "sh.entity.harry_reaction_row(...)",
+      "description": ""
+    },
+    "sh.entity.harry_reactions_ensure": {
+      "signature": "sh.entity.harry_reactions_ensure(...)",
+      "description": ""
+    },
+    "sh.entity.harry_set_push_total": {
+      "signature": "sh.entity.harry_set_push_total(...)",
+      "description": ""
+    },
+    "sh.entity.harry_set_weapon_stash": {
+      "signature": "sh.entity.harry_set_weapon_stash(...)",
+      "description": ""
+    },
+    "sh.entity.harry_state_reset": {
+      "signature": "sh.entity.harry_state_reset(...)",
+      "description": ""
+    },
+    "sh.entity.harry_wall_detect": {
+      "signature": "sh.entity.harry_wall_detect(...)",
+      "description": ""
+    },
+    "sh.entity.harry_wall_floor_set": {
+      "signature": "sh.entity.harry_wall_floor_set(...)",
+      "description": ""
+    },
+    "sh.entity.harry_weapon_clip": {
+      "signature": "sh.entity.harry_weapon_clip(...)",
+      "description": ""
+    },
+    "sh.entity.harry_weapon_effect": {
+      "signature": "sh.entity.harry_weapon_effect(...)",
+      "description": ""
+    },
+    "sh.entity.harry_weapon_stash": {
+      "signature": "sh.entity.harry_weapon_stash(...)",
+      "description": ""
+    },
+    "sh.entity.has_ai": {
+      "signature": "sh.entity.has_ai(slot) -> running, kind",
+      "description": "1 when the slot runs a behaviour this tick; kind: 1 the map's AI, 2 its own, 3 the fallback, 4 none, 0 a character of the map."
+    },
+    "sh.entity.heading_toward": {
+      "signature": "sh.entity.heading_toward(slot, dist, x, z, span, nearest) -> angle",
+      "description": "A heading towards a point that avoids obstacles."
+    },
+    "sh.entity.health": {
+      "signature": "sh.entity.health(slot) -> q12",
+      "description": "The character's health."
+    },
+    "sh.entity.hyper_blaster_beam": {
+      "signature": "sh.entity.hyper_blaster_beam(...)",
+      "description": ""
+    },
+    "sh.entity.in_active_cell": {
+      "signature": "sh.entity.in_active_cell(x, z) -> 1 or 0",
+      "description": "Whether the point is in a loaded cell of the map."
+    },
+    "sh.entity.inventory_count_set": {
+      "signature": "sh.entity.inventory_count_set(...)",
+      "description": ""
+    },
+    "sh.entity.inventory_slot_count": {
+      "signature": "sh.entity.inventory_slot_count(...)",
+      "description": ""
+    },
+    "sh.entity.inventory_slot_count_set": {
+      "signature": "sh.entity.inventory_slot_count_set(...)",
+      "description": ""
+    },
+    "sh.entity.item_number": {
+      "signature": "sh.entity.item_number(name) -> number",
+      "description": "The number of an item by name."
+    },
+    "sh.entity.keyframe_passed": {
+      "signature": "sh.entity.keyframe_passed(slot, from_time, kf) -> 1 or 0",
+      "description": "1 when keyframe kf lies between from_time and the clip's current time."
+    },
+    "sh.entity.map_clip_start": {
+      "signature": "sh.entity.map_clip_start(...)",
+      "description": ""
+    },
+    "sh.entity.map_var": {
+      "signature": "sh.entity.map_var(name) -> value",
+      "description": "A map variable by name."
+    },
+    "sh.entity.max_health": {
+      "signature": "sh.entity.max_health() -> q12",
+      "description": "Harry's maximum health (gameplay.json)."
+    },
+    "sh.entity.max_saturation": {
+      "signature": "sh.entity.max_saturation(...)",
+      "description": ""
+    },
+    "sh.entity.mod_attack": {
+      "signature": "sh.entity.mod_attack(...)",
+      "description": ""
+    },
+    "sh.entity.model_bone_hide": {
+      "signature": "sh.entity.model_bone_hide(...)",
+      "description": ""
+    },
+    "sh.entity.model_bones_show": {
+      "signature": "sh.entity.model_bones_show(...)",
+      "description": ""
+    },
+    "sh.entity.monster_cybil_anim_step": {
+      "signature": "sh.entity.monster_cybil_anim_step(...)",
+      "description": ""
+    },
+    "sh.entity.monster_cybil_upper": {
+      "signature": "sh.entity.monster_cybil_upper(...)",
+      "description": ""
+    },
+    "sh.entity.monster_cybil_walk_durations": {
+      "signature": "sh.entity.monster_cybil_walk_durations(...)",
+      "description": ""
+    },
+    "sh.entity.move": {
+      "signature": "sh.entity.move(slot, push_x, push_z)",
+      "description": "Moves the character along heading_angle by move_speed, with falling and walls."
+    },
+    "sh.entity.movement_update": {
+      "signature": "sh.entity.movement_update(...)",
+      "description": ""
+    },
+    "sh.entity.npc_index": {
+      "signature": "sh.entity.npc_index(...)",
+      "description": ""
+    },
+    "sh.entity.npc_mask": {
+      "signature": "sh.entity.npc_mask(...)",
+      "description": ""
+    },
+    "sh.entity.npc_slot_count": {
+      "signature": "sh.entity.npc_slot_count() -> count",
+      "description": "The number of character slots."
+    },
+    "sh.entity.overlay_anim_set": {
+      "signature": "sh.entity.overlay_anim_set(...)",
+      "description": ""
+    },
+    "sh.entity.overlay_anim_start": {
+      "signature": "sh.entity.overlay_anim_start(...)",
+      "description": ""
+    },
+    "sh.entity.overlay_row": {
+      "signature": "sh.entity.overlay_row(...)",
+      "description": ""
+    },
+    "sh.entity.param": {
+      "signature": "sh.entity.param(slot, name[, fallback_q12]) -> value",
+      "description": "A parameter of the character's data (\"params\") as Q12."
+    },
+    "sh.entity.path_blocked": {
+      "signature": "sh.entity.path_blocked(...)",
+      "description": ""
+    },
+    "sh.entity.path_hit": {
+      "signature": "sh.entity.path_hit(...)",
+      "description": ""
+    },
+    "sh.entity.pin_point": {
+      "signature": "sh.entity.pin_point(...)",
+      "description": ""
+    },
+    "sh.entity.play": {
+      "signature": "sh.entity.play(slot, clip[, blend]) -> 1 or 0",
+      "description": "Plays a clip by its name in character.json (\"walk_forward\") or its index; blend 0 starts it without the transition."
+    },
+    "sh.entity.player_aim": {
+      "signature": "sh.entity.player_aim(...)",
+      "description": ""
+    },
+    "sh.entity.player_blocked": {
+      "signature": "sh.entity.player_blocked(slot) -> 1 or 0",
+      "description": "Whether something stands between the character and Harry."
+    },
+    "sh.entity.player_control_disabled": {
+      "signature": "sh.entity.player_control_disabled() -> 1 or 0",
+      "description": "1 while the player has no control of Harry."
+    },
+    "sh.entity.player_damage_disable": {
+      "signature": "sh.entity.player_damage_disable(...)",
+      "description": ""
+    },
+    "sh.entity.player_long_gun_ammo": {
+      "signature": "sh.entity.player_long_gun_ammo(...)",
+      "description": ""
+    },
+    "sh.entity.player_noise": {
+      "signature": "sh.entity.player_noise(slot, dist, scale) -> 1 or 0",
+      "description": "Whether the character hears Harry."
+    },
+    "sh.entity.player_state": {
+      "signature": "sh.entity.player_state() -> state",
+      "description": "Harry's state."
+    },
+    "sh.entity.player_visible": {
+      "signature": "sh.entity.player_visible(slot, n, dist, step) -> 1 or 0",
+      "description": "Whether the character sees Harry."
+    },
+    "sh.entity.player_weapon_model_set": {
+      "signature": "sh.entity.player_weapon_model_set(...)",
+      "description": ""
+    },
+    "sh.entity.position": {
+      "signature": "sh.entity.position(slot) -> x, y, z",
+      "description": "The character's position, Q12."
+    },
+    "sh.entity.props_clear": {
+      "signature": "sh.entity.props_clear(...)",
+      "description": ""
+    },
+    "sh.entity.puppet_nurse_stats": {
+      "signature": "sh.entity.puppet_nurse_stats(...)",
+      "description": ""
+    },
+    "sh.entity.puppet_nurse_stats_set": {
+      "signature": "sh.entity.puppet_nurse_stats_set(...)",
+      "description": ""
+    },
+    "sh.entity.ranged_attack": {
+      "signature": "sh.entity.ranged_attack(...)",
+      "description": ""
+    },
+    "sh.entity.ray_chara_blocked": {
+      "signature": "sh.entity.ray_chara_blocked(...)",
+      "description": ""
+    },
+    "sh.entity.ray_cylinder": {
+      "signature": "sh.entity.ray_cylinder(...)",
+      "description": ""
+    },
+    "sh.entity.ray_hit_chara": {
+      "signature": "sh.entity.ray_hit_chara(...)",
+      "description": ""
+    },
+    "sh.entity.ray_los": {
+      "signature": "sh.entity.ray_los(...)",
+      "description": ""
+    },
+    "sh.entity.ray_trace": {
+      "signature": "sh.entity.ray_trace(x, y, z, tx, ty, tz)",
+      "description": "Traces a ray through the world's collision."
+    },
+    "sh.entity.ray_trace_chara": {
+      "signature": "sh.entity.ray_trace_chara(...)",
+      "description": ""
+    },
+    "sh.entity.ray_trace_slot": {
+      "signature": "sh.entity.ray_trace_slot(slot, x, y, z, dx, dy, dz) -> hit, slot, x, y, z",
+      "description": "Traces a ray from a character: what it hit and where."
+    },
+    "sh.entity.ray_world": {
+      "signature": "sh.entity.ray_world(x0, y0, z0, x1, y1, z1)",
+      "description": "Traces a segment against the world's geometry."
+    },
+    "sh.entity.remove": {
+      "signature": "sh.entity.remove(slot) -> 1 or 0",
+      "description": "Removes the character of a slot."
+    },
+    "sh.entity.root_transform": {
+      "signature": "sh.entity.root_transform(...)",
+      "description": ""
+    },
+    "sh.entity.rotation": {
+      "signature": "sh.entity.rotation(slot) -> rx, ry, rz",
+      "description": "The character's rotation, Q12 angles."
+    },
+    "sh.entity.set": {
+      "signature": "sh.entity.set(slot, field, v)",
+      "description": "Writes a field of the character's record by name."
+    },
+    "sh.entity.set_collision_state": {
+      "signature": "sh.entity.set_collision_state(slot, v)",
+      "description": "Sets the character's collision state."
+    },
+    "sh.entity.set_harry": {
+      "signature": "sh.entity.set_harry(name, v)",
+      "description": "Writes a value of Harry's state (a read-only one is an error)."
+    },
+    "sh.entity.set_health": {
+      "signature": "sh.entity.set_health(slot, q12)",
+      "description": "Sets the character's health."
+    },
+    "sh.entity.set_map_var": {
+      "signature": "sh.entity.set_map_var(name, v)",
+      "description": "Writes a map variable by name."
+    },
+    "sh.entity.set_monster_cybil_upper": {
+      "signature": "sh.entity.set_monster_cybil_upper(...)",
+      "description": ""
+    },
+    "sh.entity.set_position": {
+      "signature": "sh.entity.set_position(slot, x, y, z)",
+      "description": "Moves the character, Q12."
+    },
+    "sh.entity.set_rotation": {
+      "signature": "sh.entity.set_rotation(slot, rx, ry, rz)",
+      "description": "Turns the character, Q12 angles."
+    },
+    "sh.entity.set_stalker_track": {
+      "signature": "sh.entity.set_stalker_track(...)",
+      "description": ""
+    },
+    "sh.entity.set_sys": {
+      "signature": "sh.entity.set_sys(name, v[, i])",
+      "description": "Writes an engine value by name (see sys)."
+    },
+    "sh.entity.sfx_3d": {
+      "signature": "sh.entity.sfx_3d(slot, sfx, vol, kind)",
+      "description": "Plays a positioned sound of the character."
+    },
+    "sh.entity.sfx_at": {
+      "signature": "sh.entity.sfx_at(slot, sfx, vol_q8, pitch)",
+      "description": "Plays a sound at the character's position."
+    },
+    "sh.entity.sfx_falloff": {
+      "signature": "sh.entity.sfx_falloff(slot, sfx, vol, falloff, pitch)",
+      "description": "Plays a sound at the character's position with a distance falloff."
+    },
+    "sh.entity.sfx_flags": {
+      "signature": "sh.entity.sfx_flags(slot, sfx, vol_q8, flags)",
+      "description": "Plays a sound at the character's position with flags."
+    },
+    "sh.entity.sfx_flags_at": {
+      "signature": "sh.entity.sfx_flags_at(sfx, x, y, z, vol, flags)",
+      "description": "Plays a sound at a position with flags."
+    },
+    "sh.entity.sfx_pitched": {
+      "signature": "sh.entity.sfx_pitched(...)",
+      "description": ""
+    },
+    "sh.entity.sfx_stop": {
+      "signature": "sh.entity.sfx_stop(sfx)",
+      "description": "Stops a sound."
+    },
+    "sh.entity.shape_offsets_update": {
+      "signature": "sh.entity.shape_offsets_update(...)",
+      "description": ""
+    },
+    "sh.entity.slope_force": {
+      "signature": "sh.entity.slope_force(...)",
+      "description": ""
+    },
+    "sh.entity.sound": {
+      "signature": "sh.entity.sound(slot, name[, fallback]) -> sound",
+      "description": "The sound of the character's \"sounds\" slot by name."
+    },
+    "sh.entity.spawn": {
+      "signature": "sh.entity.spawn{chara, x, z, rot, ai, state} -> slot or nil, err",
+      "description": "Places a character (a folder name of chara/) at x, z: ai \"auto\", \"full\", \"fallback\" or \"none\"; state is the first step of its behaviour."
+    },
+    "sh.entity.spawn_flags": {
+      "signature": "sh.entity.spawn_flags(...)",
+      "description": ""
+    },
+    "sh.entity.spawn_kind": {
+      "signature": "sh.entity.spawn_kind(slot) -> kind",
+      "description": "The character's spawn kind: 0 enemy, 1 boss, 2 actor, 3 prop."
+    },
+    "sh.entity.spawn_point": {
+      "signature": "sh.entity.spawn_point(...)",
+      "description": ""
+    },
+    "sh.entity.split_head_blood_drop": {
+      "signature": "sh.entity.split_head_blood_drop(...)",
+      "description": ""
+    },
+    "sh.entity.split_head_blood_strand": {
+      "signature": "sh.entity.split_head_blood_strand(...)",
+      "description": ""
+    },
+    "sh.entity.split_head_move_offset": {
+      "signature": "sh.entity.split_head_move_offset(...)",
+      "description": ""
+    },
+    "sh.entity.split_head_push_player": {
+      "signature": "sh.entity.split_head_push_player(...)",
+      "description": ""
+    },
+    "sh.entity.sqrt_q12": {
+      "signature": "sh.entity.sqrt_q12(...)",
+      "description": ""
+    },
+    "sh.entity.stalker_track": {
+      "signature": "sh.entity.stalker_track(...)",
+      "description": ""
+    },
+    "sh.entity.sys": {
+      "signature": "sh.entity.sys(name[, i]) -> value",
+      "description": "An engine value by name: chara_group_flags, target_npc, map_effects, sys_state."
+    },
+    "sh.entity.tps_camera": {
+      "signature": "sh.entity.tps_camera(...)",
+      "description": ""
+    },
+    "sh.entity.twinfeeler_acid_throw": {
+      "signature": "sh.entity.twinfeeler_acid_throw(...)",
+      "description": ""
+    },
+    "sh.entity.twinfeeler_dust": {
+      "signature": "sh.entity.twinfeeler_dust(...)",
+      "description": ""
+    },
+    "sh.entity.twinfeeler_dust_still": {
+      "signature": "sh.entity.twinfeeler_dust_still(...)",
+      "description": ""
+    },
+    "sh.entity.twinfeeler_dust_trail": {
+      "signature": "sh.entity.twinfeeler_dust_trail(...)",
+      "description": ""
+    },
+    "sh.entity.twinfeeler_effects_draw": {
+      "signature": "sh.entity.twinfeeler_effects_draw(...)",
+      "description": ""
+    },
+    "sh.entity.twinfeeler_effects_reset": {
+      "signature": "sh.entity.twinfeeler_effects_reset(...)",
+      "description": ""
+    },
+    "sh.entity.twinfeeler_hole": {
+      "signature": "sh.entity.twinfeeler_hole(...)",
+      "description": ""
+    },
+    "sh.entity.twinfeeler_textures_load": {
+      "signature": "sh.entity.twinfeeler_textures_load(...)",
+      "description": ""
+    },
+    "sh.entity.type_anim_step": {
+      "signature": "sh.entity.type_anim_step(...)",
+      "description": ""
+    },
+    "sh.entity.type_clip_table_attach": {
+      "signature": "sh.entity.type_clip_table_attach(...)",
+      "description": ""
+    },
+    "sh.entity.unknown23_fx_clear": {
+      "signature": "sh.entity.unknown23_fx_clear(...)",
+      "description": ""
+    },
+    "sh.entity.unknown23_fx_update": {
+      "signature": "sh.entity.unknown23_fx_update(...)",
+      "description": ""
+    },
+    "sh.entity.unknown23_shock_fx": {
+      "signature": "sh.entity.unknown23_shock_fx(...)",
+      "description": ""
+    },
+    "sh.entity.update_variant": {
+      "signature": "sh.entity.update_variant(...)",
+      "description": ""
+    },
+    "sh.entity.vblanks": {
+      "signature": "sh.entity.vblanks(...)",
+      "description": ""
+    },
+    "sh.entity.wall_detect": {
+      "signature": "sh.entity.wall_detect(slot, dx, dy, dz)",
+      "description": "Tests a step of the character against the walls."
+    },
+    "sh.entity.wall_offset": {
+      "signature": "sh.entity.wall_offset(...)",
+      "description": ""
+    },
+    "sh.entity.weapon_attack_info": {
+      "signature": "sh.entity.weapon_attack_info(attack) -> reach, hit_start, hit_length, clip",
+      "description": "The reach, hit window and magazine of an attack."
+    },
+    "sh.entity.weapon_attack_reach": {
+      "signature": "sh.entity.weapon_attack_reach(...)",
+      "description": ""
+    },
+    "sh.entity.weapon_attack_stats": {
+      "signature": "sh.entity.weapon_attack_stats(...)",
+      "description": ""
+    },
+    "sh.entity.weapon_beam": {
+      "signature": "sh.entity.weapon_beam(...)",
+      "description": ""
+    },
+    "sh.entity.weapon_damage": {
+      "signature": "sh.entity.weapon_damage(attack) -> damage",
+      "description": "The damage of an attack of config/attacks.json."
+    },
+    "sh.entity.weapon_data": {
+      "signature": "sh.entity.weapon_data(...)",
+      "description": ""
+    },
+    "sh.entity.weapon_effect": {
+      "signature": "sh.entity.weapon_effect(...)",
+      "description": ""
+    },
+    "sh.entity.weapon_keyframes": {
+      "signature": "sh.entity.weapon_keyframes(...)",
+      "description": ""
+    },
+    "sh.entity.weapon_model_set": {
+      "signature": "sh.entity.weapon_model_set(...)",
+      "description": ""
+    },
+    "sh.entity.weapon_number": {
+      "signature": "sh.entity.weapon_number(name) -> number",
+      "description": "The number of a weapon by name."
+    },
+    "sh.event.bg_texture": {
+      "signature": "sh.event.bg_texture(cmd, file, inc_sub_step)",
+      "description": "A command of the background picture: 0 queue the read, 1 await it, 2 draw, 3 store, 4 queue the second, 5 draw the second, 6 restore, 7 all in turn."
+    },
+    "sh.event.bg_texture_fade_out": {
+      "signature": "sh.event.bg_texture_fade_out(...)",
+      "description": ""
+    },
+    "sh.event.bg_texture_load_fade_in": {
+      "signature": "sh.event.bg_texture_load_fade_in(...)",
+      "description": ""
+    },
+    "sh.event.branch_on_flag": {
+      "signature": "sh.event.branch_on_flag(flag, step_true, step_false, set_sub_step)",
+      "description": "Sets the event step by a flag; step_true -1 keeps the default branch."
+    },
+    "sh.event.fade": {
+      "signature": "sh.event.fade(...)",
+      "description": "A screen fade as an event step."
+    },
+    "sh.event.flag": {
+      "signature": "sh.event.flag(...)",
+      "description": "Reads an event flag by name."
+    },
+    "sh.event.flag_clear": {
+      "signature": "sh.event.flag_clear(...)",
+      "description": "Clears an event flag by name."
+    },
+    "sh.event.flag_set": {
+      "signature": "sh.event.flag_set(...)",
+      "description": "Sets an event flag by name."
+    },
+    "sh.event.inv_item": {
+      "signature": "sh.event.inv_item(cmd, item, count, inc_sub_step)",
+      "description": "A pickup with the inspection view: 0 queue the load, 1 await it, 3 add the item."
+    },
+    "sh.event.item_used": {
+      "signature": "sh.event.item_used()",
+      "description": "True when the event was started by using an item."
+    },
+    "sh.event.path_point_set": {
+      "signature": "sh.event.path_point_set(abs, slot, idx, angle, x, z)",
+      "description": "Sets a point of the event's path."
+    },
+    "sh.event.path_walk_player": {
+      "signature": "sh.event.path_walk_player(anim, count, inc_sub_step)",
+      "description": "Walks Harry along the event's path points."
+    },
+    "sh.event.point_position": {
+      "signature": "sh.event.point_position()",
+      "description": "The active event's point of interest, Q12."
+    },
+    "sh.event.ramp_advance": {
+      "signature": "sh.event.ramp_advance(...)",
+      "description": ""
+    },
+    "sh.event.ramp_reset": {
+      "signature": "sh.event.ramp_reset(...)",
+      "description": ""
+    },
+    "sh.event.set_state_timer": {
+      "signature": "sh.event.set_state_timer(value)",
+      "description": "Sets: the timer of the system state (the first step word of the event)."
+    },
+    "sh.event.set_step_timer": {
+      "signature": "sh.event.set_step_timer(value)",
+      "description": "Sets: the timer of the event's step (the second step word of the event)."
+    },
+    "sh.event.set_sys_state": {
+      "signature": "sh.event.set_sys_state(value)",
+      "description": "Sets: the system state the game is in."
+    },
+    "sh.event.state_set_next": {
+      "signature": "sh.event.state_set_next(sys_state)",
+      "description": "Sets the next system state."
+    },
+    "sh.event.state_timer": {
+      "signature": "sh.event.state_timer() -> value",
+      "description": "The timer of the system state (the first step word of the event)."
+    },
+    "sh.event.step_increment": {
+      "signature": "sh.event.step_increment(...)",
+      "description": "Advances a step of the event's step machine."
+    },
+    "sh.event.step_increment_after_fade": {
+      "signature": "sh.event.step_increment_after_fade(cmd, fade_out, fade_type, timestep, inc_sub_step)",
+      "description": "A screen fade command of the event; the same function as sh.event.fade."
+    },
+    "sh.event.step_increment_delayed": {
+      "signature": "sh.event.step_increment_delayed(duration, inc_sub_step)",
+      "description": "Waits on the event's timer; the same function as sh.event.wait_timer."
+    },
+    "sh.event.step_reset": {
+      "signature": "sh.event.step_reset(...)",
+      "description": "Resets the steps of the event's step machine."
+    },
+    "sh.event.step_set": {
+      "signature": "sh.event.step_set(i, v)",
+      "description": "Sets step i of the event's step machine and resets the lower steps and the timers."
+    },
+    "sh.event.step_timer": {
+      "signature": "sh.event.step_timer() -> value",
+      "description": "The timer of the event's step (the second step word of the event)."
+    },
+    "sh.event.sys_state": {
+      "signature": "sh.event.sys_state() -> value",
+      "description": "The system state the game is in."
+    },
+    "sh.event.tween_linear": {
+      "signature": "sh.event.tween_linear(target, duration, timer) -> q12",
+      "description": "A linear tween driven by a timer."
+    },
+    "sh.event.tween_reset": {
+      "signature": "sh.event.tween_reset(timer)",
+      "description": "Resets the timer of a tween."
+    },
+    "sh.event.used_item_is": {
+      "signature": "sh.event.used_item_is(item)",
+      "description": "True when the item that started the event is this one."
+    },
+    "sh.event.wait_player_stop": {
+      "signature": "sh.event.wait_player_stop()",
+      "description": "Holds the event step until Harry stands still."
+    },
+    "sh.event.wait_timer": {
+      "signature": "sh.event.wait_timer(...)",
+      "description": "Waits for a time inside an event step."
+    },
+    "sh.event_activation_type_get": {
+      "signature": "sh.event_activation_type_get() -> type",
+      "description": "How the active event was started (item use or inspection); -1 outside an event."
+    },
+    "sh.event_bg_texture_cmd": {
+      "signature": "sh.event_bg_texture_cmd(cmd, file, inc_sub_step)",
+      "description": "Background picture step: 0 queue read, 1 await load, 2 draw, 3 store, 4 queue the second, 5 draw the second, 6 restore, 7 all in turn."
+    },
+    "sh.event_bg_texture_fade_in": {
+      "signature": "sh.event_bg_texture_fade_in(file, t0, t1)",
+      "description": "Loads a background picture and fades it in."
+    },
+    "sh.event_bg_texture_fade_out": {
+      "signature": "sh.event_bg_texture_fade_out(...)",
+      "description": "Fades the background picture out."
+    },
+    "sh.event_chara_anim": {
+      "signature": "sh.event_chara_anim(cmd, slot, anim_state, inc_sub_step)",
+      "description": "Animation command for a character: 0 set state, 1 await the clip's end, 2 lock, 3 unlock, 4 reset."
+    },
+    "sh.event_common_item_take": {
+      "signature": "sh.event_common_item_take(item, flag)",
+      "description": "The pickup of a common item (FirstAidKit, HealthDrink, Ampoule, HandgunBullets, RifleShells, ShotgunShells) with its standard question."
+    },
+    "sh.event_fade_cmd": {
+      "signature": "sh.event_fade_cmd(cmd, fade_out, fade_type, timestep, inc_sub_step)",
+      "description": "A screen fade as an event step."
+    },
+    "sh.event_inv_item_cmd": {
+      "signature": "sh.event_inv_item_cmd(cmd, item[, count], inc_sub_step)",
+      "description": "A pickup with the inspection view: cmd 0 queue load, 1 await load, 2 nothing, 3 add the item, 6 everything in turn."
+    },
+    "sh.event_item_take": {
+      "signature": "sh.event_item_take(item, count, flag, msg)",
+      "description": "The item pickup step: asks with msg, gives count of item and sets flag."
+    },
+    "sh.event_msg": {
+      "signature": "sh.event_msg(has_selection, msg[, step0, step1, step2, inc_sub_step])",
+      "description": "Shows a message in an event step, with an optional choice that branches to the given steps."
+    },
+    "sh.event_msg_audio": {
+      "signature": "sh.event_msg_audio(msg, idx, cmds)",
+      "description": "Shows voiced lines: idx is a map variable name or a number, cmds the name of a list of voice commands."
+    },
+    "sh.event_msg_dimmed_bg": {
+      "signature": "sh.event_msg_dimmed_bg(file, f0, f1, m0, m1)",
+      "description": "Shows messages over a dimmed full-screen picture."
+    },
+    "sh.event_msg_with_audio": {
+      "signature": "sh.event_msg_with_audio(msg, voice_cmd)",
+      "description": "Shows a voiced line."
+    },
+    "sh.event_msg_with_bg": {
+      "signature": "sh.event_msg_with_bg(file, fade0, fade1, msg)",
+      "description": "Shows a message over a full-screen picture, fading it in and out."
+    },
+    "sh.event_msg_with_sfx": {
+      "signature": "sh.event_msg_with_sfx(msg, sound)",
+      "description": "Shows a message and plays a sound at the event's point."
+    },
+    "sh.event_msg_with_texture": {
+      "signature": "sh.event_msg_with_texture(tex, f0, f1, msg0, msg1)",
+      "description": "Shows messages over a texture picture, fading it in and out."
+    },
+    "sh.event_paper_map_take": {
+      "signature": "sh.event_paper_map_take(page, flag, msg)",
+      "description": "The pickup of a paper map page."
+    },
+    "sh.event_point": {
+      "signature": "sh.event_point() -> x, y, z",
+      "description": "The point of interest of the active event."
+    },
+    "sh.event_selection": {
+      "signature": "sh.event_selection(has_sel, msg[, s0, s1, s2, secondary])",
+      "description": "Shows a choice and branches the event step on the answer."
+    },
+    "sh.event_step_get": {
+      "signature": "sh.event_step_get(i) -> value",
+      "description": "Step i (0..2) of the event's step machine."
+    },
+    "sh.event_step_increment": {
+      "signature": "sh.event_step_increment(i)",
+      "description": "Advances step i of the event's step machine."
+    },
+    "sh.event_step_increment_after_fade": {
+      "signature": "sh.event_step_increment_after_fade(step, cond, fade_type, timestep, reset)",
+      "description": "Advances the event step when a screen fade has finished."
+    },
+    "sh.event_step_increment_delayed": {
+      "signature": "sh.event_step_increment_delayed(delay, reset)",
+      "description": "Advances the event step after a delay."
+    },
+    "sh.event_step_reset": {
+      "signature": "sh.event_step_reset()",
+      "description": "Resets the steps of the event's step machine."
+    },
+    "sh.event_step_set": {
+      "signature": "sh.event_step_set(i, v)",
+      "description": "Sets step i of the event's step machine (raw; sh.event.step_set also resets the lower steps and timers)."
+    },
+    "sh.event_sys_state_branch_on_flag": {
+      "signature": "sh.event_sys_state_branch_on_flag(flag, step_true, step_false, set_sub_step)",
+      "description": "Branches the event step on an event flag (step_true -1 is the default branch)."
+    },
+    "sh.event_tween_linear": {
+      "signature": "sh.event_tween_linear(target, duration, timer) -> value",
+      "description": "A linear tween towards target over duration, Q12."
+    },
+    "sh.event_tween_reset": {
+      "signature": "sh.event_tween_reset(timer)",
+      "description": "Restarts a tween's timer."
+    },
+    "sh.event_wait_player_stop": {
+      "signature": "sh.event_wait_player_stop()",
+      "description": "Waits until Harry has stopped moving."
+    },
+    "sh.event_wait_timer": {
+      "signature": "sh.event_wait_timer(duration, inc_sub_step)",
+      "description": "Waits for a time inside an event step."
+    },
+    "sh.event_waypoint_player": {
+      "signature": "sh.event_waypoint_player(anim, count, inc_sub_step)",
+      "description": "Walks Harry along the event's path points."
+    },
+    "sh.event_waypoint_set": {
+      "signature": "sh.event_waypoint_set(abs, slot, idx, angle, x, z)",
+      "description": "Sets a point of the path a character walks in an event."
+    },
+    "sh.fade": {
+      "signature": "sh.fade(fade_in[, white])",
+      "description": "Starts a screen fade: in (true) or out, to white when white is true."
+    },
+    "sh.fade_done": {
+      "signature": "sh.fade_done() -> bool",
+      "description": "True when the screen fade has finished."
+    },
+    "sh.file_number": {
+      "signature": "sh.file_number(path) -> number",
+      "description": "The number of a game file by its path."
+    },
+    "sh.flag.clear": {
+      "signature": "sh.flag.clear(flag)",
+      "description": "Clears an event flag."
+    },
+    "sh.flag.get": {
+      "signature": "sh.flag.get(\"M1S03_ShotgunShells0\")",
+      "description": "Reads an event flag by name (gamedata/flags) or number."
+    },
+    "sh.flag.set": {
+      "signature": "sh.flag.set(name, v)",
+      "description": "Sets or clears an event flag."
+    },
+    "sh.flag.set_alt": {
+      "signature": "sh.flag.set_alt(flag)",
+      "description": "Sets the flag the way an event writes its finishing flag."
+    },
+    "sh.flag_get": {
+      "signature": "sh.flag_get(flag) -> bool",
+      "description": "Reads an event flag by name (gamedata/flags) or number."
+    },
+    "sh.flag_set": {
+      "signature": "sh.flag_set(flag, value)",
+      "description": "Sets or clears an event flag."
+    },
+    "sh.flag_set_alt": {
+      "signature": "sh.flag_set_alt(flag)",
+      "description": "Sets the flag the way an event writes its finishing flag."
+    },
+    "sh.flashlight": {
+      "signature": "sh.flashlight(on)",
+      "description": "Turns the flashlight on or off."
+    },
+    "sh.flashlight_attrs_fix": {
+      "signature": "sh.flashlight_attrs_fix()",
+      "description": "Restores the flashlight's light after a scene changed it."
+    },
+    "sh.fs_entry_loaded": {
+      "signature": "sh.fs_entry_loaded(q) -> bool",
+      "description": "True when a queued read has finished."
+    },
+    "sh.fs_queue_done": {
+      "signature": "sh.fs_queue_done() -> bool",
+      "description": "True when the file queue is empty."
+    },
+    "sh.fs_read": {
+      "signature": "sh.fs_read(file, buf) -> queue_entry",
+      "description": "Queues the read of a game file into a buffer."
+    },
+    "sh.fs_read_dms": {
+      "signature": "sh.fs_read_dms(file)",
+      "description": "Queues the read of a cutscene file."
+    },
+    "sh.fs_seek": {
+      "signature": "sh.fs_seek(file)",
+      "description": "Queues a seek to a game file."
+    },
+    "sh.fs_wait": {
+      "signature": "sh.fs_wait()",
+      "description": "Waits for the file queue."
+    },
+    "sh.game.active_buffer": {
+      "signature": "sh.game.active_buffer() -> value",
+      "description": "Which of the two frame buffers is active (read only)."
+    },
+    "sh.game.bgm_idx": {
+      "signature": "sh.game.bgm_idx() -> idx",
+      "description": "The current music track."
+    },
+    "sh.game.brightness": {
+      "signature": "sh.game.brightness() -> value",
+      "description": "The brightness setting."
+    },
+    "sh.game.cutscene": {
+      "signature": "sh.game.cutscene() -> bool",
+      "description": "True while a cutscene or an event holds the player (the cutscene flag or the letterbox bars); false in free play."
+    },
+    "sh.game.delta_time": {
+      "signature": "sh.game.delta_time() -> dt",
+      "description": "The frame's time step, Q12 seconds."
+    },
+    "sh.game.delta_time_raw": {
+      "signature": "sh.game.delta_time_raw() -> value",
+      "description": "The frame's raw time step, Q12 seconds (read only)."
+    },
+    "sh.game.difficulty": {
+      "signature": "sh.game.difficulty() -> name",
+      "description": "\"easy\", \"normal\" or \"hard\"; nil outside a game."
+    },
+    "sh.game.extra_options_enabled": {
+      "signature": "sh.game.extra_options_enabled() -> value",
+      "description": "The extra options setting."
+    },
+    "sh.game.fix_nurse_grab_drain": {
+      "signature": "sh.game.fix_nurse_grab_drain() -> value",
+      "description": "The config option fix_nurse_grab_drain (read only)."
+    },
+    "sh.game.fix_second_newspaper": {
+      "signature": "sh.game.fix_second_newspaper() -> value",
+      "description": "The config option fix_second_newspaper (read only)."
+    },
+    "sh.game.gravity_speed": {
+      "signature": "sh.game.gravity_speed() -> q12",
+      "description": "The fall speed gravity adds per tick."
+    },
+    "sh.game.npc_flags": {
+      "signature": "sh.game.npc_flags() -> value",
+      "description": "The scene's character flag word."
+    },
+    "sh.game.screen": {
+      "signature": "sh.game.screen() -> name",
+      "description": "The top-level screen by name (\"InGame\", \"MainMenu\")."
+    },
+    "sh.game.screen_prev": {
+      "signature": "sh.game.screen_prev() -> name",
+      "description": "The top-level screen before the current one, by name."
+    },
+    "sh.game.screen_step": {
+      "signature": "sh.game.screen_step([level]) -> step",
+      "description": "A step of the screen, level 0..2."
+    },
+    "sh.game.set_brightness": {
+      "signature": "sh.game.set_brightness(value)",
+      "description": "Sets: the brightness setting."
+    },
+    "sh.game.set_delta_time": {
+      "signature": "sh.game.set_delta_time(dt)",
+      "description": "Sets the frame's time step, Q12 seconds."
+    },
+    "sh.game.set_extra_options_enabled": {
+      "signature": "sh.game.set_extra_options_enabled(value)",
+      "description": "Sets: the extra options setting."
+    },
+    "sh.game.set_gravity_speed": {
+      "signature": "sh.game.set_gravity_speed(q12)",
+      "description": "Sets the fall speed gravity adds per tick."
+    },
+    "sh.game.set_npc_flags": {
+      "signature": "sh.game.set_npc_flags(value)",
+      "description": "Sets: the scene's character flag word."
+    },
+    "sh.game.set_npc_flags_id": {
+      "signature": "sh.game.set_npc_flags_id(v)",
+      "description": "Sets the 1-based character id the scene's character flags refer to."
+    },
+    "sh.game.set_sys_flags": {
+      "signature": "sh.game.set_sys_flags(value)",
+      "description": "Sets: the system flag word of the game process."
+    },
+    "sh.game.state": {
+      "signature": "sh.game.state() -> name",
+      "description": "The game state by name (\"Gameplay\", \"GamePaused\", ...)."
+    },
+    "sh.game.state_step": {
+      "signature": "sh.game.state_step([level]) -> step",
+      "description": "A step of the game state, level 0..2."
+    },
+    "sh.game.state_update": {
+      "signature": "sh.game.state_update(...)",
+      "description": ""
+    },
+    "sh.game.stick_radius": {
+      "signature": "sh.game.stick_radius() -> value",
+      "description": "The config option stick_radius (read only)."
+    },
+    "sh.game.sys_flags": {
+      "signature": "sh.game.sys_flags() -> value",
+      "description": "The system flag word of the game process."
+    },
+    "sh.game.tick30": {
+      "signature": "sh.game.tick30() -> value",
+      "description": "The frame loop's 30 Hz tick word (read only)."
+    },
+    "sh.game.timer_update": {
+      "signature": "sh.game.timer_update()",
+      "description": "Advances the played time."
+    },
+    "sh.game.vblanks": {
+      "signature": "sh.game.vblanks() -> n",
+      "description": "The vertical blanks the last frame took."
+    },
+    "sh.game_state_update": {
+      "signature": "sh.game_state_update()",
+      "description": ""
+    },
+    "sh.game_timer_update": {
+      "signature": "sh.game_timer_update()",
+      "description": "Advances the played time."
+    },
+    "sh.game_warm_boot": {
+      "signature": "sh.game_warm_boot()",
+      "description": ""
+    },
+    "sh.give_item": {
+      "signature": "sh.give_item(item[, n])",
+      "description": "Adds n (default 1) of an item to the inventory; item is its name or number."
+    },
+    "sh.has_item": {
+      "signature": "sh.has_item(item) -> bool",
+      "description": "True when the player carries the item."
+    },
+    "sh.held_item_attach": {
+      "signature": "sh.held_item_attach(...)",
+      "description": ""
+    },
+    "sh.held_item_hide": {
+      "signature": "sh.held_item_hide()",
+      "description": "Hides the item in Harry's hand."
+    },
+    "sh.held_item_prev": {
+      "signature": "sh.held_item_prev()",
+      "description": "Puts back the item Harry held before held_item_set."
+    },
+    "sh.held_item_set": {
+      "signature": "sh.held_item_set(item)",
+      "description": "Puts an item model in Harry's hand."
+    },
+    "sh.held_item_show": {
+      "signature": "sh.held_item_show()",
+      "description": "Shows the item in Harry's hand."
+    },
+    "sh.hooks.emit": {
+      "signature": "sh.hooks.emit(event[, fields[, cancellable]]) -> fields, cancelled",
+      "description": "Sends an event to its handlers; a mod names its own events \"<mod id>:<name>\"."
+    },
+    "sh.hooks.has": {
+      "signature": "sh.hooks.has(event) -> bool",
+      "description": "True when the event has handlers."
+    },
+    "sh.hooks.list": {
+      "signature": "sh.hooks.list([event]) -> rows",
+      "description": "The handlers in call order: {event, owner, id, priority, handle}."
+    },
+    "sh.hooks.off": {
+      "signature": "sh.hooks.off(handle) or sh.hooks.off(event, id) -> bool",
+      "description": "Removes one of this script's handlers."
+    },
+    "sh.hooks.on": {
+      "signature": "sh.hooks.on(event, fn[, {priority = 0, id = \"name\"}]) -> handle",
+      "description": "Calls fn(ev) on an engine event; subscribing again with the same event and id replaces the function. Higher priority runs first."
+    },
+    "sh.input.action": {
+      "signature": "sh.input.action(action[, mode]) -> bool",
+      "description": "A control of the layout (enter, cancel, skip, action, aim, light, run, view, stepLeft, stepRight, pause, item, map, option): mode 0 held, 1 pressed this tick, 2 released, 3 pressed or repeating."
+    },
+    "sh.input.axis": {
+      "signature": "sh.input.axis(stick, axis) -> value",
+      "description": "A stick axis, -128..127."
+    },
+    "sh.input.control": {
+      "signature": "sh.input.control(name) -> value",
+      "description": "A control of this tick as Harry's controller reads it: forward, back, turn_left, turn_right, run, aim, attack, action_pressed, ..."
+    },
+    "sh.input.controls_clear": {
+      "signature": "sh.input.controls_clear()",
+      "description": "Clears the controls of this tick."
+    },
+    "sh.input.hyper_blaster_mode": {
+      "signature": "sh.input.hyper_blaster_mode()",
+      "description": ""
+    },
+    "sh.input.move_stick": {
+      "signature": "sh.input.move_stick() -> x, y, up, down",
+      "description": "The movement stick, -128..127 (forward is negative y)."
+    },
+    "sh.input.pad_button": {
+      "signature": "sh.input.pad_button(button, mode[, pad]) -> bits",
+      "description": "The pad bits of a button; pad 1 is the second pad."
+    },
+    "sh.input.pad_direction": {
+      "signature": "sh.input.pad_direction(dir, mode) -> bits",
+      "description": "The pad bits of a direction; test with ~= 0."
+    },
+    "sh.input.pad_mask": {
+      "signature": "sh.input.pad_mask(action, mode) -> bits",
+      "description": "The pad bits of a layout action; test with ~= 0."
+    },
+    "sh.input.player_flag": {
+      "signature": "sh.input.player_flag(name) -> value",
+      "description": "One of the controller's 16 output flags (the last tick's value)."
+    },
+    "sh.input.set_control": {
+      "signature": "sh.input.set_control(name, v)",
+      "description": "Overrides a control of this tick."
+    },
+    "sh.input.set_player_flag": {
+      "signature": "sh.input.set_player_flag(name, v)",
+      "description": "Sets one of the controller's output flags for this tick."
+    },
+    "sh.input.stick_zone": {
+      "signature": "sh.input.stick_zone() -> outside, turn_left, turn_right, forward, back",
+      "description": "Where the movement stick is."
+    },
+    "sh.input.tick30": {
+      "signature": "sh.input.tick30(site)",
+      "description": ""
+    },
+    "sh.input_action": {
+      "signature": "sh.input_action(action[, mode]) -> bool",
+      "description": "A control of the layout (enter, cancel, skip, action, aim, light, run, view, stepLeft, stepRight, pause, item, map, option): mode 0 held, 1 pressed this tick, 2 released, 3 pressed or repeating."
+    },
+    "sh.input_axis": {
+      "signature": "sh.input_axis(stick, axis) -> value",
+      "description": "A stick axis, -128..127."
+    },
+    "sh.item.count": {
+      "signature": "sh.item.count(item) -> count",
+      "description": "How many of the item the player carries."
+    },
+    "sh.item.give": {
+      "signature": "sh.item.give(\"crowbar:Crowbar\")",
+      "description": "Adds n (default 1) of an item to the inventory; item is its name or number."
+    },
+    "sh.item.has": {
+      "signature": "sh.item.has(item) -> bool",
+      "description": "True when the player carries the item."
+    },
+    "sh.item.take": {
+      "signature": "sh.item.take(item[, n])",
+      "description": "Removes n (default 1) of an item from the inventory."
+    },
+    "sh.item_count": {
+      "signature": "sh.item_count(item) -> count",
+      "description": "How many of the item the player carries."
+    },
+    "sh.item_remove": {
+      "signature": "sh.item_remove(item, n) -> bool",
+      "description": "Removes n of an item, frees its slot and sorts the inventory."
+    },
+    "sh.item_view.begin": {
+      "signature": "sh.item_view.begin()",
+      "description": "Begins drawing the close-up for this frame."
+    },
+    "sh.item_view.camera_init": {
+      "signature": "sh.item_view.camera_init()",
+      "description": "Sets up the close-up's camera."
+    },
+    "sh.item_view.finish": {
+      "signature": "sh.item_view.finish()",
+      "description": "Finishes drawing the close-up."
+    },
+    "sh.item_view.get": {
+      "signature": "sh.item_view.get(slot, field)",
+      "description": "Reads rotation, scale, translation or position of a slot."
+    },
+    "sh.item_view.model_draw": {
+      "signature": "sh.item_view.model_draw(slot[, mode])",
+      "description": "Draws the model of a slot."
+    },
+    "sh.item_view.model_link": {
+      "signature": "sh.item_view.model_link(slot, object)",
+      "description": "Links a slot (0..9) to an object of the read model file."
+    },
+    "sh.item_view.model_linked": {
+      "signature": "sh.item_view.model_linked(slot)",
+      "description": "True when the slot is linked to a model."
+    },
+    "sh.item_view.model_rotate": {
+      "signature": "sh.item_view.model_rotate(slot)",
+      "description": ""
+    },
+    "sh.item_view.models_clear": {
+      "signature": "sh.item_view.models_clear()",
+      "description": "Clears the close-up's model slots."
+    },
+    "sh.item_view.models_map": {
+      "signature": "sh.item_view.models_map()",
+      "description": "Maps the read models into the close-up's slots."
+    },
+    "sh.item_view.precise_depth": {
+      "signature": "sh.item_view.precise_depth()",
+      "description": ""
+    },
+    "sh.item_view.read": {
+      "signature": "sh.item_view.read(tim, tmd)",
+      "description": "Queues the texture and model of an item close-up; wait with sh.load.wait()."
+    },
+    "sh.item_view.set": {
+      "signature": "sh.item_view.set(slot, field, x, y, z)",
+      "description": "Writes rotation, scale, translation or position of a slot."
+    },
+    "sh.light.bone_attached": {
+      "signature": "sh.light.bone_attached() -> bool",
+      "description": "Whether the flashlight light follows a bone."
+    },
+    "sh.light.bone_detach": {
+      "signature": "sh.light.bone_detach()",
+      "description": "The light no longer follows a bone."
+    },
+    "sh.light.flashlight_fix": {
+      "signature": "sh.light.flashlight_fix(...)",
+      "description": ""
+    },
+    "sh.light.flashlight_off": {
+      "signature": "sh.light.flashlight_off()",
+      "description": "Turns the flashlight off."
+    },
+    "sh.light.flashlight_on": {
+      "signature": "sh.light.flashlight_on()",
+      "description": "Turns the flashlight on."
+    },
+    "sh.light.intensity": {
+      "signature": "sh.light.intensity() -> intensity",
+      "description": "The intensity of the flashlight's light."
+    },
+    "sh.light.lens_flare_attached": {
+      "signature": "sh.light.lens_flare_attached() -> bool",
+      "description": "Whether the lens flare follows a bone."
+    },
+    "sh.light.lens_flare_detach": {
+      "signature": "sh.light.lens_flare_detach()",
+      "description": "The lens flare no longer follows a bone."
+    },
+    "sh.light.pos_x": {
+      "signature": "sh.light.pos_x() -> value",
+      "description": "The flashlight light's position along X."
+    },
+    "sh.light.pos_y": {
+      "signature": "sh.light.pos_y() -> value",
+      "description": "The flashlight light's height."
+    },
+    "sh.light.pos_z": {
+      "signature": "sh.light.pos_z() -> value",
+      "description": "The flashlight light's position along Z."
+    },
+    "sh.light.rot_x": {
+      "signature": "sh.light.rot_x() -> value",
+      "description": "The flashlight light's rotation about X."
+    },
+    "sh.light.rot_y": {
+      "signature": "sh.light.rot_y() -> value",
+      "description": "The flashlight light's rotation about Y."
+    },
+    "sh.light.rot_z": {
+      "signature": "sh.light.rot_z() -> value",
+      "description": "The flashlight light's rotation about Z."
+    },
+    "sh.light.set_intensity": {
+      "signature": "sh.light.set_intensity(intensity)",
+      "description": "Sets the intensity of the flashlight's light."
+    },
+    "sh.light.set_pos_x": {
+      "signature": "sh.light.set_pos_x(value)",
+      "description": "Sets: the flashlight light's position along X."
+    },
+    "sh.light.set_pos_y": {
+      "signature": "sh.light.set_pos_y(value)",
+      "description": "Sets: the flashlight light's height."
+    },
+    "sh.light.set_pos_z": {
+      "signature": "sh.light.set_pos_z(value)",
+      "description": "Sets: the flashlight light's position along Z."
+    },
+    "sh.light.set_rot_x": {
+      "signature": "sh.light.set_rot_x(value)",
+      "description": "Sets: the flashlight light's rotation about X."
+    },
+    "sh.light.set_rot_y": {
+      "signature": "sh.light.set_rot_y(value)",
+      "description": "Sets: the flashlight light's rotation about Y."
+    },
+    "sh.light.set_rot_z": {
+      "signature": "sh.light.set_rot_z(value)",
+      "description": "Sets: the flashlight light's rotation about Z."
+    },
+    "sh.light_bones_clear": {
+      "signature": "sh.light_bones_clear()",
+      "description": "Detaches the light from the bones it follows."
+    },
+    "sh.light_intensity_get": {
+      "signature": "sh.light_intensity_get() -> intensity",
+      "description": "The intensity of the flashlight's light."
+    },
+    "sh.light_intensity_set": {
+      "signature": "sh.light_intensity_set(intensity)",
+      "description": "Sets the intensity of the flashlight's light."
+    },
+    "sh.light_pos_set": {
+      "signature": "sh.light_pos_set(...)",
+      "description": ""
+    },
+    "sh.light_rot_set": {
+      "signature": "sh.light_rot_set(...)",
+      "description": ""
+    },
+    "sh.load.chunks": {
+      "signature": "sh.load.chunks(...)",
+      "description": ""
+    },
+    "sh.load.chunks_init_done": {
+      "signature": "sh.load.chunks_init_done()",
+      "description": ""
+    },
+    "sh.load.close_range_chunks": {
+      "signature": "sh.load.close_range_chunks(...)",
+      "description": ""
+    },
+    "sh.load.file": {
+      "signature": "sh.load.file(file, buf)",
+      "description": "Queues the read of a game file into a buffer."
+    },
+    "sh.load.flame_texture": {
+      "signature": "sh.load.flame_texture()",
+      "description": "Loads the flame texture of the effects."
+    },
+    "sh.load.is_loaded": {
+      "signature": "sh.load.is_loaded(q) -> bool",
+      "description": "True when a queued read has finished."
+    },
+    "sh.load.loading_screen_image": {
+      "signature": "sh.load.loading_screen_image(file)",
+      "description": "The background of the next loading screen."
+    },
+    "sh.load.queue_length": {
+      "signature": "sh.load.queue_length() -> n",
+      "description": "The number of reads still queued."
+    },
+    "sh.load.seek": {
+      "signature": "sh.load.seek(...)",
+      "description": ""
+    },
+    "sh.load.staff_roll": {
+      "signature": "sh.load.staff_roll(...)",
+      "description": ""
+    },
+    "sh.load.tim": {
+      "signature": "sh.load.tim(file, buf, image_ref)",
+      "description": "Reads a picture file into a file buffer and an image reference."
+    },
+    "sh.load.tim_at": {
+      "signature": "sh.load.tim_at(file, buf, page, u, v, palette_x, palette_y)",
+      "description": "Reads a picture file through file buffer 0..2 onto a texture page, position and palette place."
+    },
+    "sh.load.wait": {
+      "signature": "sh.load.wait()",
+      "description": "Waits for the file queue."
+    },
+    "sh.log": {
+      "signature": "sh.log([level,] msg)",
+      "description": "Writes a line to the game log; level 1 makes it a warning. print(...) does the same."
+    },
+    "sh.map.boss_bolts_load": {
+      "signature": "sh.map.boss_bolts_load()",
+      "description": "Sets up the bolt pool; its sounds start from their gaps (final map)."
+    },
+    "sh.map.boss_fire_init": {
+      "signature": "sh.map.boss_fire_init(...)",
+      "description": ""
+    },
+    "sh.map.boss_fire_resume": {
+      "signature": "sh.map.boss_fire_resume(...)",
+      "description": ""
+    },
+    "sh.map.boss_fire_stop": {
+      "signature": "sh.map.boss_fire_stop(...)",
+      "description": ""
+    },
+    "sh.map.boss_fire_update": {
+      "signature": "sh.map.boss_fire_update(...)",
+      "description": ""
+    },
+    "sh.map.boss_fx_init": {
+      "signature": "sh.map.boss_fx_init(...)",
+      "description": ""
+    },
+    "sh.map.boss_fx_mode_set": {
+      "signature": "sh.map.boss_fx_mode_set(mode)",
+      "description": "Sets the mode of the light beams around the bosses (final map)."
+    },
+    "sh.map.boss_fx_update": {
+      "signature": "sh.map.boss_fx_update(...)",
+      "description": ""
+    },
+    "sh.map.chara_anim_reset": {
+      "signature": "sh.map.chara_anim_reset(slot, to_still)",
+      "description": ""
+    },
+    "sh.map.chara_group_set": {
+      "signature": "sh.map.chara_group_set(group, type)",
+      "description": "Sets the character of a character group of the loaded map."
+    },
+    "sh.map.drain_splash_start": {
+      "signature": "sh.map.drain_splash_start(ref)",
+      "description": ""
+    },
+    "sh.map.drain_splash_update": {
+      "signature": "sh.map.drain_splash_update(...)",
+      "description": ""
+    },
+    "sh.map.ending_cue_flags": {
+      "signature": "sh.map.ending_cue_flags(scene, step, i)",
+      "description": "A cue of the ending scenes (maps/map7_s03/ending_cues.json): -1 when the step has no cue i, else bit 0 another cue follows, bit 1 once per step."
+    },
+    "sh.map.ending_cue_play": {
+      "signature": "sh.map.ending_cue_play(scene, step, i)",
+      "description": "Fires a cue of the ending scenes."
+    },
+    "sh.map.ending_flare_draw": {
+      "signature": "sh.map.ending_flare_draw(n)",
+      "description": "Draws the glow at fixed point n (0..2) this frame (final map)."
+    },
+    "sh.map.get": {
+      "signature": "sh.map.get(name[, i]) -> value",
+      "description": "A map variable by name (maps/<map>/map_vars.json, config/map_vars.json); i picks an element."
+    },
+    "sh.map.glass_shatter": {
+      "signature": "sh.map.glass_shatter(from_ref, to_ref, a, b, c, d, e, group)",
+      "description": "A pane of glass bursts into shards: two corner points, then size, spread, speed and the shard group."
+    },
+    "sh.map.ground_morph_draw": {
+      "signature": "sh.map.ground_morph_draw(level)",
+      "description": ""
+    },
+    "sh.map.harry_fall_direction": {
+      "signature": "sh.map.harry_fall_direction()",
+      "description": "The fall direction Harry's script keeps."
+    },
+    "sh.map.lightning_bolt": {
+      "signature": "sh.map.lightning_bolt(...)",
+      "description": ""
+    },
+    "sh.map.lightning_clear": {
+      "signature": "sh.map.lightning_clear(...)",
+      "description": ""
+    },
+    "sh.map.lightning_init": {
+      "signature": "sh.map.lightning_init(slot)",
+      "description": "Sets up the lightning cloud around the character of the slot (final map)."
+    },
+    "sh.map.lightning_resume": {
+      "signature": "sh.map.lightning_resume()",
+      "description": "New lightning bolts again (final map)."
+    },
+    "sh.map.lightning_sfx_volume_set": {
+      "signature": "sh.map.lightning_sfx_volume_set(v)",
+      "description": "Sets the thunder volume, 0..255 (final map)."
+    },
+    "sh.map.lightning_stop": {
+      "signature": "sh.map.lightning_stop()",
+      "description": "No new lightning bolts (final map)."
+    },
+    "sh.map.lightning_update": {
+      "signature": "sh.map.lightning_update(...)",
+      "description": ""
+    },
+    "sh.map.name": {
+      "signature": "sh.map.name() -> name",
+      "description": "The name of the loaded map."
+    },
+    "sh.map.particle_emitter_start": {
+      "signature": "sh.map.particle_emitter_start()",
+      "description": ""
+    },
+    "sh.map.particles_update": {
+      "signature": "sh.map.particles_update(unused, map, arg)",
+      "description": ""
+    },
+    "sh.map.plate_door_image_load": {
+      "signature": "sh.map.plate_door_image_load()",
+      "description": "Queues the plate door's picture into the inspection image; returns the queue index."
+    },
+    "sh.map.player_fall_backward": {
+      "signature": "sh.map.player_fall_backward()",
+      "description": "Makes Harry fall backwards (map0_s01)."
+    },
+    "sh.map.player_weapon_hide": {
+      "signature": "sh.map.player_weapon_hide()",
+      "description": ""
+    },
+    "sh.map.player_weapon_unequip": {
+      "signature": "sh.map.player_weapon_unequip()",
+      "description": ""
+    },
+    "sh.map.set": {
+      "signature": "sh.map.set(name, value[, i])",
+      "description": "Writes a map variable by name."
+    },
+    "sh.map.smoke_emitter_start": {
+      "signature": "sh.map.smoke_emitter_start()",
+      "description": ""
+    },
+    "sh.map.spawn_info_flags_set": {
+      "signature": "sh.map.spawn_info_flags_set(row, idx, flags)",
+      "description": "Sets the spawn flags of entry idx of spawn row 0 or 1."
+    },
+    "sh.map.spawn_variants_apply": {
+      "signature": "sh.map.spawn_variants_apply()",
+      "description": "Chooses the map's spawn variant again."
+    },
+    "sh.map.thunder_gaps_reset": {
+      "signature": "sh.map.thunder_gaps_reset()",
+      "description": "Clears the thunder pacing slots (final map)."
+    },
+    "sh.map.thunder_gaps_tick": {
+      "signature": "sh.map.thunder_gaps_tick()",
+      "description": "Runs the thunder pacing slots down (final map)."
+    },
+    "sh.map.ufo_ending_slide_in_draw": {
+      "signature": "sh.map.ufo_ending_slide_in_draw(...)",
+      "description": ""
+    },
+    "sh.map.ufo_ending_sprite_draw": {
+      "signature": "sh.map.ufo_ending_sprite_draw(...)",
+      "description": ""
+    },
+    "sh.map.ufo_glow_spawn": {
+      "signature": "sh.map.ufo_glow_spawn(ref, …)",
+      "description": ""
+    },
+    "sh.map.water_drips_start": {
+      "signature": "sh.map.water_drips_start(i)",
+      "description": "Spawns the splashes of water drip i; returns their count."
+    },
+    "sh.map.water_stream_start": {
+      "signature": "sh.map.water_stream_start()",
+      "description": "Starts the stream of water: its drops spawned, ripples reset."
+    },
+    "sh.map.water_stream_stop": {
+      "signature": "sh.map.water_stream_stop()",
+      "description": "Stops the stream of water."
+    },
+    "sh.map.weather_density_set": {
+      "signature": "sh.map.weather_density_set(n)",
+      "description": ""
+    },
+    "sh.map.weather_set": {
+      "signature": "sh.map.weather_set(mode, arg)",
+      "description": "Sets the map's weather environment."
+    },
+    "sh.map6_s02.lake_effect_init": {
+      "signature": "sh.map6_s02.lake_effect_init(rebuild)",
+      "description": "Sets up (0) or rebuilds (1) the lake surface textures, on a map whose overlay.json declares the effect lake_surface."
+    },
+    "sh.map_box_outline_draw": {
+      "signature": "sh.map_box_outline_draw(a0..a8)",
+      "description": ""
+    },
+    "sh.map_effects_init": {
+      "signature": "sh.map_effects_init(a, b)",
+      "description": ""
+    },
+    "sh.map_effects_update": {
+      "signature": "sh.map_effects_update(a, b, prim_type, \"var\", arg4, arg5)",
+      "description": ""
+    },
+    "sh.map_event_set": {
+      "signature": "sh.map_event_set(sys_state, param, map, complete_flag)",
+      "description": "Queues a synthetic map event; the game picks it up on the next tick."
+    },
+    "sh.map_msg_audio": {
+      "signature": "sh.map_msg_audio(...)",
+      "description": ""
+    },
+    "sh.map_name": {
+      "signature": "sh.map_name() -> name",
+      "description": "The name of the loaded map, like \"map1_s02\"."
+    },
+    "sh.map_screen_marking_draw": {
+      "signature": "sh.map_screen_marking_draw(mode, page, flag, …)",
+      "description": ""
+    },
+    "sh.map_screen_player_mark_draw": {
+      "signature": "sh.map_screen_player_mark_draw(a, b, c, d)",
+      "description": ""
+    },
+    "sh.map_screen_vertex_draw": {
+      "signature": "sh.map_screen_vertex_draw(a, b, c)",
+      "description": ""
+    },
+    "sh.math.atan2": {
+      "signature": "sh.math.atan2(x, z) -> angle",
+      "description": "The Q12 angle of a direction, as the game computes it."
+    },
+    "sh.math.bone_point": {
+      "signature": "sh.math.bone_point(bone_ref, x, y, z) -> x, y, z",
+      "description": "A point of a bone's space in the world, in geometry units (256 = 1 m)."
+    },
+    "sh.math.cos": {
+      "signature": "sh.math.cos(angle) -> q12",
+      "description": "Cosine of a Q12 angle from the game's table, Q12."
+    },
+    "sh.math.distance_2d": {
+      "signature": "sh.math.distance_2d(x1, z1, x2, z2) -> distance",
+      "description": "The distance between two points on the ground plane."
+    },
+    "sh.math.point_from_angle": {
+      "signature": "sh.math.point_from_angle(...)",
+      "description": ""
+    },
+    "sh.math.segment_distance": {
+      "signature": "sh.math.segment_distance(px, pz, ax, az, bx, bz) -> distance, t",
+      "description": "The distance from a point to a segment and where along the segment the nearest point is."
+    },
+    "sh.math.sin": {
+      "signature": "sh.math.sin(angle) -> q12",
+      "description": "Sine of a Q12 angle from the game's table, Q12."
+    },
+    "sh.math.sqrt": {
+      "signature": "sh.math.sqrt(v) -> root",
+      "description": "The game's integer square root."
+    },
+    "sh.math.vec2_len_q6": {
+      "signature": "sh.math.vec2_len_q6(x, z) -> length",
+      "description": "The length of a 2D vector, computed in Q6 so large values do not overflow."
+    },
+    "sh.math.vector_length": {
+      "signature": "sh.math.vector_length(x, y, z) -> length",
+      "description": "The length of a 3D vector."
+    },
+    "sh.math_atan2": {
+      "signature": "sh.math_atan2(x, z) -> angle",
+      "description": "The Q12 angle of a direction, as the game computes it."
+    },
+    "sh.math_cos": {
+      "signature": "sh.math_cos(angle) -> q12",
+      "description": "Cosine of a Q12 angle from the game's table, Q12."
+    },
+    "sh.math_point_from_angle": {
+      "signature": "sh.math_point_from_angle(x, y, z, angle, a2, a3)",
+      "description": ""
+    },
+    "sh.math_sin": {
+      "signature": "sh.math_sin(angle) -> q12",
+      "description": "Sine of a Q12 angle from the game's table, Q12."
+    },
+    "sh.math_vec2_mag_q6": {
+      "signature": "sh.math_vec2_mag_q6(x, z) -> length",
+      "description": "The length of a 2D vector, computed in Q6 so large values do not overflow."
+    },
+    "sh.menu.action": {
+      "signature": "sh.menu.action(name, fn)",
+      "description": "Menu scripts: registers a native action that rows refer to with native = name."
+    },
+    "sh.menu.add_page": {
+      "signature": "sh.menu.add_page{ parent, id, title, rows[, label, help, link_id, on_open, leave_confirm, on_leave] } -> bool",
+      "description": "Menu scripts: describes a page and puts a link to it into the menu parent; with parent \"options\" the link goes onto the Mod Options page."
+    },
+    "sh.menu.after_load": {
+      "signature": "sh.menu.after_load(fn)",
+      "description": "Menu scripts: fn runs once when all menu files, the base and the mods, have run."
+    },
+    "sh.menu.append_rows": {
+      "signature": "sh.menu.append_rows(id, rows) -> bool",
+      "description": "Menu scripts: adds rows to an existing menu, before its tail rows; false when there is no such menu."
+    },
+    "sh.menu.close": {
+      "signature": "sh.menu.close() -> bool",
+      "description": "Menu scripts: closes the open menu."
+    },
+    "sh.menu.define": {
+      "signature": "sh.menu.define{ id, title, rows[, on_open, leave_confirm, on_leave] }",
+      "description": "Menu scripts: describes a menu; a second define with the same id replaces it."
+    },
+    "sh.menu.is_open": {
+      "signature": "sh.menu.is_open() -> bool",
+      "description": "Menu scripts: whether a menu is open."
+    },
+    "sh.menu.list": {
+      "signature": "sh.menu.list(name, fn)",
+      "description": "Menu scripts: registers a native list of choices that rows refer to with native = name."
+    },
+    "sh.menu.native_visible": {
+      "signature": "sh.menu.native_visible(name) -> bool",
+      "description": "Menu scripts: the answer of the engine's visibility predicate `name` (the one rows name in `native`); false when there is none."
+    },
+    "sh.menu.open": {
+      "signature": "sh.menu.open(id) -> bool",
+      "description": "Menu scripts: opens a menu as a screen of the player."
+    },
+    "sh.menu.page_count": {
+      "signature": "sh.menu.page_count(parent) -> n",
+      "description": "Menu scripts: how many pages were added to a menu with add_page."
+    },
+    "sh.menu.run": {
+      "signature": "sh.menu.run(name) -> bool",
+      "description": "Menu scripts: runs the engine's menu action `name`; false when there is none."
+    },
+    "sh.menu.value": {
+      "signature": "sh.menu.value(name, get[, set])",
+      "description": "Menu scripts: registers a native value that rows refer to with native = name."
+    },
+    "sh.mods.apply_live": {
+      "signature": "sh.mods.apply_live() -> bool",
+      "description": "Menu scripts: after save(), applies a choice that differs only by mods with \"requires_restart\": false."
+    },
+    "sh.mods.dir": {
+      "signature": "sh.mods.dir() -> path",
+      "description": "Menu scripts: the mods folder beside the executable; \"\" when there is none."
+    },
+    "sh.mods.editable": {
+      "signature": "sh.mods.editable() -> bool",
+      "description": "Menu scripts: whether mods can be changed now (only in the Options of the title screen)."
+    },
+    "sh.mods.get": {
+      "signature": "sh.mods.get(id) -> {id, name, version, api}",
+      "description": "An active mod and the table it published with mod.export; nil when the mod is not active."
+    },
+    "sh.mods.list": {
+      "signature": "sh.mods.list() -> mods",
+      "description": "Menu scripts: the installed mods in the pending order, each a table with id, name, version, state, enabled and more."
+    },
+    "sh.mods.move": {
+      "signature": "sh.mods.move(id, delta) -> bool",
+      "description": "Menu scripts: moves a mod in the pending order; a negative delta is earlier."
+    },
+    "sh.mods.reload": {
+      "signature": "sh.mods.reload() -> lines",
+      "description": "Menu scripts: reloads the files of the active mods; returns what was done."
+    },
+    "sh.mods.restart": {
+      "signature": "sh.mods.restart()",
+      "description": "Menu scripts: restarts the game; does not return on success."
+    },
+    "sh.mods.restart_pending": {
+      "signature": "sh.mods.restart_pending() -> bool",
+      "description": "Menu scripts: the saved choice loads another set or order of mods that needs a restart."
+    },
+    "sh.mods.save": {
+      "signature": "sh.mods.save() -> ok[, error]",
+      "description": "Menu scripts: writes mods/load_order.json."
+    },
+    "sh.mods.set_enabled": {
+      "signature": "sh.mods.set_enabled(id, on) -> bool",
+      "description": "Menu scripts: changes the pending choice; enabling also enables required dependencies."
+    },
+    "sh.mouse_cursor_puzzle_override": {
+      "signature": "sh.mouse_cursor_puzzle_override(\"x_var\", \"y_var\")",
+      "description": ""
+    },
+    "sh.msg.draw": {
+      "signature": "sh.msg.draw(...)",
+      "description": "Draws a map message for this tick and returns its state."
+    },
+    "sh.msg.play_with_audio": {
+      "signature": "sh.msg.play_with_audio(...)",
+      "description": ""
+    },
+    "sh.msg.selection": {
+      "signature": "sh.msg.selection(...)",
+      "description": "Shows a choice and branches the event step on the answer."
+    },
+    "sh.msg.set_silent_yes_selection": {
+      "signature": "sh.msg.set_silent_yes_selection(value)",
+      "description": "Sets: whether \"yes\" is selected without a sound."
+    },
+    "sh.msg.show": {
+      "signature": "sh.msg.show(...)",
+      "description": "Shows a map message as an event step."
+    },
+    "sh.msg.show_dimmed": {
+      "signature": "sh.msg.show_dimmed(...)",
+      "description": ""
+    },
+    "sh.msg.show_with_audio": {
+      "signature": "sh.msg.show_with_audio(...)",
+      "description": ""
+    },
+    "sh.msg.show_with_sfx": {
+      "signature": "sh.msg.show_with_sfx(...)",
+      "description": ""
+    },
+    "sh.msg.silent_yes_selection": {
+      "signature": "sh.msg.silent_yes_selection() -> value",
+      "description": "Whether \"yes\" is selected without a sound."
+    },
+    "sh.msg_draw": {
+      "signature": "sh.msg_draw(msg) -> state",
+      "description": "Draws a map message for this tick: 0 still showing, -1 finished, 1..3 the chosen answer. Call once a tick; msg is a text key or number."
+    },
+    "sh.msg_index": {
+      "signature": "sh.msg_index(key) -> index",
+      "description": "The number of a message key in the current map's messages; -1 when the map has none."
+    },
+    "sh.music.channel_set": {
+      "signature": "sh.music.channel_set()",
+      "description": "Restarts the loaded track's channels."
+    },
+    "sh.music.layer_volume": {
+      "signature": "sh.music.layer_volume(i)",
+      "description": "The mixer's volume of layer i (0..8), Q12."
+    },
+    "sh.music.set_layer_volume": {
+      "signature": "sh.music.set_layer_volume(i, v)",
+      "description": "Sets the mixer's volume of layer i (0..8), Q12."
+    },
+    "sh.music.update": {
+      "signature": "sh.music.update(flags, fade[, l0..l7])",
+      "description": "Mixes the music layers; called every tick by the map's bgm hook."
+    },
+    "sh.music.wobble": {
+      "signature": "sh.music.wobble()",
+      "description": "The next value of the slowly wobbling music pitch (around 64); advances it."
+    },
+    "sh.npc.angle_to_target": {
+      "signature": "sh.npc.angle_to_target(slot) -> angle",
+      "description": "The angle from the character to its target."
+    },
+    "sh.npc.anim_alpha": {
+      "signature": "sh.npc.anim_alpha(slot) -> alpha",
+      "description": "The blend weight of the character's animation."
+    },
+    "sh.npc.anim_cmd": {
+      "signature": "sh.npc.anim_cmd(cmd, slot, anim_state, inc_sub_step)",
+      "description": "An animation command of an event: 0 set state, 1 await the end, 2 lock, 3 unlock, 4 reset."
+    },
+    "sh.npc.anim_duration": {
+      "signature": "sh.npc.anim_duration(slot)",
+      "description": "The duration of the character's active clip, Q12 keyframes per second."
+    },
+    "sh.npc.anim_flag_bits": {
+      "signature": "sh.npc.anim_flag_bits(slot) -> bits",
+      "description": "The flag bits of the character's animation."
+    },
+    "sh.npc.anim_flags_clear": {
+      "signature": "sh.npc.anim_flags_clear(slot, flags)",
+      "description": "Clears flag bits of a character's animation (slot 0 is the player)."
+    },
+    "sh.npc.anim_flags_set": {
+      "signature": "sh.npc.anim_flags_set(slot, flags)",
+      "description": "Sets flag bits of a character's animation (slot 0 is the player)."
+    },
+    "sh.npc.anim_info_clear": {
+      "signature": "sh.npc.anim_info_clear(...)",
+      "description": ""
+    },
+    "sh.npc.anim_keyframe": {
+      "signature": "sh.npc.anim_keyframe(slot) -> keyframe",
+      "description": "The keyframe the character's animation is at."
+    },
+    "sh.npc.anim_play_to_end": {
+      "signature": "sh.npc.anim_play_to_end(slot, state)",
+      "description": "Plays the character's clip to its end."
+    },
+    "sh.npc.anim_playback_state": {
+      "signature": "sh.npc.anim_playback_state(slot)",
+      "description": "1 when the character's clip has played to its end."
+    },
+    "sh.npc.anim_start_keyframe": {
+      "signature": "sh.npc.anim_start_keyframe(slot)",
+      "description": "The first keyframe of the character's active clip."
+    },
+    "sh.npc.anim_status": {
+      "signature": "sh.npc.anim_status(slot) -> status",
+      "description": "The status of the character's animation."
+    },
+    "sh.npc.anim_time": {
+      "signature": "sh.npc.anim_time(slot) -> t",
+      "description": "The time of the character's animation."
+    },
+    "sh.npc.anim_unlock_play_to_end": {
+      "signature": "sh.npc.anim_unlock_play_to_end(slot)",
+      "description": "Unlocks the character's animation and plays the clip to its end."
+    },
+    "sh.npc.attack_received": {
+      "signature": "sh.npc.attack_received(slot) -> attack",
+      "description": "The attack the character received."
+    },
+    "sh.npc.aux_timer": {
+      "signature": "sh.npc.aux_timer(slot) -> t",
+      "description": "The character's spare timer."
+    },
+    "sh.npc.behavior_update": {
+      "signature": "sh.npc.behavior_update(slot)",
+      "description": "One update of the character's Lua behaviour now."
+    },
+    "sh.npc.chara_id": {
+      "signature": "sh.npc.chara_id(slot) -> id",
+      "description": "The character type in a slot; -1 when the slot is empty."
+    },
+    "sh.npc.clear": {
+      "signature": "sh.npc.clear(...)",
+      "description": "Clears a character slot."
+    },
+    "sh.npc.clear_all": {
+      "signature": "sh.npc.clear_all(...)",
+      "description": "Clears every character slot."
+    },
+    "sh.npc.collision_state": {
+      "signature": "sh.npc.collision_state(slot) -> state",
+      "description": "The character's collision state."
+    },
+    "sh.npc.control_request": {
+      "signature": "sh.npc.control_request(slot, state)",
+      "description": "A running behaviour takes the state on its next tick; one not started yet reads it on its first."
+    },
+    "sh.npc.control_state": {
+      "signature": "sh.npc.control_state(slot) -> state",
+      "description": "The state of the character's behaviour."
+    },
+    "sh.npc.death_timer": {
+      "signature": "sh.npc.death_timer(slot) -> t",
+      "description": "The character's death timer."
+    },
+    "sh.npc.effect_spawn": {
+      "signature": "sh.npc.effect_spawn(slot, x, y, z, kind, variant)",
+      "description": ""
+    },
+    "sh.npc.fall_speed": {
+      "signature": "sh.npc.fall_speed(slot) -> speed",
+      "description": "The character's fall speed."
+    },
+    "sh.npc.flags": {
+      "signature": "sh.npc.flags(slot) -> flags",
+      "description": "The character's flag word."
+    },
+    "sh.npc.group_anim_chara": {
+      "signature": "sh.npc.group_anim_chara(group)",
+      "description": "The character whose animations the animation slot of a character group holds."
+    },
+    "sh.npc.heading_angle": {
+      "signature": "sh.npc.heading_angle(slot) -> angle",
+      "description": "The direction the character moves in."
+    },
+    "sh.npc.health": {
+      "signature": "sh.npc.health(slot) -> health",
+      "description": "The character's health, Q12 (409600 = 100)."
+    },
+    "sh.npc.image_calc": {
+      "signature": "sh.npc.image_calc(...)",
+      "description": ""
+    },
+    "sh.npc.load": {
+      "signature": "sh.npc.load(slot, \"Dahlia\", …)",
+      "description": "Loads a character type into a slot of the scene."
+    },
+    "sh.npc.material_set": {
+      "signature": "sh.npc.material_set(chara, mode)",
+      "description": "Sets the blend mode of a character type's model."
+    },
+    "sh.npc.model_buffers_assign": {
+      "signature": "sh.npc.model_buffers_assign(mask)",
+      "description": ""
+    },
+    "sh.npc.model_loaded": {
+      "signature": "sh.npc.model_loaded(type)",
+      "description": "1 when a model slot holds the type's model."
+    },
+    "sh.npc.move_speed": {
+      "signature": "sh.npc.move_speed(slot) -> speed",
+      "description": "The character's movement speed."
+    },
+    "sh.npc.palette_idx": {
+      "signature": "sh.npc.palette_idx(slot) -> idx",
+      "description": "The palette of the character's model."
+    },
+    "sh.npc.path_walk": {
+      "signature": "sh.npc.path_walk(slot, anim, count, inc)",
+      "description": "Walks the character along the event's path points; the event step advances on arrival."
+    },
+    "sh.npc.path_walk_no_wait": {
+      "signature": "sh.npc.path_walk_no_wait(slot, anim, mode)",
+      "description": "One step along the event's path points, without advancing the event step on arrival."
+    },
+    "sh.npc.pos_x": {
+      "signature": "sh.npc.pos_x(1)",
+      "description": "The character's position along X, Q12."
+    },
+    "sh.npc.pos_y": {
+      "signature": "sh.npc.pos_y(slot) -> y",
+      "description": "The character's height, Q12 (y grows downwards)."
+    },
+    "sh.npc.pos_z": {
+      "signature": "sh.npc.pos_z(slot) -> z",
+      "description": "The character's position along Z, Q12."
+    },
+    "sh.npc.process_loads": {
+      "signature": "sh.npc.process_loads()",
+      "description": "Works through the queued character loads."
+    },
+    "sh.npc.record_reset": {
+      "signature": "sh.npc.record_reset(slot, type)",
+      "description": "Clears the slot's record to an idle character of the type."
+    },
+    "sh.npc.remove_saved": {
+      "signature": "sh.npc.remove_saved(slot)",
+      "description": ""
+    },
+    "sh.npc.ride_horse": {
+      "signature": "sh.npc.ride_horse(slot)",
+      "description": "The carousel horse the character rides."
+    },
+    "sh.npc.ride_state": {
+      "signature": "sh.npc.ride_state(slot)",
+      "description": "The carousel state of the character's legs clip (12 = riding)."
+    },
+    "sh.npc.rot_x": {
+      "signature": "sh.npc.rot_x(slot) -> angle",
+      "description": "The character's rotation about the X axis."
+    },
+    "sh.npc.rot_y": {
+      "signature": "sh.npc.rot_y(slot) -> angle",
+      "description": "The character's rotation about the vertical axis."
+    },
+    "sh.npc.rot_z": {
+      "signature": "sh.npc.rot_z(slot) -> angle",
+      "description": "The character's rotation about the Z axis."
+    },
+    "sh.npc.scratcher_flags_lo": {
+      "signature": "sh.npc.scratcher_flags_lo(slot) -> bits",
+      "description": "The low flags of the Hanged Scratcher's own state."
+    },
+    "sh.npc.set_angle_to_target": {
+      "signature": "sh.npc.set_angle_to_target(slot, angle)",
+      "description": "Sets: the angle from the character to its target."
+    },
+    "sh.npc.set_anim_alpha": {
+      "signature": "sh.npc.set_anim_alpha(slot, alpha)",
+      "description": "Sets: the blend weight of the character's animation."
+    },
+    "sh.npc.set_anim_buffer_size": {
+      "signature": "sh.npc.set_anim_buffer_size(group, bytes)",
+      "description": "Sets the size of a character group's animation buffer."
+    },
+    "sh.npc.set_anim_flag_bits": {
+      "signature": "sh.npc.set_anim_flag_bits(slot, bits)",
+      "description": "Sets: the flag bits of the character's animation."
+    },
+    "sh.npc.set_anim_keyframe": {
+      "signature": "sh.npc.set_anim_keyframe(slot, keyframe)",
+      "description": "Sets: the keyframe the character's animation is at."
+    },
+    "sh.npc.set_anim_status": {
+      "signature": "sh.npc.set_anim_status(slot, status)",
+      "description": "Sets: the status of the character's animation."
+    },
+    "sh.npc.set_anim_time": {
+      "signature": "sh.npc.set_anim_time(slot, t)",
+      "description": "Sets: the time of the character's animation."
+    },
+    "sh.npc.set_attack_received": {
+      "signature": "sh.npc.set_attack_received(slot, attack)",
+      "description": "Sets: the attack the character received."
+    },
+    "sh.npc.set_aux_timer": {
+      "signature": "sh.npc.set_aux_timer(slot, t)",
+      "description": "Sets: the character's spare timer."
+    },
+    "sh.npc.set_chara_id": {
+      "signature": "sh.npc.set_chara_id(slot, chara)",
+      "description": "Sets the character type of a slot (a name of chara/ or a number)."
+    },
+    "sh.npc.set_collision_state": {
+      "signature": "sh.npc.set_collision_state(slot, state)",
+      "description": "Sets: the character's collision state."
+    },
+    "sh.npc.set_control_state": {
+      "signature": "sh.npc.set_control_state(slot, state)",
+      "description": "Sets: the state of the character's behaviour."
+    },
+    "sh.npc.set_death_timer": {
+      "signature": "sh.npc.set_death_timer(slot, t)",
+      "description": "Sets: the character's death timer."
+    },
+    "sh.npc.set_fall_speed": {
+      "signature": "sh.npc.set_fall_speed(slot, speed)",
+      "description": "Sets: the character's fall speed."
+    },
+    "sh.npc.set_flags": {
+      "signature": "sh.npc.set_flags(slot, flags)",
+      "description": "Sets: the character's flag word."
+    },
+    "sh.npc.set_heading_angle": {
+      "signature": "sh.npc.set_heading_angle(slot, angle)",
+      "description": "Sets: the direction the character moves in."
+    },
+    "sh.npc.set_health": {
+      "signature": "sh.npc.set_health(slot, health)",
+      "description": "Sets: the character's health, Q12 (409600 = 100)."
+    },
+    "sh.npc.set_move_speed": {
+      "signature": "sh.npc.set_move_speed(slot, speed)",
+      "description": "Sets: the character's movement speed."
+    },
+    "sh.npc.set_palette_idx": {
+      "signature": "sh.npc.set_palette_idx(slot, idx)",
+      "description": "Sets: the palette of the character's model."
+    },
+    "sh.npc.set_pos_x": {
+      "signature": "sh.npc.set_pos_x(slot, x)",
+      "description": "Sets: the character's position along X, Q12."
+    },
+    "sh.npc.set_pos_y": {
+      "signature": "sh.npc.set_pos_y(slot, y)",
+      "description": "Sets: the character's height, Q12 (y grows downwards)."
+    },
+    "sh.npc.set_pos_z": {
+      "signature": "sh.npc.set_pos_z(slot, z)",
+      "description": "Sets: the character's position along Z, Q12."
+    },
+    "sh.npc.set_ride_height": {
+      "signature": "sh.npc.set_ride_height(slot, y)",
+      "description": "Sets the height of the carousel horse the character rides, Q12."
+    },
+    "sh.npc.set_rot_x": {
+      "signature": "sh.npc.set_rot_x(slot, angle)",
+      "description": "Sets: the character's rotation about the X axis."
+    },
+    "sh.npc.set_rot_y": {
+      "signature": "sh.npc.set_rot_y(slot, angle)",
+      "description": "Turns the character about the vertical axis."
+    },
+    "sh.npc.set_rot_z": {
+      "signature": "sh.npc.set_rot_z(slot, angle)",
+      "description": "Sets: the character's rotation about the Z axis."
+    },
+    "sh.npc.set_scratcher_flags_lo": {
+      "signature": "sh.npc.set_scratcher_flags_lo(slot, bits)",
+      "description": "Sets: the low flags of the Hanged Scratcher's own state."
+    },
+    "sh.npc.set_state_step": {
+      "signature": "sh.npc.set_state_step(slot, step)",
+      "description": "Sets the step inside the character's behaviour state."
+    },
+    "sh.npc.slot_count": {
+      "signature": "sh.npc.slot_count()",
+      "description": "The number of character slots."
+    },
+    "sh.npc.spawn": {
+      "signature": "sh.npc.spawn(\"Kaufmann\", …)",
+      "description": "Spawns a character of the map's scene."
+    },
+    "sh.npc.spawn_position_set": {
+      "signature": "sh.npc.spawn_position_set(type, spawn, x, z)",
+      "description": "Sets the spawn point of the map's spawn row of that character."
+    },
+    "sh.npc.split_head_flags": {
+      "signature": "sh.npc.split_head_flags(slot)",
+      "description": "The Split Head's state flags."
+    },
+    "sh.npc.state_step": {
+      "signature": "sh.npc.state_step(slot) -> step",
+      "description": "The step inside the character's behaviour state."
+    },
+    "sh.npc.transparent_set": {
+      "signature": "sh.npc.transparent_set(...)",
+      "description": "Makes a character drawn half transparent, or solid again."
+    },
+    "sh.overlay_screen_hide": {
+      "signature": "sh.overlay_screen_hide(fade0, fade1)",
+      "description": "Hides the full-screen texture, fading it out."
+    },
+    "sh.overlay_screen_set": {
+      "signature": "sh.overlay_screen_set(step, file, reset)",
+      "description": ""
+    },
+    "sh.overlay_screen_show": {
+      "signature": "sh.overlay_screen_show(file, fade0, fade1)",
+      "description": "Shows a full-screen texture (a clock face, a boiler panel), fading it in."
+    },
+    "sh.pad.button": {
+      "signature": "sh.pad.button(name[, mode]) -> bool",
+      "description": "A button of pad 1 by name (Circle, Cross, R3, LStickUp, ...), past the bindings."
+    },
+    "sh.pad.effect": {
+      "signature": "sh.pad.effect(idx)",
+      "description": "Runs a vibration effect (a scenario of config/pad_vibration.json)."
+    },
+    "sh.pad.effect_level": {
+      "signature": "sh.pad.effect_level(idx, level)",
+      "description": "Runs a vibration effect at a level."
+    },
+    "sh.pad_effect": {
+      "signature": "sh.pad_effect(idx, level)",
+      "description": "Runs a vibration effect this tick (config/pad_vibration.json)."
+    },
+    "sh.paper_map_cmd": {
+      "signature": "sh.paper_map_cmd(cmd, page)",
+      "description": "A command of the paper map screen for a page (a name of gamedata/paper_maps.json)."
+    },
+    "sh.paper_map_grant": {
+      "signature": "sh.paper_map_grant(page)",
+      "description": "Counts a paper map page as found."
+    },
+    "sh.paper_map_state": {
+      "signature": "sh.paper_map_state(state, page)",
+      "description": "Sets the state of the paper map screen for a page (a name of gamedata/paper_maps.json)."
+    },
+    "sh.pickup_animate": {
+      "signature": "sh.pickup_animate(item) -> bool",
+      "description": "Turns the picked item's model; true once it faces the camera."
+    },
+    "sh.player.anim_something": {
+      "signature": "sh.player.anim_something(...)",
+      "description": ""
+    },
+    "sh.player.damage_feet_front": {
+      "signature": "sh.player.damage_feet_front()",
+      "description": "Harry's reaction to the floor giving way."
+    },
+    "sh.player.extra_anim_flags_set": {
+      "signature": "sh.player.extra_anim_flags_set(flags)",
+      "description": ""
+    },
+    "sh.player.facing": {
+      "signature": "sh.player.facing() -> angle",
+      "description": "The direction Harry faces, a Q12 angle 0..4095."
+    },
+    "sh.player.flashlight": {
+      "signature": "sh.player.flashlight(on)",
+      "description": "Turns the flashlight on or off."
+    },
+    "sh.player.flex_rotation_reset": {
+      "signature": "sh.player.flex_rotation_reset()",
+      "description": ""
+    },
+    "sh.player.freeze": {
+      "signature": "sh.player.freeze(on)",
+      "description": "Takes the control of Harry away from the player (true) or gives it back."
+    },
+    "sh.player.held_item_hide": {
+      "signature": "sh.player.held_item_hide()",
+      "description": "Hides the item in Harry's hand."
+    },
+    "sh.player.held_item_prev": {
+      "signature": "sh.player.held_item_prev()",
+      "description": "The item Harry held before."
+    },
+    "sh.player.held_item_set": {
+      "signature": "sh.player.held_item_set(item)",
+      "description": "Shows this item in Harry's hand."
+    },
+    "sh.player.held_item_show": {
+      "signature": "sh.player.held_item_show()",
+      "description": "Shows the item in Harry's hand."
+    },
+    "sh.player.item_remove": {
+      "signature": "sh.player.item_remove(item, n)",
+      "description": "Removes n of an item, frees its slot and sorts the inventory."
+    },
+    "sh.player.map_anim_infos_set": {
+      "signature": "sh.player.map_anim_infos_set(first, table, count)",
+      "description": "Sets Harry's map clips from an animation table."
+    },
+    "sh.player.map_anim_load": {
+      "signature": "sh.player.map_anim_load(...)",
+      "description": ""
+    },
+    "sh.player.map_anim_ranges_set": {
+      "signature": "sh.player.map_anim_ranges_set(first, symbol, count)",
+      "description": "Sets Harry's map keyframe ranges from an array of the loaded map's tables."
+    },
+    "sh.player.map_anims_append": {
+      "signature": "sh.player.map_anims_append()",
+      "description": "Adds the map's extra animations to Harry's base table."
+    },
+    "sh.player.pos": {
+      "signature": "sh.player.pos()",
+      "description": "Harry's position in Q12 (4096 = 1 m, y grows downwards)."
+    },
+    "sh.player.set_pos": {
+      "signature": "sh.player.set_pos(x, y, z)",
+      "description": "Moves Harry to a position in Q12."
+    },
+    "sh.player.set_weapon_attack": {
+      "signature": "sh.player.set_weapon_attack(attack)",
+      "description": "Sets the attack of Harry's weapon."
+    },
+    "sh.player.weapon_attack": {
+      "signature": "sh.player.weapon_attack() -> attack",
+      "description": "The attack of Harry's weapon."
+    },
+    "sh.player.weapon_attack_set": {
+      "signature": "sh.player.weapon_attack_set(attack)",
+      "description": "Sets the attack of Harry's weapon."
+    },
+    "sh.player.weapon_restore": {
+      "signature": "sh.player.weapon_restore()",
+      "description": "Gives back the weapon put away by weapon_stash."
+    },
+    "sh.player.weapon_stash": {
+      "signature": "sh.player.weapon_stash()",
+      "description": "Puts Harry's weapon away for a scene."
+    },
+    "sh.player_fall_tick": {
+      "signature": "sh.player_fall_tick(dir)",
+      "description": "One tick of a scripted fall (+1) or rise (-1) of Harry."
+    },
+    "sh.player_freeze": {
+      "signature": "sh.player_freeze(on)",
+      "description": "Takes the control of Harry away from the player (true) or gives it back."
+    },
+    "sh.player_move_speed_clear": {
+      "signature": "sh.player_move_speed_clear()",
+      "description": "Zeroes Harry's movement speed."
+    },
+    "sh.player_pos": {
+      "signature": "sh.player_pos() -> x, y, z",
+      "description": "Harry's position in Q12 (4096 = 1 m, y grows downwards)."
+    },
+    "sh.player_rot_y_get": {
+      "signature": "sh.player_rot_y_get() -> angle",
+      "description": "Harry's rotation about the vertical axis, Q12."
+    },
+    "sh.player_rotate": {
+      "signature": "sh.player_rotate(angle)",
+      "description": "Turns Harry by a Q12 angle."
+    },
+    "sh.player_set_pos": {
+      "signature": "sh.player_set_pos(x, y, z)",
+      "description": "Moves Harry to a position in Q12."
+    },
+    "sh.player_vel_y_get": {
+      "signature": "sh.player_vel_y_get() -> speed",
+      "description": "Harry's vertical speed."
+    },
+    "sh.player_vel_y_set": {
+      "signature": "sh.player_vel_y_set(speed)",
+      "description": "Sets Harry's vertical speed."
+    },
+    "sh.player_weapon_attack_get": {
+      "signature": "sh.player_weapon_attack_get() -> attack",
+      "description": "The attack of the weapon in Harry's hands."
+    },
+    "sh.player_weapon_attack_set": {
+      "signature": "sh.player_weapon_attack_set(attack)",
+      "description": "Sets the attack of the weapon in Harry's hands."
+    },
+    "sh.player_weapon_restore": {
+      "signature": "sh.player_weapon_restore()",
+      "description": "Equips again the weapon player_weapon_stash put away."
+    },
+    "sh.player_weapon_stash": {
+      "signature": "sh.player_weapon_stash()",
+      "description": "Puts the equipped weapon away for a scene; player_weapon_restore brings it back."
+    },
+    "sh.render.ambient_light": {
+      "signature": "sh.render.ambient_light(...)",
+      "description": ""
+    },
+    "sh.render.background": {
+      "signature": "sh.render.background{texture}",
+      "description": "Fills the screen with the named picture this frame."
+    },
+    "sh.render.display_init": {
+      "signature": "sh.render.display_init{width = 320, interlaced = false}",
+      "description": "Sets the display up again (width 256, 320, 368, 512 or 640)."
+    },
+    "sh.render.display_swap": {
+      "signature": "sh.render.display_swap()",
+      "description": "Swaps the display buffers now."
+    },
+    "sh.render.fade_in_level": {
+      "signature": "sh.render.fade_in_level() -> q12",
+      "description": "How far the screen has faded in: 4096 fully shown, 0 black."
+    },
+    "sh.render.flat_light": {
+      "signature": "sh.render.flat_light(...)",
+      "description": ""
+    },
+    "sh.render.frame_hold": {
+      "signature": "sh.render.frame_hold{source, tint, blend, layer, offset}",
+      "description": "Draws a frame over the new one for this tick: source \"previous\" (a trail), \"held\" or \"current\"; blend none, half, add, sub or quarter."
+    },
+    "sh.render.held_capture": {
+      "signature": "sh.render.held_capture()",
+      "description": "Copies the frame at the end of the world pass into the held picture."
+    },
+    "sh.render.held_clear": {
+      "signature": "sh.render.held_clear()",
+      "description": "Makes the held picture black."
+    },
+    "sh.render.light_mode": {
+      "signature": "sh.render.light_mode(...)",
+      "description": ""
+    },
+    "sh.render.panel": {
+      "signature": "sh.render.panel(ax, ay, az, bx, by, bz, u0, v0, u1, v1, shade, page, palette_x, palette_y, blend, split) -> panels",
+      "description": "Draws an upright textured rectangle in the world from corner a (top) to corner b (bottom), in geometry units from the panel view."
+    },
+    "sh.render.panel_view": {
+      "signature": "sh.render.panel_view(x, y, z)",
+      "description": "Sets the world point (Q12) the panels drawn after it are relative to."
+    },
+    "sh.render.picture_screen": {
+      "signature": "sh.render.picture_screen(on)",
+      "description": "PC: the frames are a flat full-screen picture (4:3 with black side bars)."
+    },
+    "sh.render.sprite": {
+      "signature": "sh.render.sprite{texture, rect, uv, tint, blend, layer} or {texture, uv, sprites = {...}}",
+      "description": "Draws rectangles 1:1 from a named texture (\"background\"); up to 64 per call."
+    },
+    "sh.render.texture_load": {
+      "signature": "sh.render.texture_load{file, texture, buffer}",
+      "description": "Loads a TIM picture into a named texture (\"background\", \"paper_map\"); wait with sh.load.wait()."
+    },
+    "sh.render.tile": {
+      "signature": "sh.render.tile{rect, colour, blend, layer, tpage, dither}",
+      "description": "A rectangle of one colour; rect = {x, y, w, h} from the screen's centre."
+    },
+    "sh.render.ui_draw_mode": {
+      "signature": "sh.render.ui_draw_mode(...)",
+      "description": ""
+    },
+    "sh.render.ui_frame": {
+      "signature": "sh.render.ui_frame(...)",
+      "description": ""
+    },
+    "sh.render.ui_gouraud": {
+      "signature": "sh.render.ui_gouraud(...)",
+      "description": ""
+    },
+    "sh.render.vblank_interval": {
+      "signature": "sh.render.vblank_interval(n)",
+      "description": "Makes a frame last at least n vertical blanks (1..8)."
+    },
+    "sh.render.vram_restore": {
+      "signature": "sh.render.vram_restore{rect = {x, y, w, h}, buffer}",
+      "description": "Copies a backup buffer back into the video memory."
+    },
+    "sh.render.vram_save": {
+      "signature": "sh.render.vram_save{rect = {x, y, w, h}, buffer}",
+      "description": "Copies a part of the video memory into a backup buffer."
+    },
+    "sh.render.world_quads": {
+      "signature": "sh.render.world_quads{points, quads, texture, blend, depth_bias, clip} -> count",
+      "description": "Textured quads in the world from an effect slot's draw hook; points are x, y, z in Q12."
+    },
+    "sh.render.world_redirect": {
+      "signature": "sh.render.world_redirect{layers = {{offset, tint, blend}, ...}}",
+      "description": "This frame the world is drawn into the held picture and shown as 1..8 layers."
+    },
+    "sh.rng.int": {
+      "signature": "sh.rng.int(low, high) -> n",
+      "description": "A random integer in low..high from the game's generator (signed remainder)."
+    },
+    "sh.rng.rand16": {
+      "signature": "sh.rng.rand16() -> n",
+      "description": "The next 16-bit number of the game's random generator."
+    },
+    "sh.rng.set_seed": {
+      "signature": "sh.rng.set_seed(seed)",
+      "description": "Seeds the game's random generator."
+    },
+    "sh.rng.uint": {
+      "signature": "sh.rng.uint(low, high) -> n",
+      "description": "A random integer in low..high from the game's generator (unsigned remainder)."
+    },
+    "sh.rng_int": {
+      "signature": "sh.rng_int(low, high) -> n",
+      "description": "A random integer in low..high from the game's generator (signed remainder)."
+    },
+    "sh.rng_uint": {
+      "signature": "sh.rng_uint(low, high) -> n",
+      "description": "A random integer in low..high from the game's generator (unsigned remainder)."
+    },
+    "sh.save.clear_game_count": {
+      "signature": "sh.save.clear_game_count() -> value",
+      "description": "The count of finished games kept in the save."
+    },
+    "sh.save.clear_game_endings": {
+      "signature": "sh.save.clear_game_endings() -> value",
+      "description": "The endings seen, as kept in the save."
+    },
+    "sh.save.current_ending_flags": {
+      "signature": "sh.save.current_ending_flags() -> value",
+      "description": "The ending flags of this playthrough."
+    },
+    "sh.save.game_difficulty": {
+      "signature": "sh.save.game_difficulty() -> n",
+      "description": "The difficulty kept in the save."
+    },
+    "sh.save.location_id": {
+      "signature": "sh.save.location_id() -> value",
+      "description": "The location number kept in the save."
+    },
+    "sh.save.map_idx": {
+      "signature": "sh.save.map_idx() -> idx",
+      "description": "The map number kept in the save."
+    },
+    "sh.save.map_room_idx": {
+      "signature": "sh.save.map_room_idx() -> idx",
+      "description": "The room of the map the player is in."
+    },
+    "sh.save.next_fear_mode": {
+      "signature": "sh.save.next_fear_mode() -> value",
+      "description": "Bit 0 of the mode bits of the save: a Next Fear game."
+    },
+    "sh.save.set_clear_game_count": {
+      "signature": "sh.save.set_clear_game_count(value)",
+      "description": "Sets: the count of finished games kept in the save."
+    },
+    "sh.save.set_clear_game_endings": {
+      "signature": "sh.save.set_clear_game_endings(value)",
+      "description": "Sets: the endings seen, as kept in the save."
+    },
+    "sh.save.set_current_ending_flags": {
+      "signature": "sh.save.set_current_ending_flags(value)",
+      "description": "Sets: the ending flags of this playthrough."
+    },
+    "sh.save.set_game_difficulty": {
+      "signature": "sh.save.set_game_difficulty(n)",
+      "description": "Sets the difficulty kept in the save."
+    },
+    "sh.save.set_location_id": {
+      "signature": "sh.save.set_location_id(value)",
+      "description": "Sets: the location number kept in the save."
+    },
+    "sh.save.set_map_idx": {
+      "signature": "sh.save.set_map_idx(idx)",
+      "description": "Sets the map number kept in the save."
+    },
+    "sh.save.set_next_fear_mode": {
+      "signature": "sh.save.set_next_fear_mode(value)",
+      "description": "Sets: bit 0 of the mode bits of the save: a Next Fear game."
+    },
+    "sh.savegame.enemy_state_get": {
+      "signature": "sh.savegame.enemy_state_get(...)",
+      "description": ""
+    },
+    "sh.savegame.enemy_state_set": {
+      "signature": "sh.savegame.enemy_state_set(...)",
+      "description": ""
+    },
+    "sh.savegame_get": {
+      "signature": "sh.savegame_get(field) -> value",
+      "description": "A field of the save: \"map_idx\", \"paper_map_idx\" (a page name), \"item_toggle_flags\"."
+    },
+    "sh.savegame_set": {
+      "signature": "sh.savegame_set(field, v)",
+      "description": "Writes a field of the save (see savegame_get)."
+    },
+    "sh.screen.bg_draw": {
+      "signature": "sh.screen.bg_draw(...)",
+      "description": ""
+    },
+    "sh.screen.bg_draw_alt": {
+      "signature": "sh.screen.bg_draw_alt(...)",
+      "description": ""
+    },
+    "sh.screen.bg_gamma": {
+      "signature": "sh.screen.bg_gamma() -> value",
+      "description": "The gamma the background picture is drawn with."
+    },
+    "sh.screen.bg_transition": {
+      "signature": "sh.screen.bg_transition(from, to, alpha)",
+      "description": "Cross-fades between two pictures (item_inspection_img, bg_texture_img or a map variable)."
+    },
+    "sh.screen.credits_roll_finish": {
+      "signature": "sh.screen.credits_roll_finish()",
+      "description": "Ends the staff roll."
+    },
+    "sh.screen.credits_roll_music_started": {
+      "signature": "sh.screen.credits_roll_music_started()",
+      "description": "True when the music of the staff roll has started."
+    },
+    "sh.screen.credits_roll_start": {
+      "signature": "sh.screen.credits_roll_start(ending)",
+      "description": "Starts the staff roll for an ending."
+    },
+    "sh.screen.credits_start": {
+      "signature": "sh.screen.credits_start(...)",
+      "description": ""
+    },
+    "sh.screen.credits_update": {
+      "signature": "sh.screen.credits_update(...)",
+      "description": ""
+    },
+    "sh.screen.cursor_draw": {
+      "signature": "sh.screen.cursor_draw(...)",
+      "description": ""
+    },
+    "sh.screen.debug_text_position": {
+      "signature": "sh.screen.debug_text_position(x, y)",
+      "description": ""
+    },
+    "sh.screen.fade_reset_timestep": {
+      "signature": "sh.screen.fade_reset_timestep(...)",
+      "description": ""
+    },
+    "sh.screen.fade_start": {
+      "signature": "sh.screen.fade_start(...)",
+      "description": ""
+    },
+    "sh.screen.fade_status": {
+      "signature": "sh.screen.fade_status() -> value",
+      "description": "The status word of the screen fade."
+    },
+    "sh.screen.pickup_animate": {
+      "signature": "sh.screen.pickup_animate(item) -> bool",
+      "description": "Turns the model of a picked-up item towards the camera; true when it faces it."
+    },
+    "sh.screen.puzzle_cursor": {
+      "signature": "sh.screen.puzzle_cursor(...)",
+      "description": ""
+    },
+    "sh.screen.set_bg_gamma": {
+      "signature": "sh.screen.set_bg_gamma(value)",
+      "description": "Sets: the gamma the background picture is drawn with."
+    },
+    "sh.screen.set_fade_status": {
+      "signature": "sh.screen.set_fade_status(value)",
+      "description": "Sets: the status word of the screen fade."
+    },
+    "sh.screen_fade_finished": {
+      "signature": "sh.screen_fade_finished() -> bool",
+      "description": "True when the screen fade has finished."
+    },
+    "sh.screen_fade_reset_timestep": {
+      "signature": "sh.screen_fade_reset_timestep()",
+      "description": "Puts the screen fade's speed back to its default."
+    },
+    "sh.screen_fade_status_set": {
+      "signature": "sh.screen_fade_status_set(status)",
+      "description": ""
+    },
+    "sh.screen_fade_timestep_get": {
+      "signature": "sh.screen_fade_timestep_get() -> q12",
+      "description": "The screen fade's time step."
+    },
+    "sh.screen_fade_timestep_set": {
+      "signature": "sh.screen_fade_timestep_set(q12)",
+      "description": "Sets the screen fade's time step."
+    },
+    "sh.sd_call": {
+      "signature": "sh.sd_call(n)",
+      "description": "Sends a command number to the sound driver."
+    },
+    "sh.sd_play_sfx": {
+      "signature": "sh.sd_play_sfx(sound, balance, vol)",
+      "description": "Plays a sound with a stereo balance and a volume."
+    },
+    "sh.selection_silent": {
+      "signature": "sh.selection_silent(on)",
+      "description": "Makes the next \"yes\" of a choice silent."
+    },
+    "sh.session.get": {
+      "signature": "sh.session.get(key[, default]) -> value",
+      "description": "An integer kept by name for the life of the process (not saved, survives map changes)."
+    },
+    "sh.session.set": {
+      "signature": "sh.session.set(key, value)",
+      "description": "Stores an integer by name for the life of the process."
+    },
+    "sh.sfx": {
+      "signature": "sh.sfx(sound)",
+      "description": "Plays a sound by registry name or number."
+    },
+    "sh.sfx_3d": {
+      "signature": "sh.sfx_3d(sound[, vol_q8])",
+      "description": "Plays a sound at the point of the active map event."
+    },
+    "sh.sfx_3d_at": {
+      "signature": "sh.sfx_3d_at(sound, x, y, z[, vol_q8])",
+      "description": "Plays a sound at a position in the world."
+    },
+    "sh.sfx_attributes_update": {
+      "signature": "sh.sfx_attributes_update(...)",
+      "description": ""
+    },
+    "sh.sfx_falloff_pitch_play": {
+      "signature": "sh.sfx_falloff_pitch_play(sound, x, y, z[, vol[, falloff[, pitch]]])",
+      "description": "Plays a sound at a position with a distance falloff and a pitch."
+    },
+    "sh.sfx_flags_pitch_play": {
+      "signature": "sh.sfx_flags_pitch_play(sound, x, y, z, vol, flags, pitch)",
+      "description": "sfx_flags_play with a pitch."
+    },
+    "sh.sfx_flags_play": {
+      "signature": "sh.sfx_flags_play(sound, x, y, z[, vol[, flags]])",
+      "description": "Plays a sound at a position with flags: 1 mono, 2 no distance attenuation, 4 update attributes."
+    },
+    "sh.sfx_pitch_play": {
+      "signature": "sh.sfx_pitch_play(sound, x, y, z[, vol[, pitch]])",
+      "description": "Plays a sound at a position with a pitch."
+    },
+    "sh.sfx_play_at_pos": {
+      "signature": "sh.sfx_play_at_pos(...)",
+      "description": ""
+    },
+    "sh.sfx_stop": {
+      "signature": "sh.sfx_stop(sound)",
+      "description": "Stops a sound."
+    },
+    "sh.sound.attributes": {
+      "signature": "sh.sound.attributes(...)",
+      "description": ""
+    },
+    "sh.sound.bgm_change": {
+      "signature": "sh.sound.bgm_change(idx)",
+      "description": "Chooses the room's music track."
+    },
+    "sh.sound.bgm_crossfade": {
+      "signature": "sh.sound.bgm_crossfade(...)",
+      "description": ""
+    },
+    "sh.sound.bgm_flags": {
+      "signature": "sh.sound.bgm_flags(...)",
+      "description": ""
+    },
+    "sh.sound.bgm_play_new": {
+      "signature": "sh.sound.bgm_play_new(...)",
+      "description": ""
+    },
+    "sh.sound.exists": {
+      "signature": "sh.sound.exists(name) -> bool",
+      "description": "True when the registry has the sound."
+    },
+    "sh.sound.id": {
+      "signature": "sh.sound.id(name) -> id",
+      "description": "The number of a sound by registry name; an unknown name is an error."
+    },
+    "sh.sound.music_channels": {
+      "signature": "sh.sound.music_channels()",
+      "description": "The sound driver's count of busy music channels; 0 when the track stopped."
+    },
+    "sh.sound.music_layer_volume_set": {
+      "signature": "sh.sound.music_layer_volume_set(layer, vol)",
+      "description": "Sets the driver's volume of one music layer (0..255) at once."
+    },
+    "sh.sound.name": {
+      "signature": "sh.sound.name(id) -> name",
+      "description": "The registry name of a sound number."
+    },
+    "sh.sound.play": {
+      "signature": "sh.sound.play(\"menu_confirm\", 0, 0)",
+      "description": "Plays a sound."
+    },
+    "sh.sound.play_3d": {
+      "signature": "sh.sound.play_3d(...)",
+      "description": "Plays a sound at a position in the world."
+    },
+    "sh.sound.play_3d_falloff": {
+      "signature": "sh.sound.play_3d_falloff(sfx, x, y, z, vol, falloff, pitch)",
+      "description": "Plays a sound at a position with a distance falloff and a pitch."
+    },
+    "sh.sound.play_falloff": {
+      "signature": "sh.sound.play_falloff(...)",
+      "description": ""
+    },
+    "sh.sound.play_with_flags": {
+      "signature": "sh.sound.play_with_flags(...)",
+      "description": ""
+    },
+    "sh.sound.radio_npc_clear": {
+      "signature": "sh.sound.radio_npc_clear(...)",
+      "description": ""
+    },
+    "sh.sound.radio_stop": {
+      "signature": "sh.sound.radio_stop(...)",
+      "description": "Stops the radio's static."
+    },
+    "sh.sound.sd_call": {
+      "signature": "sh.sound.sd_call(...)",
+      "description": ""
+    },
+    "sh.sound.set_bgm_flags": {
+      "signature": "sh.sound.set_bgm_flags(...)",
+      "description": ""
+    },
+    "sh.sound.sfx_mix_reset": {
+      "signature": "sh.sound.sfx_mix_reset()",
+      "description": "Resets the positional music mix."
+    },
+    "sh.sound.sfx_mix_update": {
+      "signature": "sh.sound.sfx_mix_update(sfx, x, y, z, volume, range, mode)",
+      "description": "The positional music mix (the park's music box): pan and volume from the player's distance to the point; range is the distance it is heard within."
+    },
+    "sh.sound.stop": {
+      "signature": "sh.sound.stop(...)",
+      "description": "Stops a sound."
+    },
+    "sh.sound.streaming": {
+      "signature": "sh.sound.streaming(...)",
+      "description": ""
+    },
+    "sh.sound.xa_preload": {
+      "signature": "sh.sound.xa_preload(...)",
+      "description": ""
+    },
+    "sh.spawn": {
+      "signature": "sh.spawn(fn)",
+      "description": "Starts fn as a coroutine the host steps every tick (up to 256 alive); inside it use wait(), wait_frames() and wait_until()."
+    },
+    "sh.state_set": {
+      "signature": "sh.state_set(sys_state)",
+      "description": "The next system state; 0 returns to gameplay and ends the handler."
+    },
+    "sh.state_timer_get": {
+      "signature": "sh.state_timer_get() -> t",
+      "description": "The state's timer (the cross-fade alpha, Q12 0..1)."
+    },
+    "sh.state_timer_set": {
+      "signature": "sh.state_timer_set(v)",
+      "description": "Sets the state's timer."
+    },
+    "sh.sys_flags_get": {
+      "signature": "sh.sys_flags_get() -> flags",
+      "description": "The system flags."
+    },
+    "sh.sys_flags_set": {
+      "signature": "sh.sys_flags_set(flags)",
+      "description": "Sets the system flags."
+    },
+    "sh.sys_timer_get": {
+      "signature": "sh.sys_timer_get() -> t",
+      "description": "The system state's timer."
+    },
+    "sh.sys_timer_set": {
+      "signature": "sh.sys_timer_set(t)",
+      "description": "Sets the system state's timer."
+    },
+    "sh.take_item": {
+      "signature": "sh.take_item(item[, n])",
+      "description": "Removes n (default 1) of an item from the inventory."
+    },
+    "sh.text": {
+      "signature": "sh.text(key) -> text, found",
+      "description": "The text of a key in the current language, and whether the key exists."
+    },
+    "sh.timer.cutscene_get": {
+      "signature": "sh.timer.cutscene_get() -> t",
+      "description": "The cutscene clock."
+    },
+    "sh.timer.cutscene_set": {
+      "signature": "sh.timer.cutscene_set(t)",
+      "description": "Sets the cutscene clock."
+    },
+    "sh.timer.game_update": {
+      "signature": "sh.timer.game_update()",
+      "description": "Advances the played time."
+    },
+    "sh.timer.sys_get": {
+      "signature": "sh.timer.sys_get() -> t",
+      "description": "The system state's timer."
+    },
+    "sh.timer.sys_set": {
+      "signature": "sh.timer.sys_set(t)",
+      "description": "Sets the system state's timer."
+    },
+    "sh.ui.fade": {
+      "signature": "sh.ui.fade(fade_in[, white])",
+      "description": "Starts a screen fade: in (true) or out, to white when white is true."
+    },
+    "sh.ui.fade_done": {
+      "signature": "sh.ui.fade_done() -> bool",
+      "description": "True when the screen fade has finished."
+    },
+    "sh.ui.msg_draw": {
+      "signature": "sh.ui.msg_draw(msg) -> state",
+      "description": "Draws a map message for this tick: 0 still showing, -1 finished, 1..3 the chosen answer. Call once a tick; msg is a text key or number."
+    },
+    "sh.vc_cam_target": {
+      "signature": "sh.vc_cam_target(x, y, z, warp)",
+      "description": "Sets the position the camera moves to (Q12)."
+    },
+    "sh.vc_stereo_balance": {
+      "signature": "sh.vc_stereo_balance(x, y, z) -> balance",
+      "description": "The stereo balance of a world point as the camera hears it."
+    },
+    "sh.vc_view_position": {
+      "signature": "sh.vc_view_position() -> x, y, z",
+      "description": "The camera's position."
+    },
+    "sh.vc_watch_target": {
+      "signature": "sh.vc_watch_target(x, y, z, warp)",
+      "description": "Sets the point the camera watches (Q12)."
+    },
+    "sh.vec.get": {
+      "signature": "sh.vec.get(i) -> x, y, z",
+      "description": "Scratch vector i (0..15); scripts pass it to the API as \"vec:i\"."
+    },
+    "sh.vec.set": {
+      "signature": "sh.vec.set(i, x, y, z)",
+      "description": "Sets scratch vector i (0..15), referenced as \"vec:i\"."
+    },
+    "sh.vec.short_get": {
+      "signature": "sh.vec.short_get(i) -> x, y, z",
+      "description": "16-bit scratch vector i, referenced as \"svec:i\"."
+    },
+    "sh.vec.short_set": {
+      "signature": "sh.vec.short_set(i, x, y, z)",
+      "description": "Sets 16-bit scratch vector i, referenced as \"svec:i\"."
+    },
+    "sh.view.aabb_visible": {
+      "signature": "sh.view.aabb_visible(...)",
+      "description": ""
+    },
+    "sh.water_effect_disable": {
+      "signature": "sh.water_effect_disable()",
+      "description": "Turns the water effect off."
+    },
+    "sh.water_effect_enable": {
+      "signature": "sh.water_effect_enable()",
+      "description": "Turns the water effect on."
+    },
+    "sh.world.cell": {
+      "signature": "sh.world.cell(x, z)",
+      "description": "The map cell of a point."
+    },
+    "sh.world.chunk_set": {
+      "signature": "sh.world.chunk_set(file, cell_x, cell_z)",
+      "description": "Places a world chunk in a cell; file is the number of an IPD file (sh.file_number(\"BG/X.IPD\"))."
+    },
+    "sh.world.collision_groups": {
+      "signature": "sh.world.collision_groups()",
+      "description": ""
+    },
+    "sh.world.darkness_at": {
+      "signature": "sh.world.darkness_at(x, y, z)",
+      "description": "How dark a point of the world is, 0..255."
+    },
+    "sh.world.effect_slot_alloc": {
+      "signature": "sh.world.effect_slot_alloc(type)",
+      "description": "Takes a map effect slot for an effect type; -1 when none is free."
+    },
+    "sh.world.effect_slot_get": {
+      "signature": "sh.world.effect_slot_get(slot, field)",
+      "description": "Reads a field of a map effect slot: x, z, y, type, variant, s32_0..1, s16_0..3, u16_0..3, u8_0..7."
+    },
+    "sh.world.effect_slot_set": {
+      "signature": "sh.world.effect_slot_set(slot, field, v)",
+      "description": "Writes a field of a map effect slot; the write keeps the field's width."
+    },
+    "sh.world.effects_flags": {
+      "signature": "sh.world.effects_flags() -> flags",
+      "description": "The flags of the environment preset: bit 0 a dark setting, bit 1 the flashlight matters."
+    },
+    "sh.world.effects_reset": {
+      "signature": "sh.world.effects_reset(...)",
+      "description": ""
+    },
+    "sh.world.effects_track": {
+      "signature": "sh.world.effects_track(cell, preset0, preset1, min, max)",
+      "description": "The map effects blend from preset0 to preset1 as the value of tracked cell (0..3) goes from min to max."
+    },
+    "sh.world.effects_track_set": {
+      "signature": "sh.world.effects_track_set(cell, value)",
+      "description": "Sets the value of a tracked cell of the map effects blend."
+    },
+    "sh.world.effects_update": {
+      "signature": "sh.world.effects_update(...)",
+      "description": ""
+    },
+    "sh.world.fog_floor_request": {
+      "signature": "sh.world.fog_floor_request()",
+      "description": "Raises the live fog to at least the stock level for this frame."
+    },
+    "sh.world.ground": {
+      "signature": "sh.world.ground(x, z)",
+      "description": "The ground under a point."
+    },
+    "sh.world.ground_height": {
+      "signature": "sh.world.ground_height(x, z)",
+      "description": "The height of the ground under a point."
+    },
+    "sh.world.light_flags": {
+      "signature": "sh.world.light_flags()",
+      "description": "The flag byte of the current environment preset: bit 0 the dark set-up, bit 1 an area where the flashlight matters."
+    },
+    "sh.world.nearest_walkable": {
+      "signature": "sh.world.nearest_walkable(x, z[, radius[, from_x, from_z]]) -> x, z, y",
+      "description": "The nearest point with ground within radius (default 2 m, at most 16 m); nil when there is none."
+    },
+    "sh.world.object_add": {
+      "signature": "sh.world.object_add(...)",
+      "description": "Adds a world object of the map by name to this frame's objects."
+    },
+    "sh.world.object_draw": {
+      "signature": "sh.world.object_draw(name, x, y, z, rx, ry, rz)",
+      "description": "Draws a \"script\" world object once more this tick at another place."
+    },
+    "sh.world.object_model_name_set": {
+      "signature": "sh.world.object_model_name_set(name, model)",
+      "description": "Gives a world object another model."
+    },
+    "sh.world.pickup_create": {
+      "signature": "sh.world.pickup_create{item, x, y, z, rot, id, flag, count, message, model, units} -> id or nil, err",
+      "description": "Puts a real pickup on the loaded map; flag (from the mod's flags.json) marks it taken. Call it at every map load."
+    },
+    "sh.world.message": {
+      "signature": "sh.world.message(key) -> true or nil, err",
+      "description": "Shows a map message (its text key or number) as soon as Harry is free, the world stopped, like the map's own message events. A mod adds messages to a map with a text file that has \"map\"."
+    },
+    "sh.world.pickup_remove": {
+      "signature": "sh.world.pickup_remove(id) -> bool",
+      "description": "Removes a pickup the script created."
+    },
+    "sh.world.pickups": {
+      "signature": "sh.world.pickups([units]) -> rows",
+      "description": "The script pickups of the map: {id, owner, item, model, flag, count, message, x, y, z, rot, taken}."
+    },
+    "sh.world.ray": {
+      "signature": "sh.world.ray(fx, fy, fz, tx, ty, tz[, mode[, exclude_slot]])",
+      "description": "Casts a ray; mode is \"solid\", \"chara\", \"sight\" or \"probe\"; slot is -1 when it hit geometry."
+    },
+    "sh.world.ray_surface": {
+      "signature": "sh.world.ray_surface(x0, y0, z0, x1, y1, z1)",
+      "description": "Casts a ray against the collision surface."
+    },
+    "sh.world.script_call": {
+      "signature": "sh.world.script_call(name, a, b, c) -> 1 or 0",
+      "description": "Calls a global function of the map's world_objects.lua."
+    },
+    "sh.world.speed_zone": {
+      "signature": "sh.world.speed_zone(x, z)",
+      "description": "The speed zone of a point: 0 slow, 1 normal, 2 fast."
+    },
+    "sh.world.surface_get": {
+      "signature": "sh.world.surface_get(...)",
+      "description": ""
+    },
+    "sh.world.walkable": {
+      "signature": "sh.world.walkable(x, z[, from_x, from_z]) -> ok, ground_y",
+      "description": "Whether the point has loaded ground; with from, also whether it can be walked to from there (height step and walls)."
+    },
+    "sh.world.water_disable": {
+      "signature": "sh.world.water_disable(...)",
+      "description": "Turns the water effect off."
+    },
+    "sh.world.water_enable": {
+      "signature": "sh.world.water_enable(...)",
+      "description": "Turns the water effect on."
+    },
+    "sh.world_object.model_set": {
+      "signature": "sh.world_object.model_set(name, model)",
+      "description": "Changes the model of a world object (a name of up to 8 characters)."
+    },
+    "sh.world_object.position_get": {
+      "signature": "sh.world_object.position_get(name) -> x, y, z",
+      "description": "The position of any world object of the map."
+    },
+    "sh.world_object.position_set": {
+      "signature": "sh.world_object.position_set(name, x, y, z)",
+      "description": "Moves a world object of world_objects.json (one with \"script\": true), Q12."
+    },
+    "sh.world_object.rotation_get": {
+      "signature": "sh.world_object.rotation_get(name) -> x, y, z",
+      "description": "The rotation of any world object of the map."
+    },
+    "sh.world_object.rotation_set": {
+      "signature": "sh.world_object.rotation_set(name, x, y, z)",
+      "description": "Turns a world object, Q12 angles kept in 16 bits."
+    },
+    "sh.world_object.visible_set": {
+      "signature": "sh.world_object.visible_set(name, v)",
+      "description": "Shows a world object always (true), never (false) or as the map data says (nil)."
+    },
+    "sh.world_object_add": {
+      "signature": "sh.world_object_add(name)",
+      "description": "Adds a world object of the map by name to this frame's objects."
+    },
+    "sh.world_object_pos_get": {
+      "signature": "sh.world_object_pos_get(...)",
+      "description": ""
+    },
+    "sh.world_object_pos_set": {
+      "signature": "sh.world_object_pos_set(...)",
+      "description": ""
+    },
+    "sh.world_object_rot_y_get": {
+      "signature": "sh.world_object_rot_y_get(...)",
+      "description": ""
+    },
+    "sh.world_object_rot_y_set": {
+      "signature": "sh.world_object_rot_y_set(...)",
+      "description": ""
+    },
+    "sh.world_objects.call": {
+      "signature": "sh.world_objects.call(name, a, b, c) -> 1 or 0",
+      "description": "Calls a global function of the map's world_objects.lua from the events script."
+    },
+    "sh.xa_preload": {
+      "signature": "sh.xa_preload(idx)",
+      "description": "Prepares a streamed voice line for playing."
+    },
+    "string.byte": {
+      "signature": "string.byte(s[, i[, j]]) -> codes",
+      "description": "The byte values of characters of s."
+    },
+    "string.char": {
+      "signature": "string.char(...) -> string",
+      "description": "A string of the given byte values."
+    },
+    "string.find": {
+      "signature": "string.find(s, pattern[, init[, plain]]) -> start, end",
+      "description": "Finds a pattern in s."
+    },
+    "string.format": {
+      "signature": "string.format(fmt, ...) -> string",
+      "description": "Formats values printf-style."
+    },
+    "string.gmatch": {
+      "signature": "string.gmatch(s, pattern) -> iterator",
+      "description": "Iterates over the matches of a pattern."
+    },
+    "string.gsub": {
+      "signature": "string.gsub(s, pattern, repl[, n]) -> string, count",
+      "description": "Replaces the matches of a pattern."
+    },
+    "string.len": {
+      "signature": "string.len(s) -> n",
+      "description": "The length of s in bytes."
+    },
+    "string.lower": {
+      "signature": "string.lower(s) -> string",
+      "description": "s in lower case."
+    },
+    "string.match": {
+      "signature": "string.match(s, pattern[, init]) -> captures",
+      "description": "The captures of the first match of a pattern."
+    },
+    "string.rep": {
+      "signature": "string.rep(s, n[, sep]) -> string",
+      "description": "s repeated n times."
+    },
+    "string.sub": {
+      "signature": "string.sub(s, i[, j]) -> string",
+      "description": "The part of s from i to j."
+    },
+    "string.upper": {
+      "signature": "string.upper(s) -> string",
+      "description": "s in upper case."
+    },
+    "table.concat": {
+      "signature": "table.concat(t[, sep[, i[, j]]]) -> string",
+      "description": "Joins the strings of a list."
+    },
+    "table.insert": {
+      "signature": "table.insert(t, [pos,] value)",
+      "description": "Inserts a value at pos (default the end)."
+    },
+    "table.remove": {
+      "signature": "table.remove(t[, pos]) -> value",
+      "description": "Removes and returns the element at pos (default the last)."
+    },
+    "table.sort": {
+      "signature": "table.sort(t[, less])",
+      "description": "Sorts a list in place."
+    },
+    "table.unpack": {
+      "signature": "table.unpack(t[, i[, j]]) -> ...",
+      "description": "The elements of a list as separate values."
+    },
+    "tonumber": {
+      "signature": "tonumber(v[, base]) -> number",
+      "description": "Converts a string to a number; nil when it is not one."
+    },
+    "tostring": {
+      "signature": "tostring(v) -> string",
+      "description": "Converts a value to a string."
+    },
+    "type": {
+      "signature": "type(v) -> name",
+      "description": "The type of a value as a string."
+    },
+    "wait": {
+      "signature": "wait(seconds)",
+      "description": "In a coroutine: waits a time in logic ticks (30 per second)."
+    },
+    "wait_fade": {
+      "signature": "wait_fade()",
+      "description": "In a coroutine: waits until the screen fade has finished."
+    },
+    "wait_frames": {
+      "signature": "wait_frames(n)",
+      "description": "In a coroutine: waits n ticks."
+    },
+    "wait_until": {
+      "signature": "wait_until(fn)",
+      "description": "In a coroutine: waits until fn() returns true."
+    }
+  }
+}

@@ -1,0 +1,152 @@
+# Hospital 1F (map3_s01): New Game on the map, random walk, a door into another room
+#@config skip_intros = 2
+#@config map = map3_s01
+# generated: gen_route.py --seed 3102 --start 300 --end 4000 --min-gap 10 --max-gap 40
+1 -
+300 Square
+340 R2
+360 Up Right
+370 Up
+402 Up Cross
+435 Up
+450 R1
+465 R2
+481 Up Right
+505 L2
+545 R1
+570 Square
+595 Down
+622 Up Left
+639 Down Square
+662 Up Left
+695 L1
+719 L2
+732 Circle
+767 L1
+805 Square
+817 Circle
+847 Up Circle
+884 -
+910 Cross
+924 Cross
+952 R2
+975 R2
+995 Right
+1019 L1
+1052 Up
+1067 R1
+1102 Up
+1142 Up Square
+1159 L2
+1199 Down
+1220 R1
+1246 Cross
+1274 Cross
+1295 Down Square
+1335 Right
+1362 Up Cross
+1384 Up
+1424 Cross
+1448 R2
+1459 Up Cross
+1498 -
+1530 Circle
+1566 Up Circle
+1601 Up Cross
+1630 Cross
+1647 Down Square
+1682 -
+1701 Up Left
+1737 Up Cross
+1752 Up
+1772 Left
+1791 Up Circle
+1818 Up
+1835 Up Square
+1871 Up Left
+1894 L2
+1918 Down
+1942 Up Square
+1976 R1
+1990 Up Square
+2019 Down
+2034 Cross
+2056 R1
+2068 Up
+2091 Up Cross
+2122 -
+2137 Cross
+2150 Up
+2166 Up Cross
+2196 Left
+2234 Left
+2256 Up Circle
+2271 Left
+2303 Up Circle
+2329 Up Left
+2342 Cross
+2374 Up Right
+2394 Left
+2425 Down
+2464 R1
+2500 R1
+2517 L1
+2551 Square
+2569 Up Right
+2599 Down Square
+2626 -
+2656 L1
+2689 Up Square
+2722 Square
+2755 Up
+2777 Up Cross
+2806 L1
+2835 Right
+2859 Circle
+2886 Up Square
+2921 Circle
+2947 Down Square
+2974 Circle
+2987 Circle
+3026 Up Cross
+3063 Up
+3083 Up Cross
+3106 Right
+3120 Up Right
+3136 Left
+3157 Down
+3177 -
+3208 Up Right
+3224 Up
+3263 R2
+3295 Right
+3307 Circle
+3347 Cross
+3358 Up Circle
+3368 R1
+3401 Up
+3413 L1
+3451 -
+3475 Up
+3488 Circle
+3528 Up Cross
+3547 L1
+3566 Up Cross
+3579 Left
+3612 Down Square
+3624 Up Right
+3649 Down
+3686 Up
+3707 Down Square
+3742 Down
+3764 Down
+3800 Up Left
+3838 Left
+3856 Right
+3887 Down
+3908 L2
+3925 L2
+3954 R1
+3979 Square
+3998 R2
+end 4000

@@ -1,0 +1,36 @@
+{
+  "format": "sh-text",
+  "version": 1,
+  "lang": "en",
+  "map": "map6_s02",
+  "description": "The map's messages: the keys by message number from \"first\" (the numbers before it are common.json's), and the English text of the original game.",
+  "index": {
+    "map": {
+      "first": 15,
+      "keys": [
+        "map6_s02.msg15",
+        "map6_s02.wait",
+        "map6_s02.damn_i_was_too_late",
+        "map6_s02.sorry",
+        "map6_s02.ah",
+        "map6_s02.msg20",
+        "map6_s02.let_me_ask_you_have",
+        "map6_s02.short_black_hair",
+        "map6_s02.what",
+        "map6_s02.that_light"
+      ]
+    }
+  },
+  "strings": {
+    "map6_s02.msg15": "{wait 1.0}...!{end}",
+    "map6_s02.wait": "{wait 1.0}Wait!{end}",
+    "map6_s02.damn_i_was_too_late": "{wait 1.7}Damn!\nI was too late?{end}",
+    "map6_s02.sorry": "{wait 1.5}Sorry...",
+    "map6_s02.ah": "{wait 0.6}Ah...",
+    "map6_s02.msg20": "{wait 1.5} ",
+    "map6_s02.let_me_ask_you_have": "{wait 3.6}Let me ask you, have you seen\na little girl around here?{end}",
+    "map6_s02.short_black_hair": "{wait 2.8}Short, black hair...{end}",
+    "map6_s02.what": "{wait 1.0}What?{end}",
+    "map6_s02.that_light": "{wait 2.5}That light!?{end}"
+  }
+}

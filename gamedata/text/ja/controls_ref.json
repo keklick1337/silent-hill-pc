@@ -1,0 +1,24 @@
+{
+  "format": "sh-text",
+  "version": 1,
+  "lang": "ja",
+  "strings": {
+    "ui.bind.attack": "攻撃",
+    "ui.bind.back_cancel": "戻る / キャンセル",
+    "ui.bind.confirm_skip": "決定 / スキップ",
+    "ui.bind.view": "視点",
+    "ui.controls_ref.category.camera": "カメラ",
+    "ui.controls_ref.category.combat": "戦闘",
+    "ui.controls_ref.category.debug": "デバッグ",
+    "ui.controls_ref.category.menu": "メニュー",
+    "ui.controls_ref.category.movement": "移動",
+    "ui.controls_ref.category.system": "システム",
+    "ui.controls_ref.close_hint": "いずれかのキーで閉じる",
+    "ui.controls_ref.scheme_altcam": "追加カメラ",
+    "ui.controls_ref.scheme_classic": "クラシックカメラ",
+    "ui.controls_ref.stick": "スティック/方向キー",
+    "ui.controls_ref.title": "操作一覧",
+    "ui.options.controls_reference": "操作一覧",
+    "ui.options.controls_reference.help": "現在のキーとボタンをすべて表示します。"
+  }
+}

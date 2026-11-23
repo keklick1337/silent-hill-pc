@@ -1,0 +1,12 @@
+{
+  "map": "map4_s06",
+  "table": "g_MapEventFuncs",
+  "handlers": [
+    {
+      "index": 0,
+      "symbol": null,
+      "name": null,
+      "shape": null
+    }
+  ]
+}

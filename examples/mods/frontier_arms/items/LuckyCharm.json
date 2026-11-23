@@ -1,0 +1,11 @@
+{
+  "description": "Counts once as a special item, like the original's once-only items; the save keeps it by name (flag frontier_arms:LuckyCharm_PickedOnce).",
+  "group": "puzzle",
+  "inventory": {
+    "order": 20,
+    "command": "UseLook",
+    "pickup": "special",
+    "pickup_once": true
+  },
+  "close_up_model": "ITEM/UNQA0.TMD"
+}

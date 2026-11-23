@@ -1,0 +1,132 @@
+{
+  "map": "map3_s03",
+  "table": "g_MapEventFuncs",
+  "handlers": [
+    {
+      "index": 0,
+      "symbol": "MapEvent_DoorJammed",
+      "name": "MapEvent_DoorJammed",
+      "shape": "script"
+    },
+    {
+      "index": 1,
+      "symbol": "MapEvent_DoorLocked",
+      "name": "MapEvent_DoorLocked",
+      "shape": "script"
+    },
+    {
+      "index": 2,
+      "symbol": "MapEvent_DoorUnlocked",
+      "name": "MapEvent_DoorUnlocked",
+      "shape": "script"
+    },
+    {
+      "index": 3,
+      "symbol": "MapEvent_CommonItemTake",
+      "name": "MapEvent_CommonItemTake",
+      "shape": "script"
+    },
+    {
+      "index": 4,
+      "symbol": "MapEvent_PlateOfHatterTake",
+      "name": "MapEvent_PlateOfHatterTake",
+      "shape": "item"
+    },
+    {
+      "index": 5,
+      "symbol": "MapEvent_PlateOfCatTake",
+      "name": "MapEvent_PlateOfCatTake",
+      "shape": "item"
+    },
+    {
+      "index": 6,
+      "symbol": "MapEvent_PlateOfTurtleTake",
+      "name": "MapEvent_PlateOfTurtleTake",
+      "shape": "item"
+    },
+    {
+      "index": 7,
+      "symbol": "MapEvent_PlateDoorPuzzle",
+      "name": "MapEvent_PlateDoorPuzzle",
+      "shape": "cutscene"
+    },
+    {
+      "index": 8,
+      "symbol": "MapEvent_PlateSignRead",
+      "name": "MapEvent_PlateSignRead",
+      "shape": "script"
+    },
+    {
+      "index": 9,
+      "symbol": "MapEvent_LithographRead",
+      "name": "MapEvent_LithographRead",
+      "shape": "script"
+    },
+    {
+      "index": 10,
+      "symbol": "MapEvent_Lithograph2Read",
+      "name": "MapEvent_Lithograph2Read",
+      "shape": "script"
+    },
+    {
+      "index": 11,
+      "symbol": "MapEvent_InstantFreeze",
+      "name": "MapEvent_InstantFreeze",
+      "shape": "script"
+    },
+    {
+      "index": 12,
+      "symbol": "MapEvent_LisaVideoTape",
+      "name": "MapEvent_LisaVideoTape",
+      "shape": "script"
+    },
+    {
+      "index": 13,
+      "symbol": "MapEvent_BloodPackTake",
+      "name": "MapEvent_BloodPackTake",
+      "shape": "item"
+    },
+    {
+      "index": 14,
+      "symbol": "MapEvent_DisinfectingAlcoholTake",
+      "name": "MapEvent_DisinfectingAlcoholTake",
+      "shape": "item"
+    },
+    {
+      "index": 15,
+      "symbol": "MapEvent_LighterTake",
+      "name": "MapEvent_LighterTake",
+      "shape": "item"
+    },
+    {
+      "index": 16,
+      "symbol": "MapEvent_BasementStoreroomKeyTake",
+      "name": "MapEvent_BasementStoreroomKeyTake",
+      "shape": "item"
+    },
+    {
+      "index": 17,
+      "symbol": "MapEvent_BloodPackPour",
+      "name": "MapEvent_BloodPackPour",
+      "shape": "script"
+    },
+    {
+      "index": 18,
+      "symbol": "MapEvent_EmptyCageInspect",
+      "name": "MapEvent_EmptyCageInspect",
+      "shape": "script"
+    },
+    {
+      "index": 19,
+      "symbol": "MapEvent_ElectricWireInspect",
+      "name": "MapEvent_ElectricWireInspect",
+      "shape": "script"
+    },
+    {
+      "index": 20,
+      "symbol": "ElevatorPanel",
+      "name": "ElevatorPanel",
+      "shape": "script"
+    }
+  ]
+}

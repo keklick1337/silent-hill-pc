@@ -1,0 +1,18 @@
+{
+  "format": "sh-text",
+  "version": 1,
+  "lang": "en",
+  "map": "map4_s06",
+  "description": "The map's messages: the keys by message number from \"first\" (the numbers before it are common.json's), and the English text of the original game.",
+  "index": {
+    "map": {
+      "first": 15,
+      "keys": [
+        "map4_s06.no_stage"
+      ]
+    }
+  },
+  "strings": {
+    "map4_s06.no_stage": "NO STAGE!{end}"
+  }
+}

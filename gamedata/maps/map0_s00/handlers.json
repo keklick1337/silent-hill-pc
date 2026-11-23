@@ -1,0 +1,108 @@
+{
+  "map": "map0_s00",
+  "table": "g_MapEventFuncs",
+  "handlers": [
+    {
+      "index": 0,
+      "symbol": "MapEvent_PlayEventSfx",
+      "name": "MapEvent_PlayEventSfx",
+      "shape": "script"
+    },
+    {
+      "index": 1,
+      "symbol": null,
+      "name": null,
+      "shape": null
+    },
+    {
+      "index": 2,
+      "symbol": "MapEvent_CutsceneOpening",
+      "name": "MapEvent_CutsceneOpening",
+      "shape": "cutscene"
+    },
+    {
+      "index": 3,
+      "symbol": "MapEvent_CutsceneCherylFootsteps0",
+      "name": "MapEvent_CutsceneCherylFootsteps0",
+      "shape": "cutscene"
+    },
+    {
+      "index": 4,
+      "symbol": "MapEvent_CutsceneCherylFootsteps1",
+      "name": "MapEvent_CutsceneCherylFootsteps1",
+      "shape": "cutscene"
+    },
+    {
+      "index": 5,
+      "symbol": "MapEvent_CutsceneCherylFootsteps2",
+      "name": "MapEvent_CutsceneCherylFootsteps2",
+      "shape": "cutscene"
+    },
+    {
+      "index": 6,
+      "symbol": "MapEvent_CutsceneCherylSpotted",
+      "name": "MapEvent_CutsceneCherylSpotted",
+      "shape": "cutscene"
+    },
+    {
+      "index": 7,
+      "symbol": "MapEvent_CutsceneCherylRedirect0",
+      "name": "MapEvent_CutsceneCherylRedirect0",
+      "shape": "cutscene"
+    },
+    {
+      "index": 8,
+      "symbol": "MapEvent_CutsceneCherylRedirect1",
+      "name": "MapEvent_CutsceneCherylRedirect1",
+      "shape": "cutscene"
+    },
+    {
+      "index": 9,
+      "symbol": "MapEvent_CutsceneCherylRedirect2",
+      "name": "MapEvent_CutsceneCherylRedirect2",
+      "shape": "cutscene"
+    },
+    {
+      "index": 10,
+      "symbol": "MapEvent_CutsceneCherylRedirect3",
+      "name": "MapEvent_CutsceneCherylRedirect3",
+      "shape": "cutscene"
+    },
+    {
+      "index": 11,
+      "symbol": "MapEvent_CutsceneCherylIntoTheAlley",
+      "name": "MapEvent_CutsceneCherylIntoTheAlley",
+      "shape": "cutscene"
+    },
+    {
+      "index": 12,
+      "symbol": "CutsceneCherylIntoFog",
+      "name": "CutsceneCherylIntoFog",
+      "shape": "script"
+    },
+    {
+      "index": 13,
+      "symbol": "MapEven_CutsceneAlleyGetsDarker",
+      "name": "MapEven_CutsceneAlleyGetsDarker",
+      "shape": "cutscene"
+    },
+    {
+      "index": 14,
+      "symbol": "MapEvent_DeadEndMessage",
+      "name": "MapEvent_DeadEndMessage",
+      "shape": "script"
+    },
+    {
+      "index": 15,
+      "symbol": "MapEvent_CutsceneAlleyNightmare",
+      "name": "MapEvent_CutsceneAlleyNightmare",
+      "shape": "cutscene"
+    },
+    {
+      "index": 16,
+      "symbol": "MapEvent_AfterDeathReset",
+      "name": "MapEvent_AfterDeathReset",
+      "shape": "script"
+    }
+  ]
+}

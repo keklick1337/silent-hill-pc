@@ -1,0 +1,35 @@
+{
+  "format": "sh-map-lights",
+  "version": 1,
+  "map": "map0_s00",
+  "description": "The lights of the opening (the snowy street by day, then the alley that turns dark) for the modern lighting (rt_lights, docs/RENDER.md section 10). By day a sun and the sky, until the alley grows dark; then the match Harry strikes before he has a flashlight, which follows his right hand while the game draws the hand flame and flickers with it. Positions are metres, PS1 axes (y down); with a bone, the offset in the bone's space.",
+  "lights": [
+    {
+      "name": "Lighter",
+      "description": "The match flame in Harry's right hand: warm, small, flickering with the flame's own brightness; it casts the alley's shadows and lights the walls around him.",
+      "position": [0.0, -0.03, 0.13],
+      "bone": "RightHand",
+      "while_effect": "HandFlame",
+      "flicker": 0.3,
+      "color": [1.0, 0.62, 0.3],
+      "intensity": 3.0,
+      "range": 4.5,
+      "radius": 0.02,
+      "casts_shadows": true,
+      "gi": true
+    }
+  ],
+  "sun": {
+    "description": "The overcast sun behind the fog: one fixed direction for the whole location (direction is the way the light travels, PS1 axes, y down). The fog dims it with the distance from the eye, so its shadows are only crisp near Harry and the fog keeps its own soft colour; light passes through the gaps of fences and leaves (alpha holes of the textures).",
+    "direction": [-0.42, 1.0, 0.55],
+    "color": [1.0, 0.96, 0.88],
+    "intensity": 0.8,
+    "angular_radius": 1.5,
+    "flags_clear": ["M0S00_AlleyNearlyDark"]
+  },
+  "sky": {
+    "description": "The grey sky's light on surfaces open to it: the bounce rays that find nothing above see it.",
+    "color": [0.78, 0.8, 0.86],
+    "intensity": 0.35
+  }
+}

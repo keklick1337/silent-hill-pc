@@ -1,0 +1,20 @@
+{
+  "description": "Named variables of the Twinfeeler's behaviour (chara/Twinfeeler/behavior.lua reads and writes them by name). Each character instance owns a small block of bytes; every entry of \"fields\" names one value in it: \"name\" is the name the script uses, \"kind\" the storage type (s8, u8, s16, u16, s32, u32: a write keeps the low bits, a read sign- or zero-extends), \"at\" the byte offset in the block (absent: the next naturally aligned offset), \"note\" what the value means. Values are raw integers in the units the behaviour uses (usually Q12, 4096 = 1.0 or 1 m; angles Q12, 4096 = a full turn). A mod adds or changes fields with a state.json of the same path; keep the offsets of fields the behaviour already uses.",
+  "fields": [
+    {"name": "twinfeeler_vocal_timer", "kind": "s32", "at": 0, "note": "Before the fight: the time to the next growl."},
+    {"name": "twinfeeler_ground_bits", "kind": "u16", "at": 2, "note": "One bit per body bone: the bone was below the floor on the last tick (a change raises dust)."},
+    {"name": "twinfeeler_push_x", "kind": "s32", "at": 4, "note": "The push of the last hit (it slides the body, then decays)."},
+    {"name": "twinfeeler_push_y", "kind": "s32", "at": 8},
+    {"name": "twinfeeler_push_z", "kind": "s32", "at": 12},
+    {"name": "twinfeeler_push_amount", "kind": "s32", "at": 16},
+    {"name": "twinfeeler_dig_timer", "kind": "s32", "at": 20},
+    {"name": "twinfeeler_spawn_x", "kind": "s32", "at": 24},
+    {"name": "twinfeeler_spawn_z", "kind": "s32", "at": 28},
+    {"name": "twinfeeler_walk_speed", "kind": "s32", "at": 32, "note": "move_speed of the control state, kept while the push is added for the step."},
+    {"name": "twinfeeler_damage_taken", "kind": "s32", "at": 36, "note": "Damage since the last recoil."},
+    {"name": "twinfeeler_unused", "kind": "s16", "at": 40},
+    {"name": "twinfeeler_flags", "kind": "u32", "at": 44},
+    {"name": "twinfeeler_stun", "kind": "u16", "at": 48, "note": "The death starts with the stun clip (1) or stands up first (0)."},
+    {"name": "twinfeeler_saved_health", "kind": "s32", "at": 52, "note": "Health while underground (health itself is -1 there: nothing can hit it)."}
+  ]
+}

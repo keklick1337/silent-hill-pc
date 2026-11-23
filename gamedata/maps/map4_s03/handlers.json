@@ -1,0 +1,60 @@
+{
+  "map": "map4_s03",
+  "table": "g_MapEventFuncs",
+  "handlers": [
+    {
+      "index": 0,
+      "symbol": "MapEvent_DoorJammed",
+      "name": "MapEvent_DoorJammed",
+      "shape": "script"
+    },
+    {
+      "index": 1,
+      "symbol": "MapEvent_DoorLocked",
+      "name": "MapEvent_DoorLocked",
+      "shape": "script"
+    },
+    {
+      "index": 2,
+      "symbol": "MapEvent_CommonItemTake",
+      "name": "MapEvent_CommonItemTake",
+      "shape": "script"
+    },
+    {
+      "index": 3,
+      "symbol": "PickupHuntingRifle",
+      "name": "PickupHuntingRifle",
+      "shape": "item"
+    },
+    {
+      "index": 4,
+      "symbol": "Cutscene_TwinfeelerAttack",
+      "name": "Cutscene_TwinfeelerAttack",
+      "shape": "script"
+    },
+    {
+      "index": 5,
+      "symbol": "Cutscene_TwinfeelerDive",
+      "name": "Cutscene_TwinfeelerDive",
+      "shape": "script"
+    },
+    {
+      "index": 6,
+      "symbol": "Cutscene_TvWallAwakens",
+      "name": "Cutscene_TvWallAwakens",
+      "shape": "script"
+    },
+    {
+      "index": 7,
+      "symbol": "Cutscene_TwinfeelerTvMessage",
+      "name": "Cutscene_TwinfeelerTvMessage",
+      "shape": "script"
+    },
+    {
+      "index": 8,
+      "symbol": "Event_TwinfeelerResumeAttack",
+      "name": "Event_TwinfeelerResumeAttack",
+      "shape": "script"
+    }
+  ]
+}

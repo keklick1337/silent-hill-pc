@@ -1,0 +1,15 @@
+{
+  "group": "portable",
+  "inventory": {
+    "order": 17,
+    "counts_ammo_in_hand": true,
+    "command": "OnOff",
+    "name_tag": "switch",
+    "switches": "flashlight"
+  },
+  "display_tilt": {
+    "x": 45.0
+  },
+  "close_up_model": "ITEM/UNQE0.TMD",
+  "display_lit": true
+}

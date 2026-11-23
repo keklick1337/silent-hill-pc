@@ -1,0 +1,13 @@
+{
+  "format": 1,
+  "id": "frontier_arms",
+  "name": "Frontier arms",
+  "version": "1.0.0",
+  "description": "A new gun (the Revolver, six rounds, heavier shots, its own sounds) with its own ammo, a new melee weapon (the Machete, its own attack rows and swing sound), and a lucky charm that counts once as a special item. Console: give revolver, give revolverrounds, give machete, give luckycharm.",
+  "authors": [
+    "Silent Hill PC"
+  ],
+  "api": "^1.0",
+  "gameplay": true,
+  "scripts": true
+}

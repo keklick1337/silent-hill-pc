@@ -1,0 +1,24 @@
+{
+  "description": "The options' brightness screen: one row per value; Up/Down picks a row, Left/Right changes it. kind percent: a float setting shown as a percentage; kind level: an integer level. brightness, contrast and saturation are the PC output stage (the whole frame); classic_level is the original game's brightness 0..7. Labels are padded with '_' to equal drawn width so the values line up. Positions are in percent of the screen; arrows are relative to the selected row. Every key is checked: an unknown key is an error.",
+  "rows": [
+    {"label": "BRIGHTNESS_", "setting": "brightness", "kind": "percent", "min": 0.25, "max": 2.0, "step": 0.05},
+    {"label": "CONTRAST_____", "setting": "contrast", "kind": "percent", "min": 0.5, "max": 2.0, "step": 0.05},
+    {"label": "SATURATION_", "setting": "saturation", "kind": "percent", "min": 0.0, "max": 2.0, "step": 0.05},
+    {"label": "CLASSIC_______", "setting": "classic_level", "kind": "level", "min": 0, "max": 7}
+  ],
+  "label_x": 22.0,
+  "row_y": 40.0,
+  "row_pitch": 8.0,
+  "label_length": 20,
+  "value_digits": 3,
+  "arrow_y_offset": -107,
+  "arrows": [
+    [[18, 0], [26, -8], [26, 8]],
+    [[74, 0], [66, -8], [66, 8]]
+  ],
+  "arrow_borders": [
+    [[17, 0], [27, -10], [27, 10]],
+    [[75, 0], [65, -10], [65, 10]]
+  ],
+  "mouse_split_x": 160
+}

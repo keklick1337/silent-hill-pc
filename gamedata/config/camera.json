@@ -1,0 +1,91 @@
+{
+  "format": "sh-camera",
+  "version": 1,
+  "description": "Numbers of the game camera (the fixed and following cameras of the original game, not the PC alt cameras of alt_cameras.json). Lengths are metres and angles degrees (+Y is down); the engine turns them into fixed point the way the game did (single-precision multiply, truncated toward zero), so the shipped values give the original's exact numbers. A mod's copy is merged over this file as a patch (JSON data merge); a key it leaves out keeps the shipped value.",
+  "view": {
+    "description": "draw_cull_margin: extra margin in screen units around the PC view for the drawing-side box test of map chunks. Game logic visibility tests always use the original 4:3 bounds and ignore it.",
+    "draw_cull_margin": 64
+  },
+  "camera": {
+    "description": "default_watch: look-at motion of the automatic camera and of a script look-at given no parameters (accelerations and top speeds). user_camera: camera motion of a script camera target given no parameters, also used by the automatic follow camera; scripts may change these speeds at run time. watch_max_y: how far the look-at may rise. first_camera_distance / first_camera_height: at map start the camera sits this far behind and above the character.",
+    "default_watch": { "accel_x": 1.2, "accel_y": 2.2, "max_speed_x": 0.22, "max_speed_y": 0.7 },
+    "user_camera": { "accel_xz": 10.0, "accel_y": 3.0, "max_speed_xz": 6.0, "max_speed_y": 2.0 },
+    "watch_max_y": 30.0,
+    "first_camera_distance": 1.5,
+    "first_camera_height": 1.7
+  },
+  "subject": {
+    "description": "How the camera reads the character it follows. top_offset_y / bottom_offset_y: the height span above the feet (bottom scaled by the elevation rate). connected_ground_y / connected_head_y: ground and head while the character rides a scripted connection. ground_missing_y: the world's no-ground height, read as 0. eye_half_angle, watch_radius: the field of view and sight range the camera assumes for the subject. head_*: the head point in the head bone's frame, then raised.",
+    "top_offset_y": -1.7,
+    "bottom_offset_y": -0.5,
+    "connected_ground_y": -2.0,
+    "connected_head_y": -1.9,
+    "ground_missing_y": 8.0,
+    "eye_half_angle": 120.0,
+    "watch_radius": 11.0,
+    "head_bone_offset_y": -0.1,
+    "head_offset_y": -0.3
+  },
+  "debug_camera": {
+    "description": "The developer camera modes (orbit around a reference point, fly with the pad, orbit the head). start_radius: orbit radius when a map begins. turn_per_vblank is a raw Q12 angle step (4096 = full turn) per vertical blank (60 per second).",
+    "start_offset_x": 7.0,
+    "start_y": -2.2,
+    "start_radius": 3.0,
+    "orbit_step": 0.1,
+    "orbit_min_radius": 1.0,
+    "turn_per_vblank": 11,
+    "reference_ahead": 0.5,
+    "reference_y": -1.0,
+    "fly_step": 0.1,
+    "fly_boost": 4,
+    "fly_reference_distance": 5.0,
+    "head_reference": { "x": 0.0, "y": -0.15, "z": 1.0 },
+    "head_orbit_yaw": 165.0,
+    "head_orbit_roll": 0.0,
+    "head_orbit_height": -0.2,
+    "head_orbit_radius": 1.0
+  },
+  "enemies": {
+    "description": "The characters the camera tracks as enemies (it turns to frame them in a fight), by name; always_active: those of them that stay an active camera target even when knocked down and not aimed at. A mod adds its own monster here.",
+    "characters": [
+      "AirScreamer",
+      "NightFlutter",
+      "Groaner",
+      "Wormhead",
+      "LarvalStalker",
+      "Stalker",
+      "GreyChild",
+      "Mumbler",
+      "HangedScratcher",
+      "Creeper",
+      "Romper",
+      "Chicken",
+      "SplitHead",
+      "Floatstinger",
+      "PuppetNurse",
+      "DummyNurse",
+      "PuppetDoctor",
+      "DummyDoctor",
+      "Twinfeeler",
+      "Bloodsucker",
+      "Incubus",
+      "Unknown23",
+      "MonsterCybil"
+    ],
+    "always_active": ["Stalker", "GreyChild", "Mumbler"]
+  },
+  "map_rules": {
+    "description": "Per-map camera exceptions; each list given replaces the shipped list whole. Map types are tags of config/map_info.json ('TAG#n' = the n-th entry with that tag: 'ER#2' is the type of map7_*), maps are map names (map1_s02), rooms the save's room index. self_view_blocked: boxes (inclusive edges) where the self view never engages. tight_doorways: map types whose narrow doorways get the through-door rail camera tuning. road_anchor_shifts: on that map and room, each camera zone whose road area is the single point road_x / road_z has its anchor moved by shift_x. wide_shots: on that map and room, the fixed shot whose camera is within tolerance of the anchor turns its look-at by the angle the widescreen view adds, so the extra picture shows the dressed side of the set.",
+    "self_view_blocked": [
+      { "map_type": "THR", "min_x": 201.8, "max_x": 230.0, "min_z": -92.0, "max_z": -68.0 },
+      { "map_type": "SPR", "min_x": -230.0, "max_x": -201.0, "min_z": -12.0, "max_z": 12.0 }
+    ],
+    "tight_doorways": ["ER#2", "HP", "HU"],
+    "road_anchor_shifts": [
+      { "map": "map3_s01", "room": 10, "road_x": 17.5625, "road_z": 59.6875, "shift_x": 0.25 }
+    ],
+    "wide_shots": [
+      { "map": "map2_s00", "room": 23, "anchor_x": -187.75, "anchor_z": 303.5, "tolerance": 1.0 }
+    ]
+  }
+}

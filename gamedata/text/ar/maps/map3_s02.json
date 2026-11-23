@@ -1,0 +1,10 @@
+{
+  "format": "sh-text",
+  "version": 1,
+  "lang": "ar",
+  "map": "map3_s02",
+  "strings": {
+    "map3_s02.nothing_happens_when_the": "لا شيء يحدث\nعند ضغط زر المصعد.{end}",
+    "map3_s02.its_locked": "مقفل!{end}"
+  }
+}

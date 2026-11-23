@@ -1,0 +1,62 @@
+{
+  "format": "sh-map-world-objects",
+  "version": 2,
+  "map": "map5_s01",
+  "description": "Static world objects of map5_s01 (Resort Area): 7 objects, drawn in file order. An object is drawn while the player is in one of its \"zones\" (each {\"x\": [...], \"z\": [...]} lists 40 m cells along that axis: cell c holds 40c..40(c+1) m; no zones = everywhere) and every flag of \"flags_set\" is set and every flag of \"flags_clear\" is clear (event flag names, e.g. the pickup flags). \"name\" is the object's id for scripts and mods, \"model\" its model (at most 8 characters, the map's or an item model), \"position\" in metres and \"rotation\" in degrees (x, y, z). \"pose\" instead takes position and rotation from a table of the map's overlay on the disc (\"disc_table\" from tables.json, row \"index\"), resolved when the map loads; pickups use it. \"pc_near_pickup\": true (not in the original) also draws the pickup while the player is in a neighbouring cell of the same floor. The map, the hook and the ammunition of the Resort Area. A mod's maps/map5_s01/world_objects.json changes or adds objects by name.",
+  "objects": [
+    {
+      "name": "Map",
+      "model": "RSRMAP_H",
+      "position": [-46.5, 0.0, 2.5],
+      "zones": [{"x": -2, "z": 0}, {"x": -2, "z": -1}],
+      "flags_clear": ["M5S01_PickupMap"]
+    },
+    {
+      "name": "Hook",
+      "model": "FOOK_HID",
+      "position": [52.15, -1.359, -57.925],
+      "rotation": [0, 0, 5.8],
+      "zones": [{"x": 1, "z": -2}],
+      "flags_clear": ["M5S01_DialLockOpened"]
+    },
+    {
+      "name": "RifleShells0",
+      "model": "SHELL_NE",
+      "pose": {"disc_table": "CommonWorldObjectPoses", "index": 0},
+      "pc_near_pickup": true,
+      "zones": [{"x": -2, "z": 0}],
+      "flags_clear": ["M5S01_RifleShells0"]
+    },
+    {
+      "name": "HandgunBullets",
+      "model": "BULLET_N",
+      "pose": {"disc_table": "CommonWorldObjectPoses", "index": 1},
+      "pc_near_pickup": true,
+      "zones": [{"x": -2, "z": 0}],
+      "flags_clear": ["M5S01_HandgunBullets"]
+    },
+    {
+      "name": "FirstAidKit",
+      "model": "AIDKIT_N",
+      "pose": {"disc_table": "CommonWorldObjectPoses", "index": 2},
+      "zones": [{"x": -2, "z": 0}],
+      "flags_clear": ["M5S01_FirstAidKit"]
+    },
+    {
+      "name": "HealthDrink",
+      "model": "DRINK_NE",
+      "pose": {"disc_table": "CommonWorldObjectPoses", "index": 3},
+      "pc_near_pickup": true,
+      "zones": [{"x": -2, "z": -5}],
+      "flags_clear": ["M5S01_HealthDrink"]
+    },
+    {
+      "name": "RifleShells1",
+      "model": "SHELL_NE",
+      "pose": {"disc_table": "CommonWorldObjectPoses", "index": 4},
+      "pc_near_pickup": true,
+      "zones": [{"x": -2, "z": -5}],
+      "flags_clear": ["M5S01_RifleShells1"]
+    }
+  ]
+}

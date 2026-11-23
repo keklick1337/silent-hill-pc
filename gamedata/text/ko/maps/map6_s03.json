@@ -1,0 +1,10 @@
+{
+  "format": "sh-text",
+  "version": 1,
+  "lang": "ko",
+  "map": "map6_s03",
+  "strings": {
+    "map6_s03.there_is_a_sewer_map": "{hires}{color 5}하수도 지도\n(놀이공원 방면){/color}가 있다.\n가져갈까?{choice 4}",
+    "map6_s03.gotta_go_find_cybil_no": "시빌을 찾으러 가야 해!\n되돌아갈 시간은 없어.{end}"
+  }
+}

@@ -1,0 +1,73 @@
+{
+  "format": "sh-text",
+  "version": 1,
+  "lang": "en",
+  "map": "map3_s01",
+  "description": "The map's messages: the keys by message number from \"first\" (the numbers before it are common.json's), and the English text of the original game.",
+  "index": {
+    "map": {
+      "first": 15,
+      "keys": [
+        "map3_s01.the_elevator_doesnt_appear_to",
+        "map3_s01.a_glass_vial_lies_shattered",
+        "map3_s01.its_not_just_broken_it",
+        "map3_s01.the_remaining_liquid_is",
+        "map3_s01.now_what_have_we_here",
+        "map3_s01.a_glass_vial_lies_shattered_2",
+        "map3_s01.there_is_a_plastic_bottle",
+        "map3_s01.there_is_a_hospital_map",
+        "map3_s01.there_is_a_hospital_basement",
+        "map3_s01.there_is_a_basement_key",
+        "map3_s01.the_in_house_generator_powers",
+        "map3_s01.do_you_want_to_press",
+        "map3_s01.the_generator_is_on",
+        "map3_s01.used_the_basement_key",
+        "map3_s01.i_should_search_the_hospital",
+        "map3_s01.these_are_phones_and",
+        "map3_s01.theres_a_vending_machine_it",
+        "map3_s01.the_shelves_are_all_messed",
+        "map3_s01.books_are_scattered_around_the",
+        "map3_s01.the_phones_out_cant_get",
+        "map3_s01.theres_a_white_board_nothing",
+        "map3_s01.there_is_a_newspaper",
+        "map3_s01.this_articles_been_clipped_out",
+        "map3_s01.the_refrigerator_is_empty",
+        "map3_s01.nothing_unusual",
+        "map3_s01.nothing_helpful"
+      ]
+    }
+  },
+  "strings": {
+    "map3_s01.the_elevator_doesnt_appear_to": "The elevator doesn't\nappear to be working.{end}",
+    "map3_s01.a_glass_vial_lies_shattered": "A glass vial lies shattered.",
+    "map3_s01.its_not_just_broken_it": "It's not just broken.\nIt looks smashed on purpose.{end}",
+    "map3_s01.the_remaining_liquid_is": "The remaining liquid is emptied\ninto the {color 2}Plastic bottle{/color}.",
+    "map3_s01.now_what_have_we_here": "Now what have we here?{end}",
+    "map3_s01.a_glass_vial_lies_shattered_2": "A glass vial lies shattered.{end}",
+    "map3_s01.there_is_a_plastic_bottle": "There is a {color 2}Plastic bottle{/color}.\nTake it?{choice 4}",
+    "map3_s01.there_is_a_hospital_map": "{hires}There is a {color 5}Hospital map{/color}.\nTake it?{choice 4}",
+    "map3_s01.there_is_a_hospital_basement": "{hires}There is a\n{color 5}Hospital basement map{/color}.\nTake it?{choice 4}",
+    "map3_s01.there_is_a_basement_key": "There is a {color 2}Basement key{/color}.\nTake it?{choice 4}",
+    "map3_s01.the_in_house_generator_powers": "{color 3}The in-house generator\npowers elevators, ICUs\nand operating rooms only.",
+    "map3_s01.do_you_want_to_press": "Do you want to press the switch?{choice 4}",
+    "map3_s01.the_generator_is_on": "The generator is on.{end}",
+    "map3_s01.used_the_basement_key": "Used the {color 2}Basement key{/color} .{end}",
+    "map3_s01.i_should_search_the_hospital": "I should search the hospital.{end}",
+    "map3_s01.these_are_phones_and": "These are phones and phonebooks.\nNo need to examine this.{end}",
+    "map3_s01.theres_a_vending_machine_it": "There's a vending machine.\nIt doesn't work.{end}",
+    "map3_s01.the_shelves_are_all_messed": "The shelves are all messed up.\nWho did this?{end}",
+    "map3_s01.books_are_scattered_around_the": "Books are scattered\naround the desk.\nNothing else special here.{end}",
+    "map3_s01.the_phones_out_cant_get": "The phone's out.\nCan't get a dial tone.{end}",
+    "map3_s01.theres_a_white_board_nothing": "There's a white board.\nNothing special written here.{end}",
+    "map3_s01.there_is_a_newspaper": "There is a newspaper.",
+    "map3_s01.this_articles_been_clipped_out": "This article's been\nclipped out...{end}",
+    "map3_s01.the_refrigerator_is_empty": "The refrigerator is empty.{end}",
+    "map3_s01.nothing_unusual": "Nothing unusual.{end}",
+    "map3_s01.nothing_helpful": "Nothing helpful.{end}"
+  },
+  "ws": {
+    "map3_s01.there_is_a_hospital_map": "9e32a40b:1=t",
+    "map3_s01.there_is_a_hospital_basement": "e8cd137a:1=t",
+    "map3_s01.the_in_house_generator_powers": "00a30314:1=t,24=ntt,47=ntt"
+  }
+}

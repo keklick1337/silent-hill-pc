@@ -1,0 +1,186 @@
+{
+  "map": "map2_s00",
+  "table": "g_MapEventFuncs",
+  "handlers": [
+    {
+      "index": 0,
+      "symbol": "MapEvent_DoorJammed",
+      "name": "MapEvent_DoorJammed",
+      "shape": "script"
+    },
+    {
+      "index": 1,
+      "symbol": "MapEvent_DoorLocked",
+      "name": "MapEvent_DoorLocked",
+      "shape": "script"
+    },
+    {
+      "index": 2,
+      "symbol": "MapEvent_CommonItemTake",
+      "name": "MapEvent_CommonItemTake",
+      "shape": "script"
+    },
+    {
+      "index": 3,
+      "symbol": "MapEvent_HealthDrinkInspect",
+      "name": "MapEvent_HealthDrinkInspect",
+      "shape": "item"
+    },
+    {
+      "index": 4,
+      "symbol": "MapEvent_AtWaterWorks",
+      "name": "MapEvent_AtWaterWorks",
+      "shape": "script"
+    },
+    {
+      "index": 5,
+      "symbol": "MapEvent_RockDrillTake",
+      "name": "MapEvent_RockDrillTake",
+      "shape": "item"
+    },
+    {
+      "index": 6,
+      "symbol": "MapEvent_ChainsawTake",
+      "name": "MapEvent_ChainsawTake",
+      "shape": "item"
+    },
+    {
+      "index": 7,
+      "symbol": "MapEvent_SteelPipeTake",
+      "name": "MapEvent_SteelPipeTake",
+      "shape": "script"
+    },
+    {
+      "index": 8,
+      "symbol": "MapEvent_CutsceneExitCafe",
+      "name": "MapEvent_CutsceneExitCafe",
+      "shape": "cutscene"
+    },
+    {
+      "index": 9,
+      "symbol": "MapEvent_CherylsSketchbook",
+      "name": "MapEvent_CherylsSketchbook",
+      "shape": "script"
+    },
+    {
+      "index": 10,
+      "symbol": "InspectCherylsSketchbookPage",
+      "name": "InspectCherylsSketchbookPage",
+      "shape": "script"
+    },
+    {
+      "index": 11,
+      "symbol": "MapEvent_DoghouseNote",
+      "name": "MapEvent_DoghouseNote",
+      "shape": "script"
+    },
+    {
+      "index": 12,
+      "symbol": "MapEvent_DoghouseKeyTake",
+      "name": "MapEvent_DoghouseKeyTake",
+      "shape": "script"
+    },
+    {
+      "index": 13,
+      "symbol": "MapEvent_KeyOfLionTake",
+      "name": "MapEvent_KeyOfLionTake",
+      "shape": "item"
+    },
+    {
+      "index": 14,
+      "symbol": "MapEvent_KeyOfWoodmanTake",
+      "name": "MapEvent_KeyOfWoodmanTake",
+      "shape": "script"
+    },
+    {
+      "index": 15,
+      "symbol": "MapEvent_KeyOfScarecrowTake",
+      "name": "MapEvent_KeyOfScarecrowTake",
+      "shape": "item"
+    },
+    {
+      "index": 16,
+      "symbol": "MapEvent_HouseKeyUse",
+      "name": "MapEvent_HouseKeyUse",
+      "shape": "script"
+    },
+    {
+      "index": 17,
+      "symbol": "MapEvent_DoorOfEclipseLocks",
+      "name": "MapEvent_DoorOfEclipseLocks",
+      "shape": "cutscene"
+    },
+    {
+      "index": 18,
+      "symbol": "MapEvent_DoorOfEclipseEnter",
+      "name": "MapEvent_DoorOfEclipseEnter",
+      "shape": "cutscene"
+    },
+    {
+      "index": 19,
+      "symbol": "MapEvent_KeyMapInspect",
+      "name": "MapEvent_KeyMapInspect",
+      "shape": "script"
+    },
+    {
+      "index": 20,
+      "symbol": "MapEvent_KGordonKeyUse",
+      "name": "MapEvent_KGordonKeyUse",
+      "shape": "script"
+    },
+    {
+      "index": 21,
+      "symbol": "UseBridgeSwitchFirst",
+      "name": "UseBridgeSwitchFirst",
+      "shape": "script"
+    },
+    {
+      "index": 22,
+      "symbol": "UseBridgeSwitchAgain",
+      "name": "UseBridgeSwitchAgain",
+      "shape": "script"
+    },
+    {
+      "index": 23,
+      "symbol": "InspectWornLock",
+      "name": "InspectWornLock",
+      "shape": "script"
+    },
+    {
+      "index": 24,
+      "symbol": "InspectSwingingDoor",
+      "name": "InspectSwingingDoor",
+      "shape": "script"
+    },
+    {
+      "index": 25,
+      "symbol": "MapEvent_PaperMapTake",
+      "name": "MapEvent_PaperMapTake",
+      "shape": "script"
+    },
+    {
+      "index": 26,
+      "symbol": "MapEvent_StreetSpawnVariant0",
+      "name": "MapEvent_StreetSpawnVariant0",
+      "shape": "script"
+    },
+    {
+      "index": 27,
+      "symbol": "MapEvent_StreetSpawnVariant1",
+      "name": "MapEvent_StreetSpawnVariant1",
+      "shape": "script"
+    },
+    {
+      "index": 28,
+      "symbol": "MapEvent_StreetSpawnVariant2",
+      "name": "MapEvent_StreetSpawnVariant2",
+      "shape": "script"
+    },
+    {
+      "index": 29,
+      "symbol": "MapEvent_NothingSpecial",
+      "name": "MapEvent_NothingSpecial",
+      "shape": "script"
+    }
+  ]
+}

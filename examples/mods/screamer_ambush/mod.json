@@ -1,0 +1,12 @@
+{
+  "format": 1,
+  "id": "screamer_ambush",
+  "name": "Ambush: Air Screamer",
+  "version": "1.0.0",
+  "description": "Stacks on 'Ambush: dogs at the bench': taking the bench ammo outside the cafe also brings an Air Screamer.",
+  "authors": ["Silent Hill PC"],
+  "api": "^1.0",
+  "gameplay": true,
+  "scripts": true,
+  "load_after": ["ambush_dogs"]
+}

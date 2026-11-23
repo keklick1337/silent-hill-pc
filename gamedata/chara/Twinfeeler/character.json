@@ -1,0 +1,81 @@
+{
+  "description": "Twinfeeler: a giant larva that bursts out of the floor of the shopping mall in Central Silent Hill, fought there as a boss.",
+  "category": "Bosses",
+  "maps": ["map4_s03"],
+  "model": "models/CHARA/WRM.glb",
+  "animations": "anim/ANIM/WRM.anim.json",
+  "clip_tables": ["twinfeeler"],
+  "textures": ["textures/CHARA/WORM.png"],
+  "shadow": 0.0,
+  "blend_mode": "subtractive",
+  "camera_anchor": "character",
+  "camera_offset_y": -0.7,
+  "sounds": {
+    "acid_loop": "twinfeeler_acid_loop",
+    "crawl_loop": "twinfeeler_crawl_loop",
+    "dig_loop": "twinfeeler_dig_loop",
+    "resurface": "twinfeeler_resurface",
+    "stand_up": "twinfeeler_stand_up",
+    "unused_sound": "twinfeeler_unused_sound",
+    "vocal": "twinfeeler_vocal",
+    "vocal_2": "twinfeeler_vocal_2"
+  },
+  "params": {
+    "health": 3000.0
+  },
+  "_param_units": {
+    "health": "health points, Q12 on use"
+  },
+  "anims": {
+    "still": 0,
+    "resurface": 1,
+    "burrow": 2,
+    "death_start_alt0": 3,
+    "death_start_alt1": 4,
+    "walk_forward": 6,
+    "death_start": 7,
+    "inch_forward": 8,
+    "unused_stun": 9,
+    "unused_recoil": 10,
+    "stun_to_idle": 11,
+    "stand_acid_attack": 12,
+    "stand_recoil": 13,
+    "stand_recoil_alt": 14,
+    "stand_stun_start": 15,
+    "stun_start": 16,
+    "idle_to_stand": 17,
+    "idle": 18,
+    "death_end_alt": 19,
+    "stun_idle_end": 20,
+    "stand_stun_end": 21,
+    "stun_end": 22,
+    "death_resurface": 23
+  },
+  "controls": {
+    "none": 0,
+    "walk_forward": 1,
+    "recoil": 2,
+    "seek_cell": 3,
+    "dive": 4,
+    "burst_out": 5,
+    "burst_spit": 6,
+    "stand": 7,
+    "attack": 8,
+    "death": 9,
+    "crawl": 10,
+    "idle": 11,
+    "cutscene_burst": 12,
+    "cutscene_dive": 13
+  },
+  "spawn": {
+    "state": 3,
+    "kind": "boss",
+    "auto": "fallback",
+    "note": "its own AI digs through the floor of its arena (map4_s03)"
+  },
+  "harry_reactions": ["Hit", "HeadHit", "Death"],
+  "blood": "Floatstinger",
+  "enemy": true,
+  "is_boss": true,
+  "acid_attack": "TwinfeelerAcid"
+}

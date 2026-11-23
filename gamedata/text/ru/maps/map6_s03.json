@@ -1,0 +1,10 @@
+{
+  "format": "sh-text",
+  "version": 1,
+  "lang": "ru",
+  "map": "map6_s03",
+  "strings": {
+    "map6_s03.there_is_a_sewer_map": "{hires}Здесь {color 5}карта канализации\n(путь в парк развлечений){/color}.\nВзять?{choice 4}",
+    "map6_s03.gotta_go_find_cybil_no": "Надо найти Сибил!\nВозвращаться некогда.{end}"
+  }
+}

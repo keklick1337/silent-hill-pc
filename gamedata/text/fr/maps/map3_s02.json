@@ -1,0 +1,10 @@
+{
+  "format": "sh-text",
+  "version": 1,
+  "lang": "fr",
+  "map": "map3_s02",
+  "strings": {
+    "map3_s02.nothing_happens_when_the": "Rien ne se passe quand on appuie\nsur le bouton de l'ascenseur.{end}",
+    "map3_s02.its_locked": "C'est verrouillé !{end}"
+  }
+}

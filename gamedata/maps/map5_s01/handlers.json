@@ -1,0 +1,54 @@
+{
+  "map": "map5_s01",
+  "table": "g_MapEventFuncs",
+  "handlers": [
+    {
+      "index": 0,
+      "symbol": "MapEvent_DoorJammed",
+      "name": "MapEvent_DoorJammed",
+      "shape": "script"
+    },
+    {
+      "index": 1,
+      "symbol": "MapEvent_DoorLocked",
+      "name": "MapEvent_DoorLocked",
+      "shape": "script"
+    },
+    {
+      "index": 2,
+      "symbol": "MapEvent_CommonItemTake",
+      "name": "MapEvent_CommonItemTake",
+      "shape": "script"
+    },
+    {
+      "index": 3,
+      "symbol": "Puzzle_DoorCodePanel",
+      "name": "Puzzle_DoorCodePanel",
+      "shape": "script"
+    },
+    {
+      "index": 4,
+      "symbol": "MapEvent_PaperMapTake",
+      "name": "MapEvent_PaperMapTake",
+      "shape": "script"
+    },
+    {
+      "index": 5,
+      "symbol": "Puzzle_DialCode",
+      "name": "Puzzle_DialCode",
+      "shape": "script"
+    },
+    {
+      "index": 6,
+      "symbol": "MapEvent_KaufmannKeyUse",
+      "name": "MapEvent_KaufmannKeyUse",
+      "shape": "script"
+    },
+    {
+      "index": 7,
+      "symbol": "Cutscene_UfoChannelingStone",
+      "name": "Cutscene_UfoChannelingStone",
+      "shape": "cutscene"
+    }
+  ]
+}

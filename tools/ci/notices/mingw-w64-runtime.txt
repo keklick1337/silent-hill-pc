@@ -1,0 +1,19 @@
+Compiler runtime in the Windows binaries
+========================================
+
+SilentHillPC.exe, sh-import.exe and OpenAL32.dll are built with GCC for mingw-w64 and carry the compiler's runtime
+inside them (linked statically); a package may instead hold it as libgcc_s_seh-1.dll, libstdc++-6.dll and
+libwinpthread-1.dll.
+
+- libgcc and libstdc++ (GCC, Free Software Foundation): GPL-3.0-or-later with the GCC Runtime Library Exception 3.1,
+  which permits distributing programs compiled with GCC under terms of their own.
+  https://gcc.gnu.org/onlinedocs/libstdc++/manual/license.html
+  https://www.gnu.org/licenses/gcc-exception-3.1.html
+- mingw-w64 runtime (CRT start-up code and import libraries, the mingw-w64 project): Zope Public License 2.1 and
+  public domain, with parts under other permissive licenses listed in its COPYING.MinGW-w64-runtime.txt.
+  https://sourceforge.net/p/mingw-w64/mingw-w64/ci/master/tree/COPYING.MinGW-w64-runtime/COPYING.MinGW-w64-runtime.txt
+- winpthreads (the mingw-w64 project): MIT license and BSD 3-Clause license, see its COPYING.
+  https://sourceforge.net/p/mingw-w64/mingw-w64/ci/master/tree/mingw-w64-libraries/winpthreads/COPYING
+
+When the package was built on a distribution that ships the copyright files of its mingw-w64 packages, they are
+beside this file as copyright-*.txt.

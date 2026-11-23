@@ -1,0 +1,11 @@
+{
+  "format": "sh-font-set",
+  "version": 1,
+  "description": "The glyph sheets laid over the disc's letters to make the game font, in the order they apply (compose.glyphs uses the marks of symbols.glyphs). The TrueType fonts in this directory draw the overlays and, before any system font, the characters the game font lacks; shinonome16.shbf is a 16-dot Japanese bitmap font used the same way.",
+  "sheets": [
+    "glyphs/symbols.glyphs",
+    "glyphs/ascii.glyphs",
+    "glyphs/cyrillic.glyphs",
+    "glyphs/compose.glyphs"
+  ]
+}

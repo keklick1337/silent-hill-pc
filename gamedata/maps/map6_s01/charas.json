@@ -1,0 +1,26 @@
+{
+  "description": "Animation tables of the story characters in the cutscenes of map6_s01 (Boat at Lakeside Pier). A cutscene asks whether a character's animation is done (\"playback\") and which keyframe it starts at (\"start_keyframe\"; the same tables as playback when absent); the answer comes from the table named here, a file gamedata/tables/anim/<table>.json indexed by the character's animation status. \"tables\" maps a character name to its table and \"fallback\" is the table of every character not listed (none: such a character has no table). On this map, playback: Cybil uses \"cybil\" and every other character uses \"dahlia\". Every character but Cybil reads Dahlia's table (the original's switch has Dahlia as its default case). \"cue_sounds\" sets the volume (0..255) of sounds (names of gamedata/sounds) that an animation keyframe cues: dahlia_cue_map2_s01 and dahlia_cue_3 at 64; cybil_cue, cybil_cue_2 and cybil_cue_3 at 64; any other cued sound plays at 128. Read when the map loads.",
+  "playback": {
+    "tables": {
+      "Cybil": "cybil"
+    },
+    "fallback": "dahlia"
+  },
+  "cue_sounds": [
+    {
+      "sounds": [
+        "dahlia_cue_map2_s01",
+        "dahlia_cue_3"
+      ],
+      "volume": 64
+    },
+    {
+      "sounds": [
+        "cybil_cue",
+        "cybil_cue_2",
+        "cybil_cue_3"
+      ],
+      "volume": 64
+    }
+  ]
+}

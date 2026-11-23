@@ -1,0 +1,11 @@
+{
+  "format": 1,
+  "id": "cafe_supplies",
+  "name": "Cafe supplies",
+  "version": "1.0.0",
+  "description": "Two extra pickups on the cafe bar counter: an Ampoule next to the Kitchen Knife and a First Aid Kit at the other end.",
+  "authors": ["Silent Hill PC"],
+  "api": "^1.0",
+  "gameplay": true,
+  "scripts": true
+}

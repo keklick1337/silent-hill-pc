@@ -1,0 +1,11 @@
+{
+  "format": "sh-text",
+  "version": 1,
+  "lang": "zh",
+  "strings": {
+    "ui.bind.debug_options": "调试选项",
+    "ui.menu.off": "关",
+    "ui.menu.on": "开",
+    "ui.pause.debug_options": "调试选项"
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "format": "sh-puppet-nurse-variants/1",
+  "description": "The four stat variants of the Puppet Nurse / Puppet Doctor (the hospital nightmare, map3_s03). A nurse or doctor spawn record names the variant it spawns as (index). Fields: health (Q12, 4096 = 1 point), stagger (the damage that knocks the nurse down, Q12), push (Q12), sight, wander, scale and attack (the behaviour's raw stat values), sound_bank (0 = nurse voice, 1 = doctor voice); clip_table selects the animation table (0 = puppet_nurse_a, 1 = puppet_nurse_b, tables/anim/*.json). The behaviour keeps its own copy of these values in STATS of chara/PuppetNurse/behavior.lua; change both together.",
+  "variants": [
+    { "index": 0, "health": 3072000, "stagger": 1228800, "sight": 4096, "wander": 4096,
+      "scale": 4485, "sound_bank": 1, "attack": 58, "clip_table": 1, "push": 20480 },
+    { "index": 1, "health": 1638400, "stagger": 1433600, "sight": 4096, "wander": 4096,
+      "scale": 4096, "sound_bank": 0, "attack": 57, "clip_table": 0, "push": 30720 },
+    { "index": 2, "health": 2662400, "stagger": 614400, "sight": 4096, "wander": 4096,
+      "scale": 4096, "sound_bank": 0, "attack": 57, "clip_table": 0, "push": 30720 },
+    { "index": 3, "health": 3276800, "stagger": 1433600, "sight": 6144, "wander": 4096,
+      "scale": 4096, "sound_bank": 0, "attack": 57, "clip_table": 0, "push": 30720 }
+  ]
+}

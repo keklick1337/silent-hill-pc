@@ -1,0 +1,10 @@
+{
+  "format": "sh-text",
+  "version": 1,
+  "lang": "ru",
+  "map": "map3_s02",
+  "strings": {
+    "map3_s02.nothing_happens_when_the": "Кнопка лифта нажата,\nно ничего не происходит.{end}",
+    "map3_s02.its_locked": "Заперто!{end}"
+  }
+}

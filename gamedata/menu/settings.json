@@ -1,0 +1,237 @@
+{
+  "description": "The engine's settings as the Options menu (gamedata/menus/options.lua, natives setting.<config key>) steps and shows them. Settings are config.cfg keys; the game stores, applies and saves them. rows: the settings with listed values - choice (one of values; labels parallel, else the number), slider (min..max by step), resolution (one of resolutions; the menu offers those of the shape its Aspect Ratio row picks from aspects, [width, height] ratios, plus the display mode), map (the New Game start map). label starts the console line that reports a change ('_' is a space). realtime false: takes effect on the next start (restart_notice is printed). keep_on_reset: Reset to Defaults leaves the setting alone (it prints reset_done). default_map: shown while no start map is set. quick: the settings described by their kind of value, by config key, with their label tables and formats (toggle, cycle, float, offset, volume). Every key is checked: an unknown key is an error.",
+  "reset_done": "Settings reset to defaults (resolution and window mode kept).",
+  "restart_notice": "This setting will take effect the next time the game is started.",
+  "default_map": "map0_s00",
+  "resolutions": [
+    [640, 480], [800, 600], [1024, 768], [1152, 864], [1280, 960], [1400, 1050], [1600, 1200], [1920, 1440],
+    [2048, 1536],
+    [1280, 1024],
+    [1440, 960], [2160, 1440], [2256, 1504], [2880, 1920], [3000, 2000],
+    [1280, 800], [1440, 900], [1680, 1050], [1920, 1200], [2560, 1600], [2880, 1800], [3840, 2400],
+    [1280, 720], [1366, 768], [1600, 900], [1920, 1080], [2560, 1440], [3200, 1800], [3840, 2160], [5120, 2880],
+    [2560, 1080], [3440, 1440], [3840, 1600], [5120, 2160],
+    [3840, 1080], [5120, 1440]
+  ],
+  "aspects": [[4, 3], [5, 4], [3, 2], [16, 10], [16, 9], [21, 9], [32, 9]],
+  "rows": [
+    {"label": "Resolution", "kind": "resolution"},
+    {
+      "label": "Window_Mode",
+      "kind": "choice",
+      "setting": "fullscreen",
+      "values": [0, 1, 2],
+      "labels": ["Windowed", "Fullscreen", "Borderless"],
+      "keep_on_reset": true
+    },
+    {
+      "label": "VSync",
+      "kind": "choice",
+      "setting": "vsync",
+      "values": [0, 1],
+      "labels": ["Off", "On"]
+    },
+    {
+      "label": "FPS_Limit",
+      "kind": "choice",
+      "setting": "fps_cap",
+      "values": [0, 30, 60, 120, 240],
+      "labels": ["Off", "30", "60", "120", "240"]
+    },
+    {
+      "label": "Texture_Filter",
+      "kind": "choice",
+      "setting": "texture_filter",
+      "values": [0, 1, 2, 3, 4, 5, 6, 7],
+      "labels": ["Off", "Dither", "Bilinear", "Trilinear", "Aniso_2x", "Aniso_4x", "Aniso_8x", "Aniso_16x"]
+    },
+    {
+      "label": "PGXP",
+      "kind": "choice",
+      "setting": "use_pgxp",
+      "values": [0, 1],
+      "labels": ["Off", "On"]
+    },
+    {
+      "label": "Antialiasing",
+      "kind": "choice",
+      "setting": "msaa",
+      "values": [0, 2, 4, 8],
+      "labels": ["Off", "2x", "4x", "8x"],
+      "realtime": true
+    },
+    {
+      "label": "Post_Process",
+      "kind": "choice",
+      "setting": "post_process",
+      "values": [0, 1, 2, 3, 4, 5, 6, 7, 8],
+      "labels": ["Off", "CRT", "Scanlines", "Vignette", "Color_Grade", "Film_Grain", "Sharpen", "PSX_Retro", "Cinematic"]
+    },
+    {"label": "Fog_Strength", "kind": "slider", "setting": "fog_strength", "min": 0.0, "max": 2.0, "step": 0.05},
+    {
+      "label": "2D_Controls",
+      "kind": "choice",
+      "setting": "control_2d",
+      "values": [0, 1],
+      "labels": ["Off", "On"]
+    },
+    {"label": "Mouse_Sensitivity", "kind": "slider", "setting": "mouse_sensitivity", "min": 0.1, "max": 4.0, "step": 0.1},
+    {"label": "Pad_Sensitivity", "kind": "slider", "setting": "controller_sensitivity", "min": 0.1, "max": 4.0, "step": 0.1},
+    {
+      "label": "Invert_Mouse_Y",
+      "kind": "choice",
+      "setting": "invert_mouse_y",
+      "values": [0, 1],
+      "labels": ["Off", "On"]
+    },
+    {
+      "label": "Invert_Pad_Y",
+      "kind": "choice",
+      "setting": "invert_controller_y",
+      "values": [0, 1],
+      "labels": ["Off", "On"]
+    },
+    {
+      "label": "Aim_Assist",
+      "kind": "choice",
+      "setting": "aim_assist",
+      "values": [0, 1],
+      "labels": ["Off", "On"]
+    },
+    {
+      "label": "Flashlight",
+      "kind": "choice",
+      "setting": "flashlight_mode",
+      "values": [0, 1, 2, 3],
+      "labels": ["Classic", "C_+_Shadows", "Modern", "M_+_Shadows"]
+    },
+    {"label": "Beam_Intensity", "kind": "slider", "setting": "flashlight_intensity", "min": 0.0, "max": 3.0, "step": 0.1},
+    {
+      "label": "Bullet_Decals",
+      "kind": "choice",
+      "setting": "bullet_decals",
+      "values": [0, 1],
+      "labels": ["Off", "On"]
+    },
+    {
+      "label": "Extra_Lights",
+      "kind": "choice",
+      "setting": "extra_lights",
+      "values": [0, 1],
+      "labels": ["Off", "On"]
+    },
+    {"label": "FMV_Movie_Vol", "kind": "slider", "setting": "fmv_volume", "min": 0.0, "max": 1.0, "step": 0.05},
+    {
+      "label": "Low_HP_Glow",
+      "kind": "choice",
+      "setting": "low_health_glow",
+      "values": [0, 1],
+      "labels": ["Off", "On"]
+    },
+    {
+      "label": "Crosshair",
+      "kind": "choice",
+      "setting": "crosshair",
+      "values": [0, 1],
+      "labels": ["Off", "On"]
+    },
+    {"label": "Crosshair_Size", "kind": "slider", "setting": "crosshair_size", "min": 25.0, "max": 125.0, "step": 5.0},
+    {"label": "Text_Size", "kind": "slider", "setting": "text_size", "min": 100.0, "max": 150.0, "step": 5.0},
+    {"label": "First_Person_FOV", "kind": "slider", "setting": "fps_fov", "min": 40.0, "max": 140.0, "step": 1.0},
+    {"label": "Third_Person_FOV", "kind": "slider", "setting": "tps_fov", "min": 40.0, "max": 140.0, "step": 1.0},
+    {"label": "OTS_FOV", "kind": "slider", "setting": "ots_fov", "min": 40.0, "max": 140.0, "step": 1.0},
+    {
+      "label": "OTS_Aim_In_TPS",
+      "kind": "choice",
+      "setting": "tps_ots_aim",
+      "values": [0, 1],
+      "labels": ["Off", "On"]
+    },
+    {
+      "label": "Modding_Tools_(F2)",
+      "kind": "choice",
+      "setting": "modding_tools",
+      "values": [0, 1],
+      "labels": ["Off", "On"]
+    }
+  ],
+  "quick": {
+    "shadow_resolution": {
+      "kind": "cycle",
+      "setting": "shadow_resolution",
+      "stored": [256, 512, 1024, 2048, 4096, 8192],
+      "default_index": 2,
+      "format": "size_square"
+    },
+    "widescreen_mode": {
+      "kind": "cycle",
+      "setting": "widescreen_mode",
+      "label_table": "quick",
+      "labels": ["Pillarbox", "Hor+", "Stretch"]
+    },
+    "audio_output": {
+      "kind": "cycle",
+      "setting": "audio_output",
+      "label_table": "quick",
+      "labels": ["Auto", "Stereo", "Quad", "5.1", "7.1"],
+      "fallback": "HRTF"
+    },
+    "music_volume": {"kind": "volume", "setting": "music_volume", "max": 128, "step": 8, "format": "steps"},
+    "effects_volume": {"kind": "volume", "setting": "effects_volume", "max": 128, "step": 8, "format": "steps"},
+    "cutscene_line_gap_ms": {
+      "kind": "cycle",
+      "setting": "cutscene_line_gap_ms",
+      "stored": [0, 150, 300, 600],
+      "thresholds": [0, 220, 450],
+      "label_table": "quick",
+      "labels": [
+        {"text": "Off", "table": "quick_menu"},
+        "Short",
+        "Normal",
+        "Long"
+      ]
+    },
+    "hero_light": {
+      "kind": "cycle",
+      "setting": "hero_light",
+      "wrap": false,
+      "label_table": "quick",
+      "labels": [
+        {"text": "Off", "table": "quick_menu"},
+        "Low",
+        "Medium",
+        "High"
+      ]
+    },
+    "crosshair_style": {
+      "kind": "cycle",
+      "setting": "crosshair_style",
+      "mask": true,
+      "label_table": "quick",
+      "labels": ["Cross (+)", "Dot", "Circle", "Dashes"]
+    },
+    "auto_reload": {
+      "kind": "cycle",
+      "setting": "auto_reload",
+      "label_table": "quick_menu",
+      "labels": [
+        "Off",
+        "On",
+        {"text": "Original", "table": "quick"}
+      ],
+      "fallback": "On"
+    },
+    "disable_dpad_movement": {
+      "kind": "toggle",
+      "setting": "disable_dpad_movement",
+      "label_table": "quick_menu",
+      "labels": ["Off", "On"]
+    },
+    "aim_resume_after_inventory": {
+      "kind": "toggle",
+      "setting": "aim_resume_after_inventory",
+      "label_table": "quick_menu",
+      "labels": ["Off", "On"]
+    }
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "format": "sh-footstep-places",
+  "version": 1,
+  "description": "Footstep sounds by place on map4_s03 (Mall and boss fight). After the character's own footsteps table, every rule of \"places\" whose conditions all hold replaces the step sound, in file order, so the last match wins. Conditions (each optional): \"surface\" / \"not_surface\" (surface names of gamedata/world/surfaces.json), \"room\" (the map's room index), \"x\" / \"z\" ([min, max] of the player's position in metres, inclusive, null = open), \"y_above\" (metres; the player's y is greater, y grows downwards). They test the player's position for every character's step, as the original did. \"sound\" is a sound name of gamedata/sounds; \"name\" identifies the rule (on_footstep scripts see it as e.place, and a mod's maps/map4_s03/footsteps.json replaces or adds rules by name). Here two spots of the mall floor get the mall step; the five resort_otherworld_spot_* rules are the Resort Area Otherworld spots of map6_s00, which the original also tests on this map.",
+  "places": [
+    {"name": "mall_spot_east", "x": [165, null], "z": [58.5, 61.5], "sound": "mall_footstep"},
+    {"name": "mall_spot_west", "x": [null, 112.1], "z": [-101.45, -98.5], "sound": "mall_footstep"},
+    {"name": "resort_otherworld_spot_1", "x": [-160.1, -158.5], "z": [26.8, 27.4], "sound": "resort_otherworld_footstep", "_note": "the original also checks the resort otherworld spots (map6_s00) on this map"},
+    {"name": "resort_otherworld_spot_2", "x": [-160.1, -158.5], "z": [16.8, 17.5], "sound": "resort_otherworld_footstep", "_note": "the original also checks the resort otherworld spots (map6_s00) on this map"},
+    {"name": "resort_otherworld_spot_3", "x": [-170.0, -165.8], "z": [-16.4, -14.35], "sound": "resort_otherworld_footstep", "_note": "the original also checks the resort otherworld spots (map6_s00) on this map"},
+    {"name": "resort_otherworld_spot_4", "x": [-172.7, -170.9], "z": [-24.9, -21.25], "sound": "resort_otherworld_footstep", "_note": "the original also checks the resort otherworld spots (map6_s00) on this map"},
+    {"name": "resort_otherworld_spot_5", "x": [-170.28, -165.85], "z": [-35.4, -34.35], "sound": "resort_otherworld_footstep", "_note": "the original also checks the resort otherworld spots (map6_s00) on this map"}
+  ]
+}

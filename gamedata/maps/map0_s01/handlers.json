@@ -1,0 +1,78 @@
+{
+  "map": "map0_s01",
+  "table": "g_MapEventFuncs",
+  "handlers": [
+    {
+      "index": 0,
+      "symbol": null,
+      "name": null,
+      "shape": null
+    },
+    {
+      "index": 1,
+      "symbol": null,
+      "name": null,
+      "shape": null
+    },
+    {
+      "index": 2,
+      "symbol": "MapEvent_CommonItemTake",
+      "name": "MapEvent_CommonItemTake",
+      "shape": "script"
+    },
+    {
+      "index": 3,
+      "symbol": "MapEvent_CafeCutscene",
+      "name": "MapEvent_CafeCutscene",
+      "shape": "cutscene"
+    },
+    {
+      "index": 4,
+      "symbol": "MapEvent_ToBeContinued",
+      "name": "MapEvent_ToBeContinued",
+      "shape": "script"
+    },
+    {
+      "index": 5,
+      "symbol": "MapEvent_AirScreamerIntroCutscene",
+      "name": "MapEvent_AirScreamerIntroCutscene",
+      "shape": "cutscene"
+    },
+    {
+      "index": 6,
+      "symbol": "MapEvent_KitchenKnifeItemTake",
+      "name": "MapEvent_KitchenKnifeItemTake",
+      "shape": "item"
+    },
+    {
+      "index": 7,
+      "symbol": "MapEvent_FlashlightItemTake",
+      "name": "MapEvent_FlashlightItemTake",
+      "shape": "item"
+    },
+    {
+      "index": 8,
+      "symbol": "MapEvent_MapItemTake",
+      "name": "MapEvent_MapItemTake",
+      "shape": "cutscene"
+    },
+    {
+      "index": 9,
+      "symbol": "MapEvent_PocketRadioItemTake",
+      "name": "MapEvent_PocketRadioItemTake",
+      "shape": "item"
+    },
+    {
+      "index": 10,
+      "symbol": "MapEvent_EmptyFunction",
+      "name": "MapEvent_EmptyFunction",
+      "shape": "script"
+    },
+    {
+      "index": 11,
+      "symbol": "MapEvent_AirScreamerDeath",
+      "name": "MapEvent_AirScreamerDeath",
+      "shape": "script"
+    }
+  ]
+}

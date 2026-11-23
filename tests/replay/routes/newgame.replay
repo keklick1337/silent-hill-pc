@@ -1,0 +1,23 @@
+# New game from a cold boot: title, START, NORMAL, the opening scene, then control on map0_s00.
+# Walks up the street, turns, triggers the Cheryl scene and her line, runs after her into
+# the next room. Covers boot, menus, an in-engine cutscene, movement, an NPC, a message,
+# event flags and a room change.
+#
+# t=43 title menu; t=175 opening movie (not shown in replay mode); t=369 opening scene;
+# ~t=1563 control; ~t=1790 Cheryl scene; ~t=2470 room 8.
+#@timeout 900
+1 -
+100 Cross
+104 -
+150 Cross
+154 -
+1620 Up
+1920 Up Right
+1960 Up
+2120 Up Square
+2270 Up Cross
+2320 -
+2350 Left
+2400 Up
+2520 -
+end 2570

@@ -1,0 +1,44 @@
+{
+  "description": "Alessa as a ghostly little girl, seen in the memory visions of Nowhere.",
+  "category": "StoryCharacters",
+  "maps": ["map7_s01", "map7_s02"],
+  "model": "models/CHARA/TAR.glb",
+  "animations": "anim/ANIM/TAR.anim.json",
+  "clip_tables": ["ghost_child_alessa"],
+  "textures": ["textures/CHARA/TAR.png"],
+  "shadow": 0.25,
+  "blend_mode": "additive",
+  "camera_anchor": "character",
+  "camera_offset_y": -0.5,
+  "anims": {
+    "still": 0,
+    "walk": 1,
+    "walk_alt": 2,
+    "approach": 3,
+    "stand_close": 4,
+    "reach_out": 5,
+    "walk_off": 6,
+    "stand_watch": 7,
+    "appear": 8
+  },
+  "controls": {
+    "none": 0,
+    "walk": 1,
+    "walk_alt": 2,
+    "unused_a": 3,
+    "unused_b": 4,
+    "unused_c": 5,
+    "approach": 6,
+    "stand_close": 7,
+    "reach_out": 8,
+    "walk_off": 9,
+    "stand_watch": 10,
+    "appear": 11
+  },
+  "spawn": {
+    "state": 0,
+    "kind": "actor",
+    "auto": "fallback",
+    "note": "its own AI plays the cutscene state the map sets"
+  }
+}

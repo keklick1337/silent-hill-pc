@@ -1,0 +1,14 @@
+{
+  "format": "sh-text",
+  "version": 1,
+  "lang": "ko",
+  "map": "map4_s03",
+  "strings": {
+    "map4_s03.daddy_where_are_you": "아빠... 어디 있어...?",
+    "map4_s03.cheryl": "{wait 1.0}셰릴!{end}",
+    "map4_s03.there_is_a_hunting_rifle": "{color 2}사냥용 라이플{/color}이 있다.\n가져갈까?{choice 4}",
+    "map4_s03.nothing_unusual": "특별히 이상한 점은 없다.{end}",
+    "map4_s03.a_picture_is_projected_on": "스크린에 영상이\n비치고 있다.",
+    "map4_s03.cheryl_where_could_she_be": "셰릴...\n어디 있는 걸까?{end}"
+  }
+}

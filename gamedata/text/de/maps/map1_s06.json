@@ -1,0 +1,24 @@
+{
+  "format": "sh-text",
+  "version": 1,
+  "lang": "de",
+  "map": "map1_s06",
+  "strings": {
+    "map1_s06.msg15": "{wait 1.3}",
+    "map1_s06.what_was_that": "{wait2 1.5}Was war das...?{end}",
+    "map1_s06.who_in_the_hell_was": "{wait 2.4}Wer zum Teufel war das?{end}",
+    "map1_s06.there_is_a_k_gordon": "{color 2}Schlüssel „K. Gordon“{/color} gefunden.\nMitnehmen?{choice 4}",
+    "map1_s06.the_boiler_is_off": "Der Heizkessel ist aus.{end}",
+    "map1_s06.it_appears_to_be_broken": "Scheint kaputt zu sein.{end}",
+    "map1_s06.the_valve_is_tightly_shut": "Das Ventil ist fest zugedreht.\nEs rührt sich nicht.{end}",
+    "map1_s06.i_hear_a": "{wait 2.0}Ich höre eine ...",
+    "map1_s06.a_church_bell_maybe_who": "{wait 3.0}Eine Kirchenglocke vielleicht?\nWer läutet da die Glocke?{end}",
+    "map1_s06.moore_ranaldo_gordon_this_must": "Moore, Ranaldo, Gordon...\nDas muss die Lehrerliste sein.{end}",
+    "map1_s06.list_of_teachers": "Die Lehrerliste.",
+    "map1_s06.k_gordon_thats_it_ill": "K. Gordon... das ist es. Ich trage\ndie Adresse in die Karte ein.{end}",
+    "map1_s06.there_is_a_school_map": "{hires}{color 5}Karte der Schule{/color} gefunden.\nMitnehmen?{choice 4}",
+    "map1_s06.where_am_i": "{wait1 3.5}Wo bin ich?",
+    "map1_s06.this_is_a_boiler_room": "{wait1 3.0}Das ist... ein Kesselraum!?",
+    "map1_s06.what_is_going_on_here": "{wait1 3.5}Was geht hier nur vor?{end}"
+  }
+}

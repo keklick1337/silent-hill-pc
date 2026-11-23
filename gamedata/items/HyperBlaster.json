@@ -1,0 +1,22 @@
+{
+  "group": "guns",
+  "inventory": {
+    "order": 9,
+    "keep_when_empty": true,
+    "counts_ammo_in_hand": true,
+    "command": "Equip",
+    "command_in_hand": "Unequip",
+    "pickup": "special",
+    "name_tag": "hyper_blaster",
+    "unlock": {
+      "endings": [
+        "Ufo"
+      ],
+      "gun_controller": true
+    }
+  },
+  "display_tilt": {
+    "x": 45.0
+  },
+  "close_up_model": "ITEM/UNQA3.TMD"
+}

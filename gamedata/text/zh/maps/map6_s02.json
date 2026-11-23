@@ -1,0 +1,18 @@
+{
+  "format": "sh-text",
+  "version": 1,
+  "lang": "zh",
+  "map": "map6_s02",
+  "strings": {
+    "map6_s02.msg15": "{wait 1.0}...!{end}",
+    "map6_s02.wait": "{wait 1.0}等等！{end}",
+    "map6_s02.damn_i_was_too_late": "{wait 1.7}该死！\n我来晚了吗？{end}",
+    "map6_s02.sorry": "{wait 1.5}抱歉……",
+    "map6_s02.ah": "{wait 0.6}啊……",
+    "map6_s02.msg20": "{wait 1.5} ",
+    "map6_s02.let_me_ask_you_have": "{wait 3.6}请问一下，你们在这附近\n见过一个小女孩吗？{end}",
+    "map6_s02.short_black_hair": "{wait 2.8}黑色短发……{end}",
+    "map6_s02.what": "{wait 1.0}什么？{end}",
+    "map6_s02.that_light": "{wait 2.5}那道光！？{end}"
+  }
+}

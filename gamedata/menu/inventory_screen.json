@@ -1,0 +1,39 @@
+{
+    "labels": {
+        "Equipment": { "text": "Equipment", "x": 118, "y": -80, "boxed": true },
+        "Exit":      { "text": "Exit", "x": 144, "y": 304, "boxed": true },
+        "Option":    { "text": "Option", "x": 36, "y": 304, "boxed": true },
+        "Map":       { "text": "Map", "x": 240, "y": 304, "boxed": true },
+        "Command":   { "text": "Command", "x": 218, "y": -80, "boxed": true },
+        "Status":    { "text": "Status", "x": 40, "y": -80, "boxed": true },
+        "Number":    { "text": "No.", "x": 16, "y": 184, "boxed": false },
+        "Name":      { "text": "Name:", "x": 16, "y": 200, "boxed": false }
+    },
+    "command_words": {
+        "Use": "Use", "Equip": "Equip", "Unequip": "Unequip", "Reload": "Reload",
+        "Detail": "Detail", "On": "On", "Off": "Off", "Look": "Look"
+    },
+    "command_column": {
+        "label_x": 222,
+        "single_row_y": -34,
+        "upper_row_y": -42,
+        "lower_row_y": -26,
+        "row_height": 16,
+        "bar_left": 56,
+        "bar_right": 136,
+        "bar_half": 6,
+        "bar_top_two_rows": -154,
+        "bar_top_one_row": -146,
+        "bar_color": [0, 192, 64]
+    },
+    "scroll_arrows": {
+        "triangles": [
+            [[-60, 12], [-52, 4], [-52, 20]],
+            [[-52, 12], [-44, 4], [-44, 20]],
+            [[52, 12], [44, 4], [44, 20]],
+            [[60, 12], [52, 4], [52, 20]]
+        ],
+        "blink_mask": 31,
+        "blink_step": 8
+    }
+}

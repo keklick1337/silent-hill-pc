@@ -1,0 +1,52 @@
+/* SPDX-License-Identifier: GPL-3.0-or-later */
+#include "platform/sh_platform.h"
+
+#include <SDL3/SDL.h>
+
+extern SDL_Window* g_window; /* src/engine/platform/host_window.cpp */
+
+extern "C" uint64_t Sh_PerfCounter(void)
+{
+    return SDL_GetPerformanceCounter();
+}
+
+extern "C" uint64_t Sh_PerfFrequency(void)
+{
+    return SDL_GetPerformanceFrequency();
+}
+
+extern "C" uint32_t Sh_MouseState(int* x, int* y)
+{
+    float fx = 0.0f, fy = 0.0f;
+    const SDL_MouseButtonFlags buttons = SDL_GetMouseState(&fx, &fy);
+    if (x)
+        *x = static_cast<int>(fx);
+    if (y)
+        *y = static_cast<int>(fy);
+    return buttons;
+}
+
+extern "C" uint32_t Sh_RelativeMouseState(int* dx, int* dy)
+{
+    static float s_carryX = 0.0f, s_carryY = 0.0f;
+    float fx = 0.0f, fy = 0.0f;
+    const SDL_MouseButtonFlags buttons = SDL_GetRelativeMouseState(&fx, &fy);
+    if (!dx && !dy)
+    {
+        /* A flush (both NULL) drops the carry with the accumulated motion. */
+        s_carryX = s_carryY = 0.0f;
+        return buttons;
+    }
+    fx += s_carryX;
+    fy += s_carryY;
+    const int ix = static_cast<int>(fx);
+    const int iy = static_cast<int>(fy);
+    s_carryX = fx - static_cast<float>(ix);
+    s_carryY = fy - static_cast<float>(iy);
+    if (dx)
+        *dx = ix;
+    if (dy)
+        *dy = iy;
+    return buttons;
+}
+

@@ -1,0 +1,51 @@
+{
+  "snow": {
+    "aperture": {
+      "fallback": {
+        "lines": [[0, 1, 0]],
+        "extra": [
+          {
+            "room": 5,
+            "line": [2, 3, 0]
+          }
+        ]
+      }
+    },
+    "far_slot_mode": 2
+  },
+  "rest_gate": true,
+  "init": [
+    {
+      "rooms": [3],
+      "mode": 2,
+      "corners": [[101.5, 100], [101.5, 105]]
+    },
+    {
+      "rooms": [5],
+      "mode": 1,
+      "corners": [[17.7, 30], [17.7, 17], [17.5, 15], [15, 15]]
+    },
+    {
+      "rooms": [8],
+      "mode": 2,
+      "corners": [[63.5, 57], [63.5, 63]]
+    },
+    {
+      "rooms": [9],
+      "mode": 2,
+      "corners": [[104, 56], [104, 61.5]]
+    },
+    {
+      "rooms": [11],
+      "mode": 2,
+      "corners": [[143.8, 18], [143.8, 22]]
+    },
+    { "mode": 0 }
+  ],
+  "update": [
+    {
+      "rooms": [3, 5, 8, 9, 11]
+    },
+    { "skip": true }
+  ]
+}

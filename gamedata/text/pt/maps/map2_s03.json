@@ -1,0 +1,9 @@
+{
+  "format": "sh-text",
+  "version": 1,
+  "lang": "pt",
+  "map": "map2_s03",
+  "strings": {
+    "map2_s03.no_stage": "SEM FASE!{end}"
+  }
+}

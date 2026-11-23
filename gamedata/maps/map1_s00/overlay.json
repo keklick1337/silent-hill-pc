@@ -1,0 +1,11 @@
+{
+  "description": "Engine setup of map1_s00 (School - 1F, courtyard, basement), a map made only of data and Lua: \"map_type\" is the map type SC, the entry of gamedata/config/map_info.json that gives its zones, scenery file and environment. \"characters\" lists the character types this map runs, each by its gamedata/chara/<Name>/behavior.lua; a character type that is not listed cannot act here (this map: LarvalStalker, Stalker, GreyChild and Mumbler). A mod changes it with its own maps/map1_s00/overlay.json.",
+  "map_type": "SC",
+  "characters": [
+    "LarvalStalker",
+    "Stalker",
+    "GreyChild",
+    "Mumbler"
+  ],
+  "level_floor_rooms": [13]
+}

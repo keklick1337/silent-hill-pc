@@ -1,0 +1,135 @@
+name: Build Linux
+
+# Release build on Ubuntu, unit tests without a disc image, and a tar.gz package
+# (tools/ci/package.sh: engine binaries with their libraries, the repository's base
+# gamedata/, licenses; tools/ci/check_package.py checks the archive).
+# release.yml calls this workflow on a v* tag and publishes the package.
+on:
+  push:
+    branches: ['**']
+    paths-ignore: ['docs/**', '**.md']
+  pull_request:
+    paths-ignore: ['docs/**', '**.md']
+  workflow_dispatch:
+  workflow_call:
+    inputs:
+      version:
+        type: string
+        required: true
+
+concurrency:
+  # Not github.workflow: inside release.yml both builds would share the caller's name.
+  group: build-linux-${{ github.ref }}
+  cancel-in-progress: ${{ !startsWith(github.ref, 'refs/tags/') }}
+
+jobs:
+  linux:
+    runs-on: ubuntu-24.04
+    env:
+      CC: gcc-14
+      CXX: g++-14
+      ALSOFT_DRIVERS: 'null'
+      SDL_AUDIODRIVER: dummy
+      SDL_AUDIO_DRIVER: dummy
+      SDL_VIDEODRIVER: offscreen
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # What the build takes from the system: OpenGL, the shader compiler, and the
+      # X11 / Wayland / audio headers that SDL3 (built from third_party/SDL3) and
+      # OpenAL Soft (tools/linux-deps) need to find their run-time backends.
+      # OpenAL, libjpeg and FFmpeg themselves are built from the pinned sources,
+      # so the package does not ask the user's system for them.
+      - name: Install system packages
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            g++-14 cmake ninja-build pkg-config zip nasm desktop-file-utils \
+            libgl-dev libegl-dev libgles-dev \
+            glslang-tools \
+            libx11-dev libxext-dev libxrandr-dev libxcursor-dev libxfixes-dev libxi-dev \
+            libxss-dev libxtst-dev libxkbcommon-dev libwayland-dev wayland-protocols \
+            libdecor-0-dev libdrm-dev libgbm-dev libudev-dev libdbus-1-dev \
+            libpulse-dev libasound2-dev libpipewire-0.3-dev
+
+      # The sources are pinned in tools/win-deps/fetch.sh (the same versions as the
+      # Windows DLLs).
+      - name: Cache dependency sources
+        uses: actions/cache@v4
+        with:
+          path: third_party/deps/src
+          key: deps-src-${{ hashFiles('tools/win-deps/fetch.sh') }}
+
+      # The Linux build compiles SDL3 statically from third_party/SDL3.
+      - name: Fetch dependency sources
+        run: |
+          tools/win-deps/fetch.sh
+          ln -sfn deps/src/SDL3 third_party/SDL3
+
+      # Rebuilt whenever the pinned list or the build scripts change.
+      - name: Cache Linux dependencies
+        id: deps
+        uses: actions/cache@v4
+        with:
+          path: third_party/deps/linux-x86_64
+          key: linux-deps-ubuntu-24.04-gcc14-${{ hashFiles('tools/win-deps/fetch.sh', 'tools/linux-deps/build.sh', 'tools/ffmpeg/build.sh', 'tools/ncnn/build.sh') }}
+
+      # OpenAL Soft (shared, LGPL), libjpeg-turbo (static), the project's own LGPL
+      # FFmpeg for mod mp4 movies (shared, beside the exe) and ncnn with the
+      # Real-ESRGAN model for sh-upscale (static).
+      - name: Build dependencies
+        if: steps.deps.outputs.cache-hit != 'true'
+        run: tools/linux-deps/build.sh
+
+      # The C++ runtime goes into the binaries: the package then needs only the C
+      # library, OpenGL and what it brings itself.
+      - name: Configure
+        run: >
+          cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
+          -DCMAKE_DISABLE_FIND_PACKAGE_SDL3=ON
+          "-DCMAKE_EXE_LINKER_FLAGS=-static-libstdc++ -static-libgcc"
+
+      - name: Build
+        run: cmake --build build --parallel "$(nproc)"
+
+      # Tests that need the disc image look for data/ in the tree and skip without it.
+      - name: Unit tests
+        working-directory: build/tests
+        run: ./sh_tests
+
+      # The menu entry the game writes for a user who asks, into a scratch home.
+      - name: Desktop entry
+        run: |
+          export HOME="$RUNNER_TEMP/desktop-home" XDG_DATA_HOME=
+          mkdir -p "$HOME"
+          build/SilentHillPC --install-desktop
+          desktop-file-validate "$HOME/.local/share/applications/silent-hill-pc.desktop"
+          test -f "$HOME/.local/share/icons/hicolor/48x48/apps/silent-hill-pc.png"
+          build/SilentHillPC --uninstall-desktop
+          test ! -e "$HOME/.local/share/applications/silent-hill-pc.desktop"
+
+      - name: Version
+        id: ver
+        run: |
+          v='${{ inputs.version }}'
+          [ -n "$v" ] || v="$(git describe --tags --always --dirty)"
+          echo "version=$v" >> "$GITHUB_OUTPUT"
+
+      # Fails if a library the binaries import is neither in the package nor the
+      # system's, or if anything disc-derived got in.
+      - name: Package
+        run: tools/ci/package.sh build linux '${{ steps.ver.outputs.version }}' dist
+
+      # The archive as a user gets it, unpacked into an empty directory: every
+      # imported library present, run paths $ORIGIN only, and the game starts
+      # (--version, --help) with no library path of the build.
+      - name: Check the package
+        run: python3 -I tools/ci/check_package.py check dist/*.tar.gz linux --run
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: SilentHillPC-linux-x86_64
+          path: dist/*.tar.gz
+          if-no-files-found: error

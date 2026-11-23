@@ -1,0 +1,497 @@
+{
+  "class": "gun",
+  "item": "Shotgun",
+  "clip": 6,
+  "ammo": "ShotgunShells",
+  "muzzle_light": {
+    "description": "The light of the muzzle flash for the modern lighting (map_lights, rt_lights): shown while the flash sprite is drawn, losing the share fade of its intensity over the flash's life. Rendering only.",
+    "color": [1.0, 0.72, 0.4],
+    "intensity": 6.0,
+    "range": 8.0,
+    "radius": 0.05,
+    "fade": 0.5,
+    "casts_shadows": true,
+    "gi": true
+  },
+  "attacks": [
+    {
+      "input": "tap",
+      "impact_sound": "bullet_impact",
+      "ranking": "other_shot",
+      "hit_type": 3,
+      "power": 50,
+      "reach": 12.0,
+      "reach_q12": 49152,
+      "reach_start": 0.0,
+      "reach_start_q12": 0,
+      "knockback": 0.25,
+      "knockback_q12": 1024,
+      "keyframe_start": 0,
+      "keyframe_length": 5,
+      "shot_interval_q12": 0,
+      "max_shots": 0,
+      "pellets": 12,
+      "spread_q12": 170,
+      "spread_sectors": 12,
+      "spread_stride": 5,
+      "hurt_sound": 0,
+      "blood_splatter": 2
+    },
+    {
+      "input": "hold",
+      "hit_type": 6,
+      "power": 16,
+      "reach": 0.4,
+      "reach_q12": 1638,
+      "reach_start": 0.1,
+      "reach_start_q12": 410,
+      "knockback": 0.0,
+      "knockback_q12": 0,
+      "keyframe_start": 0,
+      "keyframe_length": 99,
+      "min_hit_box_q12": [0, 0, 0],
+      "hurt_sound": 5,
+      "blood_splatter": 3
+    },
+    {
+      "input": "multitap",
+      "hit_type": 5,
+      "power": 0,
+      "reach": 0.9,
+      "reach_q12": 3686,
+      "reach_start": 0.4,
+      "reach_start_q12": 1638,
+      "knockback": 0.0,
+      "knockback_q12": 0,
+      "keyframe_start": 3,
+      "keyframe_length": 2,
+      "min_hit_box_q12": [1638, 2457, 0],
+      "hurt_sound": 1,
+      "blood_splatter": 0
+    }
+  ],
+  "rig": {
+    "anim_file": "ANIM/HB_WEP52.ANM",
+    "hand_collision_q12": -5632,
+    "clips": [
+      {
+        "kind": "blend_linear",
+        "anim": "handgun_aim",
+        "active": false,
+        "variable": false,
+        "next": {
+          "anim": "handgun_aim",
+          "active": true
+        },
+        "speed_q12": 409600,
+        "start_kf": null,
+        "end_kf": 570
+      },
+      {
+        "kind": "playback_once",
+        "anim": "handgun_aim",
+        "active": true,
+        "variable": false,
+        "next": {
+          "anim": "handgun_aim",
+          "active": true
+        },
+        "speed_q12": 163840,
+        "start_kf": 570,
+        "end_kf": 579
+      },
+      {
+        "kind": "blend_linear",
+        "anim": "handgun_aim_start",
+        "active": false,
+        "variable": false,
+        "next": {
+          "anim": "handgun_aim_start",
+          "active": true
+        },
+        "speed_q12": 409600,
+        "start_kf": null,
+        "end_kf": 582
+      },
+      {
+        "kind": "playback_once",
+        "anim": "handgun_aim_start",
+        "active": true,
+        "variable": false,
+        "next": {
+          "anim": "handgun_aim_start",
+          "active": true
+        },
+        "speed_q12": 122880,
+        "start_kf": 582,
+        "end_kf": 592
+      },
+      {
+        "kind": "blend_linear",
+        "anim": "weapon_attack_2",
+        "active": false,
+        "variable": false,
+        "next": {
+          "anim": "weapon_attack_2",
+          "active": true
+        },
+        "speed_q12": 409600,
+        "start_kf": null,
+        "end_kf": 594
+      },
+      {
+        "kind": "playback_once",
+        "anim": "weapon_attack_2",
+        "active": true,
+        "variable": false,
+        "next": {
+          "anim": "weapon_attack_2",
+          "active": true
+        },
+        "speed_q12": 90112,
+        "start_kf": 594,
+        "end_kf": 604
+      },
+      {
+        "kind": "blend_linear",
+        "anim": "handgun_recoil",
+        "active": false,
+        "variable": false,
+        "next": {
+          "anim": "handgun_recoil",
+          "active": true
+        },
+        "speed_q12": 409600,
+        "start_kf": null,
+        "end_kf": 605
+      },
+      {
+        "kind": "playback_once",
+        "anim": "handgun_recoil",
+        "active": true,
+        "variable": false,
+        "next": {
+          "anim": "handgun_recoil",
+          "active": true
+        },
+        "speed_q12": 69632,
+        "start_kf": 605,
+        "end_kf": 641
+      },
+      {
+        "kind": "blend_linear",
+        "anim": "aim_target_lock_start",
+        "active": false,
+        "variable": false,
+        "next": {
+          "anim": "aim_target_lock_start",
+          "active": true
+        },
+        "speed_q12": 409600,
+        "start_kf": null,
+        "end_kf": 570
+      },
+      {
+        "kind": "playback_once",
+        "anim": "aim_target_lock_start",
+        "active": true,
+        "variable": false,
+        "next": {
+          "anim": "aim_target_lock_start",
+          "active": true
+        },
+        "speed_q12": 245760,
+        "start_kf": 570,
+        "end_kf": 592
+      },
+      {
+        "kind": "blend_linear",
+        "anim": "powered_weapon_idle",
+        "active": false,
+        "variable": false,
+        "next": {
+          "anim": "powered_weapon_idle",
+          "active": true
+        },
+        "speed_q12": 409600,
+        "start_kf": null,
+        "end_kf": 579
+      },
+      {
+        "kind": "playback_once",
+        "anim": "powered_weapon_idle",
+        "active": true,
+        "variable": false,
+        "next": {
+          "anim": "powered_weapon_idle",
+          "active": true
+        },
+        "speed_q12": -163840,
+        "start_kf": 570,
+        "end_kf": 579
+      },
+      {
+        "kind": "blend_linear",
+        "anim": "aim_resume",
+        "active": false,
+        "variable": false,
+        "next": {
+          "anim": "aim_resume",
+          "active": true
+        },
+        "speed_q12": 409600,
+        "start_kf": null,
+        "end_kf": 592
+      },
+      {
+        "kind": "playback_once",
+        "anim": "aim_resume",
+        "active": true,
+        "variable": false,
+        "next": {
+          "anim": "aim_resume",
+          "active": true
+        },
+        "speed_q12": -163840,
+        "start_kf": 580,
+        "end_kf": 592
+      },
+      {
+        "kind": "blend_linear",
+        "anim": "aim_to_attack",
+        "active": false,
+        "variable": false,
+        "next": {
+          "anim": "aim_to_attack",
+          "active": true
+        },
+        "speed_q12": 409600,
+        "start_kf": null,
+        "end_kf": 592
+      },
+      {
+        "kind": "playback_once",
+        "anim": "aim_to_attack",
+        "active": true,
+        "variable": false,
+        "next": {
+          "anim": "aim_to_attack",
+          "active": true
+        },
+        "speed_q12": -81920,
+        "start_kf": 570,
+        "end_kf": 592
+      },
+      {
+        "kind": "blend_linear",
+        "anim": "gun_attack",
+        "active": false,
+        "variable": false,
+        "next": {
+          "anim": "gun_attack",
+          "active": true
+        },
+        "speed_q12": 409600,
+        "start_kf": null,
+        "end_kf": 582
+      },
+      {
+        "kind": "playback_once",
+        "anim": "gun_attack",
+        "active": true,
+        "variable": false,
+        "next": {
+          "anim": "gun_attack",
+          "active": true
+        },
+        "speed_q12": 90112,
+        "start_kf": 582,
+        "end_kf": 604
+      },
+      {
+        "kind": "blend_linear",
+        "anim": "handgun_aim",
+        "active": false,
+        "variable": false,
+        "next": {
+          "anim": "handgun_aim",
+          "active": true
+        },
+        "speed_q12": 409600,
+        "start_kf": null,
+        "end_kf": 568
+      },
+      {
+        "kind": "playback_once",
+        "anim": "handgun_aim",
+        "active": true,
+        "variable": false,
+        "next": {
+          "anim": "handgun_aim",
+          "active": true
+        },
+        "speed_q12": 98304,
+        "start_kf": 568,
+        "end_kf": 574
+      }
+    ],
+    "keyframes": [
+      {
+        "status_a": {
+          "anim": "handgun_aim",
+          "active": false
+        },
+        "status_b": {
+          "anim": "handgun_aim",
+          "active": true
+        },
+        "value": 140,
+        "start_kf": 570,
+        "end_kf": 579
+      },
+      {
+        "status_a": {
+          "anim": "handgun_aim_start",
+          "active": false
+        },
+        "status_b": {
+          "anim": "handgun_aim_start",
+          "active": true
+        },
+        "value": 141,
+        "start_kf": 582,
+        "end_kf": 592
+      },
+      {
+        "status_a": {
+          "anim": "weapon_attack_2",
+          "active": false
+        },
+        "status_b": {
+          "anim": "weapon_attack_2",
+          "active": true
+        },
+        "value": 142,
+        "start_kf": 594,
+        "end_kf": 604
+      },
+      {
+        "status_a": {
+          "anim": "handgun_recoil",
+          "active": false
+        },
+        "status_b": {
+          "anim": "handgun_recoil",
+          "active": true
+        },
+        "value": 153,
+        "start_kf": 605,
+        "end_kf": 641
+      },
+      {
+        "status_a": {
+          "anim": "aim_target_lock_start",
+          "active": false
+        },
+        "status_b": {
+          "anim": "aim_target_lock_start",
+          "active": true
+        },
+        "value": 140,
+        "start_kf": 570,
+        "end_kf": 592
+      },
+      {
+        "status_a": {
+          "anim": "powered_weapon_idle",
+          "active": false
+        },
+        "status_b": {
+          "anim": "powered_weapon_idle",
+          "active": true
+        },
+        "value": 140,
+        "start_kf": 570,
+        "end_kf": 579
+      },
+      {
+        "status_a": {
+          "anim": "aim_resume",
+          "active": false
+        },
+        "status_b": {
+          "anim": "aim_resume",
+          "active": true
+        },
+        "value": 141,
+        "start_kf": 580,
+        "end_kf": 592
+      },
+      {
+        "status_a": {
+          "anim": "aim_to_attack",
+          "active": false
+        },
+        "status_b": {
+          "anim": "aim_to_attack",
+          "active": true
+        },
+        "value": 140,
+        "start_kf": 570,
+        "end_kf": 592
+      },
+      {
+        "status_a": {
+          "anim": "gun_attack",
+          "active": false
+        },
+        "status_b": {
+          "anim": "gun_attack",
+          "active": true
+        },
+        "value": 140,
+        "start_kf": 582,
+        "end_kf": 604
+      },
+      {
+        "status_a": {
+          "anim": "handgun_aim",
+          "active": false
+        },
+        "status_b": {
+          "anim": "handgun_aim",
+          "active": true
+        },
+        "value": 170,
+        "start_kf": 568,
+        "end_kf": 574
+      }
+    ],
+    "sounds": {
+      "attack": "shotgun_shot",
+      "reload": "shotgun_reload",
+      "out_of_ammo": "shotgun_empty"
+    },
+    "anims": {
+      "stop_aiming": {
+        "anim": "powered_weapon_idle",
+        "active": false
+      },
+      "attack": {
+        "anim": "gun_attack",
+        "active": false
+      },
+      "attack_hold": {
+        "anim": "weapon_attack_2",
+        "active": true
+      },
+      "reload_sound_offset": 23,
+      "attack_keyframe_slot": 2,
+      "aim_stop_keyframe_slot": 5
+    }
+  },
+  "held_bone": [
+    3,
+    1
+  ]
+}

@@ -1,0 +1,134 @@
+#version 460
+// The ray-traced signals' own denoiser (RENDER.md 2.2b): a temporal pass that reprojects the last frame's history
+// through the camera's motion and keeps it where the surface is the same, then edge-stopped a-trous passes over
+// the screen (depth and normal decide what is the same surface). Three signals at once: the flashlight's shadow,
+// the reflection and the bounce light; a signal whose effect is off is passed through.
+
+layout(local_size_x = 8, local_size_y = 8) in;
+
+layout(set = 0, binding = 0, std140) uniform RtFrame {
+    mat4 u_prevFromCur;
+    vec4 u_pixelRay;
+    vec4 u_prevPixelRay;
+    vec4 u_viewport;
+    vec4 u_lens;
+    vec4 u_beamDir;
+    vec4 u_beam;
+    vec4 u_beamColor;
+    vec4 u_fog;
+    vec4 u_ambient;
+    vec4 u_effects;  // x: shadows, y: reflections, z: GI, w: frame number
+    vec4 u_params;
+    vec4 u_up;
+    vec4 u_fogRampP;
+    vec4 u_fogRamp[32];
+};
+
+layout(set = 0, binding = 1, rgba16f) uniform readonly image2D i_gbuf;
+layout(set = 0, binding = 2, rgba16f) uniform readonly image2D i_prevGbuf;
+layout(set = 0, binding = 3, rgba16f) uniform readonly image2D i_a0;
+layout(set = 0, binding = 4, rgba16f) uniform readonly image2D i_a1;
+layout(set = 0, binding = 5, rgba16f) uniform readonly image2D i_a2;
+layout(set = 0, binding = 6, rgba16f) uniform readonly image2D i_h0;  // the last frame's history (temporal pass)
+layout(set = 0, binding = 7, rgba16f) uniform readonly image2D i_h1;
+layout(set = 0, binding = 8, rgba16f) uniform readonly image2D i_h2;
+layout(set = 0, binding = 9, rgba16f) uniform writeonly image2D o_0;
+layout(set = 0, binding = 10, rgba16f) uniform writeonly image2D o_1;
+layout(set = 0, binding = 11, rgba16f) uniform writeonly image2D o_2;
+
+layout(push_constant) uniform Pass {
+    int u_mode;   // 0 temporal, 1 a-trous
+    int u_step;   // a-trous: tap spacing in pixels
+    int u_last;   // a-trous: the last pass, whose alpha is the view z the shading compares with
+    int u_reset;  // temporal: no history (first frame, a cut, a new size)
+};
+
+// The most a pixel keeps of its history: the flashlight moves with the player, so its shadow must follow quickly.
+const float kMinAlpha = 0.2;
+const float kMaxHistory = 24.0;
+
+vec4 Load(int s, ivec2 p) {
+    return s == 0 ? imageLoad(i_a0, p) : (s == 1 ? imageLoad(i_a1, p) : imageLoad(i_a2, p));
+}
+
+vec4 History(int s, ivec2 p) {
+    return s == 0 ? imageLoad(i_h0, p) : (s == 1 ? imageLoad(i_h1, p) : imageLoad(i_h2, p));
+}
+
+void Store(int s, ivec2 p, vec4 v) {
+    if (s == 0) imageStore(o_0, p, v);
+    else if (s == 1) imageStore(o_1, p, v);
+    else imageStore(o_2, p, v);
+}
+
+bool SignalOn(int s) { return s == 0 ? u_effects.x > 0.5 : (s == 1 ? u_effects.y > 0.5 : u_effects.z > 0.5); }
+
+void main() {
+    ivec2 rel = ivec2(gl_GlobalInvocationID.xy);
+    if (rel.x >= int(u_viewport.z) || rel.y >= int(u_viewport.w)) return;
+    ivec2 px = rel + ivec2(u_viewport.xy);
+    vec4 g = imageLoad(i_gbuf, px);
+    float z = g.w;
+
+    if (u_mode == 0) {
+        // Where this surface was last frame.
+        bool valid = false;
+        ivec2 pp = ivec2(0);
+        if (z > 0.0 && u_reset == 0) {
+            vec2 c = vec2(px) + 0.5;
+            vec3 p = vec3(c.x * u_pixelRay.x + u_pixelRay.y, c.y * u_pixelRay.z + u_pixelRay.w, 1.0) * z;
+            vec3 q = (u_prevFromCur * vec4(p, 1.0)).xyz;
+            if (q.z > 1.0) {
+                vec2 r = q.xy / q.z;
+                vec2 pc = vec2((r.x - u_prevPixelRay.y) / u_prevPixelRay.x, (r.y - u_prevPixelRay.w) / u_prevPixelRay.z);
+                pp = ivec2(floor(pc));
+                ivec2 lo = ivec2(u_viewport.xy), hi = lo + ivec2(u_viewport.zw) - 1;
+                if (all(greaterThanEqual(pp, lo)) && all(lessThanEqual(pp, hi))) {
+                    vec4 pg = imageLoad(i_prevGbuf, pp);
+                    valid = pg.w > 0.0 && abs(pg.w - q.z) < 4.0 + 0.03 * q.z && dot(pg.xyz, mat3(u_prevFromCur) * g.xyz) > 0.8;
+                }
+            }
+        }
+        for (int s = 0; s < 3; ++s) {
+            vec4 raw = Load(s, px);
+            if (!SignalOn(s) || z <= 0.0) {
+                Store(s, px, vec4(raw.rgb, 1.0));
+                continue;
+            }
+            vec4 h = valid ? History(s, pp) : vec4(0.0);
+            float len = valid ? min(h.a + 1.0, kMaxHistory) : 1.0;
+            float alpha = max(1.0 / len, kMinAlpha);
+            Store(s, px, vec4(mix(h.rgb, raw.rgb, valid ? alpha : 1.0), len));
+        }
+        return;
+    }
+
+    // A-trous: a 5x5 B3 kernel with holes of u_step pixels, weighed by depth and normal similarity.
+    const float k[3] = float[](0.375, 0.25, 0.0625);
+    for (int s = 0; s < 3; ++s) {
+        vec4 centre = Load(s, px);
+        if (!SignalOn(s) || z <= 0.0) {
+            Store(s, px, vec4(centre.rgb, u_last != 0 ? z : centre.a));
+            continue;
+        }
+        vec3 sum = vec3(0.0);
+        float wsum = 0.0;
+        for (int dy = -2; dy <= 2; ++dy) {
+            for (int dx = -2; dx <= 2; ++dx) {
+                ivec2 q = px + ivec2(dx, dy) * u_step;
+                if (q.x < int(u_viewport.x) || q.y < int(u_viewport.y) || q.x >= int(u_viewport.x + u_viewport.z) ||
+                    q.y >= int(u_viewport.y + u_viewport.w))
+                    continue;
+                vec4 qg = imageLoad(i_gbuf, q);
+                if (qg.w <= 0.0) continue;
+                float wz = exp(-abs(qg.w - z) / (1.0 + 0.01 * z * float(u_step)));
+                float wn = pow(max(dot(qg.xyz, g.xyz), 0.0), 32.0);
+                float w = k[abs(dx)] * k[abs(dy)] * wz * wn;
+                sum += Load(s, q).rgb * w;
+                wsum += w;
+            }
+        }
+        vec3 v = wsum > 0.0 ? sum / wsum : centre.rgb;
+        Store(s, px, vec4(v, u_last != 0 ? z : centre.a));
+    }
+}

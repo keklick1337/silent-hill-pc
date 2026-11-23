@@ -1,0 +1,47 @@
+{
+  "description": "Animation tables of the story characters in the cutscenes of map7_s03 (Nowhere - final boss). A cutscene asks whether a character's animation is done (\"playback\") and which keyframe it starts at (\"start_keyframe\"; the same tables as playback when absent); the answer comes from the table named here, a file gamedata/tables/anim/<table>.json indexed by the character's animation status. \"tables\" maps a character name to its table and \"fallback\" is the table of every character not listed (none: such a character has no table). On this map, playback: Cybil uses \"cybil\", EndingCybil uses \"cybil\", Dahlia uses \"dahlia\", EndingDahlia uses \"dahlia\", Alessa uses \"alessa\", Kaufmann uses \"kaufmann\", EndingKaufmann uses \"kaufmann\", Lisa uses \"bloody_lisa\", Incubator uses \"incubator\", BloodyIncubator uses \"bloody_incubator\" and other characters have no table. Start keyframe: Cybil uses \"cybil\", EndingCybil uses \"cybil\", Dahlia uses \"dahlia\", EndingDahlia uses \"dahlia\", Alessa uses \"alessa\", Kaufmann uses \"kaufmann\", EndingKaufmann uses \"kaufmann\", BloodyLisa uses \"bloody_lisa\", Incubator uses \"incubator\", BloodyIncubator uses \"bloody_incubator\" and other characters have no table. Lisa's status indexes Bloody Lisa's table in the done/not-done query, Bloody Lisa's own in the first-keyframe query, as in the original. \"cue_sounds\" sets the volume (0..255) of sounds (names of gamedata/sounds) that an animation keyframe cues: cybil_cue_5, dahlia_cue and dahlia_cue_2 at 32; cybil_handgun_shot at 192; any other cued sound plays at 128. Read when the map loads.",
+  "playback": {
+    "tables": {
+      "Cybil": "cybil",
+      "EndingCybil": "cybil",
+      "Dahlia": "dahlia",
+      "EndingDahlia": "dahlia",
+      "Alessa": "alessa",
+      "Kaufmann": "kaufmann",
+      "EndingKaufmann": "kaufmann",
+      "Lisa": "bloody_lisa",
+      "Incubator": "incubator",
+      "BloodyIncubator": "bloody_incubator"
+    }
+  },
+  "start_keyframe": {
+    "tables": {
+      "Cybil": "cybil",
+      "EndingCybil": "cybil",
+      "Dahlia": "dahlia",
+      "EndingDahlia": "dahlia",
+      "Alessa": "alessa",
+      "Kaufmann": "kaufmann",
+      "EndingKaufmann": "kaufmann",
+      "BloodyLisa": "bloody_lisa",
+      "Incubator": "incubator",
+      "BloodyIncubator": "bloody_incubator"
+    }
+  },
+  "cue_sounds": [
+    {
+      "sounds": [
+        "cybil_cue_5",
+        "dahlia_cue",
+        "dahlia_cue_2"
+      ],
+      "volume": 32
+    },
+    {
+      "sounds": [
+        "cybil_handgun_shot"
+      ],
+      "volume": 192
+    }
+  ]
+}

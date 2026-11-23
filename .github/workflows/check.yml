@@ -1,0 +1,62 @@
+name: Checks
+
+# The static checks of docs/DEVELOPMENT.md, section 4, step 3: they need no build and no disc image.
+# The steps that need an imported game (tools/ci/gate.sh runs them all) stay local.
+on:
+  push:
+    branches: ['**']
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      # 3.14: src/i18n/core/unicode_data.inc is generated from the Unicode data of this Python (16.0).
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.14'
+
+      # The input prompt sheet is compared by its pixels.
+      - name: Pillow
+        run: python3 -m pip install pillow==12.0.0
+
+      - name: Readable names
+        run: python3 -I tools/scripts/check_naming.py --strict
+
+      - name: Map handlers
+        run: python3 -I tools/scripts/check_map_handlers.py
+
+      - name: Text tables
+        run: python3 -I tools/scripts/gen_text.py --check
+
+      - name: Map tables
+        run: python3 -I tools/scripts/gen_map_tables.py --check
+
+      - name: Event flags
+        run: python3 -I tools/scripts/gen_flags.py --check
+
+      - name: Paper maps
+        run: python3 -I tools/scripts/gen_paper_maps.py --check
+
+      - name: Weapon rigs
+        run: python3 -I tools/scripts/gen_weapon_rig.py --check
+
+      - name: Unicode tables
+        run: python3 -I tools/scripts/gen_unicode_tables.py --check
+
+      # -I leaves the user site out; the runner's Pillow is in the interpreter's own site-packages.
+      - name: Input prompt sheet
+        run: python3 -I tools/scripts/build_input_glyphs.py --check
+
+      - name: Lua API reference
+        run: python3 -I tools/scripts/lua_api_docs.py markdown --check
+
+      - name: Documentation
+        run: python3 -I tools/scripts/check_docs.py

@@ -1,0 +1,21 @@
+{
+  "description": "Named variables of the HangedScratcher's behaviour (chara/HangedScratcher/behavior.lua reads and writes them by name). Each character instance owns a small block of bytes; every entry of \"fields\" names one value in it: \"name\" is the name the script uses, \"kind\" the storage type (s8, u8, s16, u16, s32, u32: a write keeps the low bits, a read sign- or zero-extends), \"at\" the byte offset in the block (absent: the next naturally aligned offset), \"note\" what the value means. Values are raw integers in the units the behaviour uses (usually Q12, 4096 = 1.0 or 1 m; angles Q12, 4096 = a full turn). A mod adds or changes fields with a state.json of the same path; keep the offsets of fields the behaviour already uses.",
+  "fields": [
+    {"name": "hanged_scratcher_flags", "kind": "s16", "at": 0, "note": "e_HangedScratcherFlags: 0x1 airborne, 0x2 drop from above when hit, 0x4 dead body left, 0x10 hit this tick, 0x20 attacked this tick, 0x40 entrance step sound played, 0x80 released by the map, 0x100 entrance attack sound played, 0x200 dead (no collision)."},
+    {"name": "hanged_scratcher_timer", "kind": "u16", "at": 2},
+    {"name": "hanged_scratcher_target_heading", "kind": "s16", "at": 4},
+    {"name": "hanged_scratcher_collision_clip", "kind": "u8", "at": 6, "note": "The clip the collision shapes were last taken from (the blend into the next clip starts there)."},
+    {"name": "hanged_scratcher_offset_x", "kind": "s16", "at": 8},
+    {"name": "hanged_scratcher_offset_z", "kind": "s16", "at": 10},
+    {"name": "hanged_scratcher_spawn_x", "kind": "s32", "at": 12},
+    {"name": "hanged_scratcher_spawn_z", "kind": "s32", "at": 16},
+    {"name": "hanged_scratcher_prev_rot_y", "kind": "s16", "at": 20},
+    {"name": "hanged_scratcher_vocal_timer", "kind": "s16", "at": 24},
+    {"name": "hanged_scratcher_scrape_latch", "kind": "u8", "at": 26},
+    {"name": "hanged_scratcher_scrape_count", "kind": "u8", "at": 27},
+    {"name": "hanged_scratcher_wake", "kind": "s32", "at": 28, "note": "Nonzero wakes a scratcher waiting in control state 16."},
+    {"name": "hanged_scratcher_idle_timer", "kind": "s16", "at": 32},
+    {"name": "hanged_scratcher_run_speed", "kind": "u16", "at": 36},
+    {"name": "hanged_scratcher_walk_speed", "kind": "u16", "at": 38}
+  ]
+}

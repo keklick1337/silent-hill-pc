@@ -1,0 +1,11 @@
+{
+  "format": "sh-text",
+  "version": 1,
+  "lang": "ko",
+  "map": "map2_s02",
+  "strings": {
+    "map2_s02.used_the_antique_shop_key": "{color 2}골동품점 열쇠{/color}를 사용했다.{end}",
+    "map2_s02.alchemilla_hospital": "{color 3}알케밀라 병원{end}",
+    "map2_s02.green_lion": "{color 3}녹색 사자{end}"
+  }
+}

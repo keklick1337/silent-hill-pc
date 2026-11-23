@@ -1,0 +1,130 @@
+{
+  "format": "sh-map-info",
+  "version": 1,
+  "description": "Map types and their environments. \"maps\": one entry per map type, its index being the map type number; tag is its short name (THR = town, SC = school, HP = hospital, ...; other files refer to map types by tag), plm the BG_<plm>_GLB_PLM scenery file, flags MapFlag names (FourActiveChunks, ...), speed_zones / water_zones the zone sets it uses. \"speed_zones\" and \"water_zones\": boxes (min_x .. max_z in Q4, 1/16 of a world unit) where the walk speed type or water lighting applies. \"environments\": the 21 light and fog presets (alpha, tint and fog_distance Q12). A mod changes it with a file of the same path in its own folder; objects are merged key by key, so the patch only needs the keys it changes.",
+  "maps": [
+    {"tag": "THR", "plm": "THR", "flags": [], "water_zones": null, "speed_zones": "THR"},
+    {"tag": "SC", "plm": null, "flags": ["TwoActiveChunks", "Interior"], "water_zones": null, "speed_zones": "SC"},
+    {"tag": "SU", "plm": null, "flags": ["TwoActiveChunks", "Interior"], "water_zones": null, "speed_zones": "SU"},
+    {"tag": "SPR", "plm": "SPR", "flags": [], "water_zones": null, "speed_zones": "SP"},
+    {"tag": "SPU", "plm": "SPU", "flags": [], "water_zones": null, "speed_zones": "SP"},
+    {"tag": "RSR", "plm": "RSR", "flags": [], "water_zones": null, "speed_zones": "RSR"},
+    {"tag": "RSU", "plm": "RSU", "flags": [], "water_zones": null, "speed_zones": "RSU"},
+    {"tag": "APR", "plm": "APR", "flags": [], "water_zones": null, "speed_zones": "AP"},
+    {"tag": "APU", "plm": "APU", "flags": [], "water_zones": null, "speed_zones": "AP"},
+    {"tag": "ER", "plm": null, "flags": ["TwoActiveChunks", "Interior"], "water_zones": null, "speed_zones": "ER"},
+    {"tag": "ER", "plm": null, "flags": ["TwoActiveChunks", "Interior"], "water_zones": null, "speed_zones": "ER"},
+    {"tag": "DR", "plm": "DR", "flags": [], "water_zones": "WaterLight0", "speed_zones": "DR"},
+    {"tag": "DRU", "plm": "DRU", "flags": [], "water_zones": "WaterLight1", "speed_zones": "DR"},
+    {"tag": "HP", "plm": null, "flags": ["TwoActiveChunks", "Interior"], "water_zones": null, "speed_zones": "HP"},
+    {"tag": "HU", "plm": null, "flags": ["TwoActiveChunks", "Interior"], "water_zones": null, "speed_zones": "HU"},
+    {"tag": "XXX", "plm": null, "flags": ["Unused3"], "water_zones": null, "speed_zones": "XXX"}
+  ],
+  "speed_zones": {
+    "THR": [
+      {"type": "Fast", "min_x": -5120, "max_x": 4480, "min_z": -3840, "max_z": 3200},
+      {"type": "Fast", "min_x": -640, "max_x": 640, "min_z": 3200, "max_z": 3840},
+      {"type": "Normal", "min_x": -4480, "max_x": -1280, "min_z": 3200, "max_z": 6400}
+    ],
+    "SP": [
+      {"type": "Fast", "min_x": -3840, "max_x": 1280, "min_z": -1920, "max_z": 640},
+      {"type": "Fast", "min_x": -640, "max_x": 1280, "min_z": 640, "max_z": 1920},
+      {"type": "Normal", "min_x": -2560, "max_x": -1280, "min_z": 1280, "max_z": 3840},
+      {"type": "Normal", "min_x": 1280, "max_x": 3200, "min_z": -1920, "max_z": 2560}
+    ],
+    "RSR": [
+      {"type": "Fast", "min_x": -1920, "max_x": 1280, "min_z": -3200, "max_z": 640},
+      {"type": "Normal", "min_x": -3200, "max_x": -1920, "min_z": -640, "max_z": 0}
+    ],
+    "RSU": [
+      {"type": "Fast", "min_x": -3200, "max_x": 0, "min_z": 640, "max_z": 2560},
+      {"type": "Normal", "min_x": -3200, "max_x": -1280, "min_z": -1280, "max_z": 640}
+    ],
+    "AP": [
+      {"type": "Fast", "min_x": -1280, "max_x": 640, "min_z": -1920, "max_z": 640},
+      {"type": "Normal", "min_x": 0, "max_x": 640, "min_z": 1280, "max_z": 1920}
+    ],
+    "DR": [
+      {"type": "Normal", "min_x": -12800, "max_x": 13440, "min_z": -12800, "max_z": 13440}
+    ],
+    "SC": [
+      {"type": "Normal", "min_x": -1920, "max_x": -640, "min_z": 640, "max_z": 1280},
+      {"type": "Normal", "min_x": -640, "max_x": 0, "min_z": 2560, "max_z": 3200},
+      {"type": "Normal", "min_x": -640, "max_x": 0, "min_z": 0, "max_z": 640},
+      {"type": "Normal", "min_x": 640, "max_x": 1920, "min_z": 640, "max_z": 1280},
+      {"type": "Normal", "min_x": 1920, "max_x": 2560, "min_z": 0, "max_z": 640},
+      {"type": "Normal", "min_x": 1920, "max_x": 2560, "min_z": 2560, "max_z": 3200},
+      {"type": "Normal", "min_x": -1280, "max_x": 0, "min_z": -1280, "max_z": 0},
+      {"type": "Normal", "min_x": 640, "max_x": 1280, "min_z": -640, "max_z": 0}
+    ],
+    "SU": [
+      {"type": "Normal", "min_x": -1920, "max_x": -640, "min_z": 640, "max_z": 1280},
+      {"type": "Normal", "min_x": -640, "max_x": 0, "min_z": 2560, "max_z": 3200},
+      {"type": "Normal", "min_x": -640, "max_x": 0, "min_z": 0, "max_z": 640},
+      {"type": "Normal", "min_x": 640, "max_x": 1920, "min_z": 640, "max_z": 1280},
+      {"type": "Normal", "min_x": 1920, "max_x": 2560, "min_z": 0, "max_z": 640},
+      {"type": "Normal", "min_x": 1920, "max_x": 2560, "min_z": 2560, "max_z": 3200},
+      {"type": "Normal", "min_x": -1280, "max_x": 0, "min_z": -1280, "max_z": 0},
+      {"type": "Normal", "min_x": 0, "max_x": 1280, "min_z": -640, "max_z": 0}
+    ],
+    "HP": [
+      {"type": "Normal", "min_x": 0, "max_x": 640, "min_z": 1920, "max_z": 2560},
+      {"type": "Normal", "min_x": 0, "max_x": 640, "min_z": 0, "max_z": 640}
+    ],
+    "HU": [
+      {"type": "Normal", "min_x": 1280, "max_x": 1920, "min_z": 1920, "max_z": 2560},
+      {"type": "Normal", "min_x": 0, "max_x": 640, "min_z": 0, "max_z": 640},
+      {"type": "Normal", "min_x": 1920, "max_x": 2560, "min_z": 0, "max_z": 640},
+      {"type": "Normal", "min_x": -1920, "max_x": 0, "min_z": 1280, "max_z": 1920},
+      {"type": "Normal", "min_x": -1280, "max_x": 0, "min_z": -1920, "max_z": -1280},
+      {"type": "Normal", "min_x": -2560, "max_x": -1920, "min_z": -1280, "max_z": -640},
+      {"type": "Normal", "min_x": -2560, "max_x": -1920, "min_z": -2560, "max_z": -1920},
+      {"type": "Normal", "min_x": 0, "max_x": 1920, "min_z": -2560, "max_z": -1920},
+      {"type": "Normal", "min_x": 1280, "max_x": 2560, "min_z": -1920, "max_z": -1280},
+      {"type": "Normal", "min_x": 640, "max_x": 1280, "min_z": -1280, "max_z": -640}
+    ],
+    "ER": [
+      {"type": "Normal", "min_x": -1280, "max_x": -640, "min_z": -640, "max_z": 0},
+      {"type": "Normal", "min_x": -1920, "max_x": -640, "min_z": -1920, "max_z": -1280},
+      {"type": "Normal", "min_x": -1920, "max_x": -1280, "min_z": -2560, "max_z": -1920},
+      {"type": "Normal", "min_x": 2560, "max_x": 3200, "min_z": -640, "max_z": 0},
+      {"type": "Normal", "min_x": 1280, "max_x": 2560, "min_z": -1920, "max_z": -1280}
+    ],
+    "XXX": [
+      {"type": "Fast", "min_x": -12800, "max_x": 13440, "min_z": -12800, "max_z": 13440}
+    ]
+  },
+  "water_zones": {
+    "WaterLight0": [
+      {"enabled": true, "illumination": 8, "min_x": -1920, "max_x": 1280, "min_z": -1920, "max_z": 640},
+      {"enabled": true, "illumination": 8, "min_x": 0, "max_x": 640, "min_z": 0, "max_z": 1280}
+    ],
+    "WaterLight1": [
+      {"enabled": true, "illumination": 8, "min_x": -2560, "max_x": 640, "min_z": -2560, "max_z": 2560},
+      {"enabled": true, "illumination": 8, "min_x": -2560, "max_x": 2560, "min_z": -2560, "max_z": 640}
+    ]
+  },
+  "environments": [
+    {"flags": 0, "light_level": 255, "light_mode": 0, "unused_byte": 0, "alpha": 0, "tint_intensity": 4710, "tint": [4096, 4096, 4096], "fog_mode": 0, "fog_distance": 409600, "fog_color": [60, 60, 68], "screen_tint_on": 0, "screen_tint_add": [0, 0, 0], "screen_tint_sub": [0, 0, 0], "particle_color_a": [64, 64, 64], "particle_color_b": [12, 12, 28]},
+    {"flags": 0, "light_level": 255, "light_mode": 0, "unused_byte": 0, "alpha": 0, "tint_intensity": 4505, "tint": [3891, 4096, 4423], "fog_mode": 1, "fog_distance": 55296, "fog_color": [108, 100, 116], "screen_tint_on": 0, "screen_tint_add": [0, 0, 0], "screen_tint_sub": [0, 0, 0], "particle_color_a": [48, 48, 48], "particle_color_b": [14, 14, 30]},
+    {"flags": 0, "light_level": 255, "light_mode": 2, "unused_byte": 0, "alpha": 2457, "tint_intensity": 2457, "tint": [3686, 4096, 4300], "fog_mode": 1, "fog_distance": 57344, "fog_color": [100, 92, 108], "screen_tint_on": 0, "screen_tint_add": [0, 0, 0], "screen_tint_sub": [0, 0, 0], "particle_color_a": [48, 48, 48], "particle_color_b": [13, 13, 29]},
+    {"flags": 22, "light_level": 255, "light_mode": 1, "unused_byte": 0, "alpha": 5324, "tint_intensity": 0, "tint": [3891, 4096, 4423], "fog_mode": 0, "fog_distance": 163840, "fog_color": [0, 0, 0], "screen_tint_on": 0, "screen_tint_add": [0, 0, 0], "screen_tint_sub": [0, 0, 0], "particle_color_a": [48, 48, 48], "particle_color_b": [12, 12, 12]},
+    {"flags": 22, "light_level": 255, "light_mode": 1, "unused_byte": 0, "alpha": 2867, "tint_intensity": 0, "tint": [3686, 4096, 4300], "fog_mode": 0, "fog_distance": 163840, "fog_color": [0, 0, 0], "screen_tint_on": 0, "screen_tint_add": [0, 0, 0], "screen_tint_sub": [0, 0, 0], "particle_color_a": [48, 48, 48], "particle_color_b": [12, 12, 12]},
+    {"flags": 22, "light_level": 255, "light_mode": 1, "unused_byte": 0, "alpha": 5324, "tint_intensity": 409, "tint": [3891, 4096, 4423], "fog_mode": 3, "fog_distance": 55296, "fog_color": [68, 60, 76], "screen_tint_on": 1, "screen_tint_add": [24, 16, 32], "screen_tint_sub": [85, 75, 75], "particle_color_a": [32, 32, 40], "particle_color_b": [12, 12, 28]},
+    {"flags": 7, "light_level": 255, "light_mode": 0, "unused_byte": 0, "alpha": 0, "tint_intensity": 1802, "tint": [1638, 2867, 4096], "fog_mode": 1, "fog_distance": 57344, "fog_color": [0, 0, 0], "screen_tint_on": 0, "screen_tint_add": [0, 0, 0], "screen_tint_sub": [0, 0, 0], "particle_color_a": [16, 16, 24], "particle_color_b": [8, 8, 20]},
+    {"flags": 7, "light_level": 255, "light_mode": 0, "unused_byte": 0, "alpha": 0, "tint_intensity": 1802, "tint": [1638, 2867, 4096], "fog_mode": 1, "fog_distance": 38092, "fog_color": [0, 0, 0], "screen_tint_on": 0, "screen_tint_add": [0, 0, 0], "screen_tint_sub": [0, 0, 0], "particle_color_a": [16, 16, 24], "particle_color_b": [8, 8, 20]},
+    {"flags": 6, "light_level": 80, "light_mode": 1, "unused_byte": 0, "alpha": 1433, "tint_intensity": 1638, "tint": [2867, 3276, 4096], "fog_mode": 1, "fog_distance": 163840, "fog_color": [0, 0, 0], "screen_tint_on": 0, "screen_tint_add": [0, 0, 0], "screen_tint_sub": [0, 0, 0], "particle_color_a": [64, 64, 64], "particle_color_b": [12, 12, 12]},
+    {"flags": 6, "light_level": 255, "light_mode": 1, "unused_byte": 0, "alpha": 7372, "tint_intensity": 614, "tint": [4096, 2867, 2457], "fog_mode": 0, "fog_distance": 163840, "fog_color": [0, 0, 0], "screen_tint_on": 0, "screen_tint_add": [0, 0, 0], "screen_tint_sub": [0, 0, 0], "particle_color_a": [64, 32, 16], "particle_color_b": [24, 12, 12]},
+    {"flags": 14, "light_level": 146, "light_mode": 1, "unused_byte": 0, "alpha": 2048, "tint_intensity": 0, "tint": [4096, 3276, 2457], "fog_mode": 0, "fog_distance": 163840, "fog_color": [0, 0, 0], "screen_tint_on": 0, "screen_tint_add": [0, 0, 0], "screen_tint_sub": [0, 0, 0], "particle_color_a": [32, 24, 16], "particle_color_b": [18, 8, 8]},
+    {"flags": 6, "light_level": 255, "light_mode": 1, "unused_byte": 0, "alpha": 7372, "tint_intensity": 614, "tint": [5324, 1638, 819], "fog_mode": 0, "fog_distance": 163840, "fog_color": [0, 0, 0], "screen_tint_on": 0, "screen_tint_add": [0, 0, 0], "screen_tint_sub": [0, 0, 0], "particle_color_a": [64, 32, 16], "particle_color_b": [24, 12, 12]},
+    {"flags": 22, "light_level": 255, "light_mode": 1, "unused_byte": 0, "alpha": 5324, "tint_intensity": 409, "tint": [3891, 4096, 4423], "fog_mode": 0, "fog_distance": 163840, "fog_color": [0, 0, 0], "screen_tint_on": 0, "screen_tint_add": [0, 0, 0], "screen_tint_sub": [0, 0, 0], "particle_color_a": [48, 48, 48], "particle_color_b": [12, 12, 12]},
+    {"flags": 0, "light_level": 255, "light_mode": 0, "unused_byte": 0, "alpha": 0, "tint_intensity": 3194, "tint": [3031, 3481, 4096], "fog_mode": 1, "fog_distance": 55296, "fog_color": [92, 84, 100], "screen_tint_on": 0, "screen_tint_add": [0, 0, 0], "screen_tint_sub": [0, 0, 0], "particle_color_a": [16, 16, 24], "particle_color_b": [8, 8, 20]},
+    {"flags": 22, "light_level": 56, "light_mode": 1, "unused_byte": 0, "alpha": 2867, "tint_intensity": 204, "tint": [4505, 2457, 2662], "fog_mode": 0, "fog_distance": 163840, "fog_color": [0, 0, 0], "screen_tint_on": 0, "screen_tint_add": [0, 0, 0], "screen_tint_sub": [0, 0, 0], "particle_color_a": [48, 48, 48], "particle_color_b": [12, 12, 12]},
+    {"flags": 6, "light_level": 196, "light_mode": 1, "unused_byte": 0, "alpha": 4915, "tint_intensity": 819, "tint": [2867, 1843, 1843], "fog_mode": 0, "fog_distance": 163840, "fog_color": [0, 0, 0], "screen_tint_on": 0, "screen_tint_add": [0, 0, 0], "screen_tint_sub": [0, 0, 0], "particle_color_a": [64, 32, 16], "particle_color_b": [24, 12, 12]},
+    {"flags": 6, "light_level": 255, "light_mode": 1, "unused_byte": 0, "alpha": 5734, "tint_intensity": 204, "tint": [3481, 2457, 2457], "fog_mode": 0, "fog_distance": 163840, "fog_color": [0, 0, 0], "screen_tint_on": 0, "screen_tint_add": [0, 0, 0], "screen_tint_sub": [0, 0, 0], "particle_color_a": [64, 32, 16], "particle_color_b": [24, 12, 12]},
+    {"flags": 0, "light_level": 255, "light_mode": 0, "unused_byte": 0, "alpha": 0, "tint_intensity": 4096, "tint": [3891, 3686, 3686], "fog_mode": 1, "fog_distance": 26624, "fog_color": [108, 100, 100], "screen_tint_on": 0, "screen_tint_add": [0, 0, 0], "screen_tint_sub": [0, 0, 0], "particle_color_a": [48, 48, 48], "particle_color_b": [14, 14, 30]},
+    {"flags": 22, "light_level": 255, "light_mode": 1, "unused_byte": 0, "alpha": 10240, "tint_intensity": 614, "tint": [4096, 2867, 2867], "fog_mode": 0, "fog_distance": 163840, "fog_color": [0, 0, 0], "screen_tint_on": 0, "screen_tint_add": [0, 0, 0], "screen_tint_sub": [0, 0, 0], "particle_color_a": [64, 32, 16], "particle_color_b": [24, 12, 12]},
+    {"flags": 7, "light_level": 255, "light_mode": 0, "unused_byte": 0, "alpha": 0, "tint_intensity": 2252, "tint": [2048, 3604, 5120], "fog_mode": 1, "fog_distance": 61440, "fog_color": [0, 0, 0], "screen_tint_on": 0, "screen_tint_add": [0, 0, 0], "screen_tint_sub": [0, 0, 0], "particle_color_a": [16, 16, 24], "particle_color_b": [8, 8, 20]},
+    {"flags": 22, "light_level": 255, "light_mode": 1, "unused_byte": 0, "alpha": 3276, "tint_intensity": 819, "tint": [3891, 4096, 4423], "fog_mode": 0, "fog_distance": 163840, "fog_color": [0, 0, 0], "screen_tint_on": 0, "screen_tint_add": [0, 0, 0], "screen_tint_sub": [0, 0, 0], "particle_color_a": [48, 48, 48], "particle_color_b": [12, 12, 12]}
+  ]
+}

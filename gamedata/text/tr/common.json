@@ -1,0 +1,22 @@
+{
+  "format": "sh-text",
+  "version": 1,
+  "lang": "tr",
+  "strings": {
+    "common.yes": "Evet",
+    "common.no": "Hayır",
+    "common.notes_useful": "Günün birinde başka biri de\nbu tuhaf olayları yaşayabilir.\nUmarım notlarım işine yarar.{end}",
+    "common.no_map": "{instant}Buranın haritası\nbende yok.{end}",
+    "common.too_dark_for_map": "{instant}Haritaya bakmak için\nburası fazla karanlık.{end}",
+    "common.take_first_aid_kit": "Burada {color 2}İlk yardım çantası{/color} var.\nAlınsın mı?{choice 4}",
+    "common.take_health_drink": "Burada {color 2}Sağlık içeceği{/color} var.\nAlınsın mı?{choice 4}",
+    "common.take_ampoule": "Burada {color 2}Ampul{/color} var.\nAlınsın mı?{choice 4}",
+    "common.take_handgun_bullets": "Burada {color 2}Tabanca mermisi{/color} var.\nAlınsın mı?{choice 4}",
+    "common.take_rifle_shells": "Burada {color 2}Tüfek mermisi{/color} var.\nAlınsın mı?{choice 4}",
+    "common.take_shotgun_shells": "Burada {color 2}Pompalı fişeği{/color} var.\nAlınsın mı?{choice 4}",
+    "common.lock_jammed": "Kilit sıkışmış.\nBu kapı açılmaz.{end}",
+    "common.locked": "Kilitli.{end}",
+    "common.unlocked": "Kilit açıldı.{end}",
+    "common.now_making": "{color 6}Yapım aşamasında!{/color}{end}"
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "description": "Mumbler: a clawed child-sized creature, the PAL stand-in for the Grey Child. On the US disc it lurks in the Resort Area around Annie's Bar and in the sewer to the Lakeside Amusement Park.",
+  "category": "CommonEnemies",
+  "maps": ["map0_s00", "map5_s02", "map6_s03"],
+  "model": "models/CHARA/CLD4.glb",
+  "animations": "anim/ANIM/CLD2.anim.json",
+  "clip_tables": ["Stalker/clips.json"],
+  "textures": ["textures/CHARA/CLD4.png"],
+  "shadow": 0.25,
+  "blend_mode": "additive",
+  "camera_anchor": "character",
+  "camera_offset_y": -0.8,
+  "sounds": {
+    "alert": "stalker_alert",
+    "attack": "stalker_attack",
+    "attack_hit": "stalker_attack_hit",
+    "damage": "stalker_damage"
+  },
+  "params": {
+    "collision_ground_walker": 1
+  },
+  "_param_units": {
+    "collision_ground_walker": "1: the wall / ledge / void classification applies (walks on the ground)"
+  },
+  "spawn": {
+    "state": 3,
+    "kind": "enemy",
+    "auto": "full",
+    "map_state": {"map0_s00": 6},
+    "note": "state 17 is the dead body of the Stalker family"
+  },
+  "behavior": "Stalker",
+  "harry_reactions": ["Hit", "LegGrab", "Death"],
+  "blood": "LarvalStalker",
+  "enemy": true,
+  "preview": {"rotate": [-90, 0, 0]}
+}

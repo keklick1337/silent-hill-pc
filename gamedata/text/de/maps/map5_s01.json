@@ -1,0 +1,13 @@
+{
+  "format": "sh-text",
+  "version": 1,
+  "lang": "de",
+  "map": "map5_s01",
+  "strings": {
+    "map5_s01.there_is_a_resort_area": "{hires}{color 5}Karte des Ferienviertels{/color} gefunden.\nMitnehmen?{choice 4}",
+    "map5_s01.nothing_unusual": "Nichts Ungewöhnliches.{end}",
+    "map5_s01.used_the_kaufmann_key": "{color 2}Kaufmanns Schlüssel{/color} benutzt.{end}",
+    "map5_s01.what": "{wait 1.0}Was?{end}",
+    "map5_s01.that_light": "{wait 2.5}Dieses Licht!?{end}"
+  }
+}

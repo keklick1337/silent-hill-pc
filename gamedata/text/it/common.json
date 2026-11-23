@@ -1,0 +1,22 @@
+{
+  "format": "sh-text",
+  "version": 1,
+  "lang": "it",
+  "strings": {
+    "common.yes": "Sì",
+    "common.no": "No",
+    "common.notes_useful": "Un giorno, forse, qualcun altro\nvivrà questi eventi assurdi. Spero\nche i miei appunti gli siano utili.{end}",
+    "common.no_map": "{instant}Non ho la mappa\ndi questo posto.{end}",
+    "common.too_dark_for_map": "{instant}Qui è troppo buio\nper guardare la mappa.{end}",
+    "common.take_first_aid_kit": "C'è un {color 2}kit di pronto soccorso{/color}.\nPrenderlo?{choice 4}",
+    "common.take_health_drink": "C'è una {color 2}bevanda tonica{/color}.\nPrenderla?{choice 4}",
+    "common.take_ampoule": "C'è una {color 2}fiala{/color}.\nPrenderla?{choice 4}",
+    "common.take_handgun_bullets": "Ci sono dei {color 2}proiettili per pistola{/color}.\nPrenderli?{choice 4}",
+    "common.take_rifle_shells": "Ci sono dei {color 2}proiettili per fucile{/color}.\nPrenderli?{choice 4}",
+    "common.take_shotgun_shells": "Ci sono delle {color 2}cartucce a pallettoni{/color}.\nPrenderle?{choice 4}",
+    "common.lock_jammed": "La serratura è bloccata.\nQuesta porta non si può aprire.{end}",
+    "common.locked": "È chiuso a chiave.{end}",
+    "common.unlocked": "È sbloccato.{end}",
+    "common.now_making": "{color 6}In lavorazione!{/color}{end}"
+  }
+}

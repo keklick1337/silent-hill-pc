@@ -1,0 +1,71 @@
+{
+  "description": "Incubus: the demon god born from Alessa, the final boss of the good endings, fought in the last room of Nowhere.",
+  "category": "Bosses",
+  "maps": ["map7_s03"],
+  "model": "models/CHARA/BOS.glb",
+  "animations": "anim/ANIM/BOS.anim.json",
+  "clip_tables": ["incubus"],
+  "textures": ["textures/CHARA/BOS.png"],
+  "shadow": 0.0,
+  "blend_mode": "additive",
+  "camera_anchor": "camera",
+  "camera_offset_y": 0.0,
+  "sounds": {
+    "motion": "incubus_motion",
+    "motion_10": "incubus_motion_10",
+    "motion_11": "incubus_motion_11",
+    "motion_12": "incubus_motion_12",
+    "motion_13": "incubus_motion_13",
+    "motion_2": "incubus_motion_2",
+    "motion_3": "incubus_motion_3",
+    "motion_4": "incubus_motion_3",
+    "motion_5": "incubus_motion_3",
+    "motion_6": "incubus_motion_6",
+    "motion_7": "incubus_motion_7",
+    "motion_8": "incubus_motion_8",
+    "motion_9": "incubus_motion_9"
+  },
+  "params": {
+    "health": 40000.0,
+    "health_easy": 30000.0
+  },
+  "_param_units": {
+    "health": "health points, Q12 on use",
+    "health_easy": "health points, Q12 on use"
+  },
+  "anims": {
+    "still": 0,
+    "rise": 1,
+    "lightning_call": 2,
+    "hover": 3,
+    "hold_lightning": 4,
+    "hold_hover": 5
+  },
+  "controls": {
+    "none": 0,
+    "wait": 1,
+    "rise": 2,
+    "lightning_call": 3,
+    "hold_lightning": 4,
+    "hold_after_lightning": 5,
+    "storm": 6,
+    "storm_fire": 7,
+    "storm_lead": 8,
+    "unused": 9,
+    "arm": 10,
+    "hover": 11,
+    "sink": 12,
+    "dead": 13
+  },
+  "spawn": {
+    "state": 0,
+    "kind": "boss",
+    "auto": "fallback",
+    "note": "its own AI is the final fight of map7_s03 (lightning, arena effects)"
+  },
+  "harry_reactions": ["Bolt", "Death"],
+  "fresh_hit_blood_strength": 7,
+  "fresh_hit_blood_strength_scatter": 4,
+  "enemy": true,
+  "is_boss": true
+}

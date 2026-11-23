@@ -1,0 +1,11 @@
+{
+  "format": "sh-text",
+  "version": 1,
+  "lang": "pl",
+  "strings": {
+    "ui.bind.debug_options": "Opcje debugowania",
+    "ui.menu.off": "Wyłączone",
+    "ui.menu.on": "Włączone",
+    "ui.pause.debug_options": "OPCJE DEBUG"
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "format": "sh-text",
+  "version": 1,
+  "lang": "es",
+  "map": "map0_s02",
+  "strings": {
+    "map0_s02.there_is_a_chain_saw": "Hay una {color 2}motosierra{/color}.\n¿Te la llevas?{choice 4}",
+    "map0_s02.some_oil_cans_are_on": "Hay latas de aceite en el estante.{end}",
+    "map0_s02.a_car_engine_no_problem": "Un motor de coche.\nNo tiene nada raro.{end}",
+    "map0_s02.theres_a_tv_set_it": "Hay un televisor.\nNo enciende.{end}",
+    "map0_s02.there_is_a_gasoline_tank": "Hay un {color 2}bidón de gasolina{/color}.\n¿Te lo llevas?{choice 4}",
+    "map0_s02.there_is_a_katana_take": "Hay una {color 2}katana{/color}.\n¿Te la llevas?{choice 4}",
+    "map0_s02.there_is_a_channeling_stone": "Hay una {color 2}piedra canalizadora{/color}.\n¿Te la llevas?{choice 4}"
+  }
+}

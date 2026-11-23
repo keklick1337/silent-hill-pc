@@ -1,0 +1,67 @@
+{
+  "format": "sh-text",
+  "version": 1,
+  "lang": "en",
+  "map": "map0_s00",
+  "description": "The map's messages: the keys by message number from \"first\" (the numbers before it are common.json's), and the English text of the original game.",
+  "index": {
+    "map": {
+      "first": 15,
+      "keys": [
+        "map0_s00.cheryl_where_could_you_be",
+        "map0_s00.its_strange",
+        "map0_s00.its_quiet_too_quiet",
+        "map0_s00.this_place_is_like_a",
+        "map0_s00.cheryl",
+        "map0_s00.footsteps",
+        "map0_s00.cheryl_is_that_cheryl",
+        "map0_s00.where_are_you_going",
+        "map0_s00.hey_wait_stop",
+        "map0_s00.id_better_follow_cheryl",
+        "map0_s00.thats_strange_its_getting",
+        "map0_s00.a_dead_end_what_the",
+        "map0_s00.what_is_this",
+        "map0_s00.whats_going_on_here",
+        "map0_s00.whats_this",
+        "map0_s00.better_than_nothing_i_guess",
+        "map0_s00.what_whats_this_doing_here",
+        "map0_s00.blocked_by_a_fence",
+        "map0_s00.a_broken_wheelchair_whats_this",
+        "map0_s00.what_the_what_is_it",
+        "map0_s00.the_street_is_blocked",
+        "map0_s00.cant_get_out_of_town",
+        "map0_s00.my_car_too_banged_up",
+        "map0_s00.wheres_cheryl_hope_shes_safe"
+      ]
+    }
+  },
+  "strings": {
+    "map0_s00.cheryl_where_could_you_be": "{wait 2.5}Cheryl.  Where could you be?{end}",
+    "map0_s00.its_strange": "{wait 1.5}It's strange...",
+    "map0_s00.its_quiet_too_quiet": "{wait 2.0}It's quiet.  Too quiet.",
+    "map0_s00.this_place_is_like_a": "{wait 3.0}This place is\nlike a ghost town.{end}",
+    "map0_s00.cheryl": "{wait 3.0}Cheryl.{end}",
+    "map0_s00.footsteps": "{wait 1.5}Footsteps?{end}",
+    "map0_s00.cheryl_is_that_cheryl": "{wait 2.8}Cheryl?\nIs that Cheryl!?{end}",
+    "map0_s00.where_are_you_going": "{wait 1.2}Where are you going?{end}",
+    "map0_s00.hey_wait_stop": "{wait 1.8}Hey wait...stop!{end}",
+    "map0_s00.id_better_follow_cheryl": "I'd better follow Cheryl...{end}",
+    "map0_s00.thats_strange_its_getting": "That's strange,\nit's getting darker.{end}",
+    "map0_s00.a_dead_end_what_the": "A dead end?\nWhat the hell!?{end}",
+    "map0_s00.what_is_this": "{wait 1.6}What is this?",
+    "map0_s00.whats_going_on_here": "{wait 2.5}What's going on here!?{end}",
+    "map0_s00.whats_this": "What's this?{end}",
+    "map0_s00.better_than_nothing_i_guess": "......better than nothing,\nI guess.{end}",
+    "map0_s00.what_whats_this_doing_here": "What?\nWhat's this doing here?{end}",
+    "map0_s00.blocked_by_a_fence": "Blocked by a fence?{end}",
+    "map0_s00.a_broken_wheelchair_whats_this": "A broken wheelchair?\nWhat's this doing here?{end}",
+    "map0_s00.what_the_what_is_it": "What the..?\nWhat is it?{end}",
+    "map0_s00.the_street_is_blocked": "The street is blocked.",
+    "map0_s00.cant_get_out_of_town": "Can't get out of town\nthrough here.{end}",
+    "map0_s00.my_car_too_banged_up": "My car...\ntoo banged up to drive.",
+    "map0_s00.wheres_cheryl_hope_shes_safe": "Where's Cheryl?\nHope she's safe.{end}"
+  },
+  "ws": {
+    "map0_s00.the_street_is_blocked": "4b20de41:22=-"
+  }
+}

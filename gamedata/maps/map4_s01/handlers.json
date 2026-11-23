@@ -1,0 +1,66 @@
+{
+  "map": "map4_s01",
+  "table": "g_MapEventFuncs",
+  "handlers": [
+    {
+      "index": 0,
+      "symbol": "MapEvent_DoorJammed",
+      "name": "MapEvent_DoorJammed",
+      "shape": "script"
+    },
+    {
+      "index": 1,
+      "symbol": null,
+      "name": null,
+      "shape": null
+    },
+    {
+      "index": 2,
+      "symbol": "MapEvent_Nop",
+      "name": "MapEvent_Nop",
+      "shape": "script"
+    },
+    {
+      "index": 3,
+      "symbol": "Cutscene_AntiqueShopCybil",
+      "name": "Cutscene_AntiqueShopCybil",
+      "shape": "cutscene"
+    },
+    {
+      "index": 4,
+      "symbol": "Cutscene_HoleRoomDescent",
+      "name": "Cutscene_HoleRoomDescent",
+      "shape": "cutscene"
+    },
+    {
+      "index": 5,
+      "symbol": "Cutscene_CybilFindsHarry",
+      "name": "Cutscene_CybilFindsHarry",
+      "shape": "cutscene"
+    },
+    {
+      "index": 6,
+      "symbol": "MapEvent_PushCabinet",
+      "name": "MapEvent_PushCabinet",
+      "shape": "script"
+    },
+    {
+      "index": 7,
+      "symbol": "Cutscene_SqsuScene",
+      "name": "Cutscene_SqsuScene",
+      "shape": "cutscene"
+    },
+    {
+      "index": 8,
+      "symbol": "MapEvent_AxeTake",
+      "name": "MapEvent_AxeTake",
+      "shape": "item"
+    },
+    {
+      "index": 9,
+      "symbol": "MapEvent_WallClockInspect",
+      "name": "MapEvent_WallClockInspect",
+      "shape": "script"
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "format": "sh-text",
+  "version": 1,
+  "lang": "de",
+  "strings": {
+    "common.yes": "Ja",
+    "common.no": "Nein",
+    "common.notes_useful": "Vielleicht erlebt jemand einmal\ndiese bizarren Dinge. Hoffentlich\nhelfen ihm dann meine Notizen.{end}",
+    "common.no_map": "{instant}Für diesen Ort habe\nich keine Karte.{end}",
+    "common.too_dark_for_map": "{instant}Hier ist es zu dunkel,\num auf die Karte zu sehen.{end}",
+    "common.take_first_aid_kit": "{color 2}Erste-Hilfe-Set{/color} gefunden.\nMitnehmen?{choice 4}",
+    "common.take_health_drink": "{color 2}Vitaldrink{/color} gefunden.\nMitnehmen?{choice 4}",
+    "common.take_ampoule": "{color 2}Ampulle{/color} gefunden.\nMitnehmen?{choice 4}",
+    "common.take_handgun_bullets": "{color 2}Pistolenmunition{/color} gefunden.\nMitnehmen?{choice 4}",
+    "common.take_rifle_shells": "{color 2}Gewehrmunition{/color} gefunden.\nMitnehmen?{choice 4}",
+    "common.take_shotgun_shells": "{color 2}Schrotpatronen{/color} gefunden.\nMitnehmen?{choice 4}",
+    "common.lock_jammed": "Das Schloss klemmt.\nDiese Tür lässt sich nicht öffnen.{end}",
+    "common.locked": "Abgeschlossen.{end}",
+    "common.unlocked": "Aufgeschlossen.{end}",
+    "common.now_making": "{color 6}In Arbeit!{/color}{end}"
+  }
+}

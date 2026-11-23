@@ -1,0 +1,18 @@
+{
+  "map": "map1_s04",
+  "table": "g_MapEventFuncs",
+  "handlers": [
+    {
+      "index": 0,
+      "symbol": null,
+      "name": null,
+      "shape": null
+    },
+    {
+      "index": 1,
+      "symbol": "MapEvent_DebugSoundTest",
+      "name": "MapEvent_DebugSoundTest",
+      "shape": "script"
+    }
+  ]
+}

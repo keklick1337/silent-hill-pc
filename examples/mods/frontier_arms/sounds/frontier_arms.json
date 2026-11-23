@@ -1,0 +1,9 @@
+{
+  "description": "The revolver's and the machete's own sound names (weapons/Revolver.json and weapons/Machete.json rig \"sounds\"), each another sound of the game. A mod with WAV files of its own gives a name {\"file\": \"sounds/<name>.wav\"} instead.",
+  "sounds": {
+    "revolver_shot": "shotgun_shot",
+    "revolver_reload": "hunting_rifle_reload",
+    "revolver_empty": "hunting_rifle_empty",
+    "machete_swing": "katana_swing"
+  }
+}

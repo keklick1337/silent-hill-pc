@@ -1,0 +1,24 @@
+{
+  "format": "sh-text",
+  "version": 1,
+  "lang": "ko",
+  "strings": {
+    "ui.bind.attack": "공격",
+    "ui.bind.back_cancel": "뒤로 / 취소",
+    "ui.bind.confirm_skip": "확인 / 건너뛰기",
+    "ui.bind.view": "시점",
+    "ui.controls_ref.category.camera": "카메라",
+    "ui.controls_ref.category.combat": "전투",
+    "ui.controls_ref.category.debug": "디버그",
+    "ui.controls_ref.category.menu": "메뉴",
+    "ui.controls_ref.category.movement": "이동",
+    "ui.controls_ref.category.system": "시스템",
+    "ui.controls_ref.close_hint": "아무 키나 누르면 닫힙니다",
+    "ui.controls_ref.scheme_altcam": "대체 카메라",
+    "ui.controls_ref.scheme_classic": "클래식 카메라",
+    "ui.controls_ref.stick": "스틱/방향 패드",
+    "ui.controls_ref.title": "조작",
+    "ui.options.controls_reference": "조작 안내",
+    "ui.options.controls_reference.help": "현재의 모든 키와 버튼을 보여 줍니다."
+  }
+}

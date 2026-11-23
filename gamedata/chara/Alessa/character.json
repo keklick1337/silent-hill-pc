@@ -1,0 +1,63 @@
+{
+  "description": "Alessa Gillespie, the girl at the centre of the cult's ritual, glimpsed by Harry in the hospital, at the lighthouse, at the amusement park and at the end of Nowhere.",
+  "category": "StoryCharacters",
+  "maps": ["map3_s02", "map6_s02", "map6_s04", "map7_s03"],
+  "model": "models/CHARA/AR.glb",
+  "animations": "anim/ANIM/AR.anim.json",
+  "clip_tables": ["alessa"],
+  "textures": ["textures/CHARA/AR.png"],
+  "shadow": 0.25,
+  "blend_mode": "additive",
+  "camera_anchor": "character",
+  "camera_offset_y": -0.5,
+  "sounds": {
+    "collapse": "alessa_collapse"
+  },
+  "footsteps": {
+    "default": "footstep_concrete",
+    "concrete": "footstep_concrete",
+    "planks": "footstep_planks",
+    "grass": "footstep_grass",
+    "gravel": "footstep_gravel",
+    "metal_mesh": "footstep_metal_mesh",
+    "metal": "footstep_metal",
+    "sewer_floor": "footstep_concrete",
+    "wood": "footstep_wood",
+    "carpet": "footstep_carpet",
+    "metal_plate": "footstep_metal",
+    "metal_grating": "footstep_metal",
+    "*": "footstep_concrete"
+  },
+  "anims": {
+    "still": 0,
+    "stand_idle": 1,
+    "walk_forward": 2,
+    "walk_forward_turn_stumble": 3,
+    "force_push": 4,
+    "stumble_forward_crumple": 5,
+    "crumple_look_up": 6,
+    "crumple_shake_head": 7,
+    "stand_look_right": 8,
+    "crumple_idle": 9,
+    "kneel": 10
+  },
+  "controls": {
+    "none": 0,
+    "stand": 1,
+    "walk": 2,
+    "walk_forward_turn_stumble": 3,
+    "force_push": 4,
+    "stumble_forward_crumple": 5,
+    "crumple_look_up": 6,
+    "crumple_shake_head": 7,
+    "stand_look_right": 8,
+    "crumple_idle": 9,
+    "kneel": 10
+  },
+  "spawn": {
+    "state": 0,
+    "kind": "actor",
+    "auto": "fallback",
+    "note": "its own AI plays the cutscene state the map sets"
+  }
+}

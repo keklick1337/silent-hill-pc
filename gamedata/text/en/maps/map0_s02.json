@@ -1,0 +1,30 @@
+{
+  "format": "sh-text",
+  "version": 1,
+  "lang": "en",
+  "map": "map0_s02",
+  "description": "The map's messages: the keys by message number from \"first\" (the numbers before it are common.json's), and the English text of the original game.",
+  "index": {
+    "map": {
+      "first": 15,
+      "keys": [
+        "map0_s02.there_is_a_chain_saw",
+        "map0_s02.some_oil_cans_are_on",
+        "map0_s02.a_car_engine_no_problem",
+        "map0_s02.theres_a_tv_set_it",
+        "map0_s02.there_is_a_gasoline_tank",
+        "map0_s02.there_is_a_katana_take",
+        "map0_s02.there_is_a_channeling_stone"
+      ]
+    }
+  },
+  "strings": {
+    "map0_s02.there_is_a_chain_saw": "There is a {color 2}Chain saw{/color}.\nTake it?{choice 4}",
+    "map0_s02.some_oil_cans_are_on": "Some oil cans are on the shelf.{end}",
+    "map0_s02.a_car_engine_no_problem": "A car engine.\nNo problem there.{end}",
+    "map0_s02.theres_a_tv_set_it": "There's a TV set.\nIt doesn't turn on.{end}",
+    "map0_s02.there_is_a_gasoline_tank": "There is a {color 2}Gasoline tank{/color}.\nTake it?{choice 4}",
+    "map0_s02.there_is_a_katana_take": "There is a {color 2}Katana{/color}.\nTake it?{choice 4}",
+    "map0_s02.there_is_a_channeling_stone": "There is a {color 2}Channeling stone{/color}.\nTake it?{choice 4}"
+  }
+}

@@ -1,0 +1,39 @@
+{
+  "description": "Rules for map NPCs (enemies and characters placed by the maps' spawn tables). Distances are metres on the ground plane (the engine squares them). A spawn row becomes a live NPC when the player is inside the spawn ring (ring_outer) and, on entering a room, outside ring_inner; with the thinned fog (long view) the ring is wider (long_view_*) and the NPC must be out of the camera's view. A live monster is freed past the despawn distance (nearer for a corpse). cooldown_ticks holds a slot back after it spawned, so a spawn and a despawn on the same frame cannot oscillate. radio_range_sq is the squared reach (square metres) of the radio static; hide_distance the fog edge past which a monster is not drawn. Character names are chara/ ids (silenthill:Cybil). The keys starting with '_' explain the key of the same name. Every key is checked. A mod replaces the whole file with its own copy at the same path.",
+  "spawn": {
+    "ring_outer": 22,
+    "ring_inner": 20,
+    "long_view_outer": 30,
+    "long_view_inner": 12,
+    "cooldown_ticks": 60,
+    "frame_budget_vblanks": 4
+  },
+  "despawn": {
+    "alive": 40,
+    "corpse": 24,
+    "long_view_alive": 48,
+    "long_view_corpse": 24,
+    "long_view_hard": 80,
+    "hide_distance": 15
+  },
+  "radio_range_sq": 1024,
+  "kill_persist_threshold": 1228,
+  "idle_clip_duration": 20480,
+  "idle_clips": [
+    { "chara": "silenthill:Cybil", "first": 0, "last": 15 },
+    { "chara": "silenthill:Dahlia", "first": 0, "last": 15 },
+    { "chara": "silenthill:Lisa", "first": 0, "last": 9 },
+    { "chara": "silenthill:Kaufmann", "first": 0, "last": 5 }
+  ],
+  "_state_restart": "Characters whose state machine is restarted on a first behaviour tick so its entry status fires once: session = the first tick the character runs while the game is up; spawn = once per spawn in one of the first spawn_slots NPC slots, while the control state is still zero (a cutscene hand-over sets the step itself).",
+  "state_restart": {
+    "session": ["silenthill:Cheryl"],
+    "spawn": ["silenthill:Cybil", "silenthill:AirScreamer"],
+    "spawn_slots": 3
+  },
+  "_kill_tally": "A kill credits the ranking's melee or ranged kill count when the killing attack is one of the first player_attacks entries of the attack table; an attack whose table state is ranged_state counts as ranged.",
+  "kill_tally": {
+    "player_attacks": 39,
+    "ranged_state": 3
+  }
+}

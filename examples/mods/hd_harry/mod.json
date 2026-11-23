@@ -1,0 +1,12 @@
+{
+  "format": 1,
+  "id": "hd_harry",
+  "name": "HD Harry",
+  "version": "1.0.0",
+  "description": "A high-resolution texture for Harry (convert/textures/CHARA/HERO.png). The image is not shipped: see README.md.",
+  "authors": ["Silent Hill PC"],
+  "api": "^1.0",
+  "priority": 10,
+  "gameplay": false,
+  "scripts": false
+}

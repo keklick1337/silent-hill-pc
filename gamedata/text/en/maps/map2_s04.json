@@ -1,0 +1,49 @@
+{
+  "format": "sh-text",
+  "version": 1,
+  "lang": "en",
+  "map": "map2_s04",
+  "description": "The map's messages: the keys by message number from \"first\" (the numbers before it are common.json's), and the English text of the original game.",
+  "index": {
+    "map": {
+      "first": 15,
+      "keys": [
+        "map2_s04.theres_a_memo_on_the",
+        "map2_s04.coroner_seals_called",
+        "map2_s04.officer_gucci_is_unlikely_to",
+        "map2_s04.but_medical_records_show",
+        "map2_s04.theres_something_on_it",
+        "map2_s04.product_only_available_in",
+        "map2_s04.raw_material_is_white_claudia",
+        "map2_s04.manufactured_here_dealer",
+        "map2_s04.there_is_a_shopping_district",
+        "map2_s04.nothing_helpful",
+        "map2_s04.the_desk_is_messy",
+        "map2_s04.there_is_a_shotgun_take"
+      ]
+    }
+  },
+  "strings": {
+    "map2_s04.theres_a_memo_on_the": "There's a memo on the desk.",
+    "map2_s04.coroner_seals_called": "{color 3}Coroner Seals called.",
+    "map2_s04.officer_gucci_is_unlikely_to": "{color 3}Officer Gucci is unlikely to\nbe murdered. He apparently\ndied naturally.",
+    "map2_s04.but_medical_records_show": "{color 3}But, medical records show\nOfficer Gucci had no prior\nsymptoms of heart disease.{end}",
+    "map2_s04.theres_something_on_it": "There's something on it.",
+    "map2_s04.product_only_available_in": "{color 3}Product only available in\nselected areas of Silent Hill.",
+    "map2_s04.raw_material_is_white_claudia": "{color 3}Raw material is White Claudia,\na plant peculiar to the region.",
+    "map2_s04.manufactured_here_dealer": "{color 3}Manufactured here?\nDealer * manufacturer?{end}",
+    "map2_s04.there_is_a_shopping_district": "{hires}There is a {color 5}Shopping district map{/color}.\nTake it?{choice 4}",
+    "map2_s04.nothing_helpful": "Nothing helpful.{end}",
+    "map2_s04.the_desk_is_messy": "The desk is messy.{end}",
+    "map2_s04.there_is_a_shotgun_take": "There is a {color 2}Shotgun{/color}.\nTake it?{choice 4}"
+  },
+  "ws": {
+    "map2_s04.coroner_seals_called": "28198134:1=t",
+    "map2_s04.officer_gucci_is_unlikely_to": "b3f92762:1=t,30=ntt,57=ntt",
+    "map2_s04.but_medical_records_show": "1b910d0d:1=t,27=ntt,54=ntt",
+    "map2_s04.product_only_available_in": "9de1aff2:1=t,27=ntt",
+    "map2_s04.raw_material_is_white_claudia": "b6570b0d:1=t,32=ntt",
+    "map2_s04.manufactured_here_dealer": "057bcf0f:1=t,20=ntt",
+    "map2_s04.there_is_a_shopping_district": "e761782d:1=t"
+  }
+}

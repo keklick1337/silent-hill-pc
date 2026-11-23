@@ -1,0 +1,23 @@
+{
+  "description": "Named variables of the MonsterCybil's behaviour (chara/MonsterCybil/behavior.lua reads and writes them by name). Each character instance owns a small block of bytes; every entry of \"fields\" names one value in it: \"name\" is the name the script uses, \"kind\" the storage type (s8, u8, s16, u16, s32, u32: a write keeps the low bits, a read sign- or zero-extends), \"at\" the byte offset in the block (absent: the next naturally aligned offset), \"note\" what the value means. Values are raw integers in the units the behaviour uses (usually Q12, 4096 = 1.0 or 1 m; angles Q12, 4096 = a full turn). A mod adds or changes fields with a state.json of the same path; keep the offsets of fields the behaviour already uses.",
+  "fields": [
+    {"name": "monster_cybil_legs_state", "kind": "s16", "at": 4, "note": "The clip state of the legs and of the upper body (each its own little state machine)."},
+    {"name": "monster_cybil_arms_state", "kind": "s16", "at": 6},
+    {"name": "monster_cybil_aim_timer", "kind": "s32", "at": 8, "note": "Time spent aiming before the shot (the cutscene freeze word)."},
+    {"name": "monster_cybil_second_phase", "kind": "s32", "at": 12, "note": "1 from the second phase of the fight on (she holds the gun ready)."},
+    {"name": "monster_cybil_stagger_damage", "kind": "s32", "at": 16, "note": "Damage taken recently; past 800 she staggers (the cutscene reset word)."},
+    {"name": "monster_cybil_ambush_point", "kind": "s16", "at": 22, "note": "The point of the ring she drops in from (index of the ambush points)."},
+    {"name": "monster_cybil_base_height", "kind": "s32", "at": 24},
+    {"name": "monster_cybil_shots_left", "kind": "s16", "at": 28},
+    {"name": "monster_cybil_turn_timer", "kind": "s16", "at": 30, "note": "Ticks since the last reposition, or the angle turned while dodging an obstacle."},
+    {"name": "monster_cybil_on_screen_timer", "kind": "s32", "at": 32, "note": "How long she has been on screen."},
+    {"name": "monster_cybil_wander_timer", "kind": "s32", "at": 36},
+    {"name": "monster_cybil_burst_count", "kind": "u8", "at": 44},
+    {"name": "monster_cybil_shot_hit", "kind": "u8", "at": 45},
+    {"name": "monster_cybil_evade", "kind": "u8", "at": 46, "note": "0 fights, 1 wanders off, 2 / 3 turns right / left around an obstacle."},
+    {"name": "monster_cybil_grab_twist", "kind": "s16", "at": 48},
+    {"name": "monster_cybil_aim_pitch", "kind": "s16", "at": 50},
+    {"name": "monster_cybil_on_screen", "kind": "s16", "at": 56},
+    {"name": "monster_cybil_heading_offset", "kind": "s16", "at": 58}
+  ]
+}

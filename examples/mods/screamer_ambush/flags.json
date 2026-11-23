@@ -1,0 +1,7 @@
+{
+  "format": "sh-flags",
+  "version": 1,
+  "flags": {
+    "screamer_done": {"description": "The Air Screamer of the bench ambush (map2_s00) has appeared."}
+  }
+}

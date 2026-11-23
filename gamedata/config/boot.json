@@ -1,0 +1,9 @@
+{
+  "base_audio_tasks": [160, 162],
+  "state_handlers": [
+    "Boot", "KonamiLogo", "KcetLogo", "MovieIntroFadeIn", "AutoLoadSavegame", "MovieIntroAlternate",
+    "MovieIntro", "MainMenu", "LoadSavegameScreen", "MovieOpening", "LoadMapScreen", "InGame",
+    "MapEvent", "ExitMovie", "ItemScreens", "PaperMapScreen", "LoadSavegameScreen",
+    "DebugMoviePlayer", "Options", "LoadStatusScreen", "LoadMapScreen", "Unk15"
+  ]
+}

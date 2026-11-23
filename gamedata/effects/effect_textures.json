@@ -1,0 +1,24 @@
+{
+  "description": "The effect pictures a map loads into video memory when it is entered. textures: in load order; name is the id maps use, file the picture on the disc, image the shared picture place it goes to (effects, fire, blood), v and palette_row move it inside that place (absent: where the place was left). boot: the blood sheet loaded once at start. maps: per map name, the texture names it loads, or {texture, unless_flag} to skip one once a story flag (flags.json name) is set. Every key is checked. A mod replaces the whole file with its own copy at the same path.",
+  "boot": {"file": "TIM/BLD.TIM", "image": "blood"},
+  "textures": [
+    {"name": "glass", "file": "TIM/GLASS.TIM", "image": "effects", "v": 0, "palette_row": 0},
+    {"name": "water_refract", "file": "TIM/DR_WAVE.TIM", "image": "effects", "v": 0, "palette_row": 0},
+    {"name": "water", "file": "TIM/WATER.TIM", "image": "effects", "v": 0, "palette_row": 0},
+    {"name": "fire", "file": "TIM/FIRE.TIM", "image": "fire", "v": 120},
+    {"name": "flesh", "file": "TIM/EF.TIM", "image": "effects", "v": 64, "palette_row": 4},
+    {"name": "blood", "file": "TIM/BLOOD.TIM", "image": "effects", "v": 0, "palette_row": 0},
+    {"name": "warm_test", "file": "TEST/WARMTEST.TIM", "image": "fire"}
+  ],
+  "maps": {
+    "map0_s01": [{"texture": "glass", "unless_flag": "M0S01_AirScreamerFightStarted"}],
+    "map1_s02": ["water"],
+    "map1_s03": ["water"],
+    "map1_s05": ["fire", "flesh"],
+    "map3_s05": [{"texture": "fire", "unless_flag": "M3S05_VinesBurned"}],
+    "map4_s01": [{"texture": "fire", "unless_flag": "M4S01_CybilFindsHarryCutsceneDone"}],
+    "map4_s05": ["blood"],
+    "map5_s00": ["water_refract"],
+    "map6_s03": ["water_refract"]
+  }
+}

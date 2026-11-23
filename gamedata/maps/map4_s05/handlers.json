@@ -1,0 +1,42 @@
+{
+  "map": "map4_s05",
+  "table": "g_MapEventFuncs",
+  "handlers": [
+    {
+      "index": 0,
+      "symbol": "MapEvent_DoorJammed",
+      "name": "MapEvent_DoorJammed",
+      "shape": "script"
+    },
+    {
+      "index": 1,
+      "symbol": "MapEvent_DoorLocked",
+      "name": "MapEvent_DoorLocked",
+      "shape": "script"
+    },
+    {
+      "index": 2,
+      "symbol": "MapEvent_Nop",
+      "name": "MapEvent_Nop",
+      "shape": "script"
+    },
+    {
+      "index": 3,
+      "symbol": "MapEvent_CybilStairsScene",
+      "name": "MapEvent_CybilStairsScene",
+      "shape": "script"
+    },
+    {
+      "index": 4,
+      "symbol": "MapEvent_CybilAimScene",
+      "name": "MapEvent_CybilAimScene",
+      "shape": "script"
+    },
+    {
+      "index": 5,
+      "symbol": "Cutscene_UfoChannelingStone",
+      "name": "Cutscene_UfoChannelingStone",
+      "shape": "cutscene"
+    }
+  ]
+}

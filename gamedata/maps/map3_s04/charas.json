@@ -1,0 +1,14 @@
+{
+  "description": "Animation tables of the story characters in the cutscenes of map3_s04 (Hospital Otherworld - 1F). A cutscene asks whether a character's animation is done (\"playback\") and which keyframe it starts at (\"start_keyframe\"; the same tables as playback when absent); the answer comes from the table named here, a file gamedata/tables/anim/<table>.json indexed by the character's animation status. \"tables\" maps a character name to its table and \"fallback\" is the table of every character not listed (none: such a character has no table). On this map, playback: every character uses \"lisa\". \"cue_sounds\" sets the volume (0..255) of sounds (names of gamedata/sounds) that an animation keyframe cues: lisa_cue at 64; any other cued sound plays at 128. Read when the map loads.",
+  "playback": {
+    "fallback": "lisa"
+  },
+  "cue_sounds": [
+    {
+      "sounds": [
+        "lisa_cue"
+      ],
+      "volume": 64
+    }
+  ]
+}

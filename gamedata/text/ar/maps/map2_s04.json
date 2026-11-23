@@ -1,0 +1,20 @@
+{
+  "format": "sh-text",
+  "version": 1,
+  "lang": "ar",
+  "map": "map2_s04",
+  "strings": {
+    "map2_s04.theres_a_memo_on_the": "على المكتب مذكرة.",
+    "map2_s04.coroner_seals_called": "{color 3}اتصل الطبيب الشرعي سيلز.",
+    "map2_s04.officer_gucci_is_unlikely_to": "{color 3}يستبعد أن يكون الضابط غوتشي\nقد قتل. يبدو أنه مات\nميتة طبيعية.",
+    "map2_s04.but_medical_records_show": "{color 3}لكن السجلات الطبية تبين\nأن الضابط غوتشي لم تظهر عليه\nمن قبل أعراض مرض في القلب.{end}",
+    "map2_s04.theres_something_on_it": "شيء ما مكتوب عليها.",
+    "map2_s04.product_only_available_in": "{color 3}المنتج لا يتوفر\nإلا في مناطق محددة من سايلنت هيل.",
+    "map2_s04.raw_material_is_white_claudia": "{color 3}المادة الخام كلوديا البيضاء،\nنبتة تنفرد بها المنطقة.",
+    "map2_s04.manufactured_here_dealer": "{color 3}تصنع هنا؟\nالمروج * المصنع؟{end}",
+    "map2_s04.there_is_a_shopping_district": "{hires}يوجد هنا {color 5}خريطة الحي التجاري{/color}.\nهل تأخذها؟{choice 4}",
+    "map2_s04.nothing_helpful": "لا شيء مفيد.{end}",
+    "map2_s04.the_desk_is_messy": "المكتب في فوضى.{end}",
+    "map2_s04.there_is_a_shotgun_take": "يوجد هنا {color 2}بندقية خرطوش{/color}.\nهل تأخذها؟{choice 4}"
+  }
+}

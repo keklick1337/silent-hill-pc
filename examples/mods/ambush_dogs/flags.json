@@ -1,0 +1,7 @@
+{
+  "format": "sh-flags",
+  "version": 1,
+  "flags": {
+    "ambush_done": {"description": "The Groaner ambush at the bench outside the cafe (map2_s00) has happened."}
+  }
+}

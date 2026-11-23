@@ -1,0 +1,33 @@
+{
+  "format": "sh-text",
+  "version": 1,
+  "lang": "ru",
+  "map": "map3_s05",
+  "strings": {
+    "map3_s05.there_is_a_video_tape": "Здесь {color 2}видеокассета{/color}.\nВзять?{choice 4}",
+    "map3_s05.alessa": "{color 3}Алесса{end}",
+    "map3_s05.alessa_2": "Алесса...?{end}",
+    "map3_s05.whats_this": "{wait 1.2}Что это?{end}",
+    "map3_s05.looks_like_someones_been_here": "{wait 2.6}Похоже, здесь кто-то был...{end}",
+    "map3_s05.msg20": "{wait 0.4}{end}",
+    "map3_s05.there_is_an_examination_room": "Здесь {color 2}ключ от смотровой{/color}.\nВзять?{choice 4}",
+    "map3_s05.looks_like_a_hallway_under": "Под решёткой, похоже, проход.",
+    "map3_s05.cant_move_it_since_the": "Её не сдвинуть:\nрешётку оплели лозы.{end}",
+    "map3_s05.no_the_fire_goes_out": "Нет. Поджигаю лозы —\nогонь тут же гаснет.{end}",
+    "map3_s05.poured_disinfecting_alcohol_on": "{color 2}Медицинский спирт{/color}\nвылит на лозы.{end}",
+    "map3_s05.the_vines_absorbed_the_alcohol": "Лозы впитали спирт.{end}",
+    "map3_s05.used_the_basement_storeroom": "Использовано:\n{color 2}ключ от кладовой{/color}.{end}",
+    "map3_s05.do_you_want_to_push": "Толкнуть шкаф?{choice 4}",
+    "map3_s05.the_generator_is_on": "Генератор включён.{end}",
+    "map3_s05.there_are_skid_marks_from": "На полу царапины:\nшкаф двигали.{end}",
+    "map3_s05.there_is_a_hammer_take": "Здесь {color 2}молот{/color}.\nВзять?{choice 4}",
+    "map3_s05.a_bed_whats_it_doing": "Кровать? Откуда она здесь?\nКому понадобилось...{end}",
+    "map3_s05.a_body_is_laid_out": "На кровати лежит тело.\nОсматривать его\nсовсем не хочется.{end}",
+    "map3_s05.nothing_helpful": "Ничего полезного.{end}",
+    "map3_s05.nothing_useful_in_the_boxes": "В коробках ничего полезного.{end}",
+    "map3_s05.theres_a_bottle_filled_with": "Бутыль с каким-то лекарством.\nЛучше не трогать.{end}",
+    "map3_s05.there_are_some_empty_bottles": "Несколько пустых бутылок.{end}",
+    "map3_s05.nothing_special_in_the_box": "В коробке ничего особенного.\nБеспокоиться не о чем.{end}",
+    "map3_s05.nothing_inside": "Внутри пусто.{end}"
+  }
+}

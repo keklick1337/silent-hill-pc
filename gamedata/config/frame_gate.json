@@ -1,0 +1,5 @@
+{
+  "description": "Timing of two presentation gates of the main loop, in milliseconds of real time. bg2d_hold_ms: how long a fullscreen 2D background stays shown across the short gap while its picture is being swapped. narrow_hysteresis_ms: how long the view stays wide after a state change before switching back to the narrow 4:3 frame (the original's 6 frames at 30 fps). A mod changes it with a file of the same path in its own folder; objects are merged key by key, so the patch only needs the keys it changes.",
+  "bg2d_hold_ms": 300,
+  "narrow_hysteresis_ms": 200
+}

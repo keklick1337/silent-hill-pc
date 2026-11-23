@@ -1,0 +1,10 @@
+{
+  "format": "sh-text",
+  "version": 1,
+  "lang": "ar",
+  "map": "map4_s02",
+  "strings": {
+    "map4_s02.green_lion": "{color 3}الأسد الأخضر{end}",
+    "map4_s02.alchemilla_hospital": "{color 3}مستشفى ألكيميلا{end}"
+  }
+}

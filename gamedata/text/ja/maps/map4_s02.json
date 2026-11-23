@@ -1,0 +1,10 @@
+{
+  "format": "sh-text",
+  "version": 1,
+  "lang": "ja",
+  "map": "map4_s02",
+  "strings": {
+    "map4_s02.green_lion": "{color 3}緑の獅子{end}",
+    "map4_s02.alchemilla_hospital": "{color 3}アルケミラ病院{end}"
+  }
+}

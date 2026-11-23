@@ -1,0 +1,14 @@
+{
+  "format": "sh-text",
+  "version": 1,
+  "lang": "ru",
+  "map": "map5_s00",
+  "strings": {
+    "map5_s00.used_the_sewer_key": "Использовано:\n{color 2}ключ от канализации{/color}.{end}",
+    "map5_s00.used_the_sewer_exit_key": "Использовано: {color 2}ключ от выхода{/color}.{end}",
+    "map5_s00.there_is_a_sewer_key": "Здесь {color 2}ключ от канализации{/color}.\nВзять?{choice 4}",
+    "map5_s00.there_is_a_sewer_exit": "В воде лежит {color 2}ключ от выхода{/color}.\nВзять?{choice 4}",
+    "map5_s00.got_to_find_cheryl_no": "Надо найти Шерил.\nВозвращаться некогда.{end}",
+    "map5_s00.there_is_a_sewer_map": "{hires}Здесь {color 5}карта канализации\n(путь в курортный район){/color}.\nВзять?{choice 4}"
+  }
+}

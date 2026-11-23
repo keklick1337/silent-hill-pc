@@ -1,0 +1,42 @@
+{
+  "map": "map2_s01",
+  "table": "g_MapEventFuncs",
+  "handlers": [
+    {
+      "index": 0,
+      "symbol": "MapEvent_DoorJammed",
+      "name": "MapEvent_DoorJammed",
+      "shape": "script"
+    },
+    {
+      "index": 1,
+      "symbol": "MapEvent_ChurchDoorLocked",
+      "name": "MapEvent_ChurchDoorLocked",
+      "shape": "script"
+    },
+    {
+      "index": 2,
+      "symbol": "MapEvent_CommonItemTake",
+      "name": "MapEvent_CommonItemTake",
+      "shape": "script"
+    },
+    {
+      "index": 3,
+      "symbol": "Cutscene_DahliaAtChurch",
+      "name": "Cutscene_DahliaAtChurch",
+      "shape": "cutscene"
+    },
+    {
+      "index": 4,
+      "symbol": "MapEvent_FlaurosTake",
+      "name": "MapEvent_FlaurosTake",
+      "shape": "item"
+    },
+    {
+      "index": 5,
+      "symbol": "MapEvent_DrawbridgeKeyTake",
+      "name": "MapEvent_DrawbridgeKeyTake",
+      "shape": "item"
+    }
+  ]
+}

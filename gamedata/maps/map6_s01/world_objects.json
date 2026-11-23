@@ -1,0 +1,95 @@
+{
+  "format": "sh-map-world-objects",
+  "version": 2,
+  "map": "map6_s01",
+  "description": "Static world objects of map6_s01 (Boat at Lakeside Pier): 11 objects, drawn in file order. An object is drawn while the player is in one of its \"zones\" (each {\"x\": [...], \"z\": [...]} lists 40 m cells along that axis: cell c holds 40c..40(c+1) m; no zones = everywhere) and every flag of \"flags_set\" is set and every flag of \"flags_clear\" is clear (event flag names, e.g. the pickup flags). \"name\" is the object's id for scripts and mods, \"model\" its model (at most 8 characters, the map's or an item model), \"position\" in metres and \"rotation\" in degrees (x, y, z). \"pose\" instead takes position and rotation from a table of the map's overlay on the disc (\"disc_table\" from tables.json, row \"index\"), resolved when the map loads; pickups use it. \"script\": true lets world_objects.lua and events.lua move, turn, re-model or hide the object. \"pc_near_pickup\": true (not in the original) also draws the pickup while the player is in a neighbouring cell of the same floor. The boat's doors (script objects of world_objects.lua) and its pickups. A mod's maps/map6_s01/world_objects.json changes or adds objects by name.",
+  "objects": [
+    {
+      "name": "SavePad",
+      "model": "PAD_NEAR",
+      "position": [-19.237060546875, -0.90576171875, 60.533],
+      "rotation": [0, 78.93, 0],
+      "zones": [{"x": -1, "z": 1}]
+    },
+    {
+      "name": "Door",
+      "model": "DOOR2_HI",
+      "position": [-21.38, -0.95, 58.7],
+      "rotation": [0, 180.0, 0],
+      "script": true,
+      "zones": [{"x": -1, "z": 1}]
+    },
+    {
+      "name": "DoorBrick",
+      "model": "BRI3_HID",
+      "position": [-21.29, -1.434814453125, 60.31],
+      "rotation": [0, 180.0, 0],
+      "script": true,
+      "zones": [{"x": -1, "z": 1}]
+    },
+    {
+      "name": "DoorBar",
+      "model": "BAR1_HID",
+      "position": [-21.31, -1.71, 59.87],
+      "rotation": [0, 180.0, 0],
+      "script": true,
+      "zones": [{"x": -1, "z": 1}]
+    },
+    {
+      "name": "DoorWide1",
+      "model": "WID1_HID",
+      "position": [-21.38, -0.95, 57.8],
+      "rotation": [0, 180.0, 0],
+      "script": true,
+      "zones": [{"x": -1, "z": 1}]
+    },
+    {
+      "name": "DoorWide2",
+      "model": "WID2_HID",
+      "position": [-21.38, -0.95, 60.05],
+      "rotation": [0, 180.0, 0],
+      "script": true,
+      "zones": [{"x": -1, "z": 1}]
+    },
+    {
+      "name": "DoorGlass",
+      "model": "GLAS2_HI",
+      "position": [-21.4, -1.4208984375, 58.77],
+      "rotation": [0, 180.0, 0],
+      "script": true,
+      "zones": [{"x": -1, "z": 1}]
+    },
+    {
+      "name": "DoorRight",
+      "model": "RIGHT_HI",
+      "position": [-19.6, -0.825, 59.4],
+      "rotation": [0, 180.0, 0],
+      "script": true,
+      "zones": [{"x": -1, "z": 1}]
+    },
+    {
+      "name": "RifleShells",
+      "model": "SHELL_NE",
+      "pose": {"disc_table": "CommonWorldObjectPoses", "index": 0},
+      "pc_near_pickup": true,
+      "zones": [{"x": -1, "z": 1}],
+      "flags_clear": ["M6S01_RifleShells"]
+    },
+    {
+      "name": "HandgunBullets",
+      "model": "BULLET_N",
+      "pose": {"disc_table": "CommonWorldObjectPoses", "index": 1},
+      "pc_near_pickup": true,
+      "zones": [{"x": -1, "z": 1}],
+      "flags_clear": ["M6S01_HandgunBullets"]
+    },
+    {
+      "name": "HealthDrink",
+      "model": "DRINK_NE",
+      "pose": {"disc_table": "CommonWorldObjectPoses", "index": 2},
+      "pc_near_pickup": true,
+      "zones": [{"x": -1, "z": 1}],
+      "flags_clear": ["M6S01_HealthDrink"]
+    }
+  ]
+}

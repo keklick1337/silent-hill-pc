@@ -1,0 +1,10 @@
+{
+  "format": "sh-text",
+  "version": 1,
+  "lang": "zh",
+  "map": "map4_s02",
+  "strings": {
+    "map4_s02.green_lion": "{color 3}绿狮{end}",
+    "map4_s02.alchemilla_hospital": "{color 3}阿尔凯米拉医院{end}"
+  }
+}

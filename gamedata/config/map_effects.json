@@ -1,0 +1,17 @@
+{
+  "format": "sh-map-effects",
+  "version": 1,
+  "description": "Numbers of the map environment blend: how the light mode and the fog change when a map switches between its light settings. Values are Q12 (4096 = 1.0; fog distances Q12 metres). A mod changes it with a file of the same path in its own folder; objects are merged key by key, so the patch only needs the keys it changes.",
+  "light_mode_cross_fade": {
+    "description": "Light mode 1 -> 2 and 2 -> 1: the old grey layer fades out up to the pivot (to_dense_pivot / from_dense_pivot, Q12 of the fade), the new one fades in after it, faster by long_rate (Q12).",
+    "to_dense_pivot": 3413,
+    "from_dense_pivot": 682,
+    "long_rate": 4915
+  },
+  "fog_by_alpha": {
+    "description": "Fog distance when the fog is off and the light mode is 1: interpolated through \"distances\" (Q12 metres) over the grey layer alpha 0..alpha_span. In every other case the fog distance is open_fog_distance.",
+    "alpha_span": 8192,
+    "distances": [7168, 24576, 38912, 51200, 61440],
+    "open_fog_distance": 81920
+  }
+}

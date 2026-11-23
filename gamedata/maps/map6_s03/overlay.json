@@ -1,0 +1,10 @@
+{
+  "description": "Engine setup of map6_s03 (Sewer to Lakeside Amusement Park), a map made only of data and Lua: \"map_type\" is the map type DRU, the entry of gamedata/config/map_info.json that gives its zones, scenery file and environment. \"characters\" lists the character types this map runs, each by its gamedata/chara/<Name>/behavior.lua; a character type that is not listed cannot act here (this map: Stalker, GreyChild, Mumbler and HangedScratcher). A mod changes it with its own maps/map6_s03/overlay.json.",
+  "map_type": "DRU",
+  "characters": [
+    "Stalker",
+    "GreyChild",
+    "Mumbler",
+    "HangedScratcher"
+  ]
+}

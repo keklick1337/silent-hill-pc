@@ -1,0 +1,24 @@
+{
+  "format": "sh-text",
+  "version": 1,
+  "lang": "de",
+  "strings": {
+    "ui.bind.attack": "Angriff",
+    "ui.bind.back_cancel": "Zurück / Abbrechen",
+    "ui.bind.confirm_skip": "OK / Überspringen",
+    "ui.bind.view": "Sicht",
+    "ui.controls_ref.category.camera": "Kamera",
+    "ui.controls_ref.category.combat": "Kampf",
+    "ui.controls_ref.category.debug": "Debug",
+    "ui.controls_ref.category.menu": "Menü",
+    "ui.controls_ref.category.movement": "Bewegung",
+    "ui.controls_ref.category.system": "System",
+    "ui.controls_ref.close_hint": "Beliebige Taste zum Schließen",
+    "ui.controls_ref.scheme_altcam": "alternative Kamera",
+    "ui.controls_ref.scheme_classic": "klassische Kamera",
+    "ui.controls_ref.stick": "Stick/Steuerkreuz",
+    "ui.controls_ref.title": "Steuerung",
+    "ui.options.controls_reference": "Steuerungsübersicht",
+    "ui.options.controls_reference.help": "Zeigt alle aktuellen Tasten und Knöpfe."
+  }
+}

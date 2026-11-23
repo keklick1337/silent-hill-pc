@@ -1,0 +1,150 @@
+{
+  "map": "map1_s00",
+  "table": "g_MapEventFuncs",
+  "handlers": [
+    {
+      "index": 0,
+      "symbol": "MapEvent_DoorJammed",
+      "name": "MapEvent_DoorJammed",
+      "shape": "script"
+    },
+    {
+      "index": 1,
+      "symbol": "MapEvent_DoorLocked",
+      "name": "MapEvent_DoorLocked",
+      "shape": "script"
+    },
+    {
+      "index": 2,
+      "symbol": "MapEvent_DoorUnlocked",
+      "name": "MapEvent_DoorUnlocked",
+      "shape": "script"
+    },
+    {
+      "index": 3,
+      "symbol": "MapEvent_CommonItemTake",
+      "name": "MapEvent_CommonItemTake",
+      "shape": "script"
+    },
+    {
+      "index": 4,
+      "symbol": "MapEvent_GoldenSunEmptyReceptacleInspect",
+      "name": "MapEvent_GoldenSunEmptyReceptacleInspect",
+      "shape": "script"
+    },
+    {
+      "index": 5,
+      "symbol": "MapEvent_GoldenSunFilledReceptacleInspect",
+      "name": "MapEvent_GoldenSunFilledReceptacleInspect",
+      "shape": "script"
+    },
+    {
+      "index": 6,
+      "symbol": "MapEvent_GoldenSunPlateInsert",
+      "name": "MapEvent_GoldenSunPlateInsert",
+      "shape": "script"
+    },
+    {
+      "index": 7,
+      "symbol": "MapEvent_SilverMoonEmptyReceptacleInspect",
+      "name": "MapEvent_SilverMoonEmptyReceptacleInspect",
+      "shape": "script"
+    },
+    {
+      "index": 8,
+      "symbol": "MapEvent_SilverMoonFilledReceptacleInspect",
+      "name": "MapEvent_SilverMoonFilledReceptacleInspect",
+      "shape": "script"
+    },
+    {
+      "index": 9,
+      "symbol": "MapEvent_SilverMoonPlateInsert",
+      "name": "MapEvent_SilverMoonPlateInsert",
+      "shape": "script"
+    },
+    {
+      "index": 10,
+      "symbol": "MapEvent_ClockTowerInspect",
+      "name": "MapEvent_ClockTowerInspect",
+      "shape": "script"
+    },
+    {
+      "index": 11,
+      "symbol": "MapEvent_TowerDoorLocked",
+      "name": "MapEvent_TowerDoorLocked",
+      "shape": "script"
+    },
+    {
+      "index": 12,
+      "symbol": "MapEvent_Note1Read",
+      "name": "MapEvent_Note1Read",
+      "shape": "script"
+    },
+    {
+      "index": 13,
+      "symbol": "MapEvent_Note2Read",
+      "name": "MapEvent_Note2Read",
+      "shape": "script"
+    },
+    {
+      "index": 14,
+      "symbol": "MapEvent_Note3Read",
+      "name": "MapEvent_Note3Read",
+      "shape": "script"
+    },
+    {
+      "index": 15,
+      "symbol": "MapEvent_HatchDropToBasement",
+      "name": "MapEvent_HatchDropToBasement",
+      "shape": "script"
+    },
+    {
+      "index": 16,
+      "symbol": "MapEvent_HatchClimbFromBasement",
+      "name": "MapEvent_HatchClimbFromBasement",
+      "shape": "script"
+    },
+    {
+      "index": 17,
+      "symbol": "MapEvent_ReceptionPhotoInspect",
+      "name": "MapEvent_ReceptionPhotoInspect",
+      "shape": "script"
+    },
+    {
+      "index": 18,
+      "symbol": "MapEvent_Boiler0",
+      "name": "MapEvent_Boiler0",
+      "shape": "script"
+    },
+    {
+      "index": 19,
+      "symbol": "MapEvent_Boiler1",
+      "name": "MapEvent_Boiler1",
+      "shape": "script"
+    },
+    {
+      "index": 20,
+      "symbol": "MapEvent_TownMapTake",
+      "name": "MapEvent_TownMapTake",
+      "shape": "script"
+    },
+    {
+      "index": 21,
+      "symbol": "MapEvent_LibraryBookInspect",
+      "name": "MapEvent_LibraryBookInspect",
+      "shape": "script"
+    },
+    {
+      "index": 22,
+      "symbol": "MapEvent_PlayerControlReset",
+      "name": "MapEvent_PlayerControlReset",
+      "shape": "script"
+    },
+    {
+      "index": 23,
+      "symbol": "MapEvent_Boiler2",
+      "name": "MapEvent_Boiler2",
+      "shape": "script"
+    }
+  ]
+}

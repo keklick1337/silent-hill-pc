@@ -1,0 +1,17 @@
+{
+  "group": "health",
+  "inventory": {
+    "order": 2,
+    "stack_limit": 100,
+    "command": "UseHealth",
+    "heal": "ampoule",
+    "name_tag": "stock",
+    "fills_saturation": true
+  },
+  "display_tilt": {
+    "x": 45.0
+  },
+  "close_up_model": "ITEM/UNQ22.TMD",
+  "display_lit": true,
+  "world_model": "AMPULE_N"
+}

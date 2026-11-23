@@ -1,0 +1,20 @@
+{
+  "format": "sh-text",
+  "version": 1,
+  "lang": "en",
+  "map": "map3_s02",
+  "description": "The map's messages: the keys by message number from \"first\" (the numbers before it are common.json's), and the English text of the original game.",
+  "index": {
+    "map": {
+      "first": 15,
+      "keys": [
+        "map3_s02.nothing_happens_when_the",
+        "map3_s02.its_locked"
+      ]
+    }
+  },
+  "strings": {
+    "map3_s02.nothing_happens_when_the": "Nothing happens when the\nelevator button is pressed.{end}",
+    "map3_s02.its_locked": "It's locked!{end}"
+  }
+}

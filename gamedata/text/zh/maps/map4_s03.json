@@ -1,0 +1,14 @@
+{
+  "format": "sh-text",
+  "version": 1,
+  "lang": "zh",
+  "map": "map4_s03",
+  "strings": {
+    "map4_s03.daddy_where_are_you": "爸爸……你在哪里……？",
+    "map4_s03.cheryl": "{wait 1.0}雪柔！{end}",
+    "map4_s03.there_is_a_hunting_rifle": "这里有{color 2}猎枪{/color}。\n要拿走吗？{choice 4}",
+    "map4_s03.nothing_unusual": "没什么异常。{end}",
+    "map4_s03.a_picture_is_projected_on": "银幕上投映着影像。",
+    "map4_s03.cheryl_where_could_she_be": "雪柔……\n她到底在哪儿？{end}"
+  }
+}

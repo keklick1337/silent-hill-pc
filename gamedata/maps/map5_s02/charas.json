@@ -1,0 +1,22 @@
+{
+  "description": "Animation tables of the story characters in the cutscenes of map5_s02 (Annie's Bar and Indian Runner (Resort Area)). A cutscene asks whether a character's animation is done (\"playback\") and which keyframe it starts at (\"start_keyframe\"; the same tables as playback when absent); the answer comes from the table named here, a file gamedata/tables/anim/<table>.json indexed by the character's animation status. \"tables\" maps a character name to its table and \"fallback\" is the table of every character not listed (none: such a character has no table). On this map, playback: every character uses \"kaufmann\". Start keyframe: no character has a table. The first-keyframe query has no table for any character (the original read through a null table). \"cue_sounds\" sets the volume (0..255) of sounds (names of gamedata/sounds) that an animation keyframe cues: kaufmann_shot at 255 (heard at full volume at any distance); kaufmann_cue at 128; any other cued sound plays at 128. Read when the map loads.",
+  "playback": {
+    "fallback": "kaufmann"
+  },
+  "start_keyframe": {},
+  "cue_sounds": [
+    {
+      "sounds": [
+        "kaufmann_shot"
+      ],
+      "volume": 255,
+      "no_distance_attenuation": true
+    },
+    {
+      "sounds": [
+        "kaufmann_cue"
+      ],
+      "volume": 128
+    }
+  ]
+}

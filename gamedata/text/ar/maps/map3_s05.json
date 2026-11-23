@@ -1,0 +1,33 @@
+{
+  "format": "sh-text",
+  "version": 1,
+  "lang": "ar",
+  "map": "map3_s05",
+  "strings": {
+    "map3_s05.there_is_a_video_tape": "يوجد هنا {color 2}شريط فيديو{/color}.\nهل تأخذه؟{choice 4}",
+    "map3_s05.alessa": "{color 3}أليسا{end}",
+    "map3_s05.alessa_2": "أليسا...؟{end}",
+    "map3_s05.whats_this": "{wait 1.2}ما هذا؟{end}",
+    "map3_s05.looks_like_someones_been_here": "{wait 2.6}يبدو أن أحدا كان هنا...{end}",
+    "map3_s05.msg20": "{wait 0.4}{end}",
+    "map3_s05.there_is_an_examination_room": "يوجد هنا {color 2}مفتاح غرفة الفحص{/color}.\nهل تأخذه؟{choice 4}",
+    "map3_s05.looks_like_a_hallway_under": "يبدو أن تحت الشبك ممرا.",
+    "map3_s05.cant_move_it_since_the": "لا أستطيع تحريكه،\nفالنباتات المتسلقة التفت حوله.{end}",
+    "map3_s05.no_the_fire_goes_out": "لا فائدة.\nالنار تنطفئ في الحال\nكلما أشعلت النباتات المتسلقة.{end}",
+    "map3_s05.poured_disinfecting_alcohol_on": "سكبت {color 2}كحول مطهر{/color}\nعلى النباتات المتسلقة.{end}",
+    "map3_s05.the_vines_absorbed_the_alcohol": "امتصت النباتات المتسلقة الكحول.{end}",
+    "map3_s05.used_the_basement_storeroom": "استخدمت {color 2}مفتاح مخزن القبو{/color}.{end}",
+    "map3_s05.do_you_want_to_push": "هل تدفع الخزانة؟{choice 4}",
+    "map3_s05.the_generator_is_on": "المولد يعمل.{end}",
+    "map3_s05.there_are_skid_marks_from": "على الأرض آثار جر\nخلفها تحريك الخزانة.{end}",
+    "map3_s05.there_is_a_hammer_take": "يوجد هنا {color 2}مطرقة{/color}.\nهل تأخذها؟{choice 4}",
+    "map3_s05.a_bed_whats_it_doing": "سرير؟ ما الذي جاء به إلى هنا؟\nمن عساه...{end}",
+    "map3_s05.a_body_is_laid_out": "جثة ممددة على السرير.\nلا رغبة لي في تفحصها.{end}",
+    "map3_s05.nothing_helpful": "لا شيء مفيد.{end}",
+    "map3_s05.nothing_useful_in_the_boxes": "لا شيء نافع في الصناديق.{end}",
+    "map3_s05.theres_a_bottle_filled_with": "هنا قارورة مملوءة\nبعقار من نوع ما.\nالأفضل أن أتركها.{end}",
+    "map3_s05.there_are_some_empty_bottles": "هنا بضع قوارير فارغة.{end}",
+    "map3_s05.nothing_special_in_the_box": "لا شيء مميز في الصندوق.\nلا شيء يدعو للقلق.{end}",
+    "map3_s05.nothing_inside": "لا شيء في الداخل.{end}"
+  }
+}

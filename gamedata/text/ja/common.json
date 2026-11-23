@@ -1,0 +1,22 @@
+{
+  "format": "sh-text",
+  "version": 1,
+  "lang": "ja",
+  "strings": {
+    "common.yes": "はい",
+    "common.no": "いいえ",
+    "common.notes_useful": "いつの日か、誰かがこの奇怪な\n出来事に遭うかもしれない。\nこの手記が役立つことを願う。{end}",
+    "common.no_map": "{instant}この場所の地図は\n持っていない。{end}",
+    "common.too_dark_for_map": "{instant}暗すぎて、\nここでは地図が見えない。{end}",
+    "common.take_first_aid_kit": "{color 2}救急キット{/color}がある。\n取りますか？{choice 4}",
+    "common.take_health_drink": "{color 2}栄養ドリンク{/color}がある。\n取りますか？{choice 4}",
+    "common.take_ampoule": "{color 2}アンプル{/color}がある。\n取りますか？{choice 4}",
+    "common.take_handgun_bullets": "{color 2}ハンドガンの弾{/color}がある。\n取りますか？{choice 4}",
+    "common.take_rifle_shells": "{color 2}ライフルの弾{/color}がある。\n取りますか？{choice 4}",
+    "common.take_shotgun_shells": "{color 2}ショットガンの弾{/color}がある。\n取りますか？{choice 4}",
+    "common.lock_jammed": "鍵が壊れている。\nこのドアは開けられない。{end}",
+    "common.locked": "鍵がかかっている。{end}",
+    "common.unlocked": "鍵を開けた。{end}",
+    "common.now_making": "{color 6}制作中！{/color}{end}"
+  }
+}

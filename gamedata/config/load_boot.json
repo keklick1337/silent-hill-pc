@@ -1,0 +1,27 @@
+{
+  "format": "sh-load-boot",
+  "version": 1,
+  "description": "How a new savegame starts and what the game does when a map is entered straight from boot. save_init: a fresh save's starting values (enemy_state_count slots of enemy state all set to enemy_state_value, -1 = alive; start_paper_map: the page number of paper_maps.json opened first, 1 = OldTown; difficulty_min / difficulty_max: the range the chosen difficulty is clamped into). map_entry: tutorial_maps never get the entry gates; start_loadout is the gear given to a New Game booted directly onto a map chosen in config (normally the intro hands it over): items go to inventory slots 0.. in order (item names of items/), equipped is the weapon held, toggle_set / toggle_clear are item toggle flags (radio_on, flashlight_off). A mod replaces the file; keys it leaves out keep the built-in values.",
+  "save_init": {
+    "difficulty_min": -1,
+    "difficulty_max": 1,
+    "enemy_state_count": 45,
+    "enemy_state_value": -1,
+    "start_paper_map": 1
+  },
+  "map_entry": {
+    "tutorial_maps": ["map0_s00", "map0_s01"],
+    "start_loadout": {
+      "items": [
+        { "item": "Flashlight", "count": 1 },
+        { "item": "PocketRadio", "count": 1 },
+        { "item": "KitchenKnife", "count": 1 },
+        { "item": "Handgun", "count": 1 },
+        { "item": "HandgunBullets", "count": 15 }
+      ],
+      "equipped": "Handgun",
+      "toggle_set": "radio_on",
+      "toggle_clear": "flashlight_off"
+    }
+  }
+}

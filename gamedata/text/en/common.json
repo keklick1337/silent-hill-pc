@@ -1,0 +1,62 @@
+{
+  "format": "sh-text",
+  "version": 1,
+  "lang": "en",
+  "description": "The messages every map shares (numbers 0 to 14 of a map's message table): the keys by number from \"first\", and the English text of the original game.",
+  "index": {
+    "map": {
+      "first": 0,
+      "keys": [
+        "common.yes",
+        "common.no",
+        "common.notes_useful",
+        "common.no_map",
+        "common.too_dark_for_map",
+        "common.take_first_aid_kit",
+        "common.take_health_drink",
+        "common.take_ampoule",
+        "common.take_handgun_bullets",
+        "common.take_rifle_shells",
+        "common.take_shotgun_shells",
+        "common.lock_jammed",
+        "common.locked",
+        "common.unlocked",
+        "common.now_making"
+      ]
+    }
+  },
+  "strings": {
+    "common.yes": "Yes",
+    "common.no": "No",
+    "common.notes_useful": "Someday, someone may experience\nthese bizarre events. Hopefully,\nthey will find my notes useful.{end}",
+    "common.no_map": "{instant}I don't have the map\nfor this place.{end}",
+    "common.too_dark_for_map": "{instant}Too dark to look\nat the map here.{end}",
+    "common.take_first_aid_kit": "There is a {color 2}First aid kit{/color}.\nTake it?{choice 4}",
+    "common.take_health_drink": "There is a {color 2}Health drink{/color}.\nTake it?{choice 4}",
+    "common.take_ampoule": "There is an {color 2}Ampoule{/color}.\nTake it?{choice 4}",
+    "common.take_handgun_bullets": "There are some {color 2}Handgun bullets{/color}.\nTake it?{choice 4}",
+    "common.take_rifle_shells": "There are some {color 2}Rifle shells{/color}.\nTake it?{choice 4}",
+    "common.take_shotgun_shells": "There are some {color 2}Shotgun shells{/color}.\nTake it?{choice 4}",
+    "common.lock_jammed": "The lock is jammed.\nThis door can't be opened.{end}",
+    "common.locked": "It's locked.{end}",
+    "common.unlocked": "It's unlocked.{end}",
+    "common.now_making": "{color 6}Now Making!{/color}{end}"
+  },
+  "ws": {
+    "common.yes": "b3a43630:0=-,3=-",
+    "common.no": "61e6be1a:0=-,2=-",
+    "common.notes_useful": "ca846a3c:0=-,32=ttttttttttt,65=ttttttttttt",
+    "common.no_map": "0685a99d:22=tttttttttttttt,37=-",
+    "common.too_dark_for_map": "47457897:18=s",
+    "common.take_first_aid_kit": "cee05ef7:0=-,28=s",
+    "common.take_health_drink": "1ca78dcd:0=-,27=s",
+    "common.take_ampoule": "36da3748:0=-,23=s",
+    "common.take_handgun_bullets": "9a5cbbbc:0=-,34=s",
+    "common.take_rifle_shells": "ec1b7be1:0=-,31=s",
+    "common.take_shotgun_shells": "a140c3b5:0=-,33=s",
+    "common.lock_jammed": "176b7fb7:0=-,20=s",
+    "common.locked": "a6f4686f:0=-,12=-",
+    "common.unlocked": "028e556c:0=-,14=-",
+    "common.now_making": "75982a07:1=-,12=-,13=-,14=-"
+  }
+}

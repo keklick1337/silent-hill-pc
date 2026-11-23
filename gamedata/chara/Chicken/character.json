@@ -1,0 +1,19 @@
+{
+  "description": "Unused chicken-like creature left on the disc; no map spawns it.",
+  "category": "Animals",
+  "maps": [],
+  "model": "models/CHARA/CKN.glb",
+  "animations": "anim/ANIM/CKN.anim.json",
+  "textures": ["textures/CHARA/CKN.png"],
+  "shadow": 0.0,
+  "blend_mode": "subtractive",
+  "camera_anchor": "character",
+  "camera_offset_y": -0.9,
+  "spawn": {
+    "state": 3,
+    "kind": "prop",
+    "auto": "none",
+    "note": "no behaviour exists on the disc"
+  },
+  "enemy": true
+}

@@ -1,0 +1,18 @@
+{
+  "format": "sh-map-load",
+  "version": 1,
+  "description": "Timing of the map loading sequence. Frame counts are in vblanks (60 per second, vblank_rate). hold_frames is the minimum length of a loading screen not caused by a door (the console had 60; half keeps the behaviour without the wait); pace_vblanks and min_vblanks pace the Harry-running loading screen; demo_wait_frames: idle frames on the title before a demo is loaded (demo_attempts tries before the wait starts over); chunk_wait_frames: how long to wait for map chunks before going on without them; music_watchdog_frames: frames of a failing music start before the audio state is reset; load_sound_frames: frames the loading flag stays up before the two load sounds; queue_flush_limit: read-queue updates spent per frame; the loading screen is drawn while its step is below last_screen_step and fades by screen_fade_timestep (Q12). A mod changes it with a file of the same path in its own folder; objects are merged key by key, so the patch only needs the keys it changes.",
+  "demo_wait_frames": 1200,
+  "demo_attempts": 5,
+  "queue_flush_limit": 500,
+  "chunk_wait_frames": 120,
+  "music_watchdog_frames": 300,
+  "load_sound_frames": 21,
+  "last_screen_step": 10,
+  "screen_fade_timestep": 3276,
+  "pace_step_limit": 2,
+  "vblank_rate": 60,
+  "hold_frames": 30,
+  "pace_vblanks": 2,
+  "min_vblanks": 180
+}

@@ -1,0 +1,49 @@
+{
+    "description": "Layout of the PC controls (rebinding) screen, opened from OPTION > Controller Config and from the options menu's Key Bindings row. Positions are in the 320x240 text space (the options draw only y 0..224): device tabs, rules, the action list with a primary and a secondary column, hit boxes, menu font colours (gold, dark_grey, green, red, light_grey, white), icon tints (0..255, 128 = unlit), text keys of gamedata/text and literal cell texts. The keys starting with '_' explain the key of the same name. Keys left out keep the built-in values; an unknown key is an error.",
+    "tabs_y": 4,
+    "_tab_x": "Centres of the Keyboard, Mouse and Gamepad tab labels.",
+    "tab_x": [72, 160, 248],
+    "tab_hit_pad": 6,
+    "rule1_y": 23,
+    "_head_y": "Primary / Secondary headings on the Keyboard and Mouse tabs, the Gamepad Icons row on the Gamepad tab.",
+    "head_y": 25, "rule2_y": 42,
+    "arrow_up_y": 49, "list_y": 56, "row_pitch": 16, "visible_rows": 8, "arrow_down_y": 189,
+    "rule3_y": 198, "footer_y": 202, "confirm_y": 96,
+    "rule_x0": 4, "rule_x1": 316,
+    "_label_w": "Room for an action label after its bullet: wider labels are cut with ... and pan while selected.",
+    "text_x": 28, "value_right": 300, "label_w": 126,
+    "highlight_dy": 14,
+    "arrow_x": 160,
+    "row_h": 16,
+    "_icon_layer": "Drawn after the text layer (8), so an icon quad's texture page cannot touch a font glyph.",
+    "icon_dy": 0, "icon_layer": 7, "icon_suffix_dx": 1, "icon_text_dx": 3,
+    "icon_origin_x": 160, "icon_origin_y": 112,
+    "bullet_highlight_left": 1, "bullet_highlight_right": 4,
+    "footer_hit_right": 4, "cell_hit_pad": 2, "icon_arrow_hit_w": 16,
+    "confirm_hit_dy": 24, "confirm_hit_x0": 80, "confirm_hit_x1": 240, "confirm_split_x": 160,
+    "beep_volume": 64,
+    "_columns": "[x, w] of the primary and the secondary bind of the tab's device. A pad bind is its icon and its label; a name wider than the cell is cut with ... and pans while selected.",
+    "columns": [[156, 82], [240, 76]],
+    "colors": {
+        "selected": "gold", "disabled": "dark_grey", "duplicate": "red", "normal": "white",
+        "heading": "light_grey", "heading_selected": "gold", "stick": "dark_grey",
+        "label": "white", "value": "white", "other_device": "dark_grey"
+    },
+    "icon_tints": {
+        "normal": [128, 128, 128], "disabled": [64, 64, 64], "duplicate": [128, 0, 0]
+    },
+    "texts": {
+        "tabs": ["ui.controls_screen.keyboard", "ui.controls_screen.mouse", "ui.controls_screen.gamepad"],
+        "primary": "ui.controls_screen.primary",
+        "secondary": "ui.controls_screen.secondary",
+        "gamepad_icons": "ui.controls_screen.gamepad_icons",
+        "back": "ui.controls_screen.back",
+        "reset": "ui.controls_screen.reset",
+        "reset_controls": "ui.controls_screen.reset_controls",
+        "_action_prefix": "A row's label is drawn from this prefix and the label as a slug (Back / Cancel -> ui.bind.back_cancel).",
+        "action_prefix": "ui.bind.",
+        "listening": "...",
+        "unbound": "-",
+        "stick_rows": ["action_move_forward", "action_turn_right", "action_move_back", "action_turn_left"]
+    }
+}

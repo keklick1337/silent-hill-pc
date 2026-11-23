@@ -1,0 +1,7 @@
+{
+  "description": "The painted steel of the police car and the ambulance: their whole pages are the bodies, with the markings painted on, so a page match is enough. A clear coat over the paint: a soft sheen, not a mirror.",
+  "match": ["PTCAR", "AMBCARF", "AMBCARH"],
+  "roughness": 0.35,
+  "metalness": 0.3,
+  "reflective": 0.25
+}

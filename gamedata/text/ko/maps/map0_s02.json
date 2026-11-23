@@ -1,0 +1,15 @@
+{
+  "format": "sh-text",
+  "version": 1,
+  "lang": "ko",
+  "map": "map0_s02",
+  "strings": {
+    "map0_s02.there_is_a_chain_saw": "{color 2}체인톱{/color}이 있다.\n가져갈까?{choice 4}",
+    "map0_s02.some_oil_cans_are_on": "선반에 오일 캔이 몇 개 있다.{end}",
+    "map0_s02.a_car_engine_no_problem": "자동차 엔진.\n이상은 없다.{end}",
+    "map0_s02.theres_a_tv_set_it": "텔레비전이 있다.\n켜지지 않는다.{end}",
+    "map0_s02.there_is_a_gasoline_tank": "{color 2}휘발유 통{/color}이 있다.\n가져갈까?{choice 4}",
+    "map0_s02.there_is_a_katana_take": "{color 2}일본도{/color}가 있다.\n가져갈까?{choice 4}",
+    "map0_s02.there_is_a_channeling_stone": "{color 2}채널링 스톤{/color}이 있다.\n가져갈까?{choice 4}"
+  }
+}

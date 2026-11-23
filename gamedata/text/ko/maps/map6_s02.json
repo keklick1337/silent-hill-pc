@@ -1,0 +1,18 @@
+{
+  "format": "sh-text",
+  "version": 1,
+  "lang": "ko",
+  "map": "map6_s02",
+  "strings": {
+    "map6_s02.msg15": "{wait 1.0}...!{end}",
+    "map6_s02.wait": "{wait 1.0}기다려!{end}",
+    "map6_s02.damn_i_was_too_late": "{wait 1.7}젠장!\n너무 늦은 건가?{end}",
+    "map6_s02.sorry": "{wait 1.5}죄송합니다...",
+    "map6_s02.ah": "{wait 0.6}아...",
+    "map6_s02.msg20": "{wait 1.5} ",
+    "map6_s02.let_me_ask_you_have": "{wait 3.6}하나만 여쭙겠습니다, 이 근처에서\n어린 여자아이를 못 보셨습니까?{end}",
+    "map6_s02.short_black_hair": "{wait 2.8}짧은 검은 머리인데...{end}",
+    "map6_s02.what": "{wait 1.0}뭐지?{end}",
+    "map6_s02.that_light": "{wait 2.5}저 빛은!?{end}"
+  }
+}

@@ -1,0 +1,108 @@
+{
+  "format": "sh-door-sounds",
+  "version": 1,
+  "description": "Door sound sets. A map event that changes the room or the map names a set by its position in \"sets\" (the events' sfx_pair): \"open\" plays when the door is used, \"close\" when the next room appears; null = no sound. starts_loading: the transition raises the game's loading flag (the original does it for set 7). Sound names are those of sounds/sounds.json. A mod replaces the whole file with its own copy at the same path. Keep the order: events refer to sets by position.",
+  "sets": [
+    {
+      "open": null,
+      "close": null
+    },
+    {
+      "open": "door_open_0",
+      "close": "door_close_0"
+    },
+    {
+      "open": "fog_door_open",
+      "close": "fog_door_close"
+    },
+    {
+      "open": "school_door_open",
+      "close": null
+    },
+    {
+      "open": "intro_door_open",
+      "close": null
+    },
+    {
+      "open": "old_town_door_a_open",
+      "close": null
+    },
+    {
+      "open": "old_town_door_b_open",
+      "close": null
+    },
+    {
+      "open": "hospital_door_open",
+      "close": null,
+      "starts_loading": true
+    },
+    {
+      "open": "school_otherworld_door_open",
+      "close": "school_otherworld_door_close"
+    },
+    {
+      "open": "lake_door_open",
+      "close": "lake_door_close"
+    },
+    {
+      "open": "lake_door_b_open",
+      "close": "lake_door_b_close"
+    },
+    {
+      "open": "old_town_door_c_open",
+      "close": "old_town_door_c_close"
+    },
+    {
+      "open": "otherworld_door_open",
+      "close": "otherworld_door_close"
+    },
+    {
+      "open": "otherworld_door_b_open",
+      "close": "otherworld_door_b_close"
+    },
+    {
+      "open": "otherworld_door_c_open",
+      "close": "otherworld_door_c_close"
+    },
+    {
+      "open": "amusement_park_door_open",
+      "close": "amusement_park_door_close"
+    },
+    {
+      "open": "otherworld_door_d_open",
+      "close": "otherworld_door_d_close"
+    },
+    {
+      "open": "school_yard_door_open",
+      "close": "school_yard_door_close"
+    },
+    {
+      "open": "old_town_door_d_open",
+      "close": "old_town_door_d_close"
+    },
+    {
+      "open": "hospital_basement_door_open",
+      "close": "hospital_basement_door_close"
+    },
+    {
+      "open": "door_open_0",
+      "close": null
+    },
+    {
+      "open": "fog_door_open",
+      "close": null
+    },
+    {
+      "open": null,
+      "close": "fog_door_close"
+    },
+    {
+      "open": "amusement_park_door_b_open",
+      "close": "amusement_park_door_b_close"
+    },
+    {
+      "open": "old_town_door_e_open",
+      "close": null
+    }
+  ]
+}

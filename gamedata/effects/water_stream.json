@@ -1,0 +1,19 @@
+{
+  "description": "Water drops and the ribbon waterfall of the school drain (map1_s02, map1_s03; the stream's shape is the map variable water_stream in config/map_vars.json). Drops are particle slots of group 27 (stopping clears groups 27 and 28). gravity_cap: fastest fall speed (Q12 per frame, 24576 = 6). spawn_speed_* / fall_speed_*: random range of a drop's speed scale, spawn_speed_shift divides it. max_x / max_y: a drop whose last corner lands outside this screen box is skipped. drop_* / ribbon_*: palette (clut) and texture page words. Every key is checked. A mod replaces the whole file with its own copy at the same path.",
+  "group": 27,
+  "gravity_cap": 24576,
+  "spawn_speed_low": 96,
+  "spawn_speed_high": 159,
+  "spawn_speed_shift": 7,
+  "fall_speed_low": 112,
+  "fall_speed_high": 143,
+  "max_x": 200,
+  "max_y": 160,
+  "ordering_table_size": 2048,
+  "slot_depth_offset": 256,
+  "drop_clut": 14,
+  "drop_page": 45,
+  "ribbon_clut": 78,
+  "ribbon_page": 45,
+  "ribbon_max_rows": 16
+}

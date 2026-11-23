@@ -1,0 +1,11 @@
+{
+  "format": "sh-text",
+  "version": 1,
+  "lang": "ja",
+  "map": "map2_s02",
+  "strings": {
+    "map2_s02.used_the_antique_shop_key": "{color 2}骨董品店の鍵{/color}を使った。{end}",
+    "map2_s02.alchemilla_hospital": "{color 3}アルケミラ病院{end}",
+    "map2_s02.green_lion": "{color 3}緑の獅子{end}"
+  }
+}

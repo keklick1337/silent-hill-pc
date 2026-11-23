@@ -1,0 +1,11 @@
+{
+  "format": "sh-text",
+  "version": 1,
+  "lang": "ru",
+  "strings": {
+    "ui.bind.debug_options": "Отладка",
+    "ui.menu.off": "Выкл",
+    "ui.menu.on": "Вкл",
+    "ui.pause.debug_options": "ОТЛАДКА"
+  }
+}

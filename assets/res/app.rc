@@ -1,0 +1,32 @@
+#include "sh_version.h"
+
+/* Windows executable icon (assets/icon/app.ico). The lowest-numbered ICON resource is what Explorer,
+ * the taskbar, and the window title bar use for SilentHillPC.exe. */
+1 ICON "app.ico"
+
+/* Win32 version info. SH_VER_* come from the generated sh_version.h: the engine
+ * version of the VERSION file, and the git commit count as the fourth field, so
+ * the File Version advances with each commit. */
+1 VERSIONINFO
+FILEVERSION    SH_VER_MAJOR, SH_VER_MINOR, SH_VER_PATCH, SH_VER_BUILD
+PRODUCTVERSION SH_VER_MAJOR, SH_VER_MINOR, SH_VER_PATCH, 0
+FILEOS         0x40004L
+FILETYPE       0x1L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904b0"
+        BEGIN
+            VALUE "CompanyName",     "Silent Hill PC project"
+            VALUE "FileDescription", "Silent Hill PC"
+            VALUE "FileVersion",     SH_VER_FILE_STR
+            VALUE "LegalCopyright",  "(C) 2026 Vladislav Tislenko and contributors, GPL-3.0-or-later. Not affiliated with Konami."
+            VALUE "ProductName",     "Silent Hill PC"
+            VALUE "ProductVersion",  SH_VER_PROD_STR
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x409, 1200
+    END
+END

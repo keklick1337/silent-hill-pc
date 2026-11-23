@@ -1,0 +1,57 @@
+{
+  "format": "sh-map-world-objects",
+  "version": 2,
+  "map": "map7_s00",
+  "description": "Static world objects of map7_s00 (Nowhere - hospital 1F, Lisa cutscene): 7 objects, drawn in file order. An object is drawn while the player is in one of its \"zones\" (each {\"x\": [...], \"z\": [...]} lists 40 m cells along that axis: cell c holds 40c..40(c+1) m; no zones = everywhere) and every flag of \"flags_set\" is set and every flag of \"flags_clear\" is clear (event flag names, e.g. the pickup flags). \"name\" is the object's id for scripts and mods, \"model\" its model (at most 8 characters, the map's or an item model), \"position\" in metres and \"rotation\" in degrees (x, y, z). \"script\": true lets world_objects.lua and events.lua move, turn, re-model or hide the object. The door halves of the three elevators are moved along z by world_objects.lua from the map variable elevator_door_z (events.lua slides them). A mod's maps/map7_s00/world_objects.json changes or adds objects by name.",
+  "objects": [
+    {
+      "name": "Door3Right",
+      "model": "DR3R_HID",
+      "position": [60.8, 0.0, -137.45],
+      "script": true,
+      "zones": [{"x": 1, "z": -4}]
+    },
+    {
+      "name": "Door3Left",
+      "model": "DR3L_HID",
+      "position": [60.8, 0.0, -137.45],
+      "script": true,
+      "zones": [{"x": 1, "z": -4}]
+    },
+    {
+      "name": "Door1Right",
+      "model": "DR1R_HID",
+      "position": [60.8, 0.0, -137.45],
+      "script": true,
+      "zones": [{"x": 1, "z": -4}]
+    },
+    {
+      "name": "Door1Left",
+      "model": "DR1L_HID",
+      "position": [60.8, 0.0, -137.45],
+      "script": true,
+      "zones": [{"x": 1, "z": -4}]
+    },
+    {
+      "name": "Door2Right",
+      "model": "DR2R_HID",
+      "position": [60.8, 0.0, -137.45],
+      "script": true,
+      "zones": [{"x": 1, "z": -4}]
+    },
+    {
+      "name": "Door2Left",
+      "model": "DR2L_HID",
+      "position": [60.8, 0.0, -137.45],
+      "script": true,
+      "zones": [{"x": 1, "z": -4}]
+    },
+    {
+      "name": "SavePad",
+      "model": "PAD_NEAR",
+      "position": [15.63, -0.91, -140.55],
+      "rotation": [0, -90.0, 0],
+      "zones": [{"x": 0, "z": -4}]
+    }
+  ]
+}

@@ -1,0 +1,82 @@
+{
+  "description": "The flashlight lens flare and reflecting water. Curves are piecewise linear over [range[0], range[1]] (Q12 values; ranges in Q8 metres, 256 = 1 m, or Q12 light strength). ray_angles: Q12 angles (4096 = full turn) of the star's sixteen rays; ray_shape: the corners (x, y pixels) of one ray before rotation. octagon: the sheen of eight segments around the lamp's plate, lengths in Q8 metres. Colours: ring, ring fan, band, band fan, each corner in order. scroll: the clock of the surface's waves, which runs while the lamp is over a water zone (tick: the Q12 length of a 30 Hz tick; period: ticks after which the waves repeat). surface: the map material the scene draws as water with its shader (the area files give it no picture). base_color: what unlit water adds; lit_color: what the flashlight and the map light show of it (both 0..255). wave_length: metres of the widest wave; wave_contrast (0..1): how much of the lit colour a trough loses; wave_distortion: how far a wave's slope shifts the reflection, in picture heights. reflection: the characters mirrored in the surface, blurred over `blur` texels of their picture, multiplied by tint and strength; plane_offset (metres) is added to the surface's own height. glow: the lamp's mirrored glow (size 1 = 48 x 96 picture units). quality: what each level of the config key water_quality draws (auto takes low for the original graphics preset, medium for enhanced, high for high and ultra). wave_layers: 1 to 3 wave sets summed; wave_grid: squares per metre the waves are evaluated on (0 = every pixel); color_steps: levels the waves' brightness and the glow are stepped to (0 = smooth); phase_steps: steps of one wave cycle (0 = every frame; the cycle lasts period / 30 s, so 64 steps of 128 ticks is 15 pictures a second); distortion: 0..1 of wave_distortion (0 also skips the slope's two extra wave samples); reflection_lines: rows of the mirrored picture (0 = the characters are not mirrored and the pass is not drawn); reflection_filter: nearest shows that picture's pixels unblurred, linear filters and blurs it; blur_taps: 1, 3 or 5 samples of it per pixel. Every key is checked. A mod replaces the whole file with its own copy at the same path.",
+  "flare_intensity": { "values": [0, 4096], "range": [0, 4096] },
+  "flare_distance": { "values": [16384, 5324, 3686, 2867, 2048, 1433, 819], "range": [204, 3328] },
+  "flare_angle": { "values": [614, 819, 1024, 1228, 1433, 2048, 5324], "range": [853, 1900] },
+  "flare_max": 6144,
+  "ray_angles": [-1991, -1911, -1479, -1308, -682, -568, -170, -22, 56, 398, 455, 682, 1251, 1615, 1672, 1763],
+  "ray_shape": [[-4, 0], [43, -47], [43, 47], [90, 0]],
+  "hidden_depth": 128,
+  "glint_slot": 641,
+  "octagon": {
+    "centre_z": 179,
+    "inner_radius": 51,
+    "inner_z": 307,
+    "outer_radius": 563,
+    "outer_z": 384,
+    "outer_top": 51,
+    "ring_slot": 641,
+    "band_slot": 639,
+    "colors": [
+      [[20, 18, 12], [20, 18, 12], [4, 4, 4], [4, 4, 4]],
+      [[24, 22, 12], [20, 18, 12], [20, 18, 12], [0, 0, 0]],
+      [[4, 8, 4], [4, 8, 4], [0, 0, 0], [0, 0, 0]],
+      [[8, 8, 4], [4, 8, 4], [4, 8, 4], [0, 0, 0]]
+    ]
+  },
+  "scroll": {
+    "tick": 136,
+    "period": 128
+  },
+  "surface": {
+    "material": "DWAVE",
+    "base_color": [0, 1, 0],
+    "lit_color": [40, 38, 19],
+    "wave_length": 0.9,
+    "wave_contrast": 0.38,
+    "wave_distortion": 0.012,
+    "reflection": {
+      "strength": 0.6,
+      "tint": [200, 170, 225],
+      "blur": 1.5,
+      "plane_offset": 0
+    },
+    "glow": {
+      "strength": 0.4,
+      "color": [112, 64, 150],
+      "size": 1.0
+    },
+    "quality": {
+      "low": {
+        "wave_layers": 1,
+        "wave_grid": 14,
+        "color_steps": 5,
+        "phase_steps": 64,
+        "distortion": 0,
+        "reflection_lines": 0,
+        "reflection_filter": "nearest",
+        "blur_taps": 1
+      },
+      "medium": {
+        "wave_layers": 3,
+        "wave_grid": 0,
+        "color_steps": 0,
+        "phase_steps": 0,
+        "distortion": 1,
+        "reflection_lines": 240,
+        "reflection_filter": "linear",
+        "blur_taps": 3
+      },
+      "high": {
+        "wave_layers": 3,
+        "wave_grid": 0,
+        "color_steps": 0,
+        "phase_steps": 0,
+        "distortion": 1,
+        "reflection_lines": 240,
+        "reflection_filter": "linear",
+        "blur_taps": 5
+      }
+    }
+  }
+}

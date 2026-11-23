@@ -1,0 +1,33 @@
+{
+  "format": "sh-text",
+  "version": 1,
+  "lang": "ja",
+  "map": "map3_s05",
+  "strings": {
+    "map3_s05.there_is_a_video_tape": "{color 2}ビデオテープ{/color}がある。\n取りますか？{choice 4}",
+    "map3_s05.alessa": "{color 3}アレッサ{end}",
+    "map3_s05.alessa_2": "アレッサ…？{end}",
+    "map3_s05.whats_this": "{wait 1.2}何だ、これは？{end}",
+    "map3_s05.looks_like_someones_been_here": "{wait 2.6}誰かがここにいたようだ…{end}",
+    "map3_s05.msg20": "{wait 0.4}{end}",
+    "map3_s05.there_is_an_examination_room": "{color 2}診察室の鍵{/color}がある。\n取りますか？{choice 4}",
+    "map3_s05.looks_like_a_hallway_under": "格子の下は\n通路になっているようだ。",
+    "map3_s05.cant_move_it_since_the": "ツタが絡みついていて、\n動かせない。{end}",
+    "map3_s05.no_the_fire_goes_out": "だめだ。\nツタに火をつけても\nすぐに消えてしまう。{end}",
+    "map3_s05.poured_disinfecting_alcohol_on": "ツタに{color 2}消毒用アルコール{/color}をかけた。{end}",
+    "map3_s05.the_vines_absorbed_the_alcohol": "ツタがアルコールを吸い込んだ。{end}",
+    "map3_s05.used_the_basement_storeroom": "{color 2}地下倉庫の鍵{/color}を使った。{end}",
+    "map3_s05.do_you_want_to_push": "棚を押しますか？{choice 4}",
+    "map3_s05.the_generator_is_on": "発電機は動いている。{end}",
+    "map3_s05.there_are_skid_marks_from": "棚を動かしたときの\n引きずった跡がある。{end}",
+    "map3_s05.there_is_a_hammer_take": "{color 2}ハンマー{/color}がある。\n取りますか？{choice 4}",
+    "map3_s05.a_bed_whats_it_doing": "ベッド？なぜこんな所に？\nいったい誰が…{end}",
+    "map3_s05.a_body_is_laid_out": "ベッドに死体が横たえられている。\n調べる気にはなれない。{end}",
+    "map3_s05.nothing_helpful": "役に立ちそうな物はない。{end}",
+    "map3_s05.nothing_useful_in_the_boxes": "箱の中に役に立ちそうな物はない。{end}",
+    "map3_s05.theres_a_bottle_filled_with": "何かの薬品が詰まった瓶がある。\n触らないでおこう。{end}",
+    "map3_s05.there_are_some_empty_bottles": "空き瓶がいくつかある。{end}",
+    "map3_s05.nothing_special_in_the_box": "箱の中には特に何もない。\n気にするような物はない。{end}",
+    "map3_s05.nothing_inside": "中には何もない。{end}"
+  }
+}

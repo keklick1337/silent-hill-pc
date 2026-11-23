@@ -1,0 +1,58 @@
+{
+  "format": "sh-map-world-objects",
+  "version": 2,
+  "map": "map5_s03",
+  "description": "Static world objects of map5_s03 (Norman's Motel (Resort Area)): 7 objects, drawn in file order. An object is drawn while the player is in one of its \"zones\" (each {\"x\": [...], \"z\": [...]} lists 40 m cells along that axis: cell c holds 40c..40(c+1) m; no zones = everywhere) and every flag of \"flags_set\" is set and every flag of \"flags_clear\" is clear (event flag names, e.g. the pickup flags). \"name\" is the object's id for scripts and mods, \"model\" its model (at most 8 characters, the map's or an item model), \"position\" in metres and \"rotation\" in degrees (x, y, z). \"pose\" instead takes position and rotation from a table of the map's overlay on the disc (\"disc_table\" from tables.json, row \"index\"), resolved when the map loads; pickups use it. \"script\": true lets world_objects.lua and events.lua move, turn, re-model or hide the object. Shelf is moved by world_objects.lua (to its pushed spot once M5S03_ShelfPushed is set) and by the push scene of events.lua (map variable shelf). A mod's maps/map5_s03/world_objects.json changes or adds objects by name.",
+  "objects": [
+    {
+      "name": "Shelf",
+      "model": "MOVACHES",
+      "position": [104.2225, -0.1683, 60.0667],
+      "script": true,
+      "zones": [{"x": 2, "z": 1}]
+    },
+    {
+      "name": "SavePad0",
+      "model": "PAD_NEAR",
+      "position": [58.1048, -0.9, 62.5574],
+      "rotation": [0, 17.41, 0],
+      "zones": [{"x": 1, "z": 1}]
+    },
+    {
+      "name": "SavePad1",
+      "model": "PAD_NEAR",
+      "position": [57.905, -0.9, 22.5574],
+      "rotation": [0, 17.41, 0],
+      "zones": [{"x": 1, "z": 0}]
+    },
+    {
+      "name": "Magnet",
+      "model": "MAG_HIDE",
+      "position": [61.1727, 0.43, 18.6243],
+      "rotation": [0, 60.3, 0],
+      "zones": [{"x": 1, "z": 0}],
+      "flags_clear": ["M5S03_PickupMagnet"]
+    },
+    {
+      "name": "HealthDrink0",
+      "model": "DRINK_NE",
+      "pose": {"disc_table": "CommonWorldObjectPoses", "index": 0, "disc_address": "0x800D3BFC"},
+      "zones": [{"x": 2, "z": 1}],
+      "flags_clear": ["M5S03_HealthDrink0"]
+    },
+    {
+      "name": "ShotgunShells",
+      "model": "SHOT_NEA",
+      "pose": {"disc_table": "CommonWorldObjectPoses", "index": 1, "disc_address": "0x800D3BFC"},
+      "zones": [{"x": 2, "z": 0}],
+      "flags_clear": ["M5S03_ShotgunShells"]
+    },
+    {
+      "name": "HealthDrink1",
+      "model": "DRINK_NE",
+      "pose": {"disc_table": "CommonWorldObjectPoses", "index": 2, "disc_address": "0x800D3BFC"},
+      "zones": [{"x": 2, "z": 0}],
+      "flags_clear": ["M5S03_HealthDrink1"]
+    }
+  ]
+}

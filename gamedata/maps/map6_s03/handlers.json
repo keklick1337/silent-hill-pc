@@ -1,0 +1,42 @@
+{
+  "map": "map6_s03",
+  "table": "g_MapEventFuncs",
+  "handlers": [
+    {
+      "index": 0,
+      "symbol": null,
+      "name": null,
+      "shape": null
+    },
+    {
+      "index": 1,
+      "symbol": null,
+      "name": null,
+      "shape": null
+    },
+    {
+      "index": 2,
+      "symbol": "MapEvent_CommonItemTake",
+      "name": "MapEvent_CommonItemTake",
+      "shape": "script"
+    },
+    {
+      "index": 3,
+      "symbol": "Cutscene_HatchDescend",
+      "name": "Cutscene_HatchDescend",
+      "shape": "script"
+    },
+    {
+      "index": 4,
+      "symbol": "Cutscene_HatchClimbUp",
+      "name": "Cutscene_HatchClimbUp",
+      "shape": "script"
+    },
+    {
+      "index": 5,
+      "symbol": "MapEvent_PaperMapTake",
+      "name": "MapEvent_PaperMapTake",
+      "shape": "script"
+    }
+  ]
+}

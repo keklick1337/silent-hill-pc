@@ -1,0 +1,42 @@
+{
+  "map": "map3_s00",
+  "table": "g_MapEventFuncs",
+  "handlers": [
+    {
+      "index": 0,
+      "symbol": "MapEvent_DoorJammed",
+      "name": "MapEvent_DoorJammed",
+      "shape": "script"
+    },
+    {
+      "index": 1,
+      "symbol": "MapEvent_DoorLocked",
+      "name": "MapEvent_DoorLocked",
+      "shape": "script"
+    },
+    {
+      "index": 2,
+      "symbol": "MapEvent_Nop",
+      "name": "MapEvent_Nop",
+      "shape": "script"
+    },
+    {
+      "index": 3,
+      "symbol": "MapEvent_FirstAidKitTake",
+      "name": "MapEvent_FirstAidKitTake",
+      "shape": "script"
+    },
+    {
+      "index": 4,
+      "symbol": "CutsceneKaufmannHospital",
+      "name": "CutsceneKaufmannHospital",
+      "shape": "cutscene"
+    },
+    {
+      "index": 5,
+      "symbol": "MapEvent_PaperMapTake",
+      "name": "MapEvent_PaperMapTake",
+      "shape": "script"
+    }
+  ]
+}

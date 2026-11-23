@@ -1,0 +1,48 @@
+{
+  "format": "sh-map-world-objects",
+  "version": 2,
+  "map": "map3_s06",
+  "description": "Static world objects of map3_s06 (Hospital - 1F after Otherworld): 5 objects, drawn in file order. An object is drawn while the player is in one of its \"zones\" (each {\"x\": [...], \"z\": [...]} lists 40 m cells along that axis: cell c holds 40c..40(c+1) m; no zones = everywhere) and every flag of \"flags_set\" is set and every flag of \"flags_clear\" is clear (event flag names, e.g. the pickup flags). \"name\" is the object's id for scripts and mods, \"model\" its model (at most 8 characters, the map's or an item model), \"position\" in metres and \"rotation\" in degrees (x, y, z). The save pad, the map and the antique shop key of the hospital after the Otherworld. A mod's maps/map3_s06/world_objects.json changes or adds objects by name.",
+  "objects": [
+    {
+      "name": "SavePad",
+      "model": "PAD_NEAR",
+      "position": [26.0, -1.02, 144.55],
+      "rotation": [0, 163.8, 0],
+      "zones": [{"x": 0, "z": 3}]
+    },
+    {
+      "name": "Map",
+      "model": "MAP_HIDE",
+      "position": [24.6, -1.56, 143.16],
+      "rotation": [0, 180.0, 0],
+      "zones": [{"x": 0, "z": 3}],
+      "flags_clear": ["M3S00_PickupMap"]
+    },
+    {
+      "name": "MapTaken",
+      "model": "MAP2_HID",
+      "position": [24.6, -1.56, 143.16],
+      "rotation": [0, 180.0, 0],
+      "zones": [{"x": 0, "z": 3}],
+      "flags_set": ["M3S00_PickupMap"]
+    },
+    {
+      "name": "FirstAidKit",
+      "model": "AIDKIT_N",
+      "position": [27.6, -0.45, 143.6],
+      "rotation": [0, -90.0, 0],
+      "zones": [{"x": 0, "z": 3}],
+      "flags_clear": ["M3S00_FirstAidKit"]
+    },
+    {
+      "name": "AntiqueShopKey",
+      "model": "KEY_HIDE",
+      "position": [95.734, -0.8062, 99.8885],
+      "rotation": [0, -35.9, 0],
+      "zones": [{"x": 2, "z": 2}],
+      "flags_set": ["M3S06_DahliaLeftAntiqueShopKey"],
+      "flags_clear": ["M3S06_PickupAntiqueShopKey"]
+    }
+  ]
+}

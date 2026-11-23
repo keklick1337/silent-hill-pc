@@ -1,0 +1,10 @@
+{
+  "description": "The controller layouts the options screen offers and resets to: under \"usa\" the three types A, B and C, in that order. Each layout maps a game action (enter, cancel, skip, action, aim, light, run, view, step_left, step_right, pause, item, map, option) to the PS1 pad buttons that trigger it: Select, Start, Triangle, Circle, Cross, Square, L1, L2, R1, R2. PC keyboard and mouse bindings are separate (config.cfg and the controls screen). A mod changes it with a file of the same path in its own folder; objects are merged key by key, so the patch only needs the keys it changes.",
+  "layouts": {
+    "usa": [
+      { "enter": ["Start", "Cross"], "cancel": ["Triangle", "Circle", "Square"], "skip": ["Start"], "action": ["Cross"], "aim": ["R2"], "light": ["Circle"], "run": ["Square"], "view": ["L2"], "step_left": ["L1"], "step_right": ["R1"], "pause": ["Start"], "item": ["Select"], "map": ["Triangle"], "option": [] },
+      { "enter": ["Start", "Cross"], "cancel": ["Triangle", "Circle", "Square"], "skip": ["Start"], "action": ["Cross"], "aim": ["R1"], "light": ["Circle"], "run": ["Square"], "view": ["L1"], "step_left": ["L2"], "step_right": ["R2"], "pause": ["Start"], "item": ["Select"], "map": ["Triangle"], "option": [] },
+      { "enter": ["Start", "Cross"], "cancel": ["Triangle", "Circle", "Square"], "skip": ["Start"], "action": ["Cross"], "aim": ["R2"], "light": ["Circle"], "run": ["Square"], "view": ["L2"], "step_left": ["L1"], "step_right": ["R1"], "pause": ["Start"], "item": ["Triangle"], "map": ["Select"], "option": [] }
+    ]
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "format": "sh-text",
+  "version": 1,
+  "lang": "pl",
+  "map": "map6_s00",
+  "strings": {
+    "map6_s00.whats_this": "{wait 1.5}Co to!{end}",
+    "map6_s00.msg16": "{wait 0.1}{end}",
+    "map6_s00.msg17": "{wait 0.1}{end}",
+    "map6_s00.msg18": "{wait 0.1}{end}",
+    "map6_s00.not_again_no_this_time": "{wait1 4.0}Znowu...!?\nNie, tym razem jest inaczej.",
+    "map6_s00.rather_than_shifting_from": "{wait1 4.5}To już nie przejście\nz rzeczywistości w koszmar,",
+    "map6_s00.this_is_more_like_reality": "{wait1 4.5}to raczej rzeczywistość\nstaje się koszmarem.",
+    "map6_s00.i_dont_like_this_feeling": "{wait1 6.0}Nie podoba mi się to uczucie.\nJakby miało się stać coś złego...",
+    "map6_s00.no_doubt_something_terrible_is": "{wait1 4.0}Bez wątpienia dzieje się\ncoś strasznego...{end}",
+    "map6_s00.the_cover_has_been_removed": "Ktoś zdjął pokrywę...",
+    "map6_s00.could_cybil_have_gotten_to": "Czy Cybil mogła dostać się\nstąd do wesołego miasteczka?{end}",
+    "map6_s00.lake_side_amusement_park": "{color 3}WESOŁE MIASTECZKO LAKE SIDE{end}"
+  }
+}

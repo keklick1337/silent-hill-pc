@@ -1,0 +1,14 @@
+{
+  "format": "sh-text",
+  "version": 1,
+  "lang": "tr",
+  "map": "map5_s00",
+  "strings": {
+    "map5_s00.used_the_sewer_key": "{color 2}Kanalizasyon anahtarı{/color} kullanıldı.{end}",
+    "map5_s00.used_the_sewer_exit_key": "{color 2}Kanal çıkışı anahtarı{/color} kullanıldı.{end}",
+    "map5_s00.there_is_a_sewer_key": "Burada {color 2}Kanalizasyon anahtarı{/color} var.\nAlınsın mı?{choice 4}",
+    "map5_s00.there_is_a_sewer_exit": "Suyun içinde {color 2}Kanal çıkışı anahtarı{/color}\nvar. Alınsın mı?{choice 4}",
+    "map5_s00.got_to_find_cheryl_no": "Cheryl'i bulmalıyım.\nGeri dönecek vakit yok.{end}",
+    "map5_s00.there_is_a_sewer_map": "{hires}Burada {color 5}Kanalizasyon haritası\n(tatil bölgesi bağlantısı){/color} var.\nAlınsın mı?{choice 4}"
+  }
+}

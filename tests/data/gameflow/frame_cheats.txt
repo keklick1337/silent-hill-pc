@@ -1,0 +1,84 @@
+# Recorded behaviour, read by tests/gameflow/frame_cheats_test.cpp (tests/framework/golden.h). 0 is false, 1 is true.
+# cheats <god_mode> <no_target> <fast_forward> <in_game> <game_over> <player_dead>
+#        <fast_forward> <refill_health> <skip_swap: -1 not written, else the value> <hold_no_target>
+# dpad   <config_on> <in_game> <sys_gameplay> <debug_menu_active>  <movement disabled>
+cheats 0 0 0 0 0 0  0 0 -1 0
+cheats 1 0 0 0 0 0  0 0 -1 0
+cheats 0 1 0 0 0 0  0 0 -1 0
+cheats 1 1 0 0 0 0  0 0 -1 0
+cheats 0 0 1 0 0 0  1 0 -1 0
+cheats 1 0 1 0 0 0  1 0 -1 0
+cheats 0 1 1 0 0 0  1 0 -1 0
+cheats 1 1 1 0 0 0  1 0 -1 0
+cheats 0 0 0 1 0 0  0 0 0 0
+cheats 1 0 0 1 0 0  0 1 0 0
+cheats 0 1 0 1 0 0  0 0 0 1
+cheats 1 1 0 1 0 0  0 1 0 1
+cheats 0 0 1 1 0 0  1 0 1 0
+cheats 1 0 1 1 0 0  1 1 1 0
+cheats 0 1 1 1 0 0  1 0 1 1
+cheats 1 1 1 1 0 0  1 1 1 1
+cheats 0 0 0 0 1 0  0 0 -1 0
+cheats 1 0 0 0 1 0  0 0 -1 0
+cheats 0 1 0 0 1 0  0 0 -1 0
+cheats 1 1 0 0 1 0  0 0 -1 0
+cheats 0 0 1 0 1 0  0 0 -1 0
+cheats 1 0 1 0 1 0  0 0 -1 0
+cheats 0 1 1 0 1 0  0 0 -1 0
+cheats 1 1 1 0 1 0  0 0 -1 0
+cheats 0 0 0 1 1 0  0 0 0 0
+cheats 1 0 0 1 1 0  0 1 0 0
+cheats 0 1 0 1 1 0  0 0 0 1
+cheats 1 1 0 1 1 0  0 1 0 1
+cheats 0 0 1 1 1 0  0 0 0 0
+cheats 1 0 1 1 1 0  0 1 0 0
+cheats 0 1 1 1 1 0  0 0 0 1
+cheats 1 1 1 1 1 0  0 1 0 1
+cheats 0 0 0 0 0 1  0 0 -1 0
+cheats 1 0 0 0 0 1  0 0 -1 0
+cheats 0 1 0 0 0 1  0 0 -1 0
+cheats 1 1 0 0 0 1  0 0 -1 0
+cheats 0 0 1 0 0 1  0 0 -1 0
+cheats 1 0 1 0 0 1  0 0 -1 0
+cheats 0 1 1 0 0 1  0 0 -1 0
+cheats 1 1 1 0 0 1  0 0 -1 0
+cheats 0 0 0 1 0 1  0 0 0 0
+cheats 1 0 0 1 0 1  0 1 0 0
+cheats 0 1 0 1 0 1  0 0 0 1
+cheats 1 1 0 1 0 1  0 1 0 1
+cheats 0 0 1 1 0 1  0 0 0 0
+cheats 1 0 1 1 0 1  0 1 0 0
+cheats 0 1 1 1 0 1  0 0 0 1
+cheats 1 1 1 1 0 1  0 1 0 1
+cheats 0 0 0 0 1 1  0 0 -1 0
+cheats 1 0 0 0 1 1  0 0 -1 0
+cheats 0 1 0 0 1 1  0 0 -1 0
+cheats 1 1 0 0 1 1  0 0 -1 0
+cheats 0 0 1 0 1 1  0 0 -1 0
+cheats 1 0 1 0 1 1  0 0 -1 0
+cheats 0 1 1 0 1 1  0 0 -1 0
+cheats 1 1 1 0 1 1  0 0 -1 0
+cheats 0 0 0 1 1 1  0 0 0 0
+cheats 1 0 0 1 1 1  0 1 0 0
+cheats 0 1 0 1 1 1  0 0 0 1
+cheats 1 1 0 1 1 1  0 1 0 1
+cheats 0 0 1 1 1 1  0 0 0 0
+cheats 1 0 1 1 1 1  0 1 0 0
+cheats 0 1 1 1 1 1  0 0 0 1
+cheats 1 1 1 1 1 1  0 1 0 1
+dpad 0 0 0 0  0
+dpad 1 0 0 0  0
+dpad 0 1 0 0  0
+dpad 1 1 0 0  0
+dpad 0 0 1 0  0
+dpad 1 0 1 0  0
+dpad 0 1 1 0  0
+dpad 1 1 1 0  1
+dpad 0 0 0 1  0
+dpad 1 0 0 1  0
+dpad 0 1 0 1  0
+dpad 1 1 0 1  0
+dpad 0 0 1 1  0
+dpad 1 0 1 1  0
+dpad 0 1 1 1  0
+dpad 1 1 1 1  0

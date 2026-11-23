@@ -1,0 +1,31 @@
+{
+  "format": "sh-text",
+  "version": 1,
+  "lang": "en",
+  "map": "map4_s03",
+  "description": "The map's messages: the keys by message number from \"first\" (the numbers before it are common.json's), and the English text of the original game.",
+  "index": {
+    "map": {
+      "first": 15,
+      "keys": [
+        "map4_s03.daddy_where_are_you",
+        "map4_s03.cheryl",
+        "map4_s03.there_is_a_hunting_rifle",
+        "map4_s03.nothing_unusual",
+        "map4_s03.a_picture_is_projected_on",
+        "map4_s03.cheryl_where_could_she_be"
+      ]
+    }
+  },
+  "strings": {
+    "map4_s03.daddy_where_are_you": "Daddy...where are you...?",
+    "map4_s03.cheryl": "{wait 1.0}Cheryl!{end}",
+    "map4_s03.there_is_a_hunting_rifle": "There is a {color 2}Hunting rifle{/color}.\nTake it?{choice 4}",
+    "map4_s03.nothing_unusual": "Nothing unusual.{end}",
+    "map4_s03.a_picture_is_projected_on": "A picture is projected\non the screen.",
+    "map4_s03.cheryl_where_could_she_be": "Cheryl...\nwhere could she be?{end}"
+  },
+  "ws": {
+    "map4_s03.cheryl": "7059a474:9=ss"
+  }
+}

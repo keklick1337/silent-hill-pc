@@ -1,0 +1,54 @@
+# Build trees and work files.
+build/
+build-*/
+.tmp/
+
+# The player's disc image and mods; nothing of the game is ever committed (COPYRIGHT.md, section 4).
+/data/
+
+# What the import of a disc image writes when the repository's gamedata/ is used as the game data directory.
+# The base data beside these directories is tracked.
+/gamedata/raw/
+/gamedata/convert/
+/gamedata/tables/
+/gamedata/maps/areas/
+/gamedata/maps/*/map.json
+/gamedata/maps/*/cameras.json
+/gamedata/maps/*/collision.json
+/gamedata/maps/*/events.json
+/gamedata/maps/*/header.json
+/gamedata/maps/*/points.json
+/gamedata/maps/*/spawns.json
+/gamedata/index.tsv
+/gamedata/version.cfg
+/gamedata/save/
+/gamedata/fmv/
+/gamedata/load/
+/gamedata/texturemods/
+/gamedata/cache/
+/disc-unpack/
+
+# Saves and debug dumps the game writes beside its executable.
+.savegames/
+dumps/
+
+# The behaviour specification (the decompilation) is read from a local checkout and is not part of the repository.
+/references/
+
+# Dependencies fetched and built by tools/win-deps, tools/linux-deps and tools/ffmpeg.
+/third_party/deps/
+/third_party/SDL3/
+
+# Example mods ship no game-derived images: the HD texture of examples/mods/hd_harry is supplied by the user.
+examples/mods/hd_harry/convert/
+
+# Python, editors, operating systems, local tool settings.
+__pycache__/
+*.pyc
+/.claude/
+.vscode/
+.idea/
+*.swp
+*~
+.DS_Store
+Thumbs.db

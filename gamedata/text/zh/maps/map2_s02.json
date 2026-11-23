@@ -1,0 +1,11 @@
+{
+  "format": "sh-text",
+  "version": 1,
+  "lang": "zh",
+  "map": "map2_s02",
+  "strings": {
+    "map2_s02.used_the_antique_shop_key": "使用了{color 2}古董店钥匙{/color}。{end}",
+    "map2_s02.alchemilla_hospital": "{color 3}阿尔凯米拉医院{end}",
+    "map2_s02.green_lion": "{color 3}绿狮{end}"
+  }
+}

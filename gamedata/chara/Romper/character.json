@@ -1,0 +1,66 @@
+{
+  "description": "Romper: a hunched ape-like creature that charges and pins Harry down on the streets of Central Silent Hill and the Resort Area, in the normal world and the Otherworld.",
+  "category": "CommonEnemies",
+  "maps": ["map2_s02", "map4_s02", "map5_s01", "map6_s00"],
+  "model": "models/CHARA/JACK.glb",
+  "animations": "anim/ANIM/JACK.anim.json",
+  "clip_tables": ["romper"],
+  "textures": ["textures/CHARA/JACK.png"],
+  "shadow": 0.3,
+  "blend_mode": "subtractive",
+  "camera_anchor": "ground",
+  "camera_offset_y": -0.8,
+  "sounds": {
+    "attack": "romper_attack",
+    "attack_hit": "romper_attack_hit",
+    "damage": "romper_damage",
+    "footstep": "romper_footstep",
+    "idle": "romper_idle",
+    "jump_land": "romper_jump_land"
+  },
+  "params": {
+    "health_base": 450.0,
+    "health_bonus_max": 112.5,
+    "collision_ground_walker": 1,
+    "collision_holes_as_walls": 1
+  },
+  "_param_units": {
+    "health_base": "health points, Q12 on use",
+    "health_bonus_max": "health points, Q12 on use",
+    "collision_ground_walker": "1: the wall / ledge / void classification applies (walks on the ground)",
+    "collision_holes_as_walls": "1: floors without ground block movement like walls up to the ceiling"
+  },
+  "anims": {
+    "invalid": 0,
+    "still": 1,
+    "run_to_jump": 2,
+    "jump_to_idle_start": 3,
+    "jump_to_run_forward": 4,
+    "jump_to_idle_end": 5,
+    "stun_to_idle_start": 6,
+    "walk_to_run_forward_right_end": 7,
+    "walk_to_run_forward_left_end": 8,
+    "bite": 9,
+    "jump_stun_end": 10,
+    "jump_stun_start": 11,
+    "grab_attack": 12,
+    "run_forward_loop": 13,
+    "creep_forward": 14,
+    "walk_forward": 15,
+    "stun_to_idle_end": 16,
+    "walk_to_run_forward_right_start": 17,
+    "walk_to_run_forward_left_start": 18,
+    "run_forward_start": 19,
+    "creep_to_run": 20
+  },
+  "spawn": {
+    "state": 3,
+    "kind": "enemy",
+    "auto": "full"
+  },
+  "harry_reactions": ["Pin", "Death"],
+  "blood": "Romper",
+  "enemy": true,
+  "single_clip_table": true,
+  "preview": {"rotate": [90, 0, 0]}
+}

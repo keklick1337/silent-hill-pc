@@ -1,0 +1,20 @@
+{
+  "format": "sh-text",
+  "version": 1,
+  "lang": "it",
+  "map": "map2_s04",
+  "strings": {
+    "map2_s04.theres_a_memo_on_the": "C'è un appunto sulla scrivania.",
+    "map2_s04.coroner_seals_called": "{color 3}Ha chiamato il coroner Seals.",
+    "map2_s04.officer_gucci_is_unlikely_to": "{color 3}Improbabile che l'agente Gucci\nsia stato ucciso. A quanto pare\nè morto per cause naturali.",
+    "map2_s04.but_medical_records_show": "{color 3}Ma dalla cartella clinica risulta\nche l'agente Gucci non aveva mai\navuto sintomi di cardiopatia.{end}",
+    "map2_s04.theres_something_on_it": "C'è scritto qualcosa.",
+    "map2_s04.product_only_available_in": "{color 3}Prodotto reperibile solo\nin alcune zone di Silent Hill.",
+    "map2_s04.raw_material_is_white_claudia": "{color 3}Materia prima: la Claudia Bianca,\nuna pianta tipica della regione.",
+    "map2_s04.manufactured_here_dealer": "{color 3}Fabbricata qui?\nSpacciatore * produttore?{end}",
+    "map2_s04.there_is_a_shopping_district": "{hires}C'è una {color 5}mappa\ndella zona commerciale{/color}.\nPrenderla?{choice 4}",
+    "map2_s04.nothing_helpful": "Niente che mi aiuti.{end}",
+    "map2_s04.the_desk_is_messy": "La scrivania è in disordine.{end}",
+    "map2_s04.there_is_a_shotgun_take": "C'è un {color 2}fucile a pompa{/color}.\nPrenderlo?{choice 4}"
+  }
+}

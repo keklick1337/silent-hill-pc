@@ -1,0 +1,5 @@
+add_library(sh_iso9660 STATIC iso9660.cpp)
+target_compile_features(sh_iso9660 PUBLIC cxx_std_20)
+target_include_directories(sh_iso9660 PUBLIC ${PROJECT_SOURCE_DIR}/src)
+target_link_libraries(sh_iso9660 PUBLIC sh_disc sh_common)
+target_compile_options(sh_iso9660 PRIVATE -Wall -Wextra -Wpedantic)

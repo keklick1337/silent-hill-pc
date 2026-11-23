@@ -1,0 +1,14 @@
+{
+  "format": "sh-text",
+  "version": 1,
+  "lang": "es",
+  "map": "map5_s00",
+  "strings": {
+    "map5_s00.used_the_sewer_key": "Usas la {color 2}llave de la alcantarilla{/color}.{end}",
+    "map5_s00.used_the_sewer_exit_key": "Usas la {color 2}llave de la salida{/color}.{end}",
+    "map5_s00.there_is_a_sewer_key": "Hay una {color 2}llave de la alcantarilla{/color}.\n¿Te la llevas?{choice 4}",
+    "map5_s00.there_is_a_sewer_exit": "Hay una {color 2}llave de la salida{/color}\nen el agua. ¿Te la llevas?{choice 4}",
+    "map5_s00.got_to_find_cheryl_no": "Tengo que encontrar a Cheryl.\nNo hay tiempo para volver.{end}",
+    "map5_s00.there_is_a_sewer_map": "{hires}Hay un {color 5}mapa de las alcantarillas\n(hacia la zona turística){/color}.\n¿Te lo llevas?{choice 4}"
+  }
+}

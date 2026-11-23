@@ -1,0 +1,32 @@
+{
+  "format": "sh-text",
+  "version": 1,
+  "lang": "ja",
+  "map": "map0_s00",
+  "strings": {
+    "map0_s00.cheryl_where_could_you_be": "{wait 2.5}シェリル。どこへ行ったんだ？{end}",
+    "map0_s00.its_strange": "{wait 1.5}おかしい…",
+    "map0_s00.its_quiet_too_quiet": "{wait 2.0}静かだ。静かすぎる。",
+    "map0_s00.this_place_is_like_a": "{wait 3.0}まるでゴーストタウンじゃないか。{end}",
+    "map0_s00.cheryl": "{wait 3.0}シェリル。{end}",
+    "map0_s00.footsteps": "{wait 1.5}足音？{end}",
+    "map0_s00.cheryl_is_that_cheryl": "{wait 2.8}シェリル？\nシェリルなのか！？{end}",
+    "map0_s00.where_are_you_going": "{wait 1.2}どこへ行くんだ？{end}",
+    "map0_s00.hey_wait_stop": "{wait 1.8}おい、待て…止まるんだ！{end}",
+    "map0_s00.id_better_follow_cheryl": "シェリルを追ったほうがいいな…{end}",
+    "map0_s00.thats_strange_its_getting": "妙だな、\nだんだん暗くなってきた。{end}",
+    "map0_s00.a_dead_end_what_the": "行き止まり？\nどういうことだ！？{end}",
+    "map0_s00.what_is_this": "{wait 1.6}これは何だ？",
+    "map0_s00.whats_going_on_here": "{wait 2.5}いったい何が起きているんだ！？{end}",
+    "map0_s00.whats_this": "何だ、これは？{end}",
+    "map0_s00.better_than_nothing_i_guess": "……何もないよりはましか。{end}",
+    "map0_s00.what_whats_this_doing_here": "何だ？\nなぜこんな物がここに？{end}",
+    "map0_s00.blocked_by_a_fence": "フェンスでふさがれている？{end}",
+    "map0_s00.a_broken_wheelchair_whats_this": "壊れた車椅子？\nなぜこんな物がここに？{end}",
+    "map0_s00.what_the_what_is_it": "何だ…？\nあれは何なんだ？{end}",
+    "map0_s00.the_street_is_blocked": "道がふさがっている。",
+    "map0_s00.cant_get_out_of_town": "ここからは\n町を出られない。{end}",
+    "map0_s00.my_car_too_banged_up": "私の車だ…\nひどく壊れていて、とても走れない。",
+    "map0_s00.wheres_cheryl_hope_shes_safe": "シェリルはどこだ？\n無事でいてくれ。{end}"
+  }
+}

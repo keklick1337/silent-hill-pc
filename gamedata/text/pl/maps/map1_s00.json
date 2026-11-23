@@ -1,0 +1,33 @@
+{
+  "format": "sh-text",
+  "version": 1,
+  "lang": "pl",
+  "map": "map1_s00",
+  "strings": {
+    "map1_s00.the_tower_door_is_locked": "Drzwi wieży są zamknięte na klucz.{end}",
+    "map1_s00.the_hands_are_stopped_at": "Wskazówki zatrzymały się na 10:00.{end}",
+    "map1_s00.the_hands_are_stopped_at_2": "Wskazówki zatrzymały się na 12:00.{end}",
+    "map1_s00.the_hands_are_stopped_at_3": "Wskazówki zatrzymały się na 5:00.{end}",
+    "map1_s00.a_golden_sun": "{color 3}Złote Słońce{end}",
+    "map1_s00.a_silver_moon": "{color 3}Srebrny Księżyc{end}",
+    "map1_s00.the_door_wont_open": "Drzwi nie chcą się otworzyć.{end}",
+    "map1_s00.10_00_alchemy_laboratory_gold": "{pos 4}{center}{color 3}10:00\n„Pracownia alchemiczna”\n\nZłoto w dłoni starca.\nPrzyszłość skryta w jego pięści.\nWymień za wodę mędrca.{end}",
+    "map1_s00.12_00_a_place_with": "{pos 4}{center}{color 3}12:00\n„Miejsce pieśni i dźwięku”\n\nSrebrny drogowskaz drzemie\nw zamilkłych językach.\nZbudzi go nakazany porządek.{end}",
+    "map1_s00.5_00_darkness_that_brings": "{pos 4}{center}{color 3}5:00\n„Ciemność, która niesie\nduszący żar”\n\nPłomienie rozdzierają ciszę,\nbudząc wygłodniałą bestię.\nOtwórz drzwi czasu, by zwabić łup.{end}",
+    "map1_s00.its_written_in_blood": "Napisane krwią.{end}",
+    "map1_s00.cheryl_might_be_here_i": "Cheryl może tu być.\nPowinienem jej poszukać.{end}",
+    "map1_s00.a_picture_of_a_door": "Rysunek drzwi.",
+    "map1_s00.i_dont_know_who_drew": "Nie wiem, kto to narysował,\nale gustu to on nie miał.{end}",
+    "map1_s00.there_is_a_switch_do": "Jest tu przełącznik.\nNacisnąć przełącznik?{choice 4}",
+    "map1_s00.nothing_appears_to_happen": "Chyba nic się nie dzieje.{end}",
+    "map1_s00.the_boiler_is_working": "Kocioł pracuje.{end}",
+    "map1_s00.it_appears_to_be_broken": "Wygląda na zepsuty.{end}",
+    "map1_s00.the_valve_is_tightly_shut": "Zawór jest mocno zakręcony.\nAni drgnie.",
+    "map1_s00.dont_know_what_it_is": "Nie wiem, do czego to służy,\nlepiej tego nie ruszać.{end}",
+    "map1_s00.nothing_special_is_written": "Nie napisano tu nic szczególnego.{end}",
+    "map1_s00.nothing_useful_in_the_desk": "W szufladzie biurka\nnie ma nic przydatnego.{end}",
+    "map1_s00.there_is_a_school_map": "{hires}Jest tu {color 5}mapa szkoły{/color}.\nZabrać?{choice 4}",
+    "map1_s00.moore_ranaldo_gordon_this_must": "Moore, Ranaldo, Gordon...\nTo pewnie lista nauczycieli.{end}",
+    "map1_s00.nothing_inside": "W środku nic nie ma.{end}"
+  }
+}

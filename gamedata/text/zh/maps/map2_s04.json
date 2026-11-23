@@ -1,0 +1,20 @@
+{
+  "format": "sh-text",
+  "version": 1,
+  "lang": "zh",
+  "map": "map2_s04",
+  "strings": {
+    "map2_s04.theres_a_memo_on_the": "桌上有张便条。",
+    "map2_s04.coroner_seals_called": "{color 3}验尸官西尔斯来电。",
+    "map2_s04.officer_gucci_is_unlikely_to": "{color 3}古奇警官遭谋杀的可能性不大，\n看来属自然死亡。",
+    "map2_s04.but_medical_records_show": "{color 3}但病历显示，古奇警官\n此前并无心脏病症状。{end}",
+    "map2_s04.theres_something_on_it": "上面写着些什么。",
+    "map2_s04.product_only_available_in": "{color 3}该货品仅在寂静岭的\n部分地区流通。",
+    "map2_s04.raw_material_is_white_claudia": "{color 3}原料为白色克劳迪娅，\n一种当地特有的植物。",
+    "map2_s04.manufactured_here_dealer": "{color 3}在本地制造？\n贩卖者*制造者？{end}",
+    "map2_s04.there_is_a_shopping_district": "{hires}这里有{color 5}商业区地图{/color}。\n要拿走吗？{choice 4}",
+    "map2_s04.nothing_helpful": "没什么有用的。{end}",
+    "map2_s04.the_desk_is_messy": "桌上乱糟糟的。{end}",
+    "map2_s04.there_is_a_shotgun_take": "这里有{color 2}霰弹枪{/color}。\n要拿走吗？{choice 4}"
+  }
+}

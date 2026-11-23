@@ -1,0 +1,13 @@
+{
+  "format": "sh-text",
+  "version": 1,
+  "lang": "ar",
+  "map": "map5_s01",
+  "strings": {
+    "map5_s01.there_is_a_resort_area": "{hires}يوجد هنا {color 5}خريطة منطقة المنتجع{/color}.\nهل تأخذها؟{choice 4}",
+    "map5_s01.nothing_unusual": "لا شيء غير عادي.{end}",
+    "map5_s01.used_the_kaufmann_key": "استخدمت {color 2}مفتاح كوفمان{/color}.{end}",
+    "map5_s01.what": "{wait 1.0}ماذا؟{end}",
+    "map5_s01.that_light": "{wait 2.5}ذلك الضوء؟!{end}"
+  }
+}

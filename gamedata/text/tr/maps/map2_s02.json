@@ -1,0 +1,11 @@
+{
+  "format": "sh-text",
+  "version": 1,
+  "lang": "tr",
+  "map": "map2_s02",
+  "strings": {
+    "map2_s02.used_the_antique_shop_key": "{color 2}Antikacı anahtarı{/color} kullanıldı.{end}",
+    "map2_s02.alchemilla_hospital": "{color 3}Alchemilla Hastanesi{end}",
+    "map2_s02.green_lion": "{color 3}yeşil aslan{end}"
+  }
+}

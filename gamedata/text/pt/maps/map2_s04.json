@@ -1,0 +1,20 @@
+{
+  "format": "sh-text",
+  "version": 1,
+  "lang": "pt",
+  "map": "map2_s04",
+  "strings": {
+    "map2_s04.theres_a_memo_on_the": "Há um memorando na mesa.",
+    "map2_s04.coroner_seals_called": "{color 3}O legista Seals ligou.",
+    "map2_s04.officer_gucci_is_unlikely_to": "{color 3}É improvável que o policial Gucci\ntenha sido assassinado.\nAo que parece, foi morte natural.",
+    "map2_s04.but_medical_records_show": "{color 3}Mas os registros médicos mostram\nque Gucci não tinha sintomas\nprévios de doença cardíaca.{end}",
+    "map2_s04.theres_something_on_it": "Há algo escrito nele.",
+    "map2_s04.product_only_available_in": "{color 3}Produto disponível apenas\nem certas áreas de Silent Hill.",
+    "map2_s04.raw_material_is_white_claudia": "{color 3}A matéria-prima é Claudia Branca,\nplanta típica da região.",
+    "map2_s04.manufactured_here_dealer": "{color 3}Fabricado aqui?\nTraficante * fabricante?{end}",
+    "map2_s04.there_is_a_shopping_district": "{hires}Há um {color 5}mapa do distrito comercial{/color}\naqui. Pegar?{choice 4}",
+    "map2_s04.nothing_helpful": "Nada que ajude.{end}",
+    "map2_s04.the_desk_is_messy": "A mesa está uma bagunça.{end}",
+    "map2_s04.there_is_a_shotgun_take": "Há uma {color 2}escopeta{/color} aqui.\nPegar?{choice 4}"
+  }
+}

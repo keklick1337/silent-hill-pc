@@ -1,0 +1,7 @@
+// Written by CMake from the VERSION file at the repository root. Do not edit: change VERSION.
+#pragma once
+
+#define SH_ENGINE_VERSION_MAJOR @PROJECT_VERSION_MAJOR@
+#define SH_ENGINE_VERSION_MINOR @PROJECT_VERSION_MINOR@
+#define SH_ENGINE_VERSION_PATCH @PROJECT_VERSION_PATCH@
+#define SH_ENGINE_VERSION_TEXT "@PROJECT_VERSION@"

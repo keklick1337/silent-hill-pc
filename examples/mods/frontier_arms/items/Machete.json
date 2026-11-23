@@ -1,0 +1,14 @@
+{
+  "description": "A new melee weapon of the mod (weapons/Machete.json): its own attack rows, swung like the axe.",
+  "group": "melee",
+  "inventory": {
+    "order": 14,
+    "command": "Equip",
+    "command_in_hand": "Unequip"
+  },
+  "display_tilt": {
+    "x": 45.0
+  },
+  "close_up_model": "ITEM/UNQ84.TMD",
+  "display_lit": true
+}

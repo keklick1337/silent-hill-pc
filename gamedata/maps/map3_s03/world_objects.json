@@ -1,0 +1,185 @@
+{
+  "format": "sh-map-world-objects",
+  "version": 2,
+  "map": "map3_s03",
+  "description": "Static world objects of map3_s03 (Hospital Otherworld - 3F and 2F): 24 objects, drawn in file order. An object is drawn while the player is in one of its \"zones\" (each {\"x\": [...], \"z\": [...]} lists 40 m cells along that axis: cell c holds 40c..40(c+1) m; no zones = everywhere) and every flag of \"flags_set\" is set and every flag of \"flags_clear\" is clear (event flag names, e.g. the pickup flags). \"name\" is the object's id for scripts and mods, \"model\" its model (at most 8 characters, the map's or an item model), \"position\" in metres and \"rotation\" in degrees (x, y, z). \"pose\" instead takes position and rotation from a table of the map's overlay on the disc (\"disc_table\" from tables.json, row \"index\"), resolved when the map loads; pickups use it. \"script\": true lets world_objects.lua and events.lua move, turn, re-model or hide the object. \"pc_near_pickup\": true (not in the original) also draws the pickup while the player is in a neighbouring cell of the same floor. ElevatorDoor* and Color* are script objects: world_objects.lua closes the elevator doors in gameplay (events.lua slides them through the map variable sliding_doors) and shows and places each colour plate from its four flags. Zones are the map's projected cells. A mod's maps/map3_s03/world_objects.json changes or adds objects by name.",
+  "objects": [
+    {
+      "name": "ElevatorDoor1Left",
+      "model": "DR1L_HID",
+      "position": [19.1, 0.0, 59.1],
+      "script": true,
+      "zones": [{"x": 0, "z": 1}]
+    },
+    {
+      "name": "ElevatorDoor1Right",
+      "model": "DR1R_HID",
+      "position": [19.1, 0.0, 59.1],
+      "script": true,
+      "zones": [{"x": 0, "z": 1}]
+    },
+    {
+      "name": "ElevatorDoor3Left",
+      "model": "DR3L_HID",
+      "position": [19.1, 0.0, 59.1],
+      "script": true,
+      "zones": [{"x": 0, "z": 1}]
+    },
+    {
+      "name": "ElevatorDoor3Right",
+      "model": "DR3R_HID",
+      "position": [19.1, 0.0, 59.1],
+      "script": true,
+      "zones": [{"x": 0, "z": 1}]
+    },
+    {
+      "name": "ElevatorDoor2Left",
+      "model": "DR2L_HID",
+      "position": [19.1, 0.0, 59.1],
+      "script": true,
+      "zones": [{"x": 0, "z": 1}]
+    },
+    {
+      "name": "ElevatorDoor2Right",
+      "model": "DR2R_HID",
+      "position": [19.1, 0.0, 59.1],
+      "script": true,
+      "zones": [{"x": 0, "z": 1}]
+    },
+    {
+      "name": "ColorBlue",
+      "model": "BLUE_HID",
+      "position": [-20.0, 0.0, 140.0],
+      "script": true,
+      "zones": [{"x": -1, "z": 3}]
+    },
+    {
+      "name": "ColorGreen",
+      "model": "GREEN_HI",
+      "position": [-20.0, 0.0, 140.0],
+      "script": true,
+      "zones": [{"x": -1, "z": 3}]
+    },
+    {
+      "name": "ColorYellow",
+      "model": "YELLOW_H",
+      "position": [-20.0, 0.0, 140.0],
+      "script": true,
+      "zones": [{"x": -1, "z": 3}]
+    },
+    {
+      "name": "ColorRed",
+      "model": "RED_HIDE",
+      "position": [-20.0, 0.0, 140.0],
+      "script": true,
+      "zones": [{"x": -1, "z": 3}]
+    },
+    {
+      "name": "PlateOfHatter",
+      "model": "PLATE_HI",
+      "position": [-140.15, 0.0, 59.75],
+      "rotation": [0, 180.0, 0],
+      "zones": [{"x": -4, "z": 1}],
+      "flags_clear": ["M3S03_PickupPlateOfHatter"]
+    },
+    {
+      "name": "BloodPool",
+      "model": "BLOOD_HI",
+      "position": [-141.7, -0.05, 60.2],
+      "zones": [{"x": -4, "z": 1}],
+      "flags_set": ["M3S03_BloodPackPoured"]
+    },
+    {
+      "name": "PlateOfCat",
+      "model": "PLATE_HI",
+      "position": [-20.0, 0.0, -19.2],
+      "zones": [{"x": -1, "z": -1}],
+      "flags_clear": ["M3S03_PickupPlateOfCat"]
+    },
+    {
+      "name": "PlateOfTurtle",
+      "model": "PANEL_HI",
+      "position": [-140.0, 0.0, -20.0],
+      "rotation": [0, 90.0, 0],
+      "zones": [{"x": -4, "z": -1}],
+      "flags_clear": ["M3S03_PickupPlateOfTurtle"]
+    },
+    {
+      "name": "Lighter",
+      "model": "LIGHTER_",
+      "position": [-100.7, 0.0, 57.95],
+      "rotation": [0, 180.0, 0],
+      "zones": [{"x": -3, "z": 1}],
+      "flags_clear": ["M3S03_PickupLighter"]
+    },
+    {
+      "name": "DisinfectingAlcohol",
+      "model": "ALCOHOL_",
+      "position": [-60.8, 0.0, 21.6],
+      "zones": [{"x": -2, "z": 0}],
+      "flags_clear": ["M3S03_PickupDisinfectingAlcohol"]
+    },
+    {
+      "name": "BasementStoreroomKey",
+      "model": "KEY_HIDE",
+      "position": [-99.2, 0.0, 22.55],
+      "zones": [{"x": -3, "z": 0}],
+      "flags_clear": ["M3S03_PickupBasementStoreroomKey"]
+    },
+    {
+      "name": "BloodPack",
+      "model": "BLOOD_NE",
+      "position": [-57.45, -0.9, -21.05],
+      "rotation": [0, 90.0, 0],
+      "zones": [{"x": -2, "z": -1}],
+      "flags_clear": ["M3S03_PickupBloodPack"]
+    },
+    {
+      "name": "SavePad",
+      "model": "PAD_NEAR",
+      "position": [-58.6104, -1.0, -59.1241],
+      "rotation": [0, 9.0, 0],
+      "zones": [{"x": -2, "z": -2}]
+    },
+    {
+      "name": "FirstAidKit0",
+      "model": "AIDKIT_N",
+      "pose": {"disc_table": "CommonWorldObjectPoses", "index": 0},
+      "pc_near_pickup": true,
+      "zones": [{"x": -1, "z": 0}],
+      "flags_clear": ["M3S03_FirstAidKit0"]
+    },
+    {
+      "name": "HealthDrink",
+      "model": "DRINK_NE",
+      "pose": {"disc_table": "CommonWorldObjectPoses", "index": 1},
+      "pc_near_pickup": true,
+      "zones": [{"x": -3, "z": -2}],
+      "flags_clear": ["M3S03_HealthDrink"]
+    },
+    {
+      "name": "HandgunBullets",
+      "model": "BULLET_N",
+      "pose": {"disc_table": "CommonWorldObjectPoses", "index": 2},
+      "pc_near_pickup": true,
+      "zones": [{"x": -2, "z": -1}],
+      "flags_clear": ["M3S03_HandgunBullets"]
+    },
+    {
+      "name": "FirstAidKit1",
+      "model": "AIDKIT_N",
+      "pose": {"disc_table": "CommonWorldObjectPoses", "index": 3},
+      "pc_near_pickup": true,
+      "zones": [{"x": -2, "z": -1}],
+      "flags_clear": ["M3S03_FirstAidKit1"]
+    },
+    {
+      "name": "ShotgunShells",
+      "model": "SHOT_NEA",
+      "pose": {"disc_table": "CommonWorldObjectPoses", "index": 4},
+      "pc_near_pickup": true,
+      "zones": [{"x": -2, "z": -2}],
+      "flags_clear": ["M3S03_ShotgunShells"]
+    }
+  ]
+}

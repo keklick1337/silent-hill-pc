@@ -1,0 +1,228 @@
+# Recorded behaviour, read by tests/gameflow/main_frame_test.cpp (tests/framework/golden.h). 0 is false, 1 is true.
+# The frame over the test's mock game, whose every host call may change the game state (seeded).
+# frame  <index> <ran to the end> <mock game state afterwards>  <host calls and hooks in order>   -- seed 1
+# digest <seed> <frames> <digest of all frames of that seed up to here>
+frame 0 1 11,9,0100,0,01000011,0,10,0,0,1,1,0,1,0  tick mark:Top poll_input debug_menu_init debug_overlay console_command_file game_script pad_read replay_pad demo_pad pad_build frame_cheats input_gate_after_pad quick_save_load control_style extra_actions rear_look hero_light dpad_movement_gate mouse_cursor console_fmv console_gpu_bench texture_upscale warm_reset_due:0 begin_buffers clear_frame_flags replay_tick mark:UpdateStart update_game_state mark:UpdateEnd packet_arena_check shadow_gate=0 freeze_frame demo_update demo_random_seed warm_reset_due:0 screen_fade heal_flash low_health_glow log_flush audio_tasks audio_tasks_drain xa_player message_voice fog_floor_frame_end file_queue mark:FilesEnd vibration water draw_sync pace_frame clock_credit_vblanks profile_sample clock_line_frame clock_commit swap_buffers mark:SwapEnd log_position fog_echo=1 framing_gate:0 publish_cutscene=1 publish_item_take=0 world_anchor=3 set_projection_offset=3 set_dither_suppressed=0 apply_clear_color=0 sort_clear prepare_world_list draw_world_list=1 draw_ui_list=0 end_scene post_fire_trace=0
+frame 1 1 14,9,0101,1,00100011,4,23,0,0,0,1,1,1,0  tick mark:Top poll_input debug_menu_init debug_overlay console_command_file game_script pad_read replay_pad demo_pad pad_build frame_cheats input_gate_after_pad quick_save_load control_style extra_actions rear_look hero_light dpad_movement_gate mouse_cursor console_fmv console_gpu_bench texture_upscale warm_reset_due:0 begin_buffers clear_frame_flags replay_tick mark:UpdateStart update_game_state mark:UpdateEnd packet_arena_check shadow_gate=0 freeze_frame demo_update demo_random_seed warm_reset_due:0 screen_fade heal_flash low_health_glow log_flush audio_tasks audio_tasks_drain xa_player message_voice fog_floor_frame_end fps_counter_preload file_queue mark:FilesEnd vibration water draw_sync pace_frame clock_credit_vblanks profile_sample clock_line_frame clock_commit swap_buffers mark:SwapEnd framing_gate:0 publish_cutscene=1 publish_item_take=1 world_anchor=21 set_projection_offset=21 set_dither_suppressed=1 apply_clear_color=2 sort_clear item_depth_begin draw_world_list=0 item_depth_end draw_ui_list=0 end_scene post_fire_trace=0
+frame 2 1 10,8,0000,0,00100000,2,11,0,0,0,0,0,1,0  tick mark:Top poll_input debug_menu_init debug_overlay console_command_file game_script pad_read replay_pad demo_pad pad_build frame_cheats input_gate_after_pad quick_save_load control_style extra_actions rear_look hero_light dpad_movement_gate mouse_cursor console_fmv console_gpu_bench texture_upscale warm_reset_due:0 begin_buffers clear_frame_flags replay_tick mark:UpdateStart update_game_state mark:UpdateEnd shadow_gate=0 freeze_frame demo_update demo_random_seed warm_reset_due:0 screen_fade heal_flash low_health_glow log_flush audio_tasks audio_tasks_drain xa_player message_voice fog_floor_frame_end fps_counter_preload file_queue mark:FilesEnd vibration water draw_sync pace_frame clock_credit_vblanks profile_sample clock_line_frame clock_commit swap_buffers mark:SwapEnd framing_gate:0 publish_cutscene=0 publish_item_take=0 world_anchor=-4 set_projection_offset=-4 set_dither_suppressed=1 apply_clear_color=0 sort_clear draw_world_list=0 draw_ui_list=0 end_scene post_fire_trace=0
+frame 3 1 11,0,0100,2,01100110,2,11,0,0,1,1,2,1,0  tick mark:Top poll_input debug_menu_init debug_overlay console_command_file game_script pad_read replay_pad demo_pad pad_build frame_cheats input_gate_after_pad quick_save_load control_style extra_actions rear_look hero_light dpad_movement_gate mouse_cursor console_fmv console_gpu_bench texture_upscale warm_reset_due:0 begin_buffers clear_frame_flags replay_tick mark:UpdateStart update_game_state mark:UpdateEnd shadow_gate=0 freeze_frame demo_update demo_random_seed warm_reset_due:0 screen_fade heal_flash low_health_glow log_flush audio_tasks audio_tasks_drain xa_player message_voice fog_floor_frame_end file_queue mark:FilesEnd vibration water draw_sync pace_frame clock_credit_vblanks profile_sample clock_line_frame clock_commit swap_buffers mark:SwapEnd framing_gate:1 publish_cutscene=1 publish_item_take=2 world_anchor=19 set_projection_offset=19 set_dither_suppressed=0 apply_clear_color=3 sort_clear prepare_world_list item_depth_begin draw_world_list=1 item_depth_end draw_ui_list=0 end_scene post_fire_trace=0
+frame 4 1 15,0,1100,0,00100010,5,11,1,1,1,1,0,1,0  tick mark:Top poll_input debug_menu_init debug_overlay console_command_file game_script pad_read replay_pad demo_pad pad_build frame_cheats input_gate_after_pad quick_save_load control_style extra_actions rear_look hero_light dpad_movement_gate mouse_cursor console_fmv console_gpu_bench texture_upscale warm_reset_due:0 begin_buffers clear_frame_flags replay_tick mark:UpdateStart update_game_state mark:UpdateEnd shadow_gate=0 freeze_frame demo_update demo_random_seed warm_reset_due:0 screen_fade heal_flash low_health_glow log_flush audio_tasks audio_tasks_drain xa_player message_voice fog_floor_frame_end fps_counter_preload file_queue mark:FilesEnd vibration water draw_sync pace_frame clock_credit_vblanks profile_sample clock_line_frame clock_commit swap_buffers mark:SwapEnd framing_gate:1 publish_cutscene=1 publish_item_take=0 world_anchor=5 set_projection_offset=5 set_dither_suppressed=1 apply_clear_color=0 sort_clear draw_world_list=1 draw_ui_list=1 end_scene post_fire_trace=0
+frame 5 1 15,9,1100,2,00000011,5,19,1,1,1,1,2,1,0  tick mark:Top poll_input debug_menu_init debug_overlay console_command_file game_script pad_read replay_pad demo_pad pad_build frame_cheats input_gate_after_pad quick_save_load control_style extra_actions rear_look hero_light dpad_movement_gate mouse_cursor console_fmv console_gpu_bench texture_upscale warm_reset_due:0 begin_buffers clear_frame_flags replay_tick mark:UpdateStart update_game_state mark:UpdateEnd shadow_gate=0 freeze_frame demo_update demo_random_seed warm_reset_due:0 screen_fade heal_flash low_health_glow log_flush audio_tasks audio_tasks_drain xa_player message_voice fog_floor_frame_end fps_counter_preload file_queue mark:FilesEnd vibration water draw_sync pace_frame clock_credit_vblanks profile_sample clock_line_frame clock_commit swap_buffers mark:SwapEnd framing_gate:1 publish_cutscene=1 publish_item_take=2 world_anchor=28 set_projection_offset=28 set_dither_suppressed=1 apply_clear_color=0 sort_clear item_depth_begin draw_world_list=1 item_depth_end draw_ui_list=0 end_scene post_fire_trace=0
+frame 6 1 18,9,0000,1,10000011,5,19,1,1,1,0,1,1,0  tick mark:Top poll_input debug_menu_init debug_overlay console_command_file game_script pad_read replay_pad demo_pad pad_build frame_cheats input_gate_after_pad quick_save_load control_style extra_actions rear_look hero_light dpad_movement_gate mouse_cursor console_fmv console_gpu_bench texture_upscale warm_reset_due:0 begin_buffers clear_frame_flags replay_tick mark:UpdateStart update_game_state mark:UpdateEnd shadow_gate=0 freeze_frame demo_update demo_random_seed warm_reset_due:0 screen_fade heal_flash low_health_glow log_flush audio_tasks audio_tasks_drain xa_player message_voice fog_floor_frame_end fps_counter_preload file_queue mark:FilesEnd vibration water draw_sync pace_frame clock_credit_vblanks profile_sample clock_line_frame clock_commit swap_buffers mark:SwapEnd framing_gate:1 publish_cutscene=0 publish_item_take=1 world_anchor=21 set_projection_offset=21 set_dither_suppressed=1 apply_clear_color=0 sort_clear item_depth_begin draw_world_list=1 item_depth_end draw_ui_list=0 end_scene post_fire_trace=0
+frame 7 1 11,0,1000,2,00010010,5,19,1,1,0,1,2,1,0  tick mark:Top poll_input debug_menu_init debug_overlay console_command_file game_script pad_read replay_pad demo_pad pad_build frame_cheats input_gate_after_pad quick_save_load control_style extra_actions rear_look hero_light dpad_movement_gate mouse_cursor console_fmv console_gpu_bench texture_upscale warm_reset_due:0 begin_buffers clear_frame_flags replay_tick mark:UpdateStart update_game_state mark:UpdateEnd packet_arena_check shadow_gate=0 freeze_frame demo_update demo_random_seed warm_reset_due:0 screen_fade heal_flash low_health_glow log_flush audio_tasks audio_tasks_drain xa_player message_voice fog_floor_frame_end file_queue mark:FilesEnd vibration water draw_sync pace_frame clock_credit_vblanks profile_sample clock_line_frame clock_commit swap_buffers mark:SwapEnd framing_gate:0 publish_cutscene=1 publish_item_take=2 world_anchor=5 set_projection_offset=5 set_dither_suppressed=0 apply_clear_color=0 sort_clear prepare_world_list item_depth_begin draw_world_list=0 item_depth_end draw_ui_list=1 end_scene post_fire_trace=0
+frame 8 1 11,0,1100,0,00010110,0,18,1,1,1,1,0,1,0  tick mark:Top poll_input debug_menu_init debug_overlay console_command_file game_script pad_read replay_pad demo_pad pad_build frame_cheats input_gate_after_pad quick_save_load control_style extra_actions rear_look hero_light dpad_movement_gate mouse_cursor console_fmv console_gpu_bench texture_upscale warm_reset_due:0 begin_buffers clear_frame_flags replay_tick mark:UpdateStart update_game_state mark:UpdateEnd packet_arena_check shadow_gate=0 freeze_frame demo_update demo_random_seed warm_reset_due:0 screen_fade heal_flash low_health_glow log_flush audio_tasks audio_tasks_drain xa_player message_voice fog_floor_frame_end file_queue mark:FilesEnd vibration water draw_sync pace_frame clock_credit_vblanks profile_sample clock_line_frame clock_commit swap_buffers mark:SwapEnd framing_gate:0 publish_cutscene=1 publish_item_take=0 world_anchor=6 set_projection_offset=6 set_dither_suppressed=0 apply_clear_color=3 sort_clear prepare_world_list draw_world_list=1 draw_ui_list=1 end_scene post_fire_trace=0
+frame 9 1 7,0,0110,0,00000110,0,38,0,0,1,1,0,1,0  tick mark:Top poll_input debug_menu_init debug_overlay console_command_file game_script pad_read replay_pad demo_pad pad_build frame_cheats input_gate_after_pad quick_save_load control_style extra_actions rear_look hero_light dpad_movement_gate mouse_cursor console_fmv console_gpu_bench texture_upscale warm_reset_due:0 begin_buffers clear_frame_flags replay_tick mark:UpdateStart update_game_state mark:UpdateEnd shadow_gate=0 freeze_frame demo_update demo_random_seed warm_reset_due:0 screen_fade heal_flash low_health_glow log_flush audio_tasks audio_tasks_drain xa_player message_voice fog_floor_frame_end file_queue mark:FilesEnd vibration water draw_sync pace_frame clock_credit_vblanks profile_sample clock_line_frame clock_commit swap_buffers mark:SwapEnd framing_gate:1 publish_cutscene=1 publish_item_take=0 world_anchor=5 set_projection_offset=5 set_dither_suppressed=1 apply_clear_color=0 sort_clear draw_world_list=1 draw_ui_list=0 end_scene post_fire_trace=0
+frame 10 1 18,0,1110,0,00000010,0,38,0,0,1,1,0,1,0  tick mark:Top poll_input debug_menu_init debug_overlay console_command_file game_script pad_read replay_pad demo_pad pad_build frame_cheats input_gate_after_pad quick_save_load control_style extra_actions rear_look hero_light dpad_movement_gate mouse_cursor console_fmv console_gpu_bench texture_upscale warm_reset_due:0 begin_buffers clear_frame_flags replay_tick mark:UpdateStart update_game_state mark:UpdateEnd shadow_gate=0 freeze_frame demo_update demo_random_seed warm_reset_due:0 screen_fade heal_flash low_health_glow log_flush audio_tasks audio_tasks_drain xa_player message_voice fog_floor_frame_end file_queue mark:FilesEnd vibration water draw_sync pace_frame clock_credit_vblanks profile_sample clock_line_frame clock_commit swap_buffers mark:SwapEnd framing_gate:1 publish_cutscene=1 publish_item_take=0 world_anchor=10 set_projection_offset=10 set_dither_suppressed=1 apply_clear_color=0 sort_clear draw_world_list=1 draw_ui_list=0 end_scene post_fire_trace=0
+frame 11 1 18,0,1010,0,00100010,3,38,1,1,0,1,0,1,0  tick mark:Top poll_input debug_menu_init debug_overlay console_command_file game_script pad_read replay_pad demo_pad pad_build frame_cheats input_gate_after_pad quick_save_load control_style extra_actions rear_look hero_light dpad_movement_gate mouse_cursor console_fmv console_gpu_bench texture_upscale warm_reset_due:0 begin_buffers clear_frame_flags replay_tick mark:UpdateStart update_game_state mark:UpdateEnd shadow_gate=0 freeze_frame demo_update demo_random_seed warm_reset_due:0 screen_fade heal_flash low_health_glow log_flush audio_tasks audio_tasks_drain xa_player message_voice fog_floor_frame_end fps_counter_preload file_queue mark:FilesEnd vibration water draw_sync pace_frame clock_credit_vblanks profile_sample clock_line_frame clock_commit swap_buffers mark:SwapEnd framing_gate:0 publish_cutscene=1 publish_item_take=0 world_anchor=0 set_projection_offset=0 set_dither_suppressed=1 apply_clear_color=0 sort_clear draw_world_list=0 draw_ui_list=1 end_scene post_fire_trace=0
+frame 12 1 18,0,1011,1,00000110,3,38,1,1,0,1,1,1,0  tick mark:Top poll_input debug_menu_init debug_overlay console_command_file game_script pad_read replay_pad demo_pad pad_build frame_cheats input_gate_after_pad quick_save_load control_style extra_actions rear_look hero_light dpad_movement_gate mouse_cursor console_fmv console_gpu_bench texture_upscale warm_reset_due:0 begin_buffers clear_frame_flags replay_tick mark:UpdateStart update_game_state mark:UpdateEnd shadow_gate=0 freeze_frame demo_update demo_random_seed warm_reset_due:0 screen_fade heal_flash low_health_glow log_flush audio_tasks audio_tasks_drain xa_player message_voice fog_floor_frame_end fps_counter_preload file_queue mark:FilesEnd vibration water draw_sync pace_demo_frame clock_demo_frame clock_commit swap_buffers mark:SwapEnd framing_gate:0 publish_cutscene=1 publish_item_take=1 world_anchor=23 set_projection_offset=23 set_dither_suppressed=1 apply_clear_color=0 sort_clear item_depth_begin draw_world_list=0 item_depth_end draw_ui_list=0 end_scene post_fire_trace=0
+frame 13 0 11,0,1001,0,00100110,4,38,1,1,0,1,1,1,0  tick mark:Top poll_input debug_menu_init debug_overlay console_command_file game_script pad_read replay_pad demo_pad pad_build frame_cheats input_gate_after_pad quick_save_load control_style extra_actions rear_look hero_light dpad_movement_gate mouse_cursor console_fmv console_gpu_bench texture_upscale warm_reset_due:0 begin_buffers clear_frame_flags replay_tick mark:UpdateStart update_game_state mark:UpdateEnd packet_arena_check shadow_gate=0 freeze_frame demo_update demo_random_seed warm_reset_due:1 warm_boot
+frame 14 1 11,4,1001,2,10000010,5,24,1,1,1,1,2,1,0  tick mark:Top poll_input debug_menu_init debug_overlay console_command_file game_script pad_read replay_pad demo_pad pad_build frame_cheats input_gate_after_pad quick_save_load control_style extra_actions rear_look hero_light dpad_movement_gate mouse_cursor console_fmv console_gpu_bench texture_upscale warm_reset_due:0 begin_buffers clear_frame_flags replay_tick mark:UpdateStart update_game_state mark:UpdateEnd packet_arena_check shadow_gate=0 freeze_frame demo_update demo_random_seed warm_reset_due:0 screen_fade heal_flash low_health_glow log_flush audio_tasks audio_tasks_drain xa_player message_voice fog_floor_frame_end file_queue mark:FilesEnd vibration water draw_sync pace_demo_frame clock_demo_frame clock_commit swap_buffers mark:SwapEnd framing_gate:0 publish_cutscene=1 publish_item_take=2 world_anchor=27 set_projection_offset=27 set_dither_suppressed=0 apply_clear_color=0 sort_clear prepare_world_list item_depth_begin draw_world_list=1 item_depth_end draw_ui_list=1 end_scene post_fire_trace=0
+frame 15 1 14,4,1001,0,00010010,5,4,1,1,1,1,0,1,0  tick mark:Top poll_input debug_menu_init debug_overlay console_command_file game_script pad_read replay_pad demo_pad pad_build frame_cheats input_gate_after_pad quick_save_load control_style extra_actions rear_look hero_light dpad_movement_gate mouse_cursor console_fmv console_gpu_bench texture_upscale warm_reset_due:0 begin_buffers clear_frame_flags replay_tick mark:UpdateStart update_game_state mark:UpdateEnd packet_arena_check shadow_gate=0 freeze_frame demo_update demo_random_seed warm_reset_due:0 screen_fade heal_flash low_health_glow log_flush audio_tasks audio_tasks_drain xa_player message_voice fog_floor_frame_end file_queue mark:FilesEnd vibration water draw_sync pace_demo_frame clock_demo_frame clock_commit swap_buffers mark:SwapEnd framing_gate:0 publish_cutscene=1 publish_item_take=0 world_anchor=-8 set_projection_offset=-8 set_dither_suppressed=1 apply_clear_color=2 sort_clear item_depth_begin draw_world_list=1 item_depth_end draw_ui_list=1 end_scene post_fire_trace=0
+frame 16 1 14,7,1000,0,01010001,1,4,1,1,1,1,0,1,0  tick mark:Top poll_input debug_menu_init debug_overlay console_command_file game_script pad_read replay_pad demo_pad pad_build frame_cheats input_gate_after_pad quick_save_load control_style extra_actions rear_look hero_light dpad_movement_gate mouse_cursor console_fmv console_gpu_bench texture_upscale warm_reset_due:0 begin_buffers clear_frame_flags replay_tick mark:UpdateStart update_game_state mark:UpdateEnd shadow_gate=0 freeze_frame demo_update demo_random_seed warm_reset_due:0 screen_fade heal_flash low_health_glow log_flush audio_tasks audio_tasks_drain xa_player message_voice fog_floor_frame_end file_queue mark:FilesEnd vibration water draw_sync pace_frame clock_credit_vblanks profile_sample clock_line_frame clock_commit swap_buffers mark:SwapEnd framing_gate:0 publish_cutscene=1 publish_item_take=0 world_anchor=21 set_projection_offset=21 set_dither_suppressed=1 apply_clear_color=2 sort_clear item_depth_begin draw_world_list=1 item_depth_end draw_ui_list=1 end_scene post_fire_trace=0
+frame 17 1 20,14,1100,0,00000101,2,0,1,1,1,1,0,1,0  tick mark:Top poll_input debug_menu_init debug_overlay console_command_file game_script pad_read replay_pad demo_pad pad_build frame_cheats input_gate_after_pad quick_save_load control_style extra_actions rear_look hero_light dpad_movement_gate mouse_cursor console_fmv console_gpu_bench texture_upscale warm_reset_due:0 begin_buffers clear_frame_flags replay_tick mark:UpdateStart update_game_state mark:UpdateEnd shadow_gate=0 freeze_frame demo_update demo_random_seed warm_reset_due:0 screen_fade heal_flash low_health_glow log_flush audio_tasks audio_tasks_drain xa_player message_voice fog_floor_frame_end file_queue mark:FilesEnd vibration water draw_sync pace_frame clock_credit_vblanks profile_sample clock_line_frame clock_commit swap_buffers mark:SwapEnd framing_gate:0 publish_cutscene=1 publish_item_take=0 world_anchor=19 set_projection_offset=19 set_dither_suppressed=1 apply_clear_color=0 sort_clear draw_world_list=1 draw_ui_list=0 end_scene post_fire_trace=0
+frame 18 1 20,14,1101,1,00000111,2,6,0,0,0,1,1,1,0  tick mark:Top poll_input debug_menu_init debug_overlay console_command_file game_script pad_read replay_pad demo_pad pad_build frame_cheats input_gate_after_pad quick_save_load control_style extra_actions rear_look hero_light dpad_movement_gate mouse_cursor console_fmv console_gpu_bench texture_upscale warm_reset_due:0 begin_buffers clear_frame_flags replay_tick mark:UpdateStart update_game_state mark:UpdateEnd shadow_gate=0 freeze_frame demo_update demo_random_seed warm_reset_due:0 screen_fade heal_flash low_health_glow log_flush audio_tasks audio_tasks_drain xa_player message_voice fog_floor_frame_end file_queue mark:FilesEnd vibration water draw_sync pace_demo_frame clock_demo_frame clock_commit swap_buffers mark:SwapEnd framing_gate:1 publish_cutscene=1 publish_item_take=1 world_anchor=-4 set_projection_offset=-4 set_dither_suppressed=1 apply_clear_color=0 sort_clear item_depth_begin draw_world_list=0 item_depth_end draw_ui_list=0 end_scene post_fire_trace=0
+frame 19 1 20,14,1001,0,10000111,2,37,0,0,0,1,0,1,0  tick mark:Top poll_input debug_menu_init debug_overlay console_command_file game_script pad_read replay_pad demo_pad pad_build frame_cheats input_gate_after_pad quick_save_load control_style extra_actions rear_look hero_light dpad_movement_gate mouse_cursor console_fmv console_gpu_bench texture_upscale warm_reset_due:0 begin_buffers clear_frame_flags replay_tick mark:UpdateStart update_game_state mark:UpdateEnd shadow_gate=0 freeze_frame demo_update demo_random_seed warm_reset_due:0 screen_fade heal_flash low_health_glow log_flush audio_tasks audio_tasks_drain xa_player message_voice fog_floor_frame_end fps_counter_preload file_queue mark:FilesEnd vibration water draw_sync pace_demo_frame clock_demo_frame clock_commit swap_buffers mark:SwapEnd framing_gate:0 publish_cutscene=1 publish_item_take=0 world_anchor=-6 set_projection_offset=-6 set_dither_suppressed=1 apply_clear_color=0 sort_clear item_depth_begin draw_world_list=0 item_depth_end draw_ui_list=0 end_scene post_fire_trace=0
+frame 20 1 11,14,1000,0,00000111,5,23,0,0,1,1,0,0,0  tick mark:Top poll_input debug_menu_init debug_overlay console_command_file game_script pad_read replay_pad demo_pad pad_build frame_cheats input_gate_after_pad quick_save_load control_style extra_actions rear_look hero_light dpad_movement_gate mouse_cursor console_fmv console_gpu_bench texture_upscale warm_reset_due:0 begin_buffers clear_frame_flags replay_tick mark:UpdateStart update_game_state mark:UpdateEnd packet_arena_check shadow_gate=0 freeze_frame demo_update demo_random_seed warm_reset_due:0 screen_fade heal_flash low_health_glow log_flush audio_tasks audio_tasks_drain xa_player message_voice fog_floor_frame_end file_queue mark:FilesEnd vibration water draw_sync pace_demo_frame clock_demo_frame clock_commit swap_buffers mark:SwapEnd log_position fog_echo=0 framing_gate:1 publish_cutscene=1 publish_item_take=0 world_anchor=27 set_projection_offset=27 set_dither_suppressed=0 apply_clear_color=3 sort_clear prepare_world_list draw_world_list=1 draw_ui_list=0 end_scene post_fire_trace=0
+frame 21 1 15,14,1100,0,00010011,5,5,1,1,1,1,0,0,0  tick mark:Top poll_input debug_menu_init debug_overlay console_command_file game_script pad_read replay_pad demo_pad pad_build frame_cheats input_gate_after_pad quick_save_load control_style extra_actions rear_look hero_light dpad_movement_gate mouse_cursor console_fmv console_gpu_bench texture_upscale warm_reset_due:0 begin_buffers clear_frame_flags replay_tick mark:UpdateStart update_game_state mark:UpdateEnd packet_arena_check shadow_gate=0 freeze_frame demo_update demo_random_seed warm_reset_due:0 screen_fade heal_flash low_health_glow log_flush audio_tasks audio_tasks_drain xa_player message_voice fog_floor_frame_end file_queue mark:FilesEnd vibration water draw_sync pace_demo_frame clock_demo_frame clock_commit swap_buffers mark:SwapEnd framing_gate:0 publish_cutscene=1 publish_item_take=0 world_anchor=5 set_projection_offset=5 set_dither_suppressed=1 apply_clear_color=0 sort_clear draw_world_list=1 draw_ui_list=1 end_scene post_fire_trace=0
+frame 22 1 7,3,1110,0,01000011,5,0,1,1,1,1,0,0,0  tick mark:Top poll_input debug_menu_init debug_overlay console_command_file game_script pad_read replay_pad demo_pad pad_build frame_cheats input_gate_after_pad quick_save_load control_style extra_actions rear_look hero_light dpad_movement_gate mouse_cursor console_fmv console_gpu_bench texture_upscale warm_reset_due:0 begin_buffers clear_frame_flags replay_tick mark:UpdateStart update_game_state mark:UpdateEnd shadow_gate=0 freeze_frame demo_update demo_random_seed warm_reset_due:0 screen_fade heal_flash low_health_glow log_flush audio_tasks audio_tasks_drain xa_player message_voice fog_floor_frame_end file_queue mark:FilesEnd vibration water draw_sync pace_frame clock_credit_vblanks profile_sample clock_line_frame clock_commit swap_buffers mark:SwapEnd framing_gate:0 publish_cutscene=1 publish_item_take=0 world_anchor=25 set_projection_offset=25 set_dither_suppressed=1 apply_clear_color=0 sort_clear draw_world_list=1 draw_ui_list=1 end_scene post_fire_trace=0
+frame 23 1 0,3,0110,0,00000011,5,0,0,0,1,1,0,0,0  tick mark:Top poll_input debug_menu_init debug_overlay console_command_file game_script pad_read replay_pad demo_pad pad_build frame_cheats input_gate_after_pad quick_save_load control_style extra_actions rear_look hero_light dpad_movement_gate mouse_cursor console_fmv console_gpu_bench texture_upscale warm_reset_due:0 begin_buffers clear_frame_flags replay_tick mark:UpdateStart update_game_state mark:UpdateEnd packet_arena_check shadow_gate=0 freeze_frame demo_update demo_random_seed warm_reset_due:0 screen_fade heal_flash low_health_glow log_flush audio_tasks audio_tasks_drain xa_player message_voice fog_floor_frame_end file_queue mark:FilesEnd vibration water draw_sync pace_frame clock_credit_vblanks profile_sample clock_line_frame clock_commit swap_buffers mark:SwapEnd framing_gate:1 publish_cutscene=1 publish_item_take=0 world_anchor=16 set_projection_offset=16 set_dither_suppressed=1 apply_clear_color=0 sort_clear draw_world_list=1 draw_ui_list=0 end_scene post_fire_trace=0
+digest 1 2000 2c3ee01525581b0a
+digest 1 4000 f180bc97cf524a63
+digest 1 6000 479002cef6fd47f2
+digest 1 8000 b1aa80f57ec0b657
+digest 1 10000 a3d5494db46cf836
+digest 1 12000 0fa846ea41d693de
+digest 1 14000 30a7453078154cac
+digest 1 16000 442e4d0e66c5c030
+digest 1 18000 d3dce49f91d1335a
+digest 1 20000 13af0af2e8654158
+digest 2 2000 bfbad46149d35861
+digest 2 4000 fd8750fc449e9ab0
+digest 2 6000 debd84d3b5ea0ff6
+digest 2 8000 2c919b4903f63f53
+digest 2 10000 e51eae9ab5e9f59e
+digest 2 12000 e51346f0175eb9a0
+digest 2 14000 c616c01da70873aa
+digest 2 16000 6770d37cc93c508d
+digest 2 18000 4bbea3487836778b
+digest 2 20000 85437614cbc87c2f
+digest 3 2000 8862b85435be30c3
+digest 3 4000 1f4b0e3b6a809b5c
+digest 3 6000 8868263311b6a89d
+digest 3 8000 5a52fdcf4a28638c
+digest 3 10000 ae4ea9b68874ad8c
+digest 3 12000 fc36d671a6ffacfd
+digest 3 14000 7151c807d2771c3d
+digest 3 16000 bc9feab8e9cb464e
+digest 3 18000 34cd0f24941e735f
+digest 3 20000 470b1e3a8364eae1
+digest 4 2000 f4b5b8070e920d04
+digest 4 4000 074c5c22f43adcd2
+digest 4 6000 cc1d72a138ac9c8a
+digest 4 8000 7dce634d6ff93d2f
+digest 4 10000 36366f59c608962d
+digest 4 12000 e0dcbd03bf3476c4
+digest 4 14000 282b3cacf47894de
+digest 4 16000 81e42afbfb5e3b56
+digest 4 18000 67eb0176cef4133d
+digest 4 20000 9390dd70588b2f90
+digest 5 2000 2a36cf2e754cf1f5
+digest 5 4000 a26a6f2b55ceae78
+digest 5 6000 48db0b6f1aac0c8e
+digest 5 8000 cb1f3ecbefb99837
+digest 5 10000 e194aeb50196ebb4
+digest 5 12000 876495288c313932
+digest 5 14000 bab3dcfea7e78fe7
+digest 5 16000 d23ef591948363dd
+digest 5 18000 d10e7d15495171da
+digest 5 20000 dfaf0906c309072e
+digest 6 2000 a6eb5f2b605609ac
+digest 6 4000 effdb3791d7e1b24
+digest 6 6000 7099b98e38cbf437
+digest 6 8000 c567dc8a4b1a8211
+digest 6 10000 d4bb20edcc0eec2a
+digest 6 12000 a6fd1abada25df8a
+digest 6 14000 e9d7552726e62b10
+digest 6 16000 df7e60938544894c
+digest 6 18000 e9310bf25bd9e5a9
+digest 6 20000 04aba4232d329e6c
+digest 7 2000 7e008b4a0e68817e
+digest 7 4000 4a659b667978d7b0
+digest 7 6000 b496163675832332
+digest 7 8000 5352976a603241b2
+digest 7 10000 2be9a7fdaa55710e
+digest 7 12000 4f505bd7ce614143
+digest 7 14000 73c1d40f010f0974
+digest 7 16000 215869a818f89a7d
+digest 7 18000 24ebeeb405f3d2d9
+digest 7 20000 d3c0400eae9f3629
+digest 8 2000 181dfcb71cd0366a
+digest 8 4000 bdf6a714246d9f4f
+digest 8 6000 8679269048a50e02
+digest 8 8000 baba2c45b2802219
+digest 8 10000 77b77948385c343d
+digest 8 12000 d0b6050341311662
+digest 8 14000 2b45af5a8ac1f3c9
+digest 8 16000 2888403ed856df3b
+digest 8 18000 bf39a60eeb2e1286
+digest 8 20000 ea8a1b9d363e008c
+digest 9 2000 93d28d2ed5ed0d51
+digest 9 4000 ec8ff1d5221f47fd
+digest 9 6000 f40a41957b235cf0
+digest 9 8000 2594a255e291f7bb
+digest 9 10000 2f20780fecb4515f
+digest 9 12000 f1835b48ddb133f7
+digest 9 14000 a4f128758a894326
+digest 9 16000 4267c85c35870c68
+digest 9 18000 eefba7dbbfa3d04f
+digest 9 20000 36bc776417f12c6b
+digest 10 2000 e699fd019d44f0dd
+digest 10 4000 cc23db32e2c49c59
+digest 10 6000 685dc5549b6cb77b
+digest 10 8000 83b8c575ea315058
+digest 10 10000 2bc771b627d88cdd
+digest 10 12000 20acb42fbb2c958d
+digest 10 14000 e4c1a0228e8b187a
+digest 10 16000 41b6a56bbaffba5f
+digest 10 18000 443ed42b6b29e0b5
+digest 10 20000 e259b71e0f748fe4
+digest 11 2000 4ebad3b85ea81f97
+digest 11 4000 5d0c82b46a204204
+digest 11 6000 12c08bd4348ab750
+digest 11 8000 f4860b32cba221ef
+digest 11 10000 4e80a700de31c2f8
+digest 11 12000 0d8b591550c77e5f
+digest 11 14000 60bddc2bf2becacf
+digest 11 16000 e24e129b02bf3a20
+digest 11 18000 3093f1de57dde940
+digest 11 20000 fa33477237b4c6fe
+digest 12 2000 e0660f91f033f788
+digest 12 4000 1de09259e85a2c90
+digest 12 6000 7ef69b56a3ea0ef2
+digest 12 8000 345de4a2b1c6a6aa
+digest 12 10000 c4d663cafd7e6bf4
+digest 12 12000 7ea5c9cbd2832587
+digest 12 14000 2d3c9b353d5221b7
+digest 12 16000 50da93ff75ff5cc1
+digest 12 18000 48d67b4cc4e234d0
+digest 12 20000 e8f49c0d15dc68ab
+digest 13 2000 be0451d1fc029d19
+digest 13 4000 98395aba964016c1
+digest 13 6000 89374795b778a3f6
+digest 13 8000 635eaf219326959c
+digest 13 10000 d9e663a4a3edb99d
+digest 13 12000 8c15336a442db372
+digest 13 14000 05f074de11184934
+digest 13 16000 5fcc2f77ac3ff667
+digest 13 18000 fe7bba3c97c2c1b3
+digest 13 20000 23c23aa78fdbd515
+digest 14 2000 d5c8f941465e6f51
+digest 14 4000 985698fbea825035
+digest 14 6000 26191fea65bfc8fa
+digest 14 8000 067b6c7b267ff715
+digest 14 10000 e02cb9a5d75fbcc8
+digest 14 12000 c4ff1241e185ac1c
+digest 14 14000 3faad65b57119cb9
+digest 14 16000 72efbb3cc03a92f2
+digest 14 18000 66f99fc9f10234e5
+digest 14 20000 a995c5df72163df5
+digest 15 2000 3862e07a7f30a294
+digest 15 4000 2ea76bf04515084a
+digest 15 6000 7b151ad0fd439ba2
+digest 15 8000 f0b4e20ca2268318
+digest 15 10000 bb6abe9cb96f8520
+digest 15 12000 f711b253befdd9e4
+digest 15 14000 dea91a877a551b21
+digest 15 16000 319ccd262e344cb0
+digest 15 18000 bb13887b68644569
+digest 15 20000 be29df02a591d67c
+digest 16 2000 c0d61edb0fa6abcc
+digest 16 4000 b7f6e11d0812a7c5
+digest 16 6000 44b5fa686e1b0448
+digest 16 8000 a0f378df1f054610
+digest 16 10000 92d06b365fcae58b
+digest 16 12000 71d248eb8a061f52
+digest 16 14000 86d554ba9ea158ba
+digest 16 16000 8e1302fd945d5cca
+digest 16 18000 38707d2cf0af6562
+digest 16 20000 ae2f8c641ce73441
+digest 17 2000 bf4e74757e549554
+digest 17 4000 0ce8b2ee8002706e
+digest 17 6000 794a118ecdb6a6af
+digest 17 8000 d31d285ca21f1635
+digest 17 10000 bc1d62825687c879
+digest 17 12000 c8f363e557f07309
+digest 17 14000 9de211b9c24a7601
+digest 17 16000 f3d2dcdeb851b05e
+digest 17 18000 74040061e50d7e44
+digest 17 20000 05eb9cade7ae835b
+digest 18 2000 8201a10dc7e38e3e
+digest 18 4000 433311c2f7f73269
+digest 18 6000 02aa4e9feb79f732
+digest 18 8000 de304d3c695b3b4d
+digest 18 10000 320cd31b94705762
+digest 18 12000 2039f3b537128cd9
+digest 18 14000 7d98e14938041de9
+digest 18 16000 670b3c79a23809db
+digest 18 18000 55260bd1f547a700
+digest 18 20000 4a64a5cb67899056
+digest 19 2000 3ddf4fc4af045be1
+digest 19 4000 5819a1e43647cb4e
+digest 19 6000 dffffb606863d50f
+digest 19 8000 81c875d1e9d82b25
+digest 19 10000 e2123ff6276584c5
+digest 19 12000 e7b1eb54a3c05dd7
+digest 19 14000 6c4a8144a7bd9258
+digest 19 16000 49208527bcfb106d
+digest 19 18000 fabc130a3e4b1a35
+digest 19 20000 ddd6da972f119be3
+digest 20 2000 34cbbc7165de51d7
+digest 20 4000 3d27d28c6f13f749
+digest 20 6000 28b11fcfa411a87f
+digest 20 8000 61e9ebd6a4666c47
+digest 20 10000 bbdf9674a6fa69ab
+digest 20 12000 8a34e82ae58e6d0f
+digest 20 14000 8badd6ec64b9f158
+digest 20 16000 b8d1ff53937fd249
+digest 20 18000 1b02c91e35aff0ed
+digest 20 20000 ca4c6707567f4bcc

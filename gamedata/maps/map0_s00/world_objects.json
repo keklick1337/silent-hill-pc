@@ -1,0 +1,24 @@
+{
+  "format": "sh-map-world-objects",
+  "version": 2,
+  "map": "map0_s00",
+  "description": "Static world objects of map0_s00 (Old Silent Hill - intro sequence): 2 objects, drawn in file order. An object is drawn while the player is in one of its \"zones\" (each {\"x\": [...], \"z\": [...]} lists 40 m cells along that axis: cell c holds 40c..40(c+1) m; no zones = everywhere) and every flag of \"flags_set\" is set and every flag of \"flags_clear\" is clear (event flag names, e.g. the pickup flags). \"name\" is the object's id for scripts and mods, \"model\" its model (at most 8 characters, the map's or an item model), \"position\" in metres and \"rotation\" in degrees (x, y, z). \"script\": true lets world_objects.lua and events.lua move, turn, re-model or hide the object. Wheel1 and Wheel2 are script objects: world_objects.lua tilts them and spins them about z. A mod's maps/map0_s00/world_objects.json changes or adds objects by name.",
+  "objects": [
+    {
+      "name": "Wheel1",
+      "model": "WHEEL1_H",
+      "position": [-268.32, -0.44, 245.72],
+      "script": true,
+      "zones": [{"x": -7, "z": [5, 6]}],
+      "flags_clear": ["M0S00_AlleyNightmareStarted"]
+    },
+    {
+      "name": "Wheel2",
+      "model": "WHEEL2_H",
+      "position": [-268.32, -0.44, 245.72],
+      "script": true,
+      "zones": [{"x": -7, "z": [5, 6]}],
+      "flags_clear": ["M0S00_AlleyNightmareStarted"]
+    }
+  ]
+}

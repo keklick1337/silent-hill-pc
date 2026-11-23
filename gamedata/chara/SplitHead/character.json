@@ -1,0 +1,50 @@
+{
+  "description": "Split Head: a giant lizard whose head splits open into a huge maw, the boss of the Otherworld courtyard of Midwich Elementary School.",
+  "category": "Bosses",
+  "maps": ["map1_s05", "map1_s06"],
+  "model": "models/CHARA/FAT.glb",
+  "animations": "anim/ANIM/FAT.anim.json",
+  "clip_tables": ["split_head"],
+  "textures": ["textures/CHARA/FAT.png"],
+  "shadow": 0.0,
+  "blend_mode": "subtractive",
+  "camera_anchor": "character",
+  "camera_offset_y": -0.7,
+  "sounds": {
+    "attack": "split_head_attack",
+    "bite_attack": "split_head_bite_attack",
+    "bite_hit": "split_head_bite_hit",
+    "breath_loop": "split_head_breath_loop",
+    "footstep": "split_head_footstep",
+    "move": "split_head_move",
+    "vocal": "split_head_vocal",
+    "vocal_2": "split_head_vocal_2"
+  },
+  "anims": {
+    "still": 0,
+    "roar": 1,
+    "bite_attack": 2,
+    "lunge": 3,
+    "bite_approach": 4,
+    "hit_left": 5,
+    "hit_right": 6,
+    "die": 7,
+    "splayed": 8,
+    "flinch_back": 9,
+    "stand_idle": 10,
+    "walk_forward": 11,
+    "lying": 12,
+    "splayed_rise": 13,
+    "swallow_hold": 14
+  },
+  "spawn": {
+    "state": 5,
+    "kind": "boss",
+    "auto": "full"
+  },
+  "harry_reactions": ["Hit", "Push", "InstantDeath", "Death"],
+  "blood": "SplitHead",
+  "blood_follows_body": false,
+  "enemy": true,
+  "is_boss": true
+}

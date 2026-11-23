@@ -1,0 +1,40 @@
+{
+  "description": "Line effects of weapons: the Hyper Blaster beam and the spark line. texture.page is the game's texture page word, palette [x, y] in video memory; the palette row grows by one every 2^palette_slot_shift depth slots. slots: depth slots (screen z / 8) a line is drawn in. maps_without_beams: maps where no beam is drawn. Every key is checked. A mod replaces the whole file with its own copy at the same path.",
+  "hyper_blaster": {
+    "description": "The beam is cut into segments of 1/2^segment_shift of the weapon's range up to the hit (one per metre of the hit distance, plus one) or segments_without_hit when it hits nothing; brightness starts at intensity_start and drops by intensity_step per segment; channels and tip colors are listed per beam colour option (red, yellow, green).",
+    "line": {
+      "texture": {"page": 44, "palette": [768, 104]},
+      "u": [10, 13],
+      "v": 116,
+      "palette_slot_shift": 5,
+      "semi_transparent": true,
+      "slots": [1, 254]
+    },
+    "segments_without_hit": 16,
+    "segment_shift": 4,
+    "intensity_start": 255,
+    "intensity_step": 17,
+    "channels": [[true, false, false], [true, true, false], [false, true, false]],
+    "tip": {
+      "texture": {"page": 44, "palette": [768, 96]},
+      "uv": [3, 112],
+      "size": 4,
+      "colors": [[192, 0, 0], [192, 192, 0], [0, 192, 0]]
+    }
+  },
+  "spark_line": {
+    "description": "Colour by the map's light mode (from the map header): null keeps whatever colour the primitive had (as the original), by_flashlight is lit, or dim where the flashlight is allowed but off and the environment is dark.",
+    "line": {
+      "texture": {"page": 44, "palette": [768, 104]},
+      "u": [10, 13],
+      "v": 116,
+      "palette_slot_shift": 5,
+      "semi_transparent": false,
+      "slots": [1, 158]
+    },
+    "colors_by_map_light_mode": [null, [255, 255, 255], "by_flashlight", [64, 32, 0]],
+    "lit": [255, 255, 255],
+    "dim": [48, 48, 48]
+  },
+  "maps_without_beams": ["map0_s00"]
+}

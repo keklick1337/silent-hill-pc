@@ -1,0 +1,32 @@
+{
+  "format": "sh-text",
+  "version": 1,
+  "lang": "zh",
+  "map": "map0_s00",
+  "strings": {
+    "map0_s00.cheryl_where_could_you_be": "{wait 2.5}雪柔，你到底在哪儿？{end}",
+    "map0_s00.its_strange": "{wait 1.5}真奇怪……",
+    "map0_s00.its_quiet_too_quiet": "{wait 2.0}好安静。太安静了。",
+    "map0_s00.this_place_is_like_a": "{wait 3.0}这地方简直像座鬼城。{end}",
+    "map0_s00.cheryl": "{wait 3.0}雪柔。{end}",
+    "map0_s00.footsteps": "{wait 1.5}脚步声？{end}",
+    "map0_s00.cheryl_is_that_cheryl": "{wait 2.8}雪柔？\n是雪柔吗！？{end}",
+    "map0_s00.where_are_you_going": "{wait 1.2}你要去哪儿？{end}",
+    "map0_s00.hey_wait_stop": "{wait 1.8}喂，等等……站住！{end}",
+    "map0_s00.id_better_follow_cheryl": "我得跟上雪柔……{end}",
+    "map0_s00.thats_strange_its_getting": "奇怪，\n天怎么越来越暗了。{end}",
+    "map0_s00.a_dead_end_what_the": "死路？\n见鬼！？{end}",
+    "map0_s00.what_is_this": "{wait 1.6}这是什么？",
+    "map0_s00.whats_going_on_here": "{wait 2.5}这到底是怎么回事！？{end}",
+    "map0_s00.whats_this": "这是什么？{end}",
+    "map0_s00.better_than_nothing_i_guess": "……总比什么都没有强吧。{end}",
+    "map0_s00.what_whats_this_doing_here": "什么？\n这东西怎么会在这儿？{end}",
+    "map0_s00.blocked_by_a_fence": "被铁丝网挡住了？{end}",
+    "map0_s00.a_broken_wheelchair_whats_this": "一辆坏掉的轮椅？\n它怎么会在这儿？{end}",
+    "map0_s00.what_the_what_is_it": "这到底……？\n是什么东西？{end}",
+    "map0_s00.the_street_is_blocked": "路被堵死了。",
+    "map0_s00.cant_get_out_of_town": "从这儿出不了镇子。{end}",
+    "map0_s00.my_car_too_banged_up": "我的车……\n撞成这样，开不了了。",
+    "map0_s00.wheres_cheryl_hope_shes_safe": "雪柔在哪儿？\n但愿她平安无事。{end}"
+  }
+}

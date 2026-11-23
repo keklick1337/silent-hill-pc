@@ -1,0 +1,202 @@
+{
+  "description": "The options screen. tree: the engine menu (gamedata/menus/options.lua) shown in place of the main list; without it the original main and extra lists below are shown. The lists also give the original rows' values to the menu's game.* natives. Row kinds: leave (back to the game), submenu (brightness, controller), toggle (a zero / non-zero setting; values[0] is drawn for zero), list (one of codes, the stored values), count (0..n-1, n from the game), choice (0..cycle-1, drawn right-aligned), volume (a bar of notches; Left/Right step one notch). Settings are named; the game maps the names to its values. values are [text, x]; text and arrows are in the centred menu space (arrows, bullets, underline) or the 320x240 text space (labels, values). Rows marked locked appear once the extras are unlocked. '_' draws as a space, \\u0001 pulls the next letter one pixel left. Every key is checked: an unknown key is an error.",
+  "tree": "options",
+  "highlight_frames": 8,
+  "row_pitch": 16,
+  "text_layer": 8,
+  "label_length": 99,
+  "value_length": 10,
+  "mouse_row_top": -3,
+  "main": {
+    "heading": "OPTION_\u0001\u0001\u0001\u0001\u0001S",
+    "heading_pos": [121, 20],
+    "rows_x": 64,
+    "rows_y": 56,
+    "reset_text_layer": true,
+    "underline_x": -121,
+    "underline_y": 58,
+    "bullet_front": [[-120, -55], [-120, -43], [-108, -55], [-108, -43]],
+    "bullet_back": [[-121, -56], [-121, -42], [-107, -56], [-107, -42]],
+    "mouse_split_x": 228,
+    "rows": [
+      {
+        "label": "Exit",
+        "kind": "leave",
+        "underline": 59
+      },
+      {
+        "label": "Brightness_Level",
+        "kind": "submenu",
+        "submenu": "brightness",
+        "underline": 169
+      },
+      {
+        "label": "Controller_Config",
+        "kind": "submenu",
+        "submenu": "controller",
+        "underline": 174
+      },
+      {
+        "label": "Vibration",
+        "kind": "toggle",
+        "setting": "vibration",
+        "underline": 104,
+        "values": [["Off", 214], ["On", 216]],
+        "arrows": [[[40, -2], [48, -10], [48, 6]], [[96, -2], [88, -10], [88, 6]]],
+        "arrow_borders": [[[39, -2], [49, -12], [49, 8]], [[97, -2], [87, -12], [87, 8]]]
+      },
+      {
+        "label": "Auto_Load",
+        "kind": "toggle",
+        "setting": "auto_load",
+        "language_label": "Language",
+        "underline": 112,
+        "values": [["Off", 214], ["On", 216]],
+        "arrows": [[[40, 14], [48, 6], [48, 22]], [[96, 14], [88, 6], [88, 22]]],
+        "arrow_borders": [[[39, 14], [49, 4], [49, 24]], [[97, 14], [87, 4], [87, 24]]]
+      },
+      {
+        "label": "Sound",
+        "kind": "choice",
+        "setting": "speaker_layout",
+        "underline": 75,
+        "cycle": 5,
+        "values": ["Auto", "Stereo", "Quad", "5.1", "7.1", "HRTF"],
+        "align_right_x": 242,
+        "glyph_width": 6,
+        "arrows": [[[19, 30], [27, 22], [27, 38]], [[124, 30], [116, 22], [116, 38]]],
+        "arrow_borders": [[[18, 30], [28, 20], [28, 40]], [[125, 30], [115, 20], [115, 40]]]
+      },
+      {
+        "label": "BGM_Volume",
+        "kind": "volume",
+        "setting": "bgm_volume",
+        "underline": 129,
+        "bar_y": 40,
+        "arrows": [[[40, 46], [48, 38], [48, 54]], [[159, 46], [151, 38], [151, 54]]],
+        "arrow_borders": [[[39, 46], [49, 36], [49, 56]], [[160, 46], [150, 36], [150, 56]]]
+      },
+      {
+        "label": "SE_Volume",
+        "kind": "volume",
+        "setting": "se_volume",
+        "underline": 112,
+        "bar_y": 56,
+        "arrows": [[[40, 62], [48, 54], [48, 70]], [[159, 62], [151, 54], [151, 70]]],
+        "arrow_borders": [[[39, 62], [49, 52], [49, 72]], [[160, 62], [150, 52], [150, 72]]]
+      },
+      {
+        "label": "Voice",
+        "kind": "volume",
+        "setting": "voice_volume",
+        "underline": 75,
+        "bar_y": 72,
+        "arrows": [[[40, 78], [48, 70], [48, 86]], [[159, 78], [151, 70], [151, 86]]],
+        "arrow_borders": [[[39, 78], [49, 68], [49, 88]], [[160, 78], [150, 68], [150, 88]]]
+      }
+    ]
+  },
+  "extra": {
+    "heading": "EXTRA_OPTION_\u0001\u0001\u0001\u0001\u0001S",
+    "heading_pos": [86, 20],
+    "rows_x": 64,
+    "rows_y": 64,
+    "reset_text_layer": false,
+    "underline_x": -121,
+    "underline_y": 50,
+    "bullet_front": [[-120, -47], [-120, -35], [-108, -47], [-108, -35]],
+    "bullet_back": [[-121, -48], [-121, -34], [-107, -48], [-107, -34]],
+    "rows": [
+      {
+        "label": "Weapon_Control",
+        "kind": "toggle",
+        "setting": "weapon_control",
+        "underline": 157,
+        "values": [["Switch", 212], ["Press", 217]],
+        "arrows": [[[38, -42], [46, -50], [46, -34]], [[120, -42], [112, -50], [112, -34]]],
+        "arrow_borders": [[[37, -42], [47, -52], [47, -32]], [[121, -42], [111, -52], [111, -32]]]
+      },
+      {
+        "label": "Blood_Color",
+        "kind": "list",
+        "setting": "blood_color",
+        "underline": 126,
+        "codes": [0, 2, 5, 11],
+        "values": [["Normal", 210], ["Green", 214], ["Violet", 214], ["Black", 217]],
+        "arrows": [[[38, -26], [46, -34], [46, -18]], [[120, -26], [112, -34], [112, -18]]],
+        "arrow_borders": [[[37, -26], [47, -36], [47, -16]], [[121, -26], [111, -36], [111, -16]]]
+      },
+      {
+        "label": "View_Control",
+        "kind": "toggle",
+        "setting": "view_control",
+        "underline": 135,
+        "values": [["Normal", 210], ["Reverse", 206]],
+        "arrows": [[[35, -10], [43, -18], [43, -2]], [[123, -10], [115, -18], [115, -2]]],
+        "arrow_borders": [[[34, -10], [44, -20], [44, 0]], [[124, -10], [114, -20], [114, 0]]]
+      },
+      {
+        "label": "Retreat_Turn",
+        "kind": "toggle",
+        "setting": "retreat_turn",
+        "underline": 135,
+        "values": [["Normal", 210], ["Reverse", 206]],
+        "arrows": [[[35, 6], [43, -2], [43, 14]], [[123, 6], [115, -2], [115, 14]]],
+        "arrow_borders": [[[34, 6], [44, -4], [44, 16]], [[124, 6], [114, -4], [114, 16]]]
+      },
+      {
+        "label": "\u0001W\u0001a\u0001l\u0001k/R\u0001\u0001u\u0001n_\u0001\u0001\u0001\u0001Co\u0001n\u0001t\u0001ro\u0001l",
+        "kind": "toggle",
+        "setting": "walk_run_control",
+        "underline": 157,
+        "values": [["Normal", 210], ["Reverse", 206]],
+        "arrows": [[[35, 22], [43, 14], [43, 30]], [[123, 22], [115, 14], [115, 30]]],
+        "arrow_borders": [[[34, 22], [44, 12], [44, 32]], [[124, 22], [114, 12], [114, 32]]]
+      },
+      {
+        "label": "Auto_Aiming",
+        "kind": "toggle",
+        "setting": "auto_aiming",
+        "underline": 130,
+        "values": [["On", 228], ["Off", 226]],
+        "arrows": [[[51, 38], [59, 30], [59, 46]], [[107, 38], [99, 30], [99, 46]]],
+        "arrow_borders": [[[50, 38], [60, 28], [60, 48]], [[108, 38], [98, 28], [98, 48]]]
+      },
+      {
+        "label": "View_Mode",
+        "kind": "toggle",
+        "setting": "view_mode",
+        "underline": 112,
+        "locked": true,
+        "values": [["Normal", 210], ["Self_View", 200]],
+        "arrows": [[[24, 54], [32, 46], [32, 62]], [[131, 54], [123, 46], [123, 62]]],
+        "arrow_borders": [[[23, 54], [33, 44], [33, 64]], [[132, 54], [122, 44], [122, 64]]]
+      },
+      {
+        "label": "Bullet_Adjust",
+        "kind": "count",
+        "setting": "bullet_adjust",
+        "underline": 134,
+        "locked": true,
+        "values": [["x1", 230], ["x2", 230], ["x3", 230], ["x4", 230], ["x5", 230], ["x6", 230]],
+        "arrows": [[[57, 70], [65, 62], [65, 78]], [[104, 70], [96, 62], [96, 78]]],
+        "arrow_borders": [[[56, 70], [66, 60], [66, 80]], [[105, 70], [95, 60], [95, 80]]]
+      }
+    ]
+  },
+  "volume_bar": {
+    "x": 52,
+    "notches": 16,
+    "per_notch": 8,
+    "pitch": 6,
+    "width": 5,
+    "height": 13,
+    "lit": 160,
+    "unlit": 64,
+    "partial": 64,
+    "partial_step": 12,
+    "inner_add": 64,
+    "mouse_x": 212,
+    "mouse_grab_x": 202
+  }
+}

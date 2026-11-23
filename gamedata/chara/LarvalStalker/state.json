@@ -1,0 +1,17 @@
+{
+  "description": "Named variables of the LarvalStalker's behaviour (chara/LarvalStalker/behavior.lua reads and writes them by name). Each character instance owns a small block of bytes; every entry of \"fields\" names one value in it: \"name\" is the name the script uses, \"kind\" the storage type (s8, u8, s16, u16, s32, u32: a write keeps the low bits, a read sign- or zero-extends), \"at\" the byte offset in the block (absent: the next naturally aligned offset), \"note\" what the value means. Values are raw integers in the units the behaviour uses (usually Q12, 4096 = 1.0 or 1 m; angles Q12, 4096 = a full turn). A mod adds or changes fields with a state.json of the same path; keep the offsets of fields the behaviour already uses.",
+  "fields": [
+    {"name": "larval_flags", "kind": "s32", "at": 52},
+    {"name": "larval_trip_count", "kind": "u8", "at": 2},
+    {"name": "larval_timer", "kind": "s32", "at": 4},
+    {"name": "larval_wander_timer", "kind": "u32", "at": 8},
+    {"name": "larval_recoil_keyframe", "kind": "s16", "at": 12, "note": "Keyframe of the recoil clip the hit interrupted (-1, -2: the recoil's own end markers)."},
+    {"name": "larval_target_x", "kind": "s32", "at": 16},
+    {"name": "larval_target_z", "kind": "s32", "at": 20},
+    {"name": "larval_push_x", "kind": "s16", "at": 24},
+    {"name": "larval_push_z", "kind": "s16", "at": 26},
+    {"name": "larval_anim_time", "kind": "s32", "at": 28},
+    {"name": "larval_turn", "kind": "s16", "at": 32},
+    {"name": "larval_fade_timer", "kind": "u16", "at": 34}
+  ]
+}

@@ -1,0 +1,4 @@
+{
+  "zones": {"rule": "rooms_map6_s00"},
+  "grid": {"min_x": -200, "max_x": 80, "min_z": -80, "max_z": 280}
+}

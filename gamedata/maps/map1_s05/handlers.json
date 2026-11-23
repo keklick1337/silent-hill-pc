@@ -1,0 +1,30 @@
+{
+  "map": "map1_s05",
+  "table": "g_MapEventFuncs",
+  "handlers": [
+    {
+      "index": 0,
+      "symbol": null,
+      "name": null,
+      "shape": null
+    },
+    {
+      "index": 1,
+      "symbol": null,
+      "name": null,
+      "shape": null
+    },
+    {
+      "index": 2,
+      "symbol": "Cutscene_CorridorLightFlash",
+      "name": "Cutscene_CorridorLightFlash",
+      "shape": "script"
+    },
+    {
+      "index": 3,
+      "symbol": "Cutscene_SplitHeadDefeated",
+      "name": "Cutscene_SplitHeadDefeated",
+      "shape": "script"
+    }
+  ]
+}

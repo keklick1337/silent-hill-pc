@@ -1,0 +1,15 @@
+{
+  "format": "sh-map-world-objects",
+  "version": 2,
+  "map": "map6_s02",
+  "description": "Static world objects of map6_s02 (Lakeside Pier and Lighthouse): 1 object, drawn in file order. An object is drawn while the player is in one of its \"zones\" (each {\"x\": [...], \"z\": [...]} lists 40 m cells along that axis: cell c holds 40c..40(c+1) m; no zones = everywhere) and every flag of \"flags_set\" is set and every flag of \"flags_clear\" is clear (event flag names, e.g. the pickup flags). \"name\" is the object's id for scripts and mods, \"model\" its model (at most 8 characters, the map's or an item model), \"position\" in metres and \"rotation\" in degrees (x, y, z). Only the lighthouse save pad. A mod's maps/map6_s02/world_objects.json changes or adds objects by name.",
+  "objects": [
+    {
+      "name": "SavePad",
+      "model": "PAD_NEAR",
+      "position": [-18.85, 3.06, -21.16],
+      "rotation": [0, 111.6, 0],
+      "zones": [{"x": -1, "z": -1}]
+    }
+  ]
+}

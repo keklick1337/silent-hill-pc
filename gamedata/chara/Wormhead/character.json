@@ -1,0 +1,40 @@
+{
+  "description": "Wormhead: the Otherworld form of the Groaner, a dog with a worm-like head prowling the Otherworld streets of Central Silent Hill and the Resort Area.",
+  "category": "OtherworldEnemies",
+  "maps": ["map4_s02", "map6_s00"],
+  "model": "models/CHARA/DG2.glb",
+  "animations": "anim/ANIM/DOG.anim.json",
+  "clip_tables": ["groaner"],
+  "textures": ["textures/CHARA/DG2.png"],
+  "shadow": 0.25,
+  "blend_mode": "subtractive",
+  "camera_anchor": "character",
+  "camera_offset_y": -0.7,
+  "sounds": {
+    "attack": "groaner_attack",
+    "damage": "groaner_damage",
+    "death": "groaner_death",
+    "footstep": "groaner_footstep",
+    "idle": "groaner_idle",
+    "run": "groaner_run"
+  },
+  "params": {
+    "collision_ground_walker": 1,
+    "collision_holes_as_walls": 1
+  },
+  "_param_units": {
+    "collision_ground_walker": "1: the wall / ledge / void classification applies (walks on the ground)",
+    "collision_holes_as_walls": "1: floors without ground block movement like walls up to the ceiling"
+  },
+  "spawn": {
+    "state": 3,
+    "kind": "enemy",
+    "auto": "full"
+  },
+  "behavior": "Groaner",
+  "harry_reactions": ["Hit", "Death"],
+  "blood": "Groaner",
+  "enemy": true,
+  "single_clip_table": true,
+  "preview": {"rotate": [0, 0, -90]}
+}

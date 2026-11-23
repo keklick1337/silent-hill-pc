@@ -1,0 +1,52 @@
+#version 450
+#extension GL_GOOGLE_include_directive : require
+// Ambient occlusion from the world's depth (RENDER.md 7.10): a view-space hemisphere estimate around each pixel's
+// surface, the normal taken from the flatter neighbour on each axis so silhouettes do not bend it.
+layout(local_size_x = 8, local_size_y = 8) in;
+#include "common.glsl"
+layout(set = 0, binding = 3, r32f) uniform image2D i_ao;
+
+const int kTaps = 12;
+
+void main() {
+    ivec2 at = ivec2(gl_GlobalInvocationID.xy);
+    if (at.x >= int(u_view.z) || at.y >= int(u_view.w)) return;
+    ivec2 t = at + ivec2(u_view.xy);
+    float z = ViewZ(t);
+    if (z <= 0.0) {
+        imageStore(i_ao, at, vec4(1.0));
+        return;
+    }
+    vec2 px = vec2(t) + 0.5;
+    vec3 p = ViewPos(px, z);
+    float zl = ViewZ(t - ivec2(1, 0)), zr = ViewZ(t + ivec2(1, 0));
+    float zu = ViewZ(t - ivec2(0, 1)), zd = ViewZ(t + ivec2(0, 1));
+    vec3 dx = (zr > 0.0 && (zl <= 0.0 || abs(zr - z) < abs(zl - z))) ? ViewPos(px + vec2(1, 0), zr) - p
+                                                                      : p - ViewPos(px - vec2(1, 0), max(zl, 1.0));
+    vec3 dy = (zd > 0.0 && (zu <= 0.0 || abs(zd - z) < abs(zu - z))) ? ViewPos(px + vec2(0, 1), zd) - p
+                                                                      : p - ViewPos(px - vec2(0, 1), max(zu, 1.0));
+    vec3 n = cross(dx, dy);
+    float nl = length(n);
+    n = nl > 1e-9 ? n / nl : vec3(0.0, 0.0, -1.0);
+    if (dot(n, p) > 0.0) n = -n;
+
+    float radius = u_ao.y;
+    float rpx = clamp(radius * u_ao.z / z, 2.0, 96.0);
+    float rot = 6.2831853 * Noise(px);
+    float occ = 0.0;
+    for (int i = 0; i < kTaps; i++) {
+        float r = sqrt((float(i) + 0.5) / float(kTaps));
+        float a = float(i) * 2.39996323 + rot;
+        ivec2 st = ivec2(px + r * rpx * vec2(cos(a), sin(a)));
+        if (st.x < int(u_view.x) || st.y < int(u_view.y) || st.x >= int(u_view.x + u_view.z) ||
+            st.y >= int(u_view.y + u_view.w))
+            continue;
+        float sz = ViewZ(st);
+        if (sz <= 0.0) continue;
+        vec3 v = ViewPos(vec2(st) + 0.5, sz) - p;
+        float dist2 = dot(v, v);
+        float fall = clamp(1.0 - dist2 / (radius * radius), 0.0, 1.0);
+        occ += max(dot(v, n) * inversesqrt(max(dist2, 1e-4)) - 0.15, 0.0) * fall;
+    }
+    imageStore(i_ao, at, vec4(clamp(1.0 - 2.0 * occ / float(kTaps), 0.0, 1.0)));
+}

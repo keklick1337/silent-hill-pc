@@ -1,0 +1,33 @@
+{
+  "description": "Animation tables of the story characters in the cutscenes of map6_s04 (Amusement Park - Cybil boss, Alessa kidnapping). A cutscene asks whether a character's animation is done (\"playback\") and which keyframe it starts at (\"start_keyframe\"; the same tables as playback when absent); the answer comes from the table named here, a file gamedata/tables/anim/<table>.json indexed by the character's animation status. \"tables\" maps a character name to its table and \"fallback\" is the table of every character not listed (none: such a character has no table). On this map, playback: MonsterCybil uses \"monster_cybil\", Dahlia uses \"dahlia\", Alessa uses \"alessa\" and other characters have no table. \"cue_sounds\" sets the volume (0..255) of sounds (names of gamedata/sounds) that an animation keyframe cues: monster_cybil_gun_raise and monster_cybil_gun_lower at 64; cybil_handgun_shot and alessa_collapse at 192; monster_cybil_scene_sound_2 and monster_cybil_scene_sound at 64; any other cued sound plays at 128. Read when the map loads.",
+  "playback": {
+    "tables": {
+      "MonsterCybil": "monster_cybil",
+      "Dahlia": "dahlia",
+      "Alessa": "alessa"
+    }
+  },
+  "cue_sounds": [
+    {
+      "sounds": [
+        "monster_cybil_gun_raise",
+        "monster_cybil_gun_lower"
+      ],
+      "volume": 64
+    },
+    {
+      "sounds": [
+        "cybil_handgun_shot",
+        "alessa_collapse"
+      ],
+      "volume": 192
+    },
+    {
+      "sounds": [
+        "monster_cybil_scene_sound_2",
+        "monster_cybil_scene_sound"
+      ],
+      "volume": 64
+    }
+  ]
+}

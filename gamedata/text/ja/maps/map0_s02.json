@@ -1,0 +1,15 @@
+{
+  "format": "sh-text",
+  "version": 1,
+  "lang": "ja",
+  "map": "map0_s02",
+  "strings": {
+    "map0_s02.there_is_a_chain_saw": "{color 2}チェーンソー{/color}がある。\n取りますか？{choice 4}",
+    "map0_s02.some_oil_cans_are_on": "棚にオイル缶が並んでいる。{end}",
+    "map0_s02.a_car_engine_no_problem": "車のエンジンだ。\n異常はない。{end}",
+    "map0_s02.theres_a_tv_set_it": "テレビがある。\n電源が入らない。{end}",
+    "map0_s02.there_is_a_gasoline_tank": "{color 2}ガソリンタンク{/color}がある。\n取りますか？{choice 4}",
+    "map0_s02.there_is_a_katana_take": "{color 2}日本刀{/color}がある。\n取りますか？{choice 4}",
+    "map0_s02.there_is_a_channeling_stone": "{color 2}チャネリングストーン{/color}がある。\n取りますか？{choice 4}"
+  }
+}

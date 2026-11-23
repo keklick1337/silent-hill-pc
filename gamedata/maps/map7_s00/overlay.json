@@ -1,0 +1,7 @@
+{
+  "description": "Engine setup of map7_s00 (Nowhere - hospital 1F, Lisa cutscene), a map made only of data and Lua: \"map_type\" is the map type ER2, the entry of gamedata/config/map_info.json that gives its zones, scenery file and environment. \"characters\" lists the character types this map runs, each by its gamedata/chara/<Name>/behavior.lua; a character type that is not listed cannot act here (this map: Lisa). A mod changes it with its own maps/map7_s00/overlay.json.",
+  "map_type": "ER2",
+  "characters": [
+    "Lisa"
+  ]
+}

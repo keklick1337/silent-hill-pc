@@ -1,0 +1,22 @@
+{
+  "description": "Named variables of the Stalker's behaviour (chara/Stalker/behavior.lua reads and writes them by name). Each character instance owns a small block of bytes; every entry of \"fields\" names one value in it: \"name\" is the name the script uses, \"kind\" the storage type (s8, u8, s16, u16, s32, u32: a write keeps the low bits, a read sign- or zero-extends), \"at\" the byte offset in the block (absent: the next naturally aligned offset), \"note\" what the value means. Values are raw integers in the units the behaviour uses (usually Q12, 4096 = 1.0 or 1 m; angles Q12, 4096 = a full turn). A mod adds or changes fields with a state.json of the same path; keep the offsets of fields the behaviour already uses.",
+  "fields": [
+    {"name": "stalker_flags", "kind": "s16", "at": 0},
+    {"name": "stalker_step_x", "kind": "s16", "at": 4, "note": "Extra step of this tick on top of move_speed (lunges, grabs, recoils)."},
+    {"name": "stalker_step_z", "kind": "s16", "at": 6},
+    {"name": "stalker_target_x", "kind": "s32", "at": 8, "note": "Where the stalker last knew Harry to be."},
+    {"name": "stalker_target_z", "kind": "s32", "at": 12},
+    {"name": "stalker_timer", "kind": "s32", "at": 16},
+    {"name": "stalker_blend_from", "kind": "s16", "at": 20, "note": "The pose a blend starts from: a keyframe of the previous clip (or its status) and the offset into the next."},
+    {"name": "stalker_blend_to", "kind": "s16", "at": 22},
+    {"name": "stalker_target_heading", "kind": "s16", "at": 24},
+    {"name": "stalker_sfx", "kind": "s16", "at": 26},
+    {"name": "stalker_hold_time", "kind": "s32", "at": 28},
+    {"name": "stalker_sfx_timer", "kind": "s16", "at": 32},
+    {"name": "stalker_sfx_priority", "kind": "u8", "at": 34},
+    {"name": "stalker_stagger_damage", "kind": "s32", "at": 36, "note": "Damage taken recently; past the difficulty's threshold the stalker staggers."},
+    {"name": "stalker_max_health", "kind": "s32", "at": 40},
+    {"name": "stalker_head_angle", "kind": "s16", "at": 44},
+    {"name": "stalker_lost_timer", "kind": "s16", "at": 46}
+  ]
+}

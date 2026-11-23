@@ -1,0 +1,12 @@
+{
+  "format": "sh-text",
+  "version": 1,
+  "lang": "ru",
+  "strings": {
+    "screamer_ambush:ui.title": "ЗАСАДА: ЛЕТУН",
+    "screamer_ambush:ui.help": "Когда Гарри берёт патроны со скамейки у кафе, прилетает ещё и летун.",
+    "screamer_ambush:ui.where": "Скамейка у кафе",
+    "screamer_ambush:ui.with": "Вместе с модом «Засада: собаки»",
+    "screamer_ambush:ui.version": "Версия"
+  }
+}

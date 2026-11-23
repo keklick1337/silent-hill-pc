@@ -1,0 +1,329 @@
+{
+  "description": "Pad vibration scripts. A script is a run of steps; the game starts one by the position of its first step in this list (0..47), so the order is the interface and must not change. Each step has a name (next / spawn refer to steps by name) and an op: command, waveform or pulse. Waveform samples: bytes_per_sample 0 = one bit per sample (bit 0 of each byte first), 1..4 = big-endian levels (0x80 = full strength); duration and ticks_per_sample are in ticks of 1/300 s. Channel 0 is the small on/off motor, channel 1 the large one. A mod replaces the whole file with its own copy at the same path.",
+  "steps": [
+    {
+      "name": "Pause",
+      "op": "command",
+      "command": "pause"
+    },
+    {
+      "name": "Resume",
+      "op": "command",
+      "command": "resume"
+    },
+    {
+      "name": "Disable",
+      "op": "command",
+      "command": "disable"
+    },
+    {
+      "name": "Enable",
+      "op": "command",
+      "command": "enable"
+    },
+    {
+      "name": "ClearAll",
+      "op": "command",
+      "command": "clear_all"
+    },
+    {
+      "name": "GunShot",
+      "op": "start",
+      "id": 5,
+      "next": "GunShotWave"
+    },
+    {
+      "name": "HitStrong",
+      "op": "start",
+      "skip_if_active": true,
+      "id": 6,
+      "next": "HitStrongWave"
+    },
+    {
+      "name": "HitMedium",
+      "op": "start",
+      "skip_if_active": true,
+      "id": 7,
+      "next": "HitMediumWave"
+    },
+    {
+      "name": "HitWeak",
+      "op": "start",
+      "skip_if_active": true,
+      "id": 8,
+      "next": "HitWeakWave"
+    },
+    {
+      "name": "Machinery",
+      "op": "start",
+      "skip_if_active": true,
+      "id": 9,
+      "next": "MachineryWave"
+    },
+    {
+      "name": "Damage",
+      "op": "start",
+      "skip_if_active": true,
+      "id": 10,
+      "next": "DamageWave"
+    },
+    {
+      "name": "GunShotWithHit",
+      "op": "chain",
+      "spawn": "HitStrong",
+      "next": "GunShot"
+    },
+    {
+      "name": "Heartbeat1",
+      "op": "start",
+      "skip_if_active": true,
+      "id": 12,
+      "next": "Heartbeat1Wave"
+    },
+    {
+      "name": "Heartbeat2",
+      "op": "start",
+      "skip_if_active": true,
+      "id": 12,
+      "next": "Heartbeat2Wave"
+    },
+    {
+      "name": "Heartbeat3",
+      "op": "start",
+      "skip_if_active": true,
+      "id": 12,
+      "next": "Heartbeat3Wave"
+    },
+    {
+      "name": "Heartbeat4",
+      "op": "start",
+      "skip_if_active": true,
+      "id": 12,
+      "next": "Heartbeat4Wave"
+    },
+    {
+      "name": "Heartbeat5",
+      "op": "start",
+      "skip_if_active": true,
+      "id": 12,
+      "next": "Heartbeat5Wave"
+    },
+    {
+      "name": "Heartbeat6",
+      "op": "start",
+      "skip_if_active": true,
+      "id": 12,
+      "next": "Heartbeat6Wave"
+    },
+    {
+      "name": "Shake",
+      "op": "start",
+      "skip_if_active": true,
+      "id": 18,
+      "next": "ShakeWave"
+    },
+    {
+      "name": "Knock",
+      "op": "start",
+      "skip_if_active": true,
+      "id": 19,
+      "next": "KnockWave"
+    },
+    {
+      "name": "SmallMotorPulse",
+      "op": "pulse",
+      "channel": 0,
+      "id": 20,
+      "priority": -255
+    },
+    {
+      "name": "LargeMotorPulse",
+      "op": "pulse",
+      "channel": 1,
+      "id": 21,
+      "priority": -255
+    },
+    {
+      "name": "GunShotWave",
+      "op": "waveform",
+      "channel": 1,
+      "duration": 45,
+      "ticks_per_sample": 9,
+      "bytes_per_sample": 1,
+      "samples": [168, 224, 224, 196, 168, 84, 0, 0, 0, 0, 0, 0]
+    },
+    {
+      "name": "MachineryWave",
+      "op": "waveform",
+      "channel": 1,
+      "duration": 384,
+      "ticks_per_sample": 48,
+      "bytes_per_sample": 1,
+      "samples": [80, 40, 60, 20, 70, 30, 50, 10, 80, 0, 0, 0]
+    },
+    {
+      "name": "DamageWave",
+      "op": "waveform",
+      "channel": 1,
+      "duration": 144,
+      "ticks_per_sample": 24,
+      "bytes_per_sample": 1,
+      "samples": [192, 96, 144, 48, 168, 72, 192, 0]
+    },
+    {
+      "name": "HitStrongWave",
+      "op": "waveform",
+      "channel": 1,
+      "duration": 90,
+      "ticks_per_sample": 15,
+      "bytes_per_sample": 1,
+      "samples": [200, 200, 200, 175, 150, 75, 0, 0]
+    },
+    {
+      "name": "HitMediumWave",
+      "op": "waveform",
+      "channel": 1,
+      "duration": 150,
+      "ticks_per_sample": 15,
+      "bytes_per_sample": 1,
+      "interpolate": true,
+      "samples": [160, 160, 140, 70, 60, 50, 40, 30, 20, 10, 0, 0]
+    },
+    {
+      "name": "HitWeakWave",
+      "op": "waveform",
+      "channel": 1,
+      "duration": 96,
+      "ticks_per_sample": 12,
+      "bytes_per_sample": 1,
+      "samples": [255, 255, 255, 0, 0, 255, 255, 255, 0, 0, 0, 0]
+    },
+    {
+      "name": "ShakeWave",
+      "op": "waveform",
+      "channel": 1,
+      "duration": 96,
+      "ticks_per_sample": 12,
+      "bytes_per_sample": 1,
+      "samples": [255, 255, 255, 0, 0, 255, 255, 255, 0, 0, 0, 0]
+    },
+    {
+      "name": "KnockWave",
+      "op": "waveform",
+      "channel": 1,
+      "duration": 75,
+      "ticks_per_sample": 15,
+      "bytes_per_sample": 1,
+      "samples": [128, 128, 0, 128, 128, 0, 0, 0]
+    },
+    {
+      "name": "Unused30",
+      "op": "start"
+    },
+    {
+      "name": "Heartbeat1Wave",
+      "op": "waveform",
+      "channel": 0,
+      "duration": 600,
+      "ticks_per_sample": 15,
+      "bytes_per_sample": 0,
+      "samples": [16, 192, 0, 0, 0, 0, 0, 0]
+    },
+    {
+      "name": "Unused32",
+      "op": "start"
+    },
+    {
+      "name": "Unused33",
+      "op": "start"
+    },
+    {
+      "name": "Heartbeat2Wave",
+      "op": "waveform",
+      "channel": 0,
+      "duration": 480,
+      "ticks_per_sample": 15,
+      "bytes_per_sample": 0,
+      "samples": [16, 6, 0, 0]
+    },
+    {
+      "name": "Unused35",
+      "op": "start"
+    },
+    {
+      "name": "Unused36",
+      "op": "start"
+    },
+    {
+      "name": "Heartbeat3Wave",
+      "op": "waveform",
+      "channel": 0,
+      "duration": 420,
+      "ticks_per_sample": 15,
+      "bytes_per_sample": 0,
+      "samples": [8, 3, 0, 0]
+    },
+    {
+      "name": "Unused38",
+      "op": "start"
+    },
+    {
+      "name": "Unused39",
+      "op": "start"
+    },
+    {
+      "name": "Heartbeat4Wave",
+      "op": "waveform",
+      "channel": 0,
+      "duration": 360,
+      "ticks_per_sample": 15,
+      "bytes_per_sample": 0,
+      "samples": [132, 1, 0, 0]
+    },
+    {
+      "name": "Unused41",
+      "op": "start"
+    },
+    {
+      "name": "Unused42",
+      "op": "start"
+    },
+    {
+      "name": "Heartbeat5Wave",
+      "op": "waveform",
+      "channel": 0,
+      "duration": 270,
+      "ticks_per_sample": 15,
+      "bytes_per_sample": 0,
+      "samples": [132, 1, 0, 0]
+    },
+    {
+      "name": "Unused44",
+      "op": "start"
+    },
+    {
+      "name": "Unused45",
+      "op": "start"
+    },
+    {
+      "name": "Heartbeat6Wave",
+      "op": "waveform",
+      "channel": 0,
+      "duration": 2880,
+      "ticks_per_sample": 15,
+      "bytes_per_sample": 0,
+      "samples": [132, 1, 0, 8, 3, 0, 0, 97, 0, 0, 0, 129, 1, 0, 0, 0, 129, 1, 0, 0, 0, 0, 1, 0],
+      "next": "HeartbeatRest"
+    },
+    {
+      "name": "HeartbeatRest",
+      "op": "waveform",
+      "channel": 0,
+      "duration": 30,
+      "ticks_per_sample": 15,
+      "bytes_per_sample": 0,
+      "samples": [0, 0, 0, 0],
+      "next": "HeartbeatRest"
+    }
+  ]
+}

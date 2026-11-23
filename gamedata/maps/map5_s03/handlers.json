@@ -1,0 +1,72 @@
+{
+  "map": "map5_s03",
+  "table": "g_MapEventFuncs",
+  "handlers": [
+    {
+      "index": 0,
+      "symbol": "MapEvent_DoorJammed",
+      "name": "MapEvent_DoorJammed",
+      "shape": "script"
+    },
+    {
+      "index": 1,
+      "symbol": "MapEvent_DoorLocked",
+      "name": "MapEvent_DoorLocked",
+      "shape": "script"
+    },
+    {
+      "index": 2,
+      "symbol": "MapEvent_DoorUnlocked",
+      "name": "MapEvent_DoorUnlocked",
+      "shape": "script"
+    },
+    {
+      "index": 3,
+      "symbol": "MapEvent_CommonItemTake",
+      "name": "MapEvent_CommonItemTake",
+      "shape": "script"
+    },
+    {
+      "index": 4,
+      "symbol": "MotorcycleKeyTake",
+      "name": "MotorcycleKeyTake",
+      "shape": "script"
+    },
+    {
+      "index": 5,
+      "symbol": "MotelKeyInspect",
+      "name": "MotelKeyInspect",
+      "shape": "script"
+    },
+    {
+      "index": 6,
+      "symbol": "MapEvent_MotelDiaryInspect",
+      "name": "MapEvent_MotelDiaryInspect",
+      "shape": "script"
+    },
+    {
+      "index": 7,
+      "symbol": "MapEvent_MagnetTake",
+      "name": "MapEvent_MagnetTake",
+      "shape": "item"
+    },
+    {
+      "index": 8,
+      "symbol": "Cutscene_GarageKaufmann",
+      "name": "Cutscene_GarageKaufmann",
+      "shape": "cutscene"
+    },
+    {
+      "index": 9,
+      "symbol": "SecondNewspaperRead",
+      "name": "SecondNewspaperRead",
+      "shape": "script"
+    },
+    {
+      "index": 10,
+      "symbol": "PushShelf",
+      "name": "PushShelf",
+      "shape": "script"
+    }
+  ]
+}

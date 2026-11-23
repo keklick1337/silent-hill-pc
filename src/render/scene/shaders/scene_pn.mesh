@@ -1,0 +1,99 @@
+#version 460
+// Model upscaling, mesh path (RENDER.md section 7.11): one workgroup per triangle the task stage kept. The triangle is
+// cut into level^2 triangles on a regular barycentric grid and every grid point is put on the same PN surface the
+// tessellation path evaluates (scene_pn.glsl). Colour, fog, UV and the UV box are the corners' own, lit by scene.vert's
+// rules and interpolated as the plain triangle interpolates them.
+//
+// A grid point's barycentrics are whole steps over the level (m / level), computed alike in every patch, so the points
+// along an edge two triangles share are the same and the patches meet without cracks.
+#extension GL_EXT_mesh_shader : require
+#extension GL_GOOGLE_include_directive : require
+
+const uint kMaxLevel = 16u;
+const uint kThreads = 64u;
+layout(local_size_x = 64) in;
+layout(triangles, max_vertices = 153, max_primitives = 256) out;  // (16 + 1)(16 + 2) / 2 vertices, 16^2 triangles
+
+#define SH_SCENE_LIB 1
+#include "scene_lib.glsl"
+#include "scene_pn.glsl"
+#include "scene_pn_data.glsl"
+
+taskPayloadSharedEXT PnTaskPayload payload;
+
+layout(location = 0) centroid out vec2 v_uv[];
+layout(location = 1) out vec4 v_color[];
+layout(location = 2) out vec3 v_viewpos[];
+layout(location = 3) out float v_fog[];
+layout(location = 4) flat out vec4 v_box[];
+layout(location = 5) out float v_depth[];
+layout(location = 6) flat out vec2 v_setback[];
+
+// Grid point (i, j) of a level-n triangle: i steps towards corner 1, j towards corner 2.
+uint GridIndex(uint i, uint j, uint n) { return j * (n + 1u) - (j * (j - 1u)) / 2u + i; }
+
+void main() {
+    uint tri = payload.tri[gl_WorkGroupID.x];
+    uint n = uint(clamp(u_pnLevel.x, 1.0, float(kMaxLevel)));
+    uint vertexCount = (n + 1u) * (n + 2u) / 2u;
+    uint primitiveCount = n * n;
+    SetMeshOutputsEXT(vertexCount, primitiveCount);
+
+    uint idx[3] = uint[3](CornerVertex(tri, 0u), CornerVertex(tri, 1u), CornerVertex(tri, 2u));
+    vec3 pos[3];
+    vec4 nrm[3];
+    vec2 uv[3];
+    vec4 col[3];
+    float fog[3];
+    for (int k = 0; k < 3; ++k) {
+        uint v = idx[k];
+        pos[k] = CornerPosition(v);
+        nrm[k] = CornerNormal(v);
+        uv[k] = vec2(VertexFloat(v, 6u), VertexFloat(v, 7u));
+        vec3 normal = vec3(VertexFloat(v, 3u), VertexFloat(v, 4u), VertexFloat(v, 5u));
+        col[k] = SceneVertexColor(pos[k], normal, unpackUnorm4x8(vertex_word[v * kVertexWords + 8u]));
+        fog[k] = SceneVertexFog(pos[k]);
+    }
+    vec4 box = vec4(VertexFloat(idx[0], 9u), VertexFloat(idx[0], 10u), VertexFloat(idx[0], 11u),
+                    VertexFloat(idx[0], 12u));
+    vec2 setback = SceneSetback();
+    PnPatch b = PnMake(pos[0], pos[1], pos[2], nrm[0], nrm[1], nrm[2]);
+    float fn = float(n);
+
+    for (uint k = gl_LocalInvocationID.x; k < vertexCount; k += kThreads) {
+        uint j = 0u, rest = k;
+        while (rest > n - j) {
+            rest -= n - j + 1u;
+            ++j;
+        }
+        uint i = rest;
+        vec3 t = vec3(float(n - i - j) / fn, float(i) / fn, float(j) / fn);
+        vec3 v = PnEval(b, t);
+        v_viewpos[k] = v;
+        v_uv[k] = t.x * uv[0] + t.y * uv[1] + t.z * uv[2];
+        v_color[k] = t.x * col[0] + t.y * col[1] + t.z * col[2];
+        v_fog[k] = t.x * fog[0] + t.y * fog[1] + t.z * fog[2];
+        v_box[k] = box;
+        v_setback[k] = setback;
+        float depth;
+        gl_MeshVerticesEXT[k].gl_Position = SceneProject(v, depth);
+        v_depth[k] = depth;
+    }
+    for (uint p = gl_LocalInvocationID.x; p < primitiveCount; p += kThreads) {
+        uint j = 0u, rest = p;
+        while (rest >= 2u * (n - j) - 1u) {
+            rest -= 2u * (n - j) - 1u;
+            ++j;
+        }
+        // Row j: n - j triangles pointing like the patch, then n - j - 1 between them; both keep its winding.
+        uvec3 t;
+        if (rest < n - j) {
+            uint i = rest;
+            t = uvec3(GridIndex(i, j, n), GridIndex(i + 1u, j, n), GridIndex(i, j + 1u, n));
+        } else {
+            uint i = rest - (n - j);
+            t = uvec3(GridIndex(i + 1u, j, n), GridIndex(i + 1u, j + 1u, n), GridIndex(i, j + 1u, n));
+        }
+        gl_PrimitiveTriangleIndicesEXT[p] = t;
+    }
+}

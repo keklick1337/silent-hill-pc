@@ -1,0 +1,145 @@
+{
+  "format": "sh-map-world-objects",
+  "version": 2,
+  "map": "map3_s05",
+  "description": "Static world objects of map3_s05 (Hospital Otherworld - basement): 18 objects, drawn in file order. An object is drawn while the player is in one of its \"zones\" (each {\"x\": [...], \"z\": [...]} lists 40 m cells along that axis: cell c holds 40c..40(c+1) m; no zones = everywhere) and every flag of \"flags_set\" is set and every flag of \"flags_clear\" is clear (event flag names, e.g. the pickup flags). \"name\" is the object's id for scripts and mods, \"model\" its model (at most 8 characters, the map's or an item model), \"position\" in metres and \"rotation\" in degrees (x, y, z). \"pose\" instead takes position and rotation from a table of the map's overlay on the disc (\"disc_table\" from tables.json, row \"index\"), resolved when the map loads; pickups use it. \"script\": true lets world_objects.lua and events.lua move, turn, re-model or hide the object. \"pc_near_pickup\": true (not in the original) also draws the pickup while the player is in a neighbouring cell of the same floor. Cabinet and ElevatorDoor* are script objects: world_objects.lua puts the cabinet where it was pushed and closes the elevator doors in gameplay; events.lua moves them through the map variables cabinet and sliding_doors. The map's cells are counted one further out from 0 (cell x + 1 for positive positions, x - 1 for the others), as the original did. A mod's maps/map3_s05/world_objects.json changes or adds objects by name.",
+  "objects": [
+    {
+      "name": "VideoTape",
+      "model": "TAPE_HID",
+      "position": [59.64, -0.85, -100.27],
+      "rotation": [0, 7.5, 0],
+      "zones": [{"x": 1, "z": -3}],
+      "flags_clear": ["M3S05_PickupVideoTape"]
+    },
+    {
+      "name": "Bed",
+      "model": "BED3_HID",
+      "position": [19.6, 0.0, -99.6],
+      "rotation": [0, 90.0, 0],
+      "zones": [{"x": 0, "z": -3}]
+    },
+    {
+      "name": "ExaminationRoomKey",
+      "model": "KEY_HIDE",
+      "position": [20.6587, -0.81055, -98.93555],
+      "rotation": [0, -31.7, 0],
+      "zones": [{"x": 0, "z": -3}],
+      "flags_clear": ["M3S05_PickupExaminationRoomKey"]
+    },
+    {
+      "name": "Cabinet",
+      "model": "TANA_HID",
+      "position": [60.0, 0.0, -21.6],
+      "rotation": [0, 180.0, 0],
+      "script": true,
+      "zones": [{"x": 1, "z": -1}]
+    },
+    {
+      "name": "DoorLeft",
+      "model": "DOR1_HID",
+      "position": [20.0, 0.0, -20.0],
+      "rotation": [0, 180.0, 0],
+      "zones": [{"x": 0, "z": -1}],
+      "flags_clear": ["M3S05_VinesBurned"]
+    },
+    {
+      "name": "DoorRight",
+      "model": "DOR2_HID",
+      "position": [20.0, 0.0, -20.0],
+      "rotation": [0, 180.0, 0],
+      "zones": [{"x": 0, "z": -1}],
+      "flags_clear": ["M3S05_VinesBurned"]
+    },
+    {
+      "name": "DoorRightFallen",
+      "model": "DOR2_HID",
+      "position": [19.9998, -0.682, -21.05005],
+      "rotation": [58.05, 180.0, 0],
+      "zones": [{"x": 0, "z": -1}],
+      "flags_set": ["M3S05_VinesBurned"]
+    },
+    {
+      "name": "Hammer",
+      "model": "HAMMER_H",
+      "position": [140.4485, -0.5, -18.9],
+      "rotation": [-87.05, -73.2, 0],
+      "zones": [{"x": 3, "z": -1}],
+      "flags_clear": ["M3S05_PickupHammer"]
+    },
+    {
+      "name": "ElevatorDoor1Left",
+      "model": "DR1L_HID",
+      "position": [19.1, 0.0, 59.1],
+      "script": true,
+      "zones": [{"x": 0, "z": 1}]
+    },
+    {
+      "name": "ElevatorDoor1Right",
+      "model": "DR1R_HID",
+      "position": [19.1, 0.0, 59.1],
+      "script": true,
+      "zones": [{"x": 0, "z": 1}]
+    },
+    {
+      "name": "ElevatorDoor3Left",
+      "model": "DR3L_HID",
+      "position": [19.1, 0.0, 59.1],
+      "script": true,
+      "zones": [{"x": 0, "z": 1}]
+    },
+    {
+      "name": "ElevatorDoor3Right",
+      "model": "DR3R_HID",
+      "position": [19.1, 0.0, 59.1],
+      "script": true,
+      "zones": [{"x": 0, "z": 1}]
+    },
+    {
+      "name": "ElevatorDoor2Left",
+      "model": "DR2L_HID",
+      "position": [19.1, 0.0, 59.1],
+      "script": true,
+      "zones": [{"x": 0, "z": 1}]
+    },
+    {
+      "name": "ElevatorDoor2Right",
+      "model": "DR2R_HID",
+      "position": [19.1, 0.0, 59.1],
+      "script": true,
+      "zones": [{"x": 0, "z": 1}]
+    },
+    {
+      "name": "Ampoule",
+      "model": "AMPULE_N",
+      "pose": {"disc_table": "CommonWorldObjectPoses", "index": 0},
+      "pc_near_pickup": true,
+      "zones": [{"x": 0, "z": -2}],
+      "flags_clear": ["M3S05_Ampoule"]
+    },
+    {
+      "name": "HealthDrink",
+      "model": "DRINK_NE",
+      "pose": {"disc_table": "CommonWorldObjectPoses", "index": 1},
+      "pc_near_pickup": true,
+      "zones": [{"x": 0, "z": -2}],
+      "flags_clear": ["M3S05_HealthDrink"]
+    },
+    {
+      "name": "HandgunBullets",
+      "model": "BULLET_N",
+      "pose": {"disc_table": "CommonWorldObjectPoses", "index": 2},
+      "pc_near_pickup": true,
+      "zones": [{"x": 1, "z": -1}],
+      "flags_clear": ["M3S05_HandgunBullets"]
+    },
+    {
+      "name": "ShotgunShells",
+      "model": "SHOT_NEA",
+      "pose": {"disc_table": "CommonWorldObjectPoses", "index": 3},
+      "pc_near_pickup": true,
+      "zones": [{"x": 1, "z": -1}],
+      "flags_clear": ["M3S05_ShotgunShells"]
+    }
+  ]
+}

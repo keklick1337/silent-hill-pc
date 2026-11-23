@@ -1,0 +1,25 @@
+// SPDX-License-Identifier: GPL-3.0-or-later
+// Sharpening after the reconstruction (vk_temporal.cpp): an unsharp mask held to the range of the four neighbours,
+// so fog gradients and the beam's edge get no bright or dark halo.
+#version 450
+
+#include "common.glsl"
+
+layout(local_size_x = 8, local_size_y = 8) in;
+layout(set = 0, binding = 8, rgba16f) uniform writeonly image2D i_result;
+layout(set = 0, binding = 9) uniform sampler2D t_stage;
+
+vec3 At(ivec2 p) { return texelFetch(t_stage, clamp(p, ivec2(0), ivec2(u_dst.zw) - 1), 0).rgb; }
+
+void main() {
+    ivec2 o = ivec2(gl_GlobalInvocationID.xy);
+    if (any(greaterThanEqual(o, ivec2(u_dst.zw)))) return;
+    vec3 c = At(o);
+    float k = u_params.y;
+    if (k > 0.0) {
+        vec3 n = At(o + ivec2(0, -1)), s = At(o + ivec2(0, 1)), e = At(o + ivec2(1, 0)), w = At(o + ivec2(-1, 0));
+        vec3 lo = min(c, min(min(n, s), min(e, w))), hi = max(c, max(max(n, s), max(e, w)));
+        c = clamp(c + 1.5 * k * (c - 0.25 * (n + s + e + w)), lo, hi);
+    }
+    imageStore(i_result, o, vec4(c, 1.0));
+}

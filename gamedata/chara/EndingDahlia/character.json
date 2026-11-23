@@ -1,0 +1,28 @@
+{
+  "description": "Dahlia Gillespie in the final boss scene in Nowhere, with her own set of ending animations.",
+  "category": "StoryCharacters",
+  "maps": ["map7_s03"],
+  "model": "models/CHARA/DARIA.glb",
+  "animations": "anim/ANIM/DA2.anim.json",
+  "clip_tables": ["dahlia"],
+  "textures": ["textures/CHARA/DARIA.png"],
+  "shadow": 0.25,
+  "blend_mode": "additive",
+  "camera_anchor": "character",
+  "camera_offset_y": -0.5,
+  "sounds": {
+    "cue": "dahlia_cue",
+    "cue_2": "dahlia_cue_2",
+    "cue_3": "dahlia_cue_3",
+    "cue_map2_s01": "dahlia_cue_map2_s01",
+    "footstep": "dahlia_footstep",
+    "footstep_map6_s01": "dahlia_footstep_map6_s01"
+  },
+  "spawn": {
+    "state": 0,
+    "kind": "actor",
+    "auto": "fallback",
+    "note": "its own AI plays the cutscene state the map sets"
+  },
+  "behavior": "Dahlia"
+}

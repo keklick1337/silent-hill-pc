@@ -1,0 +1,24 @@
+{
+  "format": "sh-text",
+  "version": 1,
+  "lang": "es",
+  "map": "map1_s06",
+  "strings": {
+    "map1_s06.msg15": "{wait 1.3}",
+    "map1_s06.what_was_that": "{wait2 1.5}¿Qué fue eso...?{end}",
+    "map1_s06.who_in_the_hell_was": "{wait 2.4}¿Quién demonios era?{end}",
+    "map1_s06.there_is_a_k_gordon": "Hay una {color 2}llave de K. Gordon{/color}.\n¿Te la llevas?{choice 4}",
+    "map1_s06.the_boiler_is_off": "La caldera está apagada.{end}",
+    "map1_s06.it_appears_to_be_broken": "Parece que no funciona.{end}",
+    "map1_s06.the_valve_is_tightly_shut": "La válvula está cerrada a fondo.\nNo se mueve.{end}",
+    "map1_s06.i_hear_a": "{wait 2.0}Oigo una...",
+    "map1_s06.a_church_bell_maybe_who": "{wait 3.0}¿Una campana de iglesia, quizá?\n¿Quién la está tocando?{end}",
+    "map1_s06.moore_ranaldo_gordon_this_must": "Moore, Ranaldo, Gordon...\nDebe de ser la lista de profesores.{end}",
+    "map1_s06.list_of_teachers": "La lista de profesores.",
+    "map1_s06.k_gordon_thats_it_ill": "K. Gordon... eso es.\nAnotaré la dirección\nen el mapa.{end}",
+    "map1_s06.there_is_a_school_map": "{hires}Hay un {color 5}mapa de la escuela{/color}.\n¿Te lo llevas?{choice 4}",
+    "map1_s06.where_am_i": "{wait1 3.5}¿Dónde estoy?",
+    "map1_s06.this_is_a_boiler_room": "{wait1 3.0}Esto es... ¿¡una sala de calderas!?",
+    "map1_s06.what_is_going_on_here": "{wait1 3.5}¿Qué está pasando aquí?{end}"
+  }
+}

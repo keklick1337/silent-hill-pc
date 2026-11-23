@@ -1,0 +1,48 @@
+{
+  "map": "map0_s02",
+  "table": "g_MapEventFuncs",
+  "handlers": [
+    {
+      "index": 0,
+      "symbol": null,
+      "name": null,
+      "shape": null
+    },
+    {
+      "index": 1,
+      "symbol": null,
+      "name": null,
+      "shape": null
+    },
+    {
+      "index": 2,
+      "symbol": "MapEvent_CommonItemTake",
+      "name": "MapEvent_CommonItemTake",
+      "shape": "script"
+    },
+    {
+      "index": 3,
+      "symbol": "MapEvent_EmptyFunction",
+      "name": "MapEvent_EmptyFunction",
+      "shape": "script"
+    },
+    {
+      "index": 4,
+      "symbol": "MapEvent_GasolineTankItemTake",
+      "name": "MapEvent_GasolineTankItemTake",
+      "shape": "item"
+    },
+    {
+      "index": 5,
+      "symbol": "MapEvent_KatanaItemTake",
+      "name": "MapEvent_KatanaItemTake",
+      "shape": "item"
+    },
+    {
+      "index": 6,
+      "symbol": "MapEvent_ChannelingStoneItemTake",
+      "name": "MapEvent_ChannelingStoneItemTake",
+      "shape": "item"
+    }
+  ]
+}

@@ -1,0 +1,8 @@
+{
+  "format": "sh-text",
+  "version": 1,
+  "lang": "tr",
+  "strings": {
+    "ui.pause.controls": "KONTROLLER"
+  }
+}

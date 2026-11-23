@@ -1,0 +1,33 @@
+{
+  "format": "sh-text",
+  "version": 1,
+  "lang": "es",
+  "map": "map3_s05",
+  "strings": {
+    "map3_s05.there_is_a_video_tape": "Hay una {color 2}cinta de vídeo{/color}.\n¿Te la llevas?{choice 4}",
+    "map3_s05.alessa": "{color 3}Alessa{end}",
+    "map3_s05.alessa_2": "¿Alessa...?{end}",
+    "map3_s05.whats_this": "{wait 1.2}¿Qué es esto?{end}",
+    "map3_s05.looks_like_someones_been_here": "{wait 2.6}Parece que alguien ha estado aquí...{end}",
+    "map3_s05.msg20": "{wait 0.4}{end}",
+    "map3_s05.there_is_an_examination_room": "Hay una {color 2}llave del consultorio{/color}.\n¿Te la llevas?{choice 4}",
+    "map3_s05.looks_like_a_hallway_under": "Parece que hay un pasillo\nbajo la rejilla.",
+    "map3_s05.cant_move_it_since_the": "No se puede mover: las enredaderas\nhan crecido a su alrededor.{end}",
+    "map3_s05.no_the_fire_goes_out": "No.\nEl fuego se apaga enseguida\ncuando prendo las enredaderas.{end}",
+    "map3_s05.poured_disinfecting_alcohol_on": "Viertes {color 2}alcohol desinfectante{/color}\nsobre las enredaderas.{end}",
+    "map3_s05.the_vines_absorbed_the_alcohol": "Las enredaderas\nabsorbieron el alcohol.{end}",
+    "map3_s05.used_the_basement_storeroom": "Usas la {color 2}llave del almacén{/color}.{end}",
+    "map3_s05.do_you_want_to_push": "¿Quieres empujar\nel armario?{choice 4}",
+    "map3_s05.the_generator_is_on": "El generador está encendido.{end}",
+    "map3_s05.there_are_skid_marks_from": "Hay marcas de arrastre:\nalguien movió el armario.{end}",
+    "map3_s05.there_is_a_hammer_take": "Hay un {color 2}mazo{/color}.\n¿Te lo llevas?{choice 4}",
+    "map3_s05.a_bed_whats_it_doing": "¿Una cama? ¿Qué hace aquí?\n¿Quién querría...?{end}",
+    "map3_s05.a_body_is_laid_out": "Hay un cuerpo tendido en la cama.\nNo tengo ganas de examinarlo.{end}",
+    "map3_s05.nothing_helpful": "Nada que sirva.{end}",
+    "map3_s05.nothing_useful_in_the_boxes": "Nada útil en las cajas.{end}",
+    "map3_s05.theres_a_bottle_filled_with": "Hay un frasco lleno\nde algún tipo de fármaco.\nMejor dejarlo.{end}",
+    "map3_s05.there_are_some_empty_bottles": "Hay algunas botellas vacías.{end}",
+    "map3_s05.nothing_special_in_the_box": "Nada especial en la caja.\nNada de qué preocuparse.{end}",
+    "map3_s05.nothing_inside": "No hay nada dentro.{end}"
+  }
+}

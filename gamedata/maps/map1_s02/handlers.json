@@ -1,0 +1,138 @@
+{
+  "map": "map1_s02",
+  "table": "g_MapEventFuncs",
+  "handlers": [
+    {
+      "index": 0,
+      "symbol": "MapEvent_DoorJammed",
+      "name": "MapEvent_DoorJammed",
+      "shape": "script"
+    },
+    {
+      "index": 1,
+      "symbol": "MapEvent_DoorLocked",
+      "name": "MapEvent_DoorLocked",
+      "shape": "script"
+    },
+    {
+      "index": 2,
+      "symbol": "MapEvent_DoorUnlocked",
+      "name": "MapEvent_DoorUnlocked",
+      "shape": "script"
+    },
+    {
+      "index": 3,
+      "symbol": "TakeCommonPickup",
+      "name": "TakeCommonPickup",
+      "shape": "script"
+    },
+    {
+      "index": 4,
+      "symbol": "MapEvent_LobbyKeyUse",
+      "name": "MapEvent_LobbyKeyUse",
+      "shape": "script"
+    },
+    {
+      "index": 5,
+      "symbol": "CutsceneCourtyardIntro",
+      "name": "CutsceneCourtyardIntro",
+      "shape": "script"
+    },
+    {
+      "index": 6,
+      "symbol": "InspectGoldPlaque",
+      "name": "InspectGoldPlaque",
+      "shape": "script"
+    },
+    {
+      "index": 7,
+      "symbol": "InspectSilverPlaque",
+      "name": "InspectSilverPlaque",
+      "shape": "script"
+    },
+    {
+      "index": 8,
+      "symbol": "MapEvent_PlayerStopMessage",
+      "name": "MapEvent_PlayerStopMessage",
+      "shape": "script"
+    },
+    {
+      "index": 9,
+      "symbol": "MapEvent_GameTrialOver",
+      "name": "MapEvent_GameTrialOver",
+      "shape": "script"
+    },
+    {
+      "index": 10,
+      "symbol": "InspectReceptionPlaques",
+      "name": "InspectReceptionPlaques",
+      "shape": "script"
+    },
+    {
+      "index": 11,
+      "symbol": "UsePictureCard",
+      "name": "UsePictureCard",
+      "shape": "script"
+    },
+    {
+      "index": 12,
+      "symbol": "PickupPictureCard",
+      "name": "PickupPictureCard",
+      "shape": "item"
+    },
+    {
+      "index": 13,
+      "symbol": "PickupRubberBall",
+      "name": "PickupRubberBall",
+      "shape": "item"
+    },
+    {
+      "index": 14,
+      "symbol": "CutscenePhoneCall",
+      "name": "CutscenePhoneCall",
+      "shape": "script"
+    },
+    {
+      "index": 15,
+      "symbol": "PoolBoardTilt",
+      "name": "PoolBoardTilt",
+      "shape": "script"
+    },
+    {
+      "index": 16,
+      "symbol": "InspectLotteryMessage",
+      "name": "InspectLotteryMessage",
+      "shape": "script"
+    },
+    {
+      "index": 17,
+      "symbol": "PickupShotgun",
+      "name": "PickupShotgun",
+      "shape": "script"
+    },
+    {
+      "index": 18,
+      "symbol": "RotatingGates",
+      "name": "RotatingGates",
+      "shape": "script"
+    },
+    {
+      "index": 19,
+      "symbol": "MapEvent_LiftPlatform",
+      "name": "MapEvent_LiftPlatform",
+      "shape": "script"
+    },
+    {
+      "index": 20,
+      "symbol": "PickupClassroomKey",
+      "name": "PickupClassroomKey",
+      "shape": "script"
+    },
+    {
+      "index": 21,
+      "symbol": "CourtyardCutsceneEnd",
+      "name": "CourtyardCutsceneEnd",
+      "shape": "script"
+    }
+  ]
+}

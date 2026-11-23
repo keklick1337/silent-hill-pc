@@ -1,0 +1,20 @@
+{
+  "format": "sh-text",
+  "version": 1,
+  "lang": "de",
+  "map": "map2_s04",
+  "strings": {
+    "map2_s04.theres_a_memo_on_the": "Auf dem Schreibtisch\nliegt eine Notiz.",
+    "map2_s04.coroner_seals_called": "{color 3}Gerichtsmediziner\nSeals hat angerufen.",
+    "map2_s04.officer_gucci_is_unlikely_to": "{color 3}Officer Gucci wurde wohl\nkaum ermordet. Offenbar starb\ner eines natürlichen Todes.",
+    "map2_s04.but_medical_records_show": "{color 3}Laut Krankenakte hatte Officer\nGucci jedoch zuvor keinerlei\nSymptome einer Herzkrankheit.{end}",
+    "map2_s04.theres_something_on_it": "Da steht etwas drauf.",
+    "map2_s04.product_only_available_in": "{color 3}Stoff nur in bestimmten Gegenden\nvon Silent Hill erhältlich.",
+    "map2_s04.raw_material_is_white_claudia": "{color 3}Rohstoff ist die Weiße Claudia,\neine nur in der Region\nheimische Pflanze.",
+    "map2_s04.manufactured_here_dealer": "{color 3}Hier hergestellt?\nDealer * Hersteller?{end}",
+    "map2_s04.there_is_a_shopping_district": "{hires}{color 5}Karte des Geschäftsviertels{/color}\ngefunden. Mitnehmen?{choice 4}",
+    "map2_s04.nothing_helpful": "Nichts, was mir weiterhilft.{end}",
+    "map2_s04.the_desk_is_messy": "Der Schreibtisch ist unordentlich.{end}",
+    "map2_s04.there_is_a_shotgun_take": "{color 2}Schrotflinte{/color} gefunden.\nMitnehmen?{choice 4}"
+  }
+}

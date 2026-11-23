@@ -1,0 +1,12 @@
+{
+  "format": "sh-text",
+  "version": 1,
+  "lang": "en",
+  "strings": {
+    "screamer_ambush:ui.title": "AMBUSH: AIR SCREAMER",
+    "screamer_ambush:ui.help": "An Air Screamer also comes when Harry takes the ammo from the bench outside the cafe.",
+    "screamer_ambush:ui.where": "Bench outside the cafe",
+    "screamer_ambush:ui.with": "Stacks with Ambush: dogs",
+    "screamer_ambush:ui.version": "Version"
+  }
+}

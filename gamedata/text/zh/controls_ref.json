@@ -1,0 +1,24 @@
+{
+  "format": "sh-text",
+  "version": 1,
+  "lang": "zh",
+  "strings": {
+    "ui.bind.attack": "攻击",
+    "ui.bind.back_cancel": "返回 / 取消",
+    "ui.bind.confirm_skip": "确认 / 跳过",
+    "ui.bind.view": "视角",
+    "ui.controls_ref.category.camera": "镜头",
+    "ui.controls_ref.category.combat": "战斗",
+    "ui.controls_ref.category.debug": "调试",
+    "ui.controls_ref.category.menu": "菜单",
+    "ui.controls_ref.category.movement": "移动",
+    "ui.controls_ref.category.system": "系统",
+    "ui.controls_ref.close_hint": "按任意键关闭",
+    "ui.controls_ref.scheme_altcam": "其他镜头",
+    "ui.controls_ref.scheme_classic": "经典镜头",
+    "ui.controls_ref.stick": "摇杆/方向键",
+    "ui.controls_ref.title": "操作一览",
+    "ui.options.controls_reference": "操作一览",
+    "ui.options.controls_reference.help": "显示当前所有的按键和按钮。"
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "format": "sh-text",
+  "version": 1,
+  "lang": "ja",
+  "map": "map1_s00",
+  "strings": {
+    "map1_s00.the_tower_door_is_locked": "塔の扉には鍵がかかっている。{end}",
+    "map1_s00.the_hands_are_stopped_at": "針は10:00で止まっている。{end}",
+    "map1_s00.the_hands_are_stopped_at_2": "針は12:00で止まっている。{end}",
+    "map1_s00.the_hands_are_stopped_at_3": "針は5:00で止まっている。{end}",
+    "map1_s00.a_golden_sun": "{color 3}金の太陽{end}",
+    "map1_s00.a_silver_moon": "{color 3}銀の月{end}",
+    "map1_s00.the_door_wont_open": "扉は開かない。{end}",
+    "map1_s00.10_00_alchemy_laboratory_gold": "{pos 4}{center}{color 3}10:00\n「錬金術の実験室」\n\n老人の掌にある黄金。\n握りしめた拳に隠された未来。\n賢者の水と引き換えに。{end}",
+    "map1_s00.12_00_a_place_with": "{pos 4}{center}{color 3}12:00\n「歌と音のある場所」\n\n銀の道しるべは、声なき舌の中、\n打たれぬままに眠る。\n定められし順序にて目覚めん。{end}",
+    "map1_s00.5_00_darkness_that_brings": "{pos 4}{center}{color 3}5:00\n「息詰まる熱を\nもたらす暗闇」\n\n炎は静寂を引き裂き、\n飢えた獣を目覚めさせる。\n時の扉を開き、獲物を招け。{end}",
+    "map1_s00.its_written_in_blood": "血で書かれている。{end}",
+    "map1_s00.cheryl_might_be_here_i": "シェリルはここにいるかもしれない。\n捜してみよう。{end}",
+    "map1_s00.a_picture_of_a_door": "扉の絵だ。",
+    "map1_s00.i_dont_know_who_drew": "誰が描いたのか知らないが、\nまったく悪趣味だ。{end}",
+    "map1_s00.there_is_a_switch_do": "スイッチがある。\nスイッチを押しますか？{choice 4}",
+    "map1_s00.nothing_appears_to_happen": "何も起こらないようだ。{end}",
+    "map1_s00.the_boiler_is_working": "ボイラーは動いている。{end}",
+    "map1_s00.it_appears_to_be_broken": "壊れているようだ。{end}",
+    "map1_s00.the_valve_is_tightly_shut": "バルブは固く閉まっている。\n動かせない。",
+    "map1_s00.dont_know_what_it_is": "何に使う物か分からない。\n触らないでおこう。{end}",
+    "map1_s00.nothing_special_is_written": "特に何も書かれていない。{end}",
+    "map1_s00.nothing_useful_in_the_desk": "机の引き出しに\n役に立ちそうな物はない。{end}",
+    "map1_s00.there_is_a_school_map": "{hires}{color 5}学校の地図{/color}がある。\n取りますか？{choice 4}",
+    "map1_s00.moore_ranaldo_gordon_this_must": "ムーア、ラナルド、ゴードン…\n教員の名簿に違いない。{end}",
+    "map1_s00.nothing_inside": "中には何もない。{end}"
+  }
+}

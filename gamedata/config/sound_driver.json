@@ -1,0 +1,55 @@
+{
+  "description": "Rules of the game's sound driver. Sounds are named as in sounds/sounds.json, event flags as in flags.json, maps by map name; voice lines are row numbers of config/sound_tables.json xa_lines. Volumes are 0..127. fixed_voices maps a sound name to the hardware voice it always keys (voice 0..23, and its \"fine\" value 0..255): these are the radio loops, which their update restarts, so the positional loop sustain never replays them.",
+  "commands": {
+    "description": "Sound command numbers: bank loads start at first_bank (one per row of sound_tables.json \"files\"); ambient banks first_ambient..last_ambient carry their own reverb depth; song command c loads files[song_file_offset + c] and bank command c + song_bank_offset; fade_out_* are the fade commands.",
+    "first_bank": 160,
+    "first_ambient": 170,
+    "last_ambient": 204,
+    "song_file_offset": 54,
+    "song_bank_offset": 173,
+    "fade_out_ambient": 17,
+    "fade_out_music": 18,
+    "fade_out_music_fast": 23
+  },
+  "music": {
+    "description": "Bank slot of the music instruments, the music volume while a song plays and while a voice line ducks it.",
+    "slot": 3,
+    "volume": 40,
+    "ducked_volume": 24
+  },
+  "default_reverb": 20,
+  "voice_lines": {
+    "description": "Volume of voice lines: default_volume, and per line an override; scaled lines follow the effects volume of the options (the finale's boss lines and the phone call), the others play at their own level.",
+    "default_volume": 84,
+    "volumes": [
+      {"line": 53, "volume": 84, "scaled": true},
+      {"line": 56, "volume": 84, "scaled": true},
+      {"line": 596, "volume": 84, "scaled": true},
+      {"line": 597, "volume": 84, "scaled": true},
+      {"line": 598, "volume": 84, "scaled": true},
+      {"line": 600, "volume": 84, "scaled": true},
+      {"line": 602, "volume": 84, "scaled": true},
+      {"line": 612, "volume": 84, "scaled": true},
+      {"line": 614, "volume": 84, "scaled": true},
+      {"line": 620, "volume": 84, "scaled": true},
+      {"line": 657, "volume": 84, "scaled": true},
+      {"line": 606, "volume": 84, "scaled": true},
+      {"line": 723, "volume": 50, "scaled": false},
+      {"line": 725, "volume": 50, "scaled": false},
+      {"line": 724, "volume": 40, "scaled": false}
+    ]
+  },
+  "fixed_voices": {
+    "radio_interference_loop": {"voice": 22, "fine": 0},
+    "radio_static_loop": {"voice": 23, "fine": 120}
+  },
+  "ambient_overrides": [
+    {
+      "description": "The Old Silent Hill streets change their ambience once the town is past its first visit (later_flags set).",
+      "map": "map2_s00",
+      "ambient": 4,
+      "later_flags": ["M1S06_AfterBossFmvSeen", "M2S01_ChurchFmvSeen"],
+      "later_ambient": 11
+    }
+  ]
+}

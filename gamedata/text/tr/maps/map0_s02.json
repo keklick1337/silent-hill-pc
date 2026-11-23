@@ -1,0 +1,15 @@
+{
+  "format": "sh-text",
+  "version": 1,
+  "lang": "tr",
+  "map": "map0_s02",
+  "strings": {
+    "map0_s02.there_is_a_chain_saw": "Burada {color 2}Motorlu testere{/color} var.\nAlınsın mı?{choice 4}",
+    "map0_s02.some_oil_cans_are_on": "Rafta birkaç yağ tenekesi var.{end}",
+    "map0_s02.a_car_engine_no_problem": "Araba motoru.\nBir sorunu yok.{end}",
+    "map0_s02.theres_a_tv_set_it": "Bir televizyon.\nAçılmıyor.{end}",
+    "map0_s02.there_is_a_gasoline_tank": "Burada {color 2}Benzin bidonu{/color} var.\nAlınsın mı?{choice 4}",
+    "map0_s02.there_is_a_katana_take": "Burada {color 2}Katana{/color} var.\nAlınsın mı?{choice 4}",
+    "map0_s02.there_is_a_channeling_stone": "Burada {color 2}Çağrı taşı{/color} var.\nAlınsın mı?{choice 4}"
+  }
+}

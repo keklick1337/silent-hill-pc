@@ -1,0 +1,20 @@
+{
+  "format": "sh-text",
+  "version": 1,
+  "lang": "es",
+  "map": "map2_s04",
+  "strings": {
+    "map2_s04.theres_a_memo_on_the": "Hay una nota en el escritorio.",
+    "map2_s04.coroner_seals_called": "{color 3}Llamó el forense Seals.",
+    "map2_s04.officer_gucci_is_unlikely_to": "{color 3}Es improbable que al agente\nGucci lo asesinaran. Al parecer,\nmurió por causas naturales.",
+    "map2_s04.but_medical_records_show": "{color 3}Pero su historial médico indica\nque el agente Gucci no tenía\nsíntomas previos de cardiopatía.{end}",
+    "map2_s04.theres_something_on_it": "Hay algo anotado.",
+    "map2_s04.product_only_available_in": "{color 3}El producto solo se consigue\nen ciertas zonas de Silent Hill.",
+    "map2_s04.raw_material_is_white_claudia": "{color 3}La materia prima es la Claudia\nBlanca, una planta propia\nde la región.",
+    "map2_s04.manufactured_here_dealer": "{color 3}¿Se fabrica aquí?\n¿Vendedor * fabricante?{end}",
+    "map2_s04.there_is_a_shopping_district": "{hires}Hay un mapa:\n{color 5}mapa de la zona comercial{/color}.\n¿Te lo llevas?{choice 4}",
+    "map2_s04.nothing_helpful": "Nada que sirva.{end}",
+    "map2_s04.the_desk_is_messy": "El escritorio está revuelto.{end}",
+    "map2_s04.there_is_a_shotgun_take": "Hay una {color 2}escopeta{/color}.\n¿Te la llevas?{choice 4}"
+  }
+}

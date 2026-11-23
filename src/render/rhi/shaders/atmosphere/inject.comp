@@ -1,0 +1,61 @@
+#version 450
+#extension GL_GOOGLE_include_directive : require
+// The flashlight's light at each froxel's centre (RENDER.md 7.10): cone, falloff and the shadow map's verdict, times
+// the Henyey-Greenstein phase towards the eye and the scattering share. How much of it the slice scatters is the
+// integration's (the fog ramp over the slice).
+layout(local_size_x = 4, local_size_y = 4, local_size_z = 4) in;
+#include "common.glsl"
+layout(set = 0, binding = 4, rgba16f) uniform image3D i_inject;
+
+// The share of the sun the fog scatters next to the beam's: the overcast sun stays a soft glow in the fog, never a
+// glare.
+const float kSunShare = 0.6;
+
+void main() {
+    ivec3 at = ivec3(gl_GlobalInvocationID);
+    if (at.x >= int(u_grid.x) || at.y >= int(u_grid.y) || at.z >= int(u_depth.w)) return;
+    vec2 px = u_view.xy + (vec2(at.xy) + 0.5) / u_grid.xy * u_view.zw;
+    vec3 p = ViewPos(px, SliceDepth(float(at.z) + 0.5));
+    vec3 light = vec3(0.0);
+    float beam = Beam(p);
+    if (beam > 1e-4) {
+        float g = u_scatter.y;
+        float c = dot(normalize(p - BeamOrigin()), normalize(-p));
+        float phase = (1.0 - g * g) / pow(max(1.0 + g * g - 2.0 * g * c, 1e-4), 1.5);
+        light = u_flColor.rgb * (beam * BeamShadow(p) * phase * u_scatter.x);
+    }
+    // The map's lamps glow in the fog around them: the modern beam's windowed falloff, the same phase, unshadowed.
+    for (int i = 0; i < int(u_lightInfo.x); ++i) {
+        vec3 d = p - u_lightPos[i].xyz;
+        float dist = length(d);
+        float range = u_lightPos[i].w;
+        if (dist >= range) continue;
+        float x = dist / range;
+        float window = clamp(1.0 - x * x * x * x, 0.0, 1.0);
+        float r0 = 0.4 * range;
+        float falloff = window * window / (1.0 + dist * dist / (r0 * r0));
+        float g = u_scatter.y;
+        float c = dot(d / max(dist, 1e-4), normalize(-p));
+        float phase = (1.0 - g * g) / pow(max(1.0 + g * g - 2.0 * g * c, 1e-4), 1.5);
+        light += u_lightColor[i].rgb * (falloff * phase * u_scatter.x);
+    }
+    // God rays: the sun where its shadow map sees it, at four points spread along the froxel's depth so a thin trunk
+    // or a fence post between two slices still breaks the shaft. Faded with the fog between the eye and the froxel
+    // as the surfaces fade it, so shafts show near Harry and melt into the fog's own colour further out.
+    if (u_sunColor.w > 0.5) {
+        float z0 = SliceDepth(float(at.z)), z1 = SliceDepth(float(at.z) + 1.0);
+        float seen = 0.0;
+        for (int k = 0; k < 4; ++k) {
+            float j = fract(Noise(vec2(at.xy) + float(at.z) * 7.0) + float(k) * 0.25);
+            vec3 q = ViewPos(px, mix(z0, z1, j));
+            vec3 c = (u_sunMatrix * vec4(q, 1.0)).xyz * 0.5 + 0.5;
+            bool inside = c.x > 0.0 && c.x < 1.0 && c.y > 0.0 && c.y < 1.0 && c.z < 1.0;
+            seen += !inside || c.z - 2.0 / max(u_sunDir.w, 1.0) <= texture(s_sunShadow, c.xy).r ? 0.25 : 0.0;
+        }
+        float g = u_scatter.y;
+        float cs = dot(normalize(u_sunDir.xyz), normalize(-p));
+        float phase = (1.0 - g * g) / pow(max(1.0 + g * g - 2.0 * g * cs, 1e-4), 1.5);
+        light += u_sunColor.rgb * (seen * phase * u_scatter.x * kSunShare * Transmittance(length(p)));
+    }
+    imageStore(i_inject, at, vec4(light, 0.0));
+}

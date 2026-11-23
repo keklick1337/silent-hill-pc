@@ -1,0 +1,20 @@
+{
+  "format": "sh-text",
+  "version": 1,
+  "lang": "zh",
+  "map": "map6_s00",
+  "strings": {
+    "map6_s00.whats_this": "{wait 1.5}这是怎么回事！{end}",
+    "map6_s00.msg16": "{wait 0.1}{end}",
+    "map6_s00.msg17": "{wait 0.1}{end}",
+    "map6_s00.msg18": "{wait 0.1}{end}",
+    "map6_s00.not_again_no_this_time": "{wait1 4.0}又来了……！？\n不，这次感觉不一样。",
+    "map6_s00.rather_than_shifting_from": "{wait1 4.5}与其说是从现实\n转入噩梦，",
+    "map6_s00.this_is_more_like_reality": "{wait1 4.5}倒更像是现实\n正在变成噩梦。",
+    "map6_s00.i_dont_like_this_feeling": "{wait1 6.0}这种感觉真不舒服。\n好像有什么坏事\n就要发生……",
+    "map6_s00.no_doubt_something_terrible_is": "{wait1 4.0}毫无疑问，有什么\n可怕的事正在发生……{end}",
+    "map6_s00.the_cover_has_been_removed": "盖子被人掀开了……",
+    "map6_s00.could_cybil_have_gotten_to": "西比尔会不会是从这儿去了游乐园？{end}",
+    "map6_s00.lake_side_amusement_park": "{color 3}湖畔游乐园{end}"
+  }
+}

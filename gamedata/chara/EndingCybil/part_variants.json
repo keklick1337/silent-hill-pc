@@ -1,0 +1,36 @@
+{
+  "format": "sh-part-variants",
+  "description": "Cybil's hand meshes. A non-zero slot value first hides the slot's \"hide\" parts, then the variant's \"hide\", then shows its \"show\" parts (model indices of the skeleton).",
+  "slots": [
+    {
+      "name": "variant",
+      "shift": 0,
+      "bits": 4,
+      "variants": {
+        "1": {
+          "hide": [20, 21],
+          "show": [20]
+        },
+        "2": {
+          "hide": [20],
+          "show": [20, 21]
+        }
+      }
+    },
+    {
+      "name": "second",
+      "shift": 4,
+      "bits": 4,
+      "variants": {
+        "1": {
+          "hide": [18, 19],
+          "show": [18]
+        },
+        "2": {
+          "hide": [18],
+          "show": [18, 19]
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "format": "sh-text",
+  "version": 1,
+  "lang": "pl",
+  "map": "map4_s02",
+  "strings": {
+    "map4_s02.green_lion": "{color 3}zielony lew{end}",
+    "map4_s02.alchemilla_hospital": "{color 3}Szpital Alchemilla{end}"
+  }
+}

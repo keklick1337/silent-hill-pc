@@ -1,0 +1,14 @@
+{
+  "description": "Padlock prop slot: the entry has only placeholder files and nothing spawns it as a character.",
+  "category": "Other",
+  "maps": [],
+  "model": null,
+  "animations": null,
+  "textures": ["textures/1ST/2ZANKO80.png"],
+  "shadow": 0.0,
+  "blend_mode": "average",
+  "camera_anchor": "character",
+  "camera_offset_y": 0.0,
+  "blood": "None",
+  "impact_sound": "melee_impact_thrown"
+}

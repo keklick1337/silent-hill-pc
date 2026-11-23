@@ -1,0 +1,15 @@
+{
+  "format": "sh-text",
+  "version": 1,
+  "lang": "en",
+  "strings": {
+    "item.frontier_arms:Revolver.name": "Revolver",
+    "item.frontier_arms:Revolver.desc": "An old six-shot revolver.\nHolds up to 6 rounds.",
+    "item.frontier_arms:RevolverRounds.name": "Revolver rounds",
+    "item.frontier_arms:RevolverRounds.desc": "Ammo for the revolver.",
+    "item.frontier_arms:LuckyCharm.name": "Lucky charm",
+    "item.frontier_arms:LuckyCharm.desc": "A small charm on a string.",
+    "item.frontier_arms:Machete.name": "Machete",
+    "item.frontier_arms:Machete.desc": "A long, heavy blade."
+  }
+}

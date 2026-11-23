@@ -1,0 +1,13 @@
+{
+  "format": "sh-text",
+  "version": 1,
+  "lang": "ru",
+  "map": "map5_s01",
+  "strings": {
+    "map5_s01.there_is_a_resort_area": "{hires}Здесь {color 5}карта\nкурортного района{/color}.\nВзять?{choice 4}",
+    "map5_s01.nothing_unusual": "Ничего необычного.{end}",
+    "map5_s01.used_the_kaufmann_key": "Использовано: {color 2}ключ Кауфмана{/color}.{end}",
+    "map5_s01.what": "{wait 1.0}Что?{end}",
+    "map5_s01.that_light": "{wait 2.5}Этот свет!?{end}"
+  }
+}

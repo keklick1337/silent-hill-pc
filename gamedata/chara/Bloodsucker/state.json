@@ -1,0 +1,10 @@
+{
+  "description": "Named variables of the Bloodsucker's behaviour (chara/Bloodsucker/behavior.lua reads and writes them by name). Each character instance owns a small block of bytes; every entry of \"fields\" names one value in it: \"name\" is the name the script uses, \"kind\" the storage type (s8, u8, s16, u16, s32, u32: a write keeps the low bits, a read sign- or zero-extends), \"at\" the byte offset in the block (absent: the next naturally aligned offset), \"note\" what the value means. Values are raw integers in the units the behaviour uses (usually Q12, 4096 = 1.0 or 1 m; angles Q12, 4096 = a full turn). A mod adds or changes fields with a state.json of the same path; keep the offsets of fields the behaviour already uses.",
+  "fields": [
+    {"name": "bloodsucker_anim_offset", "kind": "s32", "at": 0},
+    {"name": "bloodsucker_idle_volume", "kind": "s32", "at": 4},
+    {"name": "bloodsucker_idle_volume_target", "kind": "s32", "at": 8},
+    {"name": "bloodsucker_attack_volume", "kind": "s32", "at": 12},
+    {"name": "bloodsucker_flags", "kind": "s32", "at": 52}
+  ]
+}

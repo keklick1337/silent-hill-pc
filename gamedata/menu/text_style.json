@@ -1,0 +1,25 @@
+{
+  "description": "Style of the game's cell-font text. colors: the colour table the strings and the map messages' ~C markup select by colour id, in the game's id order (gold 0 .. white 7); [r, g, b] in 0..255, where 128 is the texture's own brightness. message: a fresh map message's colour and line start x, the y of the first line at each box position of the ~J markup (bottom and lower rise by a line per extra line, grid sits on a half-line grid), and the glyph budget of a ~D (show the whole page) message. Coordinates are 320x240 screen pixels relative to the screen centre. Every key is checked: an unknown or missing key is an error.",
+  "colors": {
+    "gold": [160, 128, 64],
+    "dark_grey": [32, 32, 32],
+    "green": [24, 128, 40],
+    "nuclear": [8, 184, 96],
+    "red": [128, 0, 0],
+    "green_alt": [24, 128, 40],
+    "light_grey": [100, 100, 100],
+    "white": [128, 128, 128]
+  },
+  "message": {
+    "color": "white",
+    "line_start_x": -120,
+    "box_y": {
+      "top": -92,
+      "bottom": 76,
+      "upper_middle": -60,
+      "lower": 44,
+      "grid": -76
+    },
+    "display_all_length": 400
+  }
+}

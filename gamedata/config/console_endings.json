@@ -1,0 +1,19 @@
+{
+  "description": "The debug console's ending commands. The game picks its ending when the final boss is beaten from two event flags: cybil_saved_flag (Cybil was cured in the amusement park fight) and good_path_flag (the Kaufmann subplot was completed). endings lists what SETENDING <name> sets them to; shown lists the flags GETFLAGS prints, in order, each with its label. Flag names are those of gamedata/flags. A mod patches this file like any data file.",
+  "cybil_saved_flag": "M6S04_CybilSaved",
+  "good_path_flag": "M5S03_KaufmannHasMotorcycleVial",
+  "endings": [
+    {"name": "bad", "cybil_saved": false, "good_path": false},
+    {"name": "bad+", "cybil_saved": true, "good_path": false},
+    {"name": "good", "cybil_saved": false, "good_path": true},
+    {"name": "good+", "cybil_saved": true, "good_path": true}
+  ],
+  "shown": [
+    {"label": "Cybil saved", "flag": "M6S04_CybilSaved"},
+    {"label": "Good path", "flag": "M5S03_KaufmannHasMotorcycleVial"},
+    {"label": "Cybil(infight)", "flag": "M6S04_CybilBossPhaseChangeCutsceneDone"},
+    {"label": "Kaufmann key", "flag": "M5S01_KaufmannKeyUsed"},
+    {"label": "Annie's diary", "flag": "M5S02_DiaryRead"},
+    {"label": "Motel diary", "flag": "M5S03_MotelDiaryRead"}
+  ]
+}

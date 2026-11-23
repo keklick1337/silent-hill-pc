@@ -1,0 +1,20 @@
+{
+  "format": "sh-text",
+  "version": 1,
+  "lang": "ko",
+  "map": "map2_s04",
+  "strings": {
+    "map2_s04.theres_a_memo_on_the": "책상 위에 메모가 있다.",
+    "map2_s04.coroner_seals_called": "{color 3}검시관 실즈에게서 전화.",
+    "map2_s04.officer_gucci_is_unlikely_to": "{color 3}구치 경관이 살해되었을\n가능성은 낮음. 자연사로\n보인다고 함.",
+    "map2_s04.but_medical_records_show": "{color 3}그러나 진료 기록상\n구치 경관에게 심장 질환의\n전조 증상은 없었음.{end}",
+    "map2_s04.theres_something_on_it": "무언가 적혀 있다.",
+    "map2_s04.product_only_available_in": "{color 3}물건은 사일런트 힐의\n일부 지역에서만 구할 수 있음.",
+    "map2_s04.raw_material_is_white_claudia": "{color 3}원료는 이 지방 고유의 식물\n화이트 클라우디아.",
+    "map2_s04.manufactured_here_dealer": "{color 3}여기서 제조?\n판매자 * 제조자?{end}",
+    "map2_s04.there_is_a_shopping_district": "{hires}{color 5}상점가 지도{/color}가 있다.\n가져갈까?{choice 4}",
+    "map2_s04.nothing_helpful": "도움이 될 만한 것은 없다.{end}",
+    "map2_s04.the_desk_is_messy": "책상이 어질러져 있다.{end}",
+    "map2_s04.there_is_a_shotgun_take": "{color 2}산탄총{/color}이 있다.\n가져갈까?{choice 4}"
+  }
+}

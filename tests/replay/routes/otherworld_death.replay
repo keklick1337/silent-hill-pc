@@ -1,0 +1,115 @@
+# Hospital Otherworld 3F (map3_s03): random walk among two enemies until they kill Harry, game over, back to the title
+#@config skip_intros = 2
+#@config map = map3_s03
+# generated: gen_route.py --seed 3303 --start 300 --end 3000 --min-gap 10 --max-gap 40
+1 -
+300 Down
+320 Up Right
+330 L2
+367 Cross
+385 Cross
+403 Up
+428 Up Cross
+444 Up
+457 Up Square
+467 Up Square
+507 Left
+517 Down Square
+546 Cross
+571 Down Square
+602 Left
+627 Down
+660 Up
+690 Left
+707 Down
+728 Up Left
+745 R1
+764 Up Square
+782 Up
+820 Up Circle
+832 Up
+843 R2
+864 Right
+888 Circle
+928 L1
+951 Right
+983 R2
+1009 Up Left
+1038 Square
+1068 Up Cross
+1091 Down Square
+1101 Up
+1133 L2
+1146 Cross
+1173 Up Left
+1213 L2
+1241 Square
+1251 Up Left
+1283 Up Cross
+1299 Square
+1322 Down Square
+1340 Up Right
+1371 Down
+1397 R1
+1407 Cross
+1433 Up Square
+1445 Square
+1479 Up
+1511 Up Left
+1538 Circle
+1563 Square
+1581 Up
+1610 Up
+1624 Up
+1662 Up Cross
+1685 Up Square
+1700 Up Left
+1716 Up Square
+1756 Up Right
+1777 Left
+1799 Up Right
+1836 L1
+1874 Circle
+1901 Circle
+1923 Up Cross
+1949 Up
+1988 Down Square
+2007 L1
+2018 -
+2051 -
+2079 Square
+2094 Circle
+2121 Left
+2150 Up Cross
+2184 Right
+2211 Square
+2243 Down Square
+2278 Up Cross
+2316 Up Square
+2343 Down
+2362 Down Square
+2395 Up
+2415 Cross
+2431 R2
+2445 -
+2478 Circle
+2518 Up
+2535 Cross
+2555 Up Right
+2591 Left
+2612 Up Square
+2626 -
+2656 Circle
+2688 R1
+2714 Up
+2743 Down Square
+2768 R2
+2797 Up
+2828 Up Square
+2845 Up Cross
+2865 Up
+2881 R1
+2911 Up
+2941 Up Cross
+2981 Up Square
+end 3000

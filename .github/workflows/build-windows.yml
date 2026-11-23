@@ -1,0 +1,112 @@
+name: Build Windows
+
+# mingw-w64 x86_64 cross build (docs/BUILD_WINDOWS.md): tools/win-deps/build.sh
+# builds the pinned dependencies from source, the game links them, sh_tests.exe
+# runs under wine, and tools/ci/package.sh makes the zip (exe, every DLL the
+# binaries import, the repository's base gamedata/, licenses) and checks it.
+# release.yml calls this on a v* tag.
+#
+# Debian trixie: its mingw-w64 is GCC 14 (Ubuntu 24.04 ships GCC 13), the
+# release the project is built and tested with.
+on:
+  push:
+    branches: ['**']
+    paths-ignore: ['docs/**', '**.md']
+  pull_request:
+    paths-ignore: ['docs/**', '**.md']
+  workflow_dispatch:
+  workflow_call:
+    inputs:
+      version:
+        type: string
+        required: true
+
+concurrency:
+  # Not github.workflow: inside release.yml both builds would share the caller's name.
+  group: build-windows-${{ github.ref }}
+  cancel-in-progress: ${{ !startsWith(github.ref, 'refs/tags/') }}
+
+jobs:
+  windows:
+    runs-on: ubuntu-24.04
+    container: debian:trixie
+    env:
+      WINEDEBUG: -all
+    steps:
+      - name: Install toolchain
+        run: |
+          dpkg --add-architecture i386
+          apt-get update
+          apt-get install -y --no-install-recommends \
+            ca-certificates git cmake ninja-build pkg-config nasm zip unzip python3 curl 7zip \
+            gcc-mingw-w64-x86-64-posix g++-mingw-w64-x86-64-posix binutils-mingw-w64-x86-64 \
+            glslang-tools wine wine64
+          # std::thread and friends need the posix thread model.
+          update-alternatives --set x86_64-w64-mingw32-gcc /usr/bin/x86_64-w64-mingw32-gcc-posix
+          update-alternatives --set x86_64-w64-mingw32-g++ /usr/bin/x86_64-w64-mingw32-g++-posix
+
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Trust the checkout
+        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
+
+      # Rebuilt whenever the pinned list, the build flags or the toolchain change;
+      # new dependencies added to tools/win-deps are picked up the same way.
+      - name: Cache Windows dependencies
+        uses: actions/cache@v4
+        with:
+          path: third_party/deps
+          key: win-deps-trixie-${{ hashFiles('tools/win-deps/*.sh', 'tools/ffmpeg/build.sh', 'tools/ncnn/build.sh', 'cmake/toolchains/mingw-w64-x86_64.cmake') }}
+
+      - name: Build dependencies
+        run: tools/win-deps/build.sh
+
+      - name: Configure
+        run: >
+          cmake -S . -B build-win -G Ninja -DCMAKE_BUILD_TYPE=Release
+          -DCMAKE_TOOLCHAIN_FILE=cmake/toolchains/mingw-w64-x86_64.cmake
+
+      - name: Build
+        run: cmake --build build-win --parallel "$(nproc)"
+
+      # Console runner, no window: wine needs no display. SDL3 reads
+      # SDL_AUDIO_DRIVER from the Windows environment, which this wine takes from
+      # the registry (BUILD_WINDOWS.md), so it is set there.
+      - name: Unit tests (wine)
+        working-directory: build-win/tests
+        run: |
+          export WINEPREFIX="$RUNNER_TEMP/wineprefix"
+          wineboot -i
+          wine reg add 'HKCU\Environment' /v SDL_AUDIO_DRIVER /d dummy /f
+          wine reg add 'HKCU\Environment' /v ALSOFT_DRIVERS /d null /f
+          wineserver -w
+          wine sh_tests.exe
+
+      - name: Version
+        id: ver
+        run: |
+          v='${{ inputs.version }}'
+          [ -n "$v" ] || v="$(git describe --tags --always --dirty)"
+          echo "version=$v" >> "$GITHUB_OUTPUT"
+
+      # The DLL set is read from the import tables of the binaries; the packaging
+      # fails if an imported DLL is neither in the package nor part of Windows, or
+      # if anything disc-derived got in.
+      - name: Package
+        run: tools/ci/package.sh build-win windows '${{ steps.ver.outputs.version }}' dist
+
+      # The archive as a user gets it, unpacked into an empty directory: every
+      # imported DLL present, and the game starts under wine (--version, --help)
+      # with nothing of the build folder beside it.
+      - name: Check the package
+        run: |
+          export WINEPREFIX="$RUNNER_TEMP/wineprefix"
+          python3 -I tools/ci/check_package.py check dist/*.zip windows --run
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: SilentHillPC-windows-x86_64
+          path: dist/*.zip
+          if-no-files-found: error

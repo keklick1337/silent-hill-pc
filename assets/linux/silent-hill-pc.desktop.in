@@ -1,0 +1,17 @@
+[Desktop Entry]
+Type=Application
+Version=1.0
+Name=Silent Hill PC
+GenericName=Survival horror game
+GenericName[ru]=Игра в жанре survival horror
+Comment=Play Silent Hill from your own disc image on a modern engine
+Comment[ru]=Silent Hill с вашего образа диска на современном движке
+Exec=@EXEC@
+TryExec=@TRYEXEC@
+Path=@PATH@
+Icon=silent-hill-pc
+Terminal=false
+Categories=Game;AdventureGame;
+Keywords=silent;hill;horror;
+StartupNotify=true
+StartupWMClass=silent-hill-pc

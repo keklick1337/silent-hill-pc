@@ -1,0 +1,24 @@
+{
+  "description": "Dead body that falls out of a locker in the Otherworld Midwich Elementary School.",
+  "category": "Other",
+  "maps": ["map1_s03"],
+  "model": "models/CHARA/DEAD.glb",
+  "animations": "anim/ANIM/DEAD.anim.json",
+  "clip_tables": ["locker_dead_body"],
+  "textures": ["textures/CHARA/DEAD.png"],
+  "shadow": 0.25,
+  "blend_mode": "subtractive",
+  "camera_anchor": "character",
+  "camera_offset_y": -0.5,
+  "anims": {
+    "still": 0,
+    "fall_out": 1,
+    "hang_hold": 2,
+    "fallen_hold": 3
+  },
+  "spawn": {
+    "state": 3,
+    "kind": "prop",
+    "auto": "full"
+  }
+}

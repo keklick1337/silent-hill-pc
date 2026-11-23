@@ -1,0 +1,12 @@
+{
+  "format": "sh-world-env",
+  "version": 1,
+  "description": "Numbers of the world lighting and fog. fog_curve: the fog depth curve, 16 bins over the first half of the depth range with linear steps between neighbours (17 values, 0..255). A mod changes it with a file of the same path in its own folder; objects are merged key by key, so the patch only needs the keys it changes.",
+  "fog_curve": [0, 0, 38, 76, 94, 112, 133, 153, 176, 189, 209, 220, 230, 240, 245, 250, 255],
+  "light": {
+    "description": "Directional light: the weight of an axis is (axis + axis_bias) / axis_span in Q12; sample is the reference falloff the table is scaled from.",
+    "axis_bias": 5324,
+    "axis_span": 9420,
+    "sample": [0, 204, -311]
+  }
+}

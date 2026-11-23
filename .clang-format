@@ -1,0 +1,9 @@
+# The engine's style: Google, with a 4-space indent and 120 columns. New and rewritten code follows it; the tree
+# is not reformatted wholesale, so format the lines you change (git clang-format), not whole files.
+BasedOnStyle: Google
+IndentWidth: 4
+ColumnLimit: 120
+AccessModifierOffset: -4
+DerivePointerAlignment: false
+PointerAlignment: Left
+SortIncludes: Never

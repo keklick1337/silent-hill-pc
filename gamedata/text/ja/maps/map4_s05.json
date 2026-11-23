@@ -1,0 +1,12 @@
+{
+  "format": "sh-text",
+  "version": 1,
+  "lang": "ja",
+  "map": "map4_s05",
+  "strings": {
+    "map4_s05.what": "{wait 1.0}何だ？{end}",
+    "map4_s05.that_light": "{wait 2.5}あの光は！？{end}",
+    "map4_s05.the_stairs_are_wrecked": "階段が崩れ落ちている！{end}",
+    "map4_s05.alchemilla_hospital": "{color 3}アルケミラ病院{end}"
+  }
+}

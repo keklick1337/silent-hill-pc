@@ -1,0 +1,7 @@
+{
+  "format": "sh-world-frame",
+  "version": 1,
+  "description": "The in-game world frame. maps_without_particles: maps whose frame skips the shared particle update (their own effects drive it). health_rumble: the pad rumble strength while hurt, indexed by health rounded up to tenths; above the end of the list the rumble is left alone. A mod changes it with a file of the same path in its own folder; objects are merged key by key, so the patch only needs the keys it changes.",
+  "maps_without_particles": ["map7_s03"],
+  "health_rumble": [17, 16, 16, 15, 14, 13, 12]
+}

@@ -1,0 +1,25 @@
+{
+  "description": "Named variables of map6_s02 (Lakeside Pier and Lighthouse) that its Lua reads and writes with sh.map.get / sh.map.set or passes by name (\"name[i]\"). Each entry says where the value lives: \"symbol\" (an array of tables.json or a game variable shared with the engine; with \"storage\" too, the storage is used where the symbol is missing), \"object\" (the draw records of world_objects.json, starting at that object) or \"storage\" (a value only the scripts keep, alive for the whole run); \"type\" is s8/u8/s16/u16/s32/u32 (default s32) or ref (an address); \"count\" elements lie \"stride\" bytes apart from \"offset\". \"layout\" gives several names at once: vec3 (.x/.y/.z, s32 Q12 metres), svec3 (s16, Q12 turns for angles), pose (.pos, .rot) and placement (.pos). Variables every map shares are in gamedata/config/map_vars.json; this file is looked up first, and a mod patches it with its own copy. On map6_s02 (Lakeside Pier and the lighthouse, the UFO ending): map_effect_flags (bit 5 draws the lake surface), the staff roll's frame clock and whether it rolls, Alessa's scene (voice commands, voice line, active), the UFO ending (images, voice commands and line, 15 light positions and lifetimes, lights clock, hum clock and volume, sprite flicker timer) and the ending's phase timer, sound volume and screen jitter.",
+  "vars": {
+    "map_effect_flags": {"symbol": "map_effect_flags", "type": "s8"},
+    "credits_vblank_clock": {"symbol": "credits_vblank_clock", "type": "s32"},
+    "alessa_msg_voice_cmds": {"symbol": "alessa_msg_voice_cmds", "type": "u16", "count": 26},
+    "ufo_ending_images": {"symbol": "ufo_ending_images", "type": "ref", "stride": 8, "count": 5},
+    "ufo_msg_voice_cmds": {"symbol": "ufo_msg_voice_cmds", "type": "u16", "count": 136},
+    "ufo_glow_tex": {"symbol": "ufo_glow_tex", "type": "ref", "stride": 8},
+    "ufo_light_pos": {"symbol": "ufo_light_pos", "layout": "vec3", "count": 15},
+    "ufo_light_lifetime": {"symbol": "ufo_light_lifetime", "type": "u16", "count": 15},
+    "ufo_msg_audio_idx": {"storage": "map6_s02/ufo_msg_audio_idx", "type": "u8"},
+    "ufo_lights_clock": {"symbol": "ufo_lights_clock", "type": "s32"},
+    "ufo_hum_clock": {"storage": "map6_s02/ufo_hum_clock", "type": "s32"},
+    "ufo_hum_volume": {"storage": "map6_s02/ufo_hum_volume", "type": "s16"},
+    "ending_phase_timer": {"storage": "map6_s02/ending_phase_timer", "type": "s32"},
+    "ending_sfx_volume": {"storage": "map6_s02/ending_sfx_volume", "type": "u8"},
+    "ufo_sprite_flicker_timer": {"storage": "map6_s02/ufo_sprite_flicker_timer", "type": "s16"},
+    "credits_rolling": {"storage": "map6_s02/credits_rolling", "type": "s32"},
+    "alessa_msg_audio_idx": {"storage": "map6_s02/alessa_msg_audio_idx", "type": "u8"},
+    "alessa_scene_active": {"storage": "map6_s02/alessa_scene_active", "type": "s8"},
+    "ending_jitter_x": {"symbol": "ending_jitter_x", "type": "s8"},
+    "ending_jitter_y": {"symbol": "ending_jitter_y", "type": "s8"}
+  }
+}

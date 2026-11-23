@@ -1,0 +1,30 @@
+{
+  "map": "map6_s00",
+  "table": "g_MapEventFuncs",
+  "handlers": [
+    {
+      "index": 0,
+      "symbol": null,
+      "name": null,
+      "shape": null
+    },
+    {
+      "index": 1,
+      "symbol": null,
+      "name": null,
+      "shape": null
+    },
+    {
+      "index": 2,
+      "symbol": "MapEvent_CommonItemTake",
+      "name": "MapEvent_CommonItemTake",
+      "shape": "script"
+    },
+    {
+      "index": 3,
+      "symbol": "Cutscene_OtherworldSpreads",
+      "name": "Cutscene_OtherworldSpreads",
+      "shape": "cutscene"
+    }
+  ]
+}

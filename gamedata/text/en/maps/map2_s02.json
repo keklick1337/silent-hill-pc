@@ -1,0 +1,26 @@
+{
+  "format": "sh-text",
+  "version": 1,
+  "lang": "en",
+  "map": "map2_s02",
+  "description": "The map's messages: the keys by message number from \"first\" (the numbers before it are common.json's), and the English text of the original game.",
+  "index": {
+    "map": {
+      "first": 15,
+      "keys": [
+        "map2_s02.used_the_antique_shop_key",
+        "map2_s02.alchemilla_hospital",
+        "map2_s02.green_lion"
+      ]
+    }
+  },
+  "strings": {
+    "map2_s02.used_the_antique_shop_key": "Used the {color 2}Antique shop key{/color}.{end}",
+    "map2_s02.alchemilla_hospital": "{color 3}Alchemilla Hospital{end}",
+    "map2_s02.green_lion": "{color 3}green lion{end}"
+  },
+  "ws": {
+    "map2_s02.alchemilla_hospital": "e3a5a2b2:1=t",
+    "map2_s02.green_lion": "6d7845c1:1=t"
+  }
+}

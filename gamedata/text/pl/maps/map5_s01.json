@@ -1,0 +1,13 @@
+{
+  "format": "sh-text",
+  "version": 1,
+  "lang": "pl",
+  "map": "map5_s01",
+  "strings": {
+    "map5_s01.there_is_a_resort_area": "{hires}Jest tu\n{color 5}mapa dzielnicy wypoczynkowej{/color}.\nZabrać?{choice 4}",
+    "map5_s01.nothing_unusual": "Nic niezwykłego.{end}",
+    "map5_s01.used_the_kaufmann_key": "Użyto: {color 2}klucz Kaufmanna{/color}.{end}",
+    "map5_s01.what": "{wait 1.0}Co?{end}",
+    "map5_s01.that_light": "{wait 2.5}To światło!?{end}"
+  }
+}

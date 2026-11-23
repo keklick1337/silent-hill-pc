@@ -1,0 +1,2860 @@
+# Recorded behaviour, read by tests/gameflow/scene_owner_test.cpp (tests/framework/golden.h). 0 is false, 1 is true.
+# scene  <sys_state> <game_state>  <owns_scene> <owns_shot>
+#        Each answer is a hex mask over the other inputs: bit (cutscene_flag + 2 border_active + 4 fade_in_started +
+#        8 camera_user_flags + 16 control_disabled) is the answer for that combination.
+# anchor <game_state> <sys_state> <pickup_active> <cutscene_active> <border_active> <third_person> <cutscene_shift>
+#        <world_shift>  <world_anchor>   -- one owner, the rows in order (the anchor is held between them)
+# digest <seed> <steps> <digest of owns_scene, owns_shot, world_anchor over a seeded run>
+scene 0 0  ffeeeeee efeeeeee
+scene 0 1  ffeeeeee efeeeeee
+scene 0 2  ffeeeeee efeeeeee
+scene 0 3  ffeeeeee efeeeeee
+scene 0 4  ffeeeeee efeeeeee
+scene 0 5  ffeeeeee efeeeeee
+scene 0 6  ffeeeeee efeeeeee
+scene 0 7  ffeeeeee efeeeeee
+scene 0 8  ffeeeeee efeeeeee
+scene 0 9  ffeeeeee efeeeeee
+scene 0 10  ffeeeeee efeeeeee
+scene 0 11  ffeeeeee efeeeeee
+scene 0 12  ffeeeeee efeeeeee
+scene 0 13  ffeeeeee efeeeeee
+scene 0 14  eeeeeeee eeeeeeee
+scene 0 15  eeeeeeee eeeeeeee
+scene 0 16  eeeeeeee eeeeeeee
+scene 0 17  ffeeeeee efeeeeee
+scene 0 18  eeeeeeee eeeeeeee
+scene 0 19  eeeeeeee eeeeeeee
+scene 0 20  eeeeeeee eeeeeeee
+scene 0 21  ffeeeeee efeeeeee
+scene 1 0  eeeeeeee eeeeeeee
+scene 1 1  eeeeeeee eeeeeeee
+scene 1 2  eeeeeeee eeeeeeee
+scene 1 3  eeeeeeee eeeeeeee
+scene 1 4  eeeeeeee eeeeeeee
+scene 1 5  eeeeeeee eeeeeeee
+scene 1 6  eeeeeeee eeeeeeee
+scene 1 7  eeeeeeee eeeeeeee
+scene 1 8  eeeeeeee eeeeeeee
+scene 1 9  eeeeeeee eeeeeeee
+scene 1 10  eeeeeeee eeeeeeee
+scene 1 11  eeeeeeee eeeeeeee
+scene 1 12  eeeeeeee eeeeeeee
+scene 1 13  eeeeeeee eeeeeeee
+scene 1 14  eeeeeeee eeeeeeee
+scene 1 15  eeeeeeee eeeeeeee
+scene 1 16  eeeeeeee eeeeeeee
+scene 1 17  eeeeeeee eeeeeeee
+scene 1 18  eeeeeeee eeeeeeee
+scene 1 19  eeeeeeee eeeeeeee
+scene 1 20  eeeeeeee eeeeeeee
+scene 1 21  eeeeeeee eeeeeeee
+scene 2 0  eeeeeeee eeeeeeee
+scene 2 1  eeeeeeee eeeeeeee
+scene 2 2  eeeeeeee eeeeeeee
+scene 2 3  eeeeeeee eeeeeeee
+scene 2 4  eeeeeeee eeeeeeee
+scene 2 5  eeeeeeee eeeeeeee
+scene 2 6  eeeeeeee eeeeeeee
+scene 2 7  eeeeeeee eeeeeeee
+scene 2 8  eeeeeeee eeeeeeee
+scene 2 9  eeeeeeee eeeeeeee
+scene 2 10  eeeeeeee eeeeeeee
+scene 2 11  eeeeeeee eeeeeeee
+scene 2 12  eeeeeeee eeeeeeee
+scene 2 13  eeeeeeee eeeeeeee
+scene 2 14  eeeeeeee eeeeeeee
+scene 2 15  eeeeeeee eeeeeeee
+scene 2 16  eeeeeeee eeeeeeee
+scene 2 17  eeeeeeee eeeeeeee
+scene 2 18  eeeeeeee eeeeeeee
+scene 2 19  eeeeeeee eeeeeeee
+scene 2 20  eeeeeeee eeeeeeee
+scene 2 21  eeeeeeee eeeeeeee
+scene 3 0  eeeeeeee eeeeeeee
+scene 3 1  eeeeeeee eeeeeeee
+scene 3 2  eeeeeeee eeeeeeee
+scene 3 3  eeeeeeee eeeeeeee
+scene 3 4  eeeeeeee eeeeeeee
+scene 3 5  eeeeeeee eeeeeeee
+scene 3 6  eeeeeeee eeeeeeee
+scene 3 7  eeeeeeee eeeeeeee
+scene 3 8  eeeeeeee eeeeeeee
+scene 3 9  eeeeeeee eeeeeeee
+scene 3 10  eeeeeeee eeeeeeee
+scene 3 11  eeeeeeee eeeeeeee
+scene 3 12  eeeeeeee eeeeeeee
+scene 3 13  eeeeeeee eeeeeeee
+scene 3 14  eeeeeeee eeeeeeee
+scene 3 15  eeeeeeee eeeeeeee
+scene 3 16  eeeeeeee eeeeeeee
+scene 3 17  eeeeeeee eeeeeeee
+scene 3 18  eeeeeeee eeeeeeee
+scene 3 19  eeeeeeee eeeeeeee
+scene 3 20  eeeeeeee eeeeeeee
+scene 3 21  eeeeeeee eeeeeeee
+scene 4 0  ffeeeeee efeeeeee
+scene 4 1  ffeeeeee efeeeeee
+scene 4 2  ffeeeeee efeeeeee
+scene 4 3  ffeeeeee efeeeeee
+scene 4 4  ffeeeeee efeeeeee
+scene 4 5  ffeeeeee efeeeeee
+scene 4 6  ffeeeeee efeeeeee
+scene 4 7  ffeeeeee efeeeeee
+scene 4 8  ffeeeeee efeeeeee
+scene 4 9  ffeeeeee efeeeeee
+scene 4 10  ffeeeeee efeeeeee
+scene 4 11  ffeeeeee efeeeeee
+scene 4 12  ffeeeeee efeeeeee
+scene 4 13  ffeeeeee efeeeeee
+scene 4 14  eeeeeeee eeeeeeee
+scene 4 15  eeeeeeee eeeeeeee
+scene 4 16  eeeeeeee eeeeeeee
+scene 4 17  ffeeeeee efeeeeee
+scene 4 18  eeeeeeee eeeeeeee
+scene 4 19  eeeeeeee eeeeeeee
+scene 4 20  eeeeeeee eeeeeeee
+scene 4 21  ffeeeeee efeeeeee
+scene 5 0  ffeeeeee efeeeeee
+scene 5 1  ffeeeeee efeeeeee
+scene 5 2  ffeeeeee efeeeeee
+scene 5 3  ffeeeeee efeeeeee
+scene 5 4  ffeeeeee efeeeeee
+scene 5 5  ffeeeeee efeeeeee
+scene 5 6  ffeeeeee efeeeeee
+scene 5 7  ffeeeeee efeeeeee
+scene 5 8  ffeeeeee efeeeeee
+scene 5 9  ffeeeeee efeeeeee
+scene 5 10  ffeeeeee efeeeeee
+scene 5 11  ffeeeeee efeeeeee
+scene 5 12  ffeeeeee efeeeeee
+scene 5 13  ffeeeeee efeeeeee
+scene 5 14  eeeeeeee eeeeeeee
+scene 5 15  eeeeeeee eeeeeeee
+scene 5 16  eeeeeeee eeeeeeee
+scene 5 17  ffeeeeee efeeeeee
+scene 5 18  eeeeeeee eeeeeeee
+scene 5 19  eeeeeeee eeeeeeee
+scene 5 20  eeeeeeee eeeeeeee
+scene 5 21  ffeeeeee efeeeeee
+scene 6 0  ffeeeeee efeeeeee
+scene 6 1  ffeeeeee efeeeeee
+scene 6 2  ffeeeeee efeeeeee
+scene 6 3  ffeeeeee efeeeeee
+scene 6 4  ffeeeeee efeeeeee
+scene 6 5  ffeeeeee efeeeeee
+scene 6 6  ffeeeeee efeeeeee
+scene 6 7  ffeeeeee efeeeeee
+scene 6 8  ffeeeeee efeeeeee
+scene 6 9  ffeeeeee efeeeeee
+scene 6 10  ffeeeeee efeeeeee
+scene 6 11  ffeeeeee efeeeeee
+scene 6 12  ffeeeeee efeeeeee
+scene 6 13  ffeeeeee efeeeeee
+scene 6 14  eeeeeeee eeeeeeee
+scene 6 15  eeeeeeee eeeeeeee
+scene 6 16  eeeeeeee eeeeeeee
+scene 6 17  ffeeeeee efeeeeee
+scene 6 18  eeeeeeee eeeeeeee
+scene 6 19  eeeeeeee eeeeeeee
+scene 6 20  eeeeeeee eeeeeeee
+scene 6 21  ffeeeeee efeeeeee
+scene 7 0  eeeeeeee eeeeeeee
+scene 7 1  eeeeeeee eeeeeeee
+scene 7 2  eeeeeeee eeeeeeee
+scene 7 3  eeeeeeee eeeeeeee
+scene 7 4  eeeeeeee eeeeeeee
+scene 7 5  eeeeeeee eeeeeeee
+scene 7 6  eeeeeeee eeeeeeee
+scene 7 7  eeeeeeee eeeeeeee
+scene 7 8  eeeeeeee eeeeeeee
+scene 7 9  eeeeeeee eeeeeeee
+scene 7 10  eeeeeeee eeeeeeee
+scene 7 11  eeeeeeee eeeeeeee
+scene 7 12  eeeeeeee eeeeeeee
+scene 7 13  eeeeeeee eeeeeeee
+scene 7 14  eeeeeeee eeeeeeee
+scene 7 15  eeeeeeee eeeeeeee
+scene 7 16  eeeeeeee eeeeeeee
+scene 7 17  eeeeeeee eeeeeeee
+scene 7 18  eeeeeeee eeeeeeee
+scene 7 19  eeeeeeee eeeeeeee
+scene 7 20  eeeeeeee eeeeeeee
+scene 7 21  eeeeeeee eeeeeeee
+scene 8 0  eeeeeeee eeeeeeee
+scene 8 1  eeeeeeee eeeeeeee
+scene 8 2  eeeeeeee eeeeeeee
+scene 8 3  eeeeeeee eeeeeeee
+scene 8 4  eeeeeeee eeeeeeee
+scene 8 5  eeeeeeee eeeeeeee
+scene 8 6  eeeeeeee eeeeeeee
+scene 8 7  eeeeeeee eeeeeeee
+scene 8 8  eeeeeeee eeeeeeee
+scene 8 9  eeeeeeee eeeeeeee
+scene 8 10  eeeeeeee eeeeeeee
+scene 8 11  eeeeeeee eeeeeeee
+scene 8 12  eeeeeeee eeeeeeee
+scene 8 13  eeeeeeee eeeeeeee
+scene 8 14  eeeeeeee eeeeeeee
+scene 8 15  eeeeeeee eeeeeeee
+scene 8 16  eeeeeeee eeeeeeee
+scene 8 17  eeeeeeee eeeeeeee
+scene 8 18  eeeeeeee eeeeeeee
+scene 8 19  eeeeeeee eeeeeeee
+scene 8 20  eeeeeeee eeeeeeee
+scene 8 21  eeeeeeee eeeeeeee
+scene 9 0  eeeeeeee eeeeeeee
+scene 9 1  eeeeeeee eeeeeeee
+scene 9 2  eeeeeeee eeeeeeee
+scene 9 3  eeeeeeee eeeeeeee
+scene 9 4  eeeeeeee eeeeeeee
+scene 9 5  eeeeeeee eeeeeeee
+scene 9 6  eeeeeeee eeeeeeee
+scene 9 7  eeeeeeee eeeeeeee
+scene 9 8  eeeeeeee eeeeeeee
+scene 9 9  eeeeeeee eeeeeeee
+scene 9 10  eeeeeeee eeeeeeee
+scene 9 11  eeeeeeee eeeeeeee
+scene 9 12  eeeeeeee eeeeeeee
+scene 9 13  eeeeeeee eeeeeeee
+scene 9 14  eeeeeeee eeeeeeee
+scene 9 15  eeeeeeee eeeeeeee
+scene 9 16  eeeeeeee eeeeeeee
+scene 9 17  eeeeeeee eeeeeeee
+scene 9 18  eeeeeeee eeeeeeee
+scene 9 19  eeeeeeee eeeeeeee
+scene 9 20  eeeeeeee eeeeeeee
+scene 9 21  eeeeeeee eeeeeeee
+scene 10 0  ffeeeeee efeeeeee
+scene 10 1  ffeeeeee efeeeeee
+scene 10 2  ffeeeeee efeeeeee
+scene 10 3  ffeeeeee efeeeeee
+scene 10 4  ffeeeeee efeeeeee
+scene 10 5  ffeeeeee efeeeeee
+scene 10 6  ffeeeeee efeeeeee
+scene 10 7  ffeeeeee efeeeeee
+scene 10 8  ffeeeeee efeeeeee
+scene 10 9  ffeeeeee efeeeeee
+scene 10 10  ffeeeeee efeeeeee
+scene 10 11  ffeeeeee efeeeeee
+scene 10 12  ffeeeeee efeeeeee
+scene 10 13  ffeeeeee efeeeeee
+scene 10 14  eeeeeeee eeeeeeee
+scene 10 15  eeeeeeee eeeeeeee
+scene 10 16  eeeeeeee eeeeeeee
+scene 10 17  ffeeeeee efeeeeee
+scene 10 18  eeeeeeee eeeeeeee
+scene 10 19  eeeeeeee eeeeeeee
+scene 10 20  eeeeeeee eeeeeeee
+scene 10 21  ffeeeeee efeeeeee
+scene 11 0  ffeeeeee efeeeeee
+scene 11 1  ffeeeeee efeeeeee
+scene 11 2  ffeeeeee efeeeeee
+scene 11 3  ffeeeeee efeeeeee
+scene 11 4  ffeeeeee efeeeeee
+scene 11 5  ffeeeeee efeeeeee
+scene 11 6  ffeeeeee efeeeeee
+scene 11 7  ffeeeeee efeeeeee
+scene 11 8  ffeeeeee efeeeeee
+scene 11 9  ffeeeeee efeeeeee
+scene 11 10  ffeeeeee efeeeeee
+scene 11 11  ffeeeeee efeeeeee
+scene 11 12  ffeeeeee efeeeeee
+scene 11 13  ffeeeeee efeeeeee
+scene 11 14  eeeeeeee eeeeeeee
+scene 11 15  eeeeeeee eeeeeeee
+scene 11 16  eeeeeeee eeeeeeee
+scene 11 17  ffeeeeee efeeeeee
+scene 11 18  eeeeeeee eeeeeeee
+scene 11 19  eeeeeeee eeeeeeee
+scene 11 20  eeeeeeee eeeeeeee
+scene 11 21  ffeeeeee efeeeeee
+scene 12 0  ffeeeeee efeeeeee
+scene 12 1  ffeeeeee efeeeeee
+scene 12 2  ffeeeeee efeeeeee
+scene 12 3  ffeeeeee efeeeeee
+scene 12 4  ffeeeeee efeeeeee
+scene 12 5  ffeeeeee efeeeeee
+scene 12 6  ffeeeeee efeeeeee
+scene 12 7  ffeeeeee efeeeeee
+scene 12 8  ffeeeeee efeeeeee
+scene 12 9  ffeeeeee efeeeeee
+scene 12 10  ffeeeeee efeeeeee
+scene 12 11  ffeeeeee efeeeeee
+scene 12 12  ffeeeeee efeeeeee
+scene 12 13  ffeeeeee efeeeeee
+scene 12 14  eeeeeeee eeeeeeee
+scene 12 15  eeeeeeee eeeeeeee
+scene 12 16  eeeeeeee eeeeeeee
+scene 12 17  ffeeeeee efeeeeee
+scene 12 18  eeeeeeee eeeeeeee
+scene 12 19  eeeeeeee eeeeeeee
+scene 12 20  eeeeeeee eeeeeeee
+scene 12 21  ffeeeeee efeeeeee
+scene 13 0  ffeeeeee efeeeeee
+scene 13 1  ffeeeeee efeeeeee
+scene 13 2  ffeeeeee efeeeeee
+scene 13 3  ffeeeeee efeeeeee
+scene 13 4  ffeeeeee efeeeeee
+scene 13 5  ffeeeeee efeeeeee
+scene 13 6  ffeeeeee efeeeeee
+scene 13 7  ffeeeeee efeeeeee
+scene 13 8  ffeeeeee efeeeeee
+scene 13 9  ffeeeeee efeeeeee
+scene 13 10  ffeeeeee efeeeeee
+scene 13 11  ffeeeeee efeeeeee
+scene 13 12  ffeeeeee efeeeeee
+scene 13 13  ffeeeeee efeeeeee
+scene 13 14  eeeeeeee eeeeeeee
+scene 13 15  eeeeeeee eeeeeeee
+scene 13 16  eeeeeeee eeeeeeee
+scene 13 17  ffeeeeee efeeeeee
+scene 13 18  eeeeeeee eeeeeeee
+scene 13 19  eeeeeeee eeeeeeee
+scene 13 20  eeeeeeee eeeeeeee
+scene 13 21  ffeeeeee efeeeeee
+scene 14 0  eeeeeeee eeeeeeee
+scene 14 1  eeeeeeee eeeeeeee
+scene 14 2  eeeeeeee eeeeeeee
+scene 14 3  eeeeeeee eeeeeeee
+scene 14 4  eeeeeeee eeeeeeee
+scene 14 5  eeeeeeee eeeeeeee
+scene 14 6  eeeeeeee eeeeeeee
+scene 14 7  eeeeeeee eeeeeeee
+scene 14 8  eeeeeeee eeeeeeee
+scene 14 9  eeeeeeee eeeeeeee
+scene 14 10  eeeeeeee eeeeeeee
+scene 14 11  eeeeeeee eeeeeeee
+scene 14 12  eeeeeeee eeeeeeee
+scene 14 13  eeeeeeee eeeeeeee
+scene 14 14  eeeeeeee eeeeeeee
+scene 14 15  eeeeeeee eeeeeeee
+scene 14 16  eeeeeeee eeeeeeee
+scene 14 17  eeeeeeee eeeeeeee
+scene 14 18  eeeeeeee eeeeeeee
+scene 14 19  eeeeeeee eeeeeeee
+scene 14 20  eeeeeeee eeeeeeee
+scene 14 21  eeeeeeee eeeeeeee
+scene 15 0  ffeeeeee efeeeeee
+scene 15 1  ffeeeeee efeeeeee
+scene 15 2  ffeeeeee efeeeeee
+scene 15 3  ffeeeeee efeeeeee
+scene 15 4  ffeeeeee efeeeeee
+scene 15 5  ffeeeeee efeeeeee
+scene 15 6  ffeeeeee efeeeeee
+scene 15 7  ffeeeeee efeeeeee
+scene 15 8  ffeeeeee efeeeeee
+scene 15 9  ffeeeeee efeeeeee
+scene 15 10  ffeeeeee efeeeeee
+scene 15 11  ffeeeeee efeeeeee
+scene 15 12  ffeeeeee efeeeeee
+scene 15 13  ffeeeeee efeeeeee
+scene 15 14  eeeeeeee eeeeeeee
+scene 15 15  eeeeeeee eeeeeeee
+scene 15 16  eeeeeeee eeeeeeee
+scene 15 17  ffeeeeee efeeeeee
+scene 15 18  eeeeeeee eeeeeeee
+scene 15 19  eeeeeeee eeeeeeee
+scene 15 20  eeeeeeee eeeeeeee
+scene 15 21  ffeeeeee efeeeeee
+anchor 19 0 1 0 1 1 -37 -204  8
+anchor 11 0 0 0 0 1 86 67  8
+anchor 11 0 1 0 0 1 65 -289  8
+anchor 11 0 0 0 0 1 -256 -39  8
+anchor 11 4 0 1 0 1 259 505  267
+anchor 7 0 0 1 0 0 -124 253  8
+anchor 4 0 0 0 0 0 308 -74  8
+anchor 11 0 0 0 0 0 -204 -169  -161
+anchor 11 11 0 1 1 1 -119 384  -111
+anchor 11 0 0 0 0 0 -102 -368  -360
+anchor 3 0 0 0 0 0 -317 -482  8
+anchor 11 15 0 0 1 0 132 593  140
+anchor 11 0 0 1 0 0 228 -404  236
+anchor 20 0 1 0 0 1 -275 577  8
+anchor 11 0 1 0 1 1 234 -114  242
+anchor 11 0 1 0 1 0 89 421  97
+anchor 9 0 0 0 0 0 212 -238  8
+anchor 11 0 0 0 0 0 393 -100  -92
+anchor 11 0 0 1 0 1 -63 -310  -55
+anchor 11 3 0 0 0 0 133 -136  -55
+anchor 11 1 0 1 0 0 356 176  364
+anchor 11 0 0 0 1 1 332 410  8
+anchor 11 14 0 0 0 1 121 113  8
+anchor 11 0 1 1 1 0 315 -5  323
+anchor 11 1 0 0 1 1 -116 380  -108
+anchor 1 4 0 1 1 0 198 300  8
+anchor 4 0 0 1 0 1 -310 1  8
+anchor 11 15 1 0 0 1 -384 54  8
+anchor 18 15 0 0 0 1 -28 533  8
+anchor 11 0 0 1 1 0 162 172  170
+anchor 11 5 0 0 0 0 31 -447  170
+anchor 11 10 0 0 0 0 -247 305  170
+anchor 11 0 0 0 1 0 -233 362  370
+anchor 11 3 0 0 0 1 -390 -285  370
+anchor 11 8 0 0 1 1 -177 -365  -169
+anchor 11 1 0 0 1 1 351 386  359
+anchor 11 10 0 0 1 1 -318 576  -310
+anchor 3 0 0 1 0 1 266 -583  8
+anchor 11 4 1 1 0 0 82 421  90
+anchor 11 0 0 0 0 1 -3 -275  8
+anchor 11 4 0 1 1 0 312 -3  320
+anchor 11 0 0 0 1 0 92 -355  -347
+anchor 7 0 0 1 0 1 10 -388  8
+anchor 11 0 0 0 0 1 -225 452  8
+anchor 17 1 0 0 0 1 364 195  8
+anchor 11 9 0 1 0 1 15 -270  23
+anchor 11 6 0 1 1 1 341 -417  349
+anchor 11 14 0 0 1 0 66 -595  74
+anchor 11 0 0 0 0 1 252 -47  8
+anchor 11 7 0 0 0 0 322 68  8
+anchor 11 7 1 0 0 1 -251 -395  8
+anchor 11 0 1 1 0 0 26 -445  34
+anchor 11 4 1 1 1 0 -52 118  -44
+anchor 5 2 0 0 0 1 -288 30  8
+anchor 11 0 0 0 0 1 -326 -7  8
+anchor 11 11 0 0 0 1 382 -6  8
+anchor 11 9 0 1 1 0 -392 314  -384
+anchor 11 13 1 0 1 1 239 -211  247
+anchor 11 13 0 1 0 0 -34 238  -26
+anchor 11 12 0 0 0 0 -305 -367  8
+anchor 21 0 0 1 0 1 -158 -85  8
+anchor 11 7 1 0 0 1 -271 -439  8
+anchor 11 0 0 0 0 0 -189 -395  -387
+anchor 9 0 1 0 0 1 106 232  8
+anchor 11 1 1 0 0 1 -271 -172  -387
+anchor 2 0 0 0 0 1 -334 330  8
+anchor 11 15 0 1 0 1 385 -433  393
+anchor 11 1 1 1 0 0 -291 -276  -283
+anchor 11 1 0 0 0 0 176 431  -387
+anchor 11 0 0 0 0 1 354 -377  8
+anchor 11 0 0 0 1 1 264 -530  8
+anchor 11 0 0 0 0 1 333 -536  8
+anchor 11 0 0 0 0 0 -323 465  473
+anchor 11 3 0 1 0 1 -155 -506  -147
+anchor 12 11 0 0 0 1 112 264  8
+anchor 11 12 0 0 0 0 347 512  473
+anchor 11 6 0 1 0 1 168 -211  176
+anchor 11 8 1 0 0 0 -365 311  473
+anchor 11 0 0 0 1 1 -73 385  8
+anchor 11 0 0 0 1 0 47 425  433
+anchor 11 0 1 0 1 0 373 -374  381
+anchor 5 0 0 0 0 0 -84 116  8
+anchor 10 0 1 0 0 1 347 158  8
+anchor 13 0 0 0 0 0 357 522  8
+anchor 11 3 0 0 0 0 -162 -482  433
+anchor 11 9 0 1 0 1 205 277  213
+anchor 6 0 1 0 1 1 -166 492  8
+anchor 11 0 0 0 0 1 -368 40  8
+anchor 11 0 1 1 1 0 174 272  182
+anchor 9 2 1 1 0 0 186 -329  8
+anchor 11 0 1 0 0 1 350 366  8
+anchor 11 0 0 0 0 1 387 4  8
+anchor 11 5 0 0 0 0 -363 196  8
+anchor 11 2 0 1 0 0 245 33  253
+anchor 11 5 0 1 0 0 -88 401  -80
+anchor 11 10 0 1 0 0 242 553  250
+anchor 12 13 0 0 0 1 332 315  8
+anchor 11 0 0 0 1 0 -49 -339  -331
+anchor 11 0 0 0 0 1 -25 272  8
+anchor 15 0 0 0 0 0 14 -139  8
+anchor 11 0 0 0 0 1 -308 445  8
+anchor 11 4 0 0 0 1 199 -202  8
+anchor 5 0 0 0 0 1 -248 464  8
+anchor 1 12 0 0 0 0 130 418  8
+anchor 11 0 0 0 1 0 -130 156  164
+anchor 11 0 0 0 0 1 397 -43  8
+anchor 11 14 0 0 1 1 -50 592  -42
+anchor 11 0 0 0 1 0 -80 -503  -495
+anchor 11 4 0 0 1 0 -44 -525  -36
+anchor 16 4 0 0 0 0 235 59  8
+anchor 11 3 1 0 1 0 260 534  268
+anchor 11 0 1 0 0 0 323 -59  -495
+anchor 11 0 1 0 0 1 372 -229  -495
+anchor 11 0 0 1 0 1 270 20  278
+anchor 11 8 0 0 0 0 -41 -499  278
+anchor 11 2 0 0 0 1 -137 356  278
+anchor 11 0 0 0 0 1 350 -498  8
+anchor 11 0 0 0 0 1 378 -469  8
+anchor 15 4 0 1 0 1 157 313  8
+anchor 9 0 0 0 1 1 270 368  8
+anchor 11 0 0 0 1 1 -99 301  8
+anchor 11 15 0 0 1 0 -220 36  -212
+anchor 2 8 0 0 0 1 -124 412  8
+anchor 11 12 0 1 0 1 329 -522  337
+anchor 14 10 0 0 0 0 9 -407  8
+anchor 11 3 0 0 0 1 -363 -489  8
+anchor 11 0 1 0 0 1 -17 419  8
+anchor 11 0 0 0 0 1 -303 -545  8
+anchor 11 8 0 1 0 0 6 -224  14
+anchor 11 0 0 0 0 0 291 -528  -520
+anchor 11 0 0 0 0 1 -325 -586  8
+anchor 11 0 0 1 0 1 -337 593  -329
+anchor 11 15 0 1 0 0 133 -591  141
+anchor 11 14 0 1 1 0 -140 -134  -132
+anchor 11 0 0 0 0 1 292 -569  8
+anchor 11 0 1 0 0 1 241 -463  8
+anchor 11 0 1 0 1 0 -64 70  -56
+anchor 18 0 1 0 1 0 325 -440  8
+anchor 11 3 0 0 0 0 331 -376  8
+anchor 3 0 0 0 1 0 -49 538  8
+anchor 11 7 0 1 0 1 208 555  216
+anchor 11 8 0 1 0 1 104 35  112
+anchor 11 0 1 0 0 0 125 -71  8
+anchor 11 4 0 0 0 1 -332 -307  8
+anchor 5 0 1 1 0 1 162 114  8
+anchor 11 7 0 1 0 1 -289 93  -281
+anchor 20 6 0 1 0 1 -56 -156  8
+anchor 11 4 0 0 1 1 257 64  265
+anchor 11 10 0 0 1 0 342 540  350
+anchor 11 0 1 0 1 1 230 510  238
+anchor 11 0 0 1 0 1 357 340  365
+anchor 18 7 0 0 0 1 -378 505  8
+anchor 11 0 0 1 0 0 -394 -514  -386
+anchor 8 3 0 0 1 1 309 -352  8
+anchor 5 0 1 0 0 1 373 464  8
+anchor 11 0 1 0 0 0 113 -375  -386
+anchor 11 7 0 1 0 1 337 134  345
+anchor 0 5 0 1 0 0 317 -71  8
+anchor 11 0 1 0 0 0 263 -57  -386
+anchor 11 1 0 0 0 1 -353 437  -386
+anchor 11 0 1 1 0 1 243 51  251
+anchor 11 13 0 0 0 0 -190 -30  -386
+anchor 11 4 0 1 0 1 309 257  317
+anchor 11 3 1 0 0 0 106 -304  -386
+anchor 17 1 1 0 1 0 77 -181  8
+anchor 11 4 1 1 0 0 211 564  219
+anchor 11 0 0 0 0 1 31 275  8
+anchor 11 2 0 1 1 1 260 -103  268
+anchor 10 0 0 0 1 1 -5 -301  8
+anchor 11 0 0 0 0 0 195 378  386
+anchor 11 0 1 0 0 0 -189 -95  386
+anchor 11 2 1 0 1 0 53 328  61
+anchor 0 0 0 0 0 1 -198 304  8
+anchor 11 0 0 0 1 1 287 -387  8
+anchor 11 0 0 0 0 0 -79 316  324
+anchor 11 12 1 0 0 0 -178 -438  324
+anchor 11 0 1 0 0 1 364 30  324
+anchor 20 0 1 0 0 1 -257 -533  8
+anchor 14 0 0 0 0 0 343 494  8
+anchor 9 14 1 1 0 1 9 -253  8
+anchor 3 15 0 0 0 0 171 -420  8
+anchor 18 3 1 0 0 0 -395 351  8
+anchor 2 4 0 0 0 1 380 -532  8
+anchor 11 0 1 1 0 0 121 -108  129
+anchor 11 0 0 0 1 1 -380 7  8
+anchor 11 13 0 1 0 0 296 -577  304
+anchor 11 10 1 0 0 1 -347 -268  8
+anchor 11 9 0 0 1 1 155 -428  163
+anchor 11 5 1 1 1 0 -96 379  -88
+anchor 11 13 0 1 0 1 113 17  121
+anchor 17 0 0 1 0 0 223 61  8
+anchor 11 0 0 0 0 1 -394 -374  8
+anchor 3 4 1 0 0 0 -235 -431  8
+anchor 11 0 0 0 1 1 394 85  8
+anchor 0 0 0 0 0 1 280 -268  8
+anchor 11 10 0 0 1 1 226 -218  234
+anchor 11 0 1 0 1 0 -335 526  -327
+anchor 11 3 0 0 0 1 -178 480  8
+anchor 11 0 0 0 0 0 -80 -179  -171
+anchor 11 0 0 0 0 0 11 -166  -158
+anchor 11 10 0 0 1 0 -290 378  -282
+anchor 11 5 0 1 0 0 -285 39  -277
+anchor 19 9 1 0 0 0 -140 429  8
+anchor 5 0 0 0 1 0 -162 276  8
+anchor 13 14 0 0 0 1 102 279  8
+anchor 11 0 0 0 0 0 -384 -183  -175
+anchor 10 0 0 0 1 1 -80 -224  8
+anchor 10 2 0 1 0 1 -174 209  8
+anchor 14 0 1 0 0 1 24 -420  8
+anchor 11 0 0 0 1 1 -200 -7  8
+anchor 12 10 0 0 0 0 -398 444  8
+anchor 11 15 1 0 0 0 -265 -157  8
+anchor 11 0 0 0 0 1 190 160  8
+anchor 11 0 0 1 0 1 -238 526  -230
+anchor 11 8 0 0 0 0 386 144  -230
+anchor 11 13 0 0 1 0 -90 166  -82
+anchor 11 0 0 0 0 1 4 -224  8
+anchor 11 0 0 0 1 0 -19 -490  -482
+anchor 14 7 0 1 0 0 -64 -371  8
+anchor 11 0 0 0 1 0 -366 -540  -532
+anchor 11 5 0 0 0 1 -324 -290  -532
+anchor 11 0 1 1 0 1 110 -408  118
+anchor 11 9 0 0 0 1 -290 362  -532
+anchor 11 14 0 0 1 1 -281 -111  -273
+anchor 11 0 0 0 0 1 105 -415  8
+anchor 11 3 0 1 0 0 289 31  297
+anchor 11 9 0 1 0 1 0 359  8
+anchor 12 0 0 1 0 1 -12 -530  8
+anchor 11 0 0 1 0 1 -314 110  -306
+anchor 11 0 0 0 0 0 -126 536  544
+anchor 15 13 0 0 0 0 16 377  8
+anchor 2 14 1 0 1 1 -132 -447  8
+anchor 11 14 1 0 0 0 -301 -541  544
+anchor 11 0 0 0 0 0 -73 -212  -204
+anchor 11 0 1 0 0 0 -315 475  -204
+anchor 14 7 1 0 0 0 -241 116  8
+anchor 15 12 0 0 0 0 67 -415  8
+anchor 11 0 0 0 0 1 275 -266  8
+anchor 3 0 0 0 0 1 142 121  8
+anchor 2 0 0 0 0 0 -127 -562  8
+anchor 11 0 0 0 0 0 153 -21  -13
+anchor 11 0 0 0 0 0 27 171  179
+anchor 1 1 0 0 0 0 -400 -207  8
+anchor 7 6 0 0 1 0 6 -80  8
+anchor 0 8 0 0 1 1 -260 -181  8
+anchor 11 3 0 0 0 0 215 -433  179
+anchor 11 0 1 1 0 1 211 -502  219
+anchor 11 0 1 0 0 1 62 -172  179
+anchor 11 0 1 1 1 1 -91 33  -83
+anchor 11 0 1 0 1 1 316 160  324
+anchor 11 0 0 0 0 0 323 -207  -199
+anchor 9 0 0 0 0 0 105 20  8
+anchor 11 6 0 1 0 0 287 -104  295
+anchor 11 0 0 0 0 0 37 544  552
+anchor 1 6 1 1 1 0 102 526  8
+anchor 11 0 0 0 0 1 39 312  8
+anchor 11 12 0 0 0 1 -275 288  8
+anchor 16 5 0 0 0 1 128 425  8
+anchor 10 0 0 0 1 0 -137 -580  8
+anchor 18 0 0 1 0 0 -30 416  8
+anchor 11 0 0 1 0 1 -86 -146  -78
+anchor 11 0 0 0 0 0 -247 -3  5
+anchor 11 0 0 0 0 0 139 477  485
+anchor 11 0 0 1 0 1 21 -343  29
+anchor 11 5 1 0 0 1 -299 79  29
+anchor 19 0 1 1 0 0 301 -380  8
+anchor 11 0 0 1 0 1 134 -213  142
+anchor 11 7 1 0 0 0 363 474  142
+anchor 11 1 1 1 0 1 19 129  27
+anchor 11 0 0 0 1 1 393 -187  8
+anchor 11 0 0 0 1 0 310 172  180
+anchor 11 0 1 0 0 1 379 377  180
+anchor 11 0 0 0 0 0 -97 -242  -234
+anchor 11 14 0 1 0 0 114 97  122
+anchor 16 15 0 1 0 1 238 448  8
+anchor 11 1 0 0 0 1 -392 -290  -234
+anchor 11 0 0 0 1 1 -223 -145  8
+anchor 3 0 1 1 0 0 183 -570  8
+anchor 11 11 0 0 0 1 82 -296  8
+anchor 4 0 0 0 1 0 85 278  8
+anchor 8 5 0 1 1 1 395 -123  8
+anchor 11 9 0 0 1 1 -31 -60  -23
+anchor 17 0 0 0 1 1 310 -501  8
+anchor 11 0 0 1 0 1 -166 -27  -158
+anchor 9 0 1 0 1 1 -309 118  8
+anchor 11 2 0 0 0 0 318 584  -158
+anchor 11 0 0 0 0 0 264 225  233
+anchor 8 10 0 1 0 0 230 50  8
+anchor 7 8 0 1 0 1 -76 463  8
+anchor 5 0 0 1 0 1 -290 283  8
+anchor 11 0 0 0 0 1 -61 372  8
+anchor 18 11 1 0 0 1 202 578  8
+anchor 11 0 0 0 0 0 -377 -112  -104
+anchor 11 0 0 1 1 0 -393 535  -385
+anchor 0 0 0 1 0 0 -367 365  8
+anchor 11 9 1 1 0 0 387 589  395
+anchor 11 0 0 0 1 1 304 67  8
+anchor 11 0 0 0 1 0 105 371  379
+anchor 1 8 0 0 0 0 188 -292  8
+anchor 11 4 1 1 1 0 -274 -215  -266
+anchor 11 0 1 0 0 0 -172 -501  379
+anchor 11 0 0 1 0 1 -59 171  -51
+anchor 11 0 0 1 0 1 385 -25  393
+anchor 11 0 1 0 0 1 -67 -210  393
+anchor 11 0 0 1 0 0 -125 -452  -117
+anchor 11 0 0 0 0 1 -9 -583  8
+anchor 11 0 1 1 0 1 -199 -55  -191
+anchor 11 9 0 0 0 0 273 -196  8
+anchor 11 0 1 0 0 1 -101 324  8
+anchor 11 0 0 0 1 1 51 -83  8
+anchor 11 0 1 0 0 1 -93 465  8
+anchor 11 2 0 0 0 1 -238 -539  8
+anchor 11 1 0 0 0 0 82 262  8
+anchor 11 0 0 0 0 1 -245 -239  8
+anchor 11 15 0 0 0 0 -370 322  8
+anchor 11 0 0 1 0 0 370 -414  378
+anchor 7 0 0 0 0 0 137 -82  8
+anchor 11 0 0 0 0 1 -51 -165  8
+anchor 4 0 0 0 1 0 -52 -522  8
+anchor 19 3 0 0 0 1 152 584  8
+anchor 7 0 1 0 0 0 -57 -590  8
+anchor 11 6 0 0 0 0 15 11  8
+anchor 11 0 1 1 0 0 90 197  98
+anchor 11 0 0 0 0 1 -115 -319  8
+anchor 11 0 1 1 0 1 134 564  142
+anchor 11 14 0 0 1 0 -57 -5  -49
+anchor 11 6 0 1 0 0 369 -536  377
+anchor 11 0 0 0 0 1 -235 -595  8
+anchor 12 0 0 1 1 0 -331 330  8
+anchor 11 0 0 0 0 0 -140 409  417
+anchor 11 6 0 0 0 0 -179 549  417
+anchor 11 0 0 1 0 0 -362 189  -354
+anchor 11 6 0 0 0 0 -168 304  -354
+anchor 11 0 0 0 0 0 -299 48  56
+anchor 15 0 0 0 0 1 -94 106  8
+anchor 12 0 1 0 1 1 278 -171  8
+anchor 11 0 0 0 0 0 -176 -490  -482
+anchor 11 0 0 0 0 1 60 519  8
+anchor 11 0 1 1 1 1 115 233  123
+anchor 17 13 0 0 0 1 5 -472  8
+anchor 11 0 0 0 1 0 -234 565  573
+anchor 15 0 0 0 0 1 229 -392  8
+anchor 11 4 0 0 0 0 -334 438  573
+anchor 11 7 0 1 0 1 -91 -146  -83
+anchor 3 12 0 1 0 0 -44 -548  8
+anchor 11 0 0 1 0 1 -269 598  -261
+anchor 11 0 0 0 1 0 -248 -384  -376
+anchor 11 0 0 1 0 1 -82 -436  -74
+anchor 11 9 0 0 1 1 387 421  395
+anchor 7 2 0 0 0 1 23 595  8
+anchor 11 0 0 1 0 1 66 -200  74
+anchor 11 11 1 0 1 0 95 -59  103
+anchor 11 6 0 0 0 0 271 578  74
+anchor 18 3 0 0 0 1 -381 362  8
+anchor 11 6 0 0 0 0 311 -405  74
+anchor 11 0 1 1 1 0 115 164  123
+anchor 11 14 0 0 0 0 175 -69  74
+anchor 11 0 0 0 0 1 -85 -594  8
+anchor 19 6 0 0 0 1 386 471  8
+anchor 9 0 0 1 0 1 249 -590  8
+anchor 3 15 0 1 1 1 365 233  8
+anchor 11 0 0 0 0 0 -95 -83  -75
+anchor 11 13 0 1 0 0 112 438  120
+anchor 11 0 1 1 0 1 -323 423  -315
+anchor 11 5 0 1 0 1 -22 321  -14
+anchor 11 0 1 0 0 0 274 391  -75
+anchor 11 15 1 0 0 1 307 294  -75
+anchor 10 12 0 0 0 0 -109 -58  8
+anchor 10 14 0 1 0 0 39 62  8
+anchor 11 10 0 0 0 1 330 -215  -75
+anchor 21 0 1 0 1 0 -164 533  8
+anchor 11 0 0 0 0 1 12 -257  8
+anchor 11 0 1 0 1 1 287 -528  295
+anchor 11 13 1 0 0 1 -239 -354  8
+anchor 11 10 0 1 0 0 -265 -463  -257
+anchor 11 1 0 0 0 1 128 579  8
+anchor 11 0 1 0 1 1 352 179  360
+anchor 11 0 0 1 0 1 209 471  217
+anchor 11 0 0 0 0 1 118 107  8
+anchor 18 0 0 0 0 1 351 514  8
+anchor 11 14 0 1 0 0 210 281  218
+anchor 11 0 0 0 0 0 305 -336  -328
+anchor 11 1 0 0 0 1 16 -504  -328
+anchor 12 1 1 0 0 1 372 594  8
+anchor 11 0 0 1 0 1 -173 480  -165
+anchor 11 15 0 1 0 0 208 -543  216
+anchor 11 11 0 0 0 1 -308 -271  -165
+anchor 16 2 1 0 0 0 358 -425  8
+anchor 11 0 0 0 0 0 -11 -108  -100
+anchor 11 0 1 0 0 1 -270 -453  -100
+anchor 20 14 0 0 0 1 -236 -236  8
+anchor 1 0 0 0 0 0 -160 -105  8
+anchor 11 2 0 0 0 1 -163 217  -100
+anchor 19 11 0 1 0 0 228 -418  8
+anchor 11 8 1 0 0 1 -223 -168  -100
+anchor 21 0 0 1 0 0 -271 128  8
+anchor 11 15 0 1 0 1 399 86  407
+anchor 19 0 0 0 0 1 -293 552  8
+anchor 11 2 1 1 0 0 171 -106  179
+anchor 11 7 1 0 0 1 -388 -92  -100
+anchor 11 0 0 1 0 0 -166 278  -158
+anchor 11 15 0 0 1 1 -230 14  -222
+anchor 11 0 1 0 1 1 242 -250  250
+anchor 17 0 0 0 0 1 -180 -538  8
+anchor 11 9 0 0 1 1 361 239  369
+anchor 16 0 0 0 0 1 -53 284  8
+anchor 11 12 0 0 1 0 -157 -56  -149
+anchor 8 0 1 0 0 0 -47 -569  8
+anchor 11 0 1 0 0 1 -80 -471  -158
+anchor 1 0 1 1 0 0 68 198  8
+anchor 16 0 1 0 0 0 -175 98  8
+anchor 11 0 1 0 0 0 -210 62  -158
+anchor 11 0 0 0 0 1 -44 39  8
+anchor 11 0 0 1 1 0 -188 399  -180
+anchor 3 7 0 1 1 0 182 -9  8
+anchor 16 0 0 1 1 1 246 189  8
+anchor 11 1 0 1 0 0 394 -110  402
+anchor 15 9 1 1 0 0 -46 -599  8
+anchor 0 0 1 0 0 0 -164 -418  8
+anchor 11 2 0 0 0 0 245 -277  -180
+anchor 11 0 0 0 1 1 -110 555  8
+anchor 11 0 1 1 1 1 -19 512  -11
+anchor 11 0 0 0 1 1 327 178  8
+anchor 11 6 0 0 0 1 56 511  8
+anchor 11 0 0 1 1 0 -209 281  -201
+anchor 11 4 0 0 0 1 -384 -551  -201
+anchor 11 2 0 1 0 0 -50 346  -42
+anchor 11 0 1 0 1 1 -366 -225  -358
+anchor 4 7 0 1 0 1 -373 186  8
+anchor 11 0 0 0 0 0 200 36  44
+anchor 11 0 0 0 0 0 371 -141  -133
+anchor 11 0 0 1 0 1 -149 32  -141
+anchor 11 0 1 0 0 1 -96 -437  -141
+anchor 11 3 0 1 0 1 -203 123  -195
+anchor 2 0 0 0 0 1 19 343  8
+anchor 11 0 0 0 0 1 -8 -90  8
+anchor 11 11 0 1 0 1 -197 -206  -189
+anchor 11 7 1 0 0 1 -149 -143  8
+anchor 11 0 0 0 1 1 -329 -555  8
+anchor 11 10 1 0 0 1 -331 434  8
+anchor 9 0 0 0 1 1 11 -279  8
+anchor 11 9 0 0 1 0 173 497  181
+anchor 11 0 0 0 0 1 -333 -557  8
+anchor 11 0 0 0 0 0 -127 578  586
+anchor 11 4 0 1 0 0 -263 -223  -255
+anchor 11 0 1 1 0 1 -102 -27  -94
+anchor 11 0 0 1 1 1 366 333  374
+anchor 11 0 1 0 0 1 -135 -90  374
+anchor 11 0 0 0 0 1 94 -343  8
+anchor 3 0 0 0 0 1 194 397  8
+anchor 11 0 0 0 1 1 -19 375  8
+anchor 16 0 0 0 0 1 -74 290  8
+anchor 0 0 0 0 0 1 -383 33  8
+anchor 11 2 0 0 1 0 60 -89  68
+anchor 11 0 0 0 1 1 61 330  8
+anchor 11 0 0 0 0 0 248 -456  -448
+anchor 11 12 1 0 1 1 -172 -519  -164
+anchor 11 3 0 0 0 0 -287 209  -448
+anchor 11 6 1 0 0 1 346 -51  -448
+anchor 11 15 0 0 0 1 147 -124  -448
+anchor 11 5 0 0 0 0 -355 464  -448
+anchor 15 4 1 1 1 0 223 -168  8
+anchor 11 0 0 0 0 0 283 473  481
+anchor 11 0 1 0 0 1 -193 299  481
+anchor 11 4 0 1 0 0 -8 388  0
+anchor 11 4 0 1 0 0 -224 587  -216
+anchor 11 7 1 1 0 1 -373 -293  -365
+anchor 11 0 1 0 0 0 -105 587  481
+anchor 13 7 0 1 1 0 -166 -74  8
+anchor 13 13 0 0 0 0 275 -81  8
+anchor 11 13 0 1 1 0 344 167  352
+anchor 11 0 0 0 1 0 42 -95  -87
+anchor 11 7 0 0 0 0 308 -1  -87
+anchor 8 0 1 1 0 1 149 133  8
+anchor 11 0 1 0 0 0 255 577  -87
+anchor 11 0 0 0 0 1 330 -30  8
+anchor 11 0 0 1 0 1 217 30  225
+anchor 11 7 0 0 1 0 -97 600  -89
+anchor 13 15 1 1 0 0 -143 462  8
+anchor 11 0 0 0 1 0 259 -128  -120
+anchor 14 0 0 1 0 0 323 365  8
+anchor 11 2 0 1 0 0 95 32  103
+anchor 11 0 1 0 0 0 365 -40  -120
+anchor 11 2 0 0 0 0 231 -291  -120
+anchor 11 5 0 1 0 0 356 -185  364
+anchor 11 1 0 1 1 1 177 93  185
+anchor 11 0 0 0 0 1 -181 164  8
+anchor 7 14 0 1 1 1 352 -587  8
+anchor 11 5 0 0 0 1 17 434  8
+anchor 11 0 0 0 0 1 135 -393  8
+anchor 11 0 0 1 1 0 -365 -488  -357
+anchor 11 10 0 0 0 0 -11 451  -357
+anchor 11 3 0 1 0 1 362 -27  370
+anchor 12 11 0 0 0 1 -395 537  8
+anchor 11 0 0 1 0 1 255 -262  263
+anchor 11 2 0 1 1 1 390 462  398
+anchor 21 0 0 0 0 1 250 118  8
+anchor 11 0 0 0 0 0 175 576  584
+anchor 11 0 0 1 0 0 375 123  383
+anchor 11 9 0 0 0 1 -252 572  383
+anchor 5 0 0 0 0 1 41 -572  8
+anchor 14 10 0 1 0 1 144 -142  8
+anchor 11 0 0 0 0 1 -246 -554  8
+anchor 19 3 0 1 1 1 -145 -273  8
+anchor 11 0 0 0 1 1 27 169  8
+anchor 11 15 0 0 0 0 -26 388  8
+anchor 7 0 0 0 0 0 -372 -370  8
+anchor 11 0 0 0 1 0 101 -88  -80
+anchor 11 0 0 0 0 0 -163 -13  -5
+anchor 11 0 1 1 0 1 -329 -326  -321
+anchor 11 0 0 0 0 0 -392 -347  -339
+anchor 20 0 0 0 0 0 198 -23  8
+anchor 12 6 0 0 1 0 -225 -277  8
+anchor 11 0 0 0 0 1 -14 403  8
+anchor 11 0 0 0 0 1 65 211  8
+anchor 12 0 0 1 1 1 396 133  8
+anchor 11 0 0 0 0 0 374 -579  -571
+anchor 18 0 1 0 1 1 321 3  8
+anchor 11 0 0 0 0 1 -234 -465  8
+anchor 11 1 0 0 1 0 344 -150  352
+anchor 6 0 0 1 1 1 -244 217  8
+anchor 11 0 0 0 0 0 44 -594  -586
+anchor 11 10 0 0 1 1 320 37  328
+anchor 11 0 0 0 1 1 246 -145  8
+anchor 11 0 0 0 1 1 321 -221  8
+anchor 11 0 1 1 0 1 -39 530  -31
+anchor 11 0 0 0 1 1 -195 106  8
+anchor 11 3 0 0 0 1 72 -437  8
+anchor 5 0 0 0 0 1 38 -438  8
+anchor 11 9 0 0 1 1 -249 -433  -241
+anchor 11 0 0 1 0 0 9 561  17
+anchor 15 0 0 0 0 1 -384 239  8
+anchor 11 0 0 0 0 1 -323 90  8
+anchor 11 15 0 0 0 0 43 567  8
+anchor 18 0 1 1 0 1 119 496  8
+anchor 11 0 0 0 0 1 350 -565  8
+anchor 11 0 1 0 0 0 -282 -297  8
+anchor 11 0 1 0 1 0 -369 59  -361
+anchor 20 1 1 0 0 1 269 -155  8
+anchor 11 0 0 0 0 0 127 100  108
+anchor 11 9 0 1 1 1 -111 -103  -103
+anchor 13 0 1 0 0 1 -380 -209  8
+anchor 11 7 0 0 0 1 -290 -194  108
+anchor 11 0 0 0 0 0 343 -579  -571
+anchor 11 12 1 0 1 1 -306 241  -298
+anchor 11 0 1 1 1 0 33 600  41
+anchor 11 13 0 1 0 1 -213 -193  -205
+anchor 11 2 0 0 1 1 7 -269  15
+anchor 11 9 0 0 1 1 -147 -347  -139
+anchor 10 0 0 1 0 1 -70 -222  8
+anchor 11 12 0 1 1 0 13 -65  21
+anchor 9 0 0 0 1 0 -346 143  8
+anchor 17 0 0 0 0 0 -105 -248  8
+anchor 11 0 0 0 0 1 -258 -360  8
+anchor 11 0 0 0 0 0 -377 100  108
+anchor 19 10 1 0 0 1 16 -556  8
+anchor 11 0 0 0 0 1 -111 307  8
+anchor 11 0 0 0 0 0 -31 -94  -86
+anchor 11 1 0 1 0 1 -254 453  -246
+anchor 11 3 0 1 0 1 63 -200  71
+anchor 11 15 0 0 0 1 291 146  -86
+anchor 11 0 0 1 1 1 339 279  347
+anchor 11 0 0 0 0 1 51 328  8
+anchor 11 0 1 0 0 1 -113 -516  8
+anchor 11 0 0 0 0 0 -295 46  54
+anchor 17 0 0 0 0 1 238 -202  8
+anchor 11 3 0 0 0 0 -12 536  54
+anchor 11 0 0 0 0 0 30 -6  2
+anchor 15 0 0 0 0 1 83 -537  8
+anchor 11 0 1 0 0 1 356 -269  2
+anchor 11 0 0 1 0 0 212 -362  220
+anchor 10 0 0 0 1 1 -238 130  8
+anchor 11 4 0 0 0 0 146 486  220
+anchor 11 0 0 0 1 0 -47 199  207
+anchor 8 0 0 0 0 0 12 5  8
+anchor 19 0 0 0 0 1 -16 279  8
+anchor 11 0 0 0 1 1 15 251  8
+anchor 11 8 0 1 0 0 6 -346  14
+anchor 11 3 0 1 0 0 141 205  149
+anchor 11 15 1 0 0 1 31 557  8
+anchor 10 0 0 1 0 0 315 392  8
+anchor 11 0 0 0 0 0 -371 -157  -149
+anchor 11 0 0 1 0 0 184 -158  192
+anchor 11 1 0 0 0 1 175 -393  192
+anchor 11 8 1 0 0 0 371 -273  192
+anchor 11 4 0 1 1 1 -124 37  -116
+anchor 11 0 1 1 0 1 244 190  252
+anchor 11 0 0 0 1 0 -1 190  198
+anchor 11 0 0 0 0 1 -122 -395  8
+anchor 11 14 0 1 0 1 150 -167  158
+anchor 11 0 1 1 0 0 -152 -262  -144
+anchor 11 13 0 1 0 0 -35 423  -27
+anchor 11 13 0 1 1 1 -264 -52  -256
+anchor 11 0 0 0 1 0 60 -347  -339
+anchor 11 0 0 0 1 1 -270 588  8
+anchor 12 10 0 0 0 0 78 197  8
+anchor 11 8 0 0 0 1 -105 -40  8
+anchor 11 8 0 0 1 1 30 -44  38
+anchor 11 0 0 0 0 0 -100 503  511
+anchor 11 12 0 0 1 1 -20 397  -12
+anchor 11 14 1 0 0 1 -140 375  511
+anchor 4 6 0 0 0 0 64 -482  8
+anchor 9 1 0 0 0 1 114 85  8
+anchor 11 0 0 0 0 1 201 344  8
+anchor 11 0 0 1 1 1 -264 112  -256
+anchor 11 4 0 0 0 1 -310 -447  -256
+anchor 11 14 0 0 0 0 -100 -582  -256
+anchor 2 0 0 0 0 1 148 -315  8
+anchor 11 0 0 0 0 0 -41 -511  -503
+anchor 11 6 0 1 0 0 164 -95  172
+anchor 18 0 1 1 0 1 225 -447  8
+anchor 17 2 0 1 1 0 -351 -420  8
+anchor 2 1 0 1 0 1 -146 -525  8
+anchor 11 6 1 1 1 1 210 384  218
+anchor 11 0 0 0 1 1 392 -163  8
+anchor 11 10 0 0 1 1 -179 -580  -171
+anchor 11 12 0 1 0 1 -375 -132  -367
+anchor 11 14 0 1 1 0 160 128  168
+anchor 11 0 0 1 0 0 -160 -525  -152
+anchor 20 0 1 0 0 0 -104 -392  8
+anchor 11 0 0 0 1 0 351 -460  -452
+anchor 11 0 1 0 0 0 302 -411  -452
+anchor 11 0 1 1 1 1 279 519  287
+anchor 11 0 0 0 0 0 -252 194  202
+anchor 21 0 0 0 0 1 -84 135  8
+anchor 10 6 1 0 0 0 228 -599  8
+anchor 15 0 0 0 0 1 184 370  8
+anchor 21 0 0 0 0 0 -319 551  8
+anchor 11 0 0 0 0 1 -279 -218  8
+anchor 11 0 0 0 0 0 -42 450  458
+anchor 11 8 0 0 1 0 -243 -389  -235
+anchor 11 0 0 1 0 0 -36 437  -28
+anchor 11 15 0 0 0 1 -363 -422  -28
+anchor 16 1 0 0 0 0 -121 -382  8
+anchor 5 0 0 1 1 1 -351 282  8
+anchor 11 11 0 0 1 0 222 -178  230
+anchor 11 0 0 0 0 1 -321 -554  8
+anchor 5 4 0 1 1 0 -324 165  8
+anchor 11 0 1 0 0 0 -229 -338  8
+anchor 11 0 1 1 0 1 -241 -53  -233
+anchor 8 11 0 0 0 1 -26 -71  8
+anchor 21 0 0 1 1 1 -52 284  8
+anchor 11 0 0 0 0 0 -178 97  105
+anchor 11 5 0 1 1 0 -68 539  -60
+anchor 16 0 0 0 0 1 -180 262  8
+anchor 11 0 0 1 0 0 176 24  184
+anchor 11 9 0 0 0 0 -34 586  184
+anchor 11 15 1 0 0 1 290 189  184
+anchor 7 0 0 0 0 0 296 254  8
+anchor 4 0 0 1 1 1 304 -332  8
+anchor 11 5 0 1 1 1 -363 -159  -355
+anchor 11 0 0 1 0 0 -358 -344  -350
+anchor 7 0 0 0 1 0 91 258  8
+anchor 2 8 0 0 1 1 141 -522  8
+anchor 11 0 1 1 0 0 98 210  106
+anchor 11 10 0 0 0 1 -174 70  -350
+anchor 11 0 0 0 0 1 176 -553  8
+anchor 11 2 0 1 1 0 231 -489  239
+anchor 17 0 0 1 0 0 371 2  8
+anchor 11 0 0 0 0 1 -29 -521  8
+anchor 11 0 0 0 0 0 143 -392  -384
+anchor 0 0 1 0 0 0 129 -5  8
+anchor 11 0 0 1 0 1 -284 474  -276
+anchor 20 0 0 0 0 1 -44 -575  8
+anchor 11 0 0 1 0 0 -248 313  -240
+anchor 12 0 0 1 0 1 -148 -268  8
+anchor 5 13 1 0 0 1 -350 463  8
+anchor 11 0 1 0 0 0 160 -292  -240
+anchor 11 10 0 0 0 0 2 -165  -240
+anchor 17 4 1 1 0 1 353 396  8
+anchor 11 12 0 1 0 1 -181 -331  -173
+anchor 11 0 0 1 1 1 281 -301  289
+anchor 11 10 1 0 0 1 316 361  289
+anchor 11 0 0 0 0 1 73 -574  8
+anchor 11 3 0 1 0 0 256 -270  264
+anchor 11 0 0 0 0 0 200 304  312
+anchor 17 0 0 1 0 0 -56 -438  8
+anchor 7 0 0 0 0 1 -360 -285  8
+anchor 11 0 1 0 0 0 -241 -234  312
+anchor 3 12 0 1 0 0 -87 140  8
+anchor 11 0 1 0 0 1 113 367  312
+anchor 11 14 0 1 1 0 -324 -261  -316
+anchor 11 1 1 0 0 1 271 35  312
+anchor 11 11 0 0 0 0 -131 456  312
+anchor 11 9 0 0 1 0 -376 457  -368
+anchor 11 8 0 0 0 1 393 -308  312
+anchor 11 6 0 1 0 1 -68 -217  -60
+anchor 2 0 0 0 1 0 -356 -259  8
+anchor 11 7 0 1 0 0 398 287  406
+anchor 11 0 1 0 0 1 284 192  312
+anchor 11 15 0 0 0 0 272 441  312
+anchor 6 0 0 1 0 1 -149 -70  8
+anchor 11 0 0 0 0 1 -146 483  8
+anchor 11 0 0 0 0 1 102 -574  8
+anchor 11 0 0 1 0 1 294 116  302
+anchor 11 12 1 0 0 1 -179 425  302
+anchor 11 2 0 0 0 0 124 584  302
+anchor 11 0 1 1 0 1 283 -333  291
+anchor 3 14 0 1 0 1 47 -117  8
+anchor 15 0 0 0 0 0 247 -516  8
+anchor 8 0 1 1 0 0 -226 -341  8
+anchor 11 0 0 0 0 1 -213 -228  8
+anchor 5 0 0 0 1 1 208 271  8
+anchor 11 0 0 1 0 1 332 -74  340
+anchor 11 8 0 1 0 0 282 46  290
+anchor 11 0 0 0 0 0 227 531  539
+anchor 3 0 0 1 0 1 -3 -183  8
+anchor 11 0 0 0 1 0 -31 -166  -158
+anchor 11 11 0 0 0 1 370 -181  -158
+anchor 11 7 1 1 0 0 -65 107  -57
+anchor 11 3 0 0 0 0 196 -394  -158
+anchor 16 0 1 0 0 0 -40 -108  8
+anchor 11 0 1 1 0 1 -303 500  -295
+anchor 18 0 0 0 0 0 -157 171  8
+anchor 11 0 0 0 0 0 -26 516  524
+anchor 11 15 1 0 0 1 197 -565  524
+anchor 17 5 1 0 1 1 215 524  8
+anchor 4 13 0 1 1 1 -201 38  8
+anchor 11 10 0 0 0 1 43 -266  524
+anchor 11 6 0 1 1 0 93 -516  101
+anchor 11 9 0 0 1 1 -216 -9  -208
+anchor 11 1 1 0 0 0 -1 264  524
+anchor 11 0 0 1 0 1 370 -410  378
+anchor 11 13 0 1 0 0 78 534  86
+anchor 11 0 1 0 0 0 -16 -333  378
+anchor 11 0 0 0 0 1 184 -494  8
+anchor 11 15 0 0 0 1 58 -104  8
+anchor 11 0 0 0 1 1 -100 72  8
+anchor 13 0 1 0 0 1 121 -64  8
+anchor 19 13 0 0 0 1 4 446  8
+anchor 11 0 0 0 0 0 226 292  300
+anchor 11 1 1 1 0 0 117 -41  125
+anchor 11 0 0 1 0 1 -26 384  -18
+anchor 0 12 0 1 0 0 246 -118  8
+anchor 11 4 0 0 0 1 388 418  -18
+anchor 11 0 1 1 0 0 -135 -43  -127
+anchor 11 13 0 0 1 1 -364 -515  -356
+anchor 11 0 0 1 0 1 54 99  62
+anchor 11 0 0 1 0 0 356 -89  364
+anchor 11 0 1 0 1 0 -396 530  -388
+anchor 11 0 0 0 0 0 -72 -336  -328
+anchor 11 0 0 0 0 0 -250 -1  7
+anchor 11 0 0 0 0 0 -69 -237  -229
+anchor 11 0 0 0 0 0 -104 -574  -566
+anchor 11 0 0 0 1 0 -393 -469  -461
+anchor 11 2 1 0 1 1 -349 -569  -341
+anchor 11 14 0 0 0 1 367 520  -461
+anchor 0 0 0 0 0 0 185 -84  8
+anchor 11 1 0 0 0 1 78 -365  -461
+anchor 11 7 0 0 1 0 -64 88  -56
+anchor 11 10 0 1 0 1 -79 48  -71
+anchor 11 10 0 0 1 1 176 98  184
+anchor 7 0 1 0 0 1 365 468  8
+anchor 11 14 0 1 0 0 398 -233  406
+anchor 11 5 0 1 0 0 -381 -528  -373
+anchor 11 7 0 0 0 1 -119 -592  -461
+anchor 11 3 0 0 0 0 -97 -238  -461
+anchor 11 8 1 0 0 1 306 -326  -461
+anchor 11 0 1 0 0 0 -151 -262  -461
+anchor 11 2 0 0 1 0 -45 432  -37
+anchor 11 11 1 0 0 1 369 206  -461
+anchor 5 0 0 1 0 0 -90 147  8
+anchor 11 12 0 0 1 0 -211 -209  -203
+anchor 0 2 0 0 0 1 -84 92  8
+anchor 11 0 0 0 0 1 241 433  8
+anchor 11 0 0 0 0 0 -282 -23  -15
+anchor 11 0 0 1 0 1 382 360  390
+anchor 11 0 0 1 0 1 -339 -454  -331
+anchor 11 14 0 0 0 0 -22 49  -331
+anchor 11 8 0 1 0 1 222 -405  230
+anchor 11 2 0 0 1 0 -316 110  -308
+anchor 11 0 0 0 0 1 130 -519  8
+anchor 11 15 0 0 0 1 -119 -381  8
+anchor 11 10 1 0 1 1 215 -355  223
+anchor 11 2 0 1 0 1 -165 -211  -157
+anchor 17 10 1 0 0 0 -88 -100  8
+anchor 9 6 0 0 0 1 161 -324  8
+anchor 11 13 0 0 0 0 -145 -591  8
+anchor 9 4 0 1 1 0 174 -506  8
+anchor 11 14 1 1 0 0 48 454  56
+anchor 11 0 0 0 1 1 386 260  8
+anchor 11 0 0 0 0 1 -205 -105  8
+anchor 11 13 0 0 0 0 -378 91  8
+anchor 11 5 0 0 1 1 -287 -50  -279
+anchor 11 0 1 1 0 0 234 -144  242
+anchor 7 0 1 0 0 0 265 203  8
+anchor 11 9 0 0 1 1 -139 -222  -131
+anchor 11 1 1 0 0 0 -367 109  8
+anchor 6 7 0 1 1 0 340 -595  8
+anchor 13 0 1 1 0 1 -109 266  8
+anchor 11 0 0 0 1 0 156 144  152
+anchor 11 6 0 0 0 1 -131 274  152
+anchor 11 0 0 1 0 0 -129 147  -121
+anchor 1 0 0 0 0 1 33 -155  8
+anchor 11 0 0 0 0 0 231 228  236
+anchor 11 8 1 0 0 0 -345 352  236
+anchor 1 4 0 1 0 0 245 -72  8
+anchor 11 12 0 0 0 0 319 157  236
+anchor 11 0 0 0 0 1 -322 -366  8
+anchor 21 5 0 1 0 1 54 -586  8
+anchor 11 13 0 0 0 1 -121 -178  8
+anchor 11 9 1 0 0 1 400 23  8
+anchor 11 0 0 0 0 0 138 -256  -248
+anchor 11 4 0 1 0 0 62 -62  70
+anchor 11 10 0 0 0 1 188 -503  -248
+anchor 15 0 0 0 0 1 268 -531  8
+anchor 0 0 1 0 0 0 40 -103  8
+anchor 11 0 0 0 1 1 263 496  8
+anchor 11 0 1 1 1 1 -71 31  -63
+anchor 11 1 0 0 0 1 69 470  8
+anchor 11 0 0 0 0 1 -34 -178  8
+anchor 11 3 1 1 0 1 -3 389  5
+anchor 2 0 0 1 0 1 -314 -413  8
+anchor 11 1 0 0 1 1 -213 448  -205
+anchor 11 0 0 0 0 0 -40 350  358
+anchor 11 0 0 1 0 0 29 -289  37
+anchor 11 0 0 1 0 1 263 -261  271
+anchor 11 1 1 0 1 1 -62 344  -54
+anchor 11 0 0 1 1 1 -53 509  -45
+anchor 11 10 1 0 0 1 158 468  -45
+anchor 7 0 0 0 0 1 -265 181  8
+anchor 9 0 0 0 0 0 203 -507  8
+anchor 1 15 0 0 0 1 -119 137  8
+anchor 11 0 0 0 1 0 271 -54  -46
+anchor 11 0 1 0 0 0 -8 313  -46
+anchor 11 0 0 0 0 0 -309 282  290
+anchor 11 9 0 0 0 1 -271 278  290
+anchor 11 9 1 0 0 0 165 405  290
+anchor 11 0 0 0 0 0 -101 -470  -462
+anchor 11 0 0 0 0 0 -29 -532  -524
+anchor 11 15 1 0 0 0 -396 -145  -524
+anchor 11 6 0 1 0 0 4 -361  12
+anchor 11 0 0 1 0 0 -36 323  -28
+anchor 7 0 1 0 1 1 -72 -83  8
+anchor 20 0 0 0 0 0 -30 -179  8
+anchor 11 0 1 0 0 0 -316 44  -28
+anchor 11 0 0 0 0 0 299 -547  -539
+anchor 11 0 0 1 0 1 -277 -388  -269
+anchor 0 0 1 1 1 0 -200 -278  8
+anchor 11 13 1 0 0 0 -228 -52  -269
+anchor 11 14 0 0 1 1 312 -330  320
+anchor 11 10 0 0 0 1 -9 155  -269
+anchor 11 0 0 1 0 0 159 -442  167
+anchor 11 0 0 0 1 1 50 -389  8
+anchor 11 2 0 0 0 1 69 -157  8
+anchor 11 0 0 0 1 0 -257 191  199
+anchor 12 0 0 0 0 1 -87 -372  8
+anchor 11 13 0 0 1 1 298 316  306
+anchor 11 0 0 0 0 1 201 208  8
+anchor 11 0 0 1 0 1 324 234  332
+anchor 11 0 0 0 1 0 -76 64  72
+anchor 11 14 0 0 0 0 192 -350  72
+anchor 11 0 0 0 1 0 211 74  82
+anchor 8 0 0 1 0 1 -325 577  8
+anchor 11 6 0 1 0 1 -398 -583  -390
+anchor 11 0 1 0 0 0 -292 414  82
+anchor 11 10 0 0 0 0 -255 217  82
+anchor 12 0 1 0 0 0 148 594  8
+anchor 8 0 0 0 1 1 -123 388  8
+anchor 11 6 1 0 0 0 161 -584  82
+anchor 11 0 0 1 1 1 -220 -461  -212
+anchor 18 2 1 0 0 0 203 253  8
+anchor 0 2 1 1 1 1 378 -152  8
+anchor 11 2 0 0 1 0 380 -130  388
+anchor 18 0 1 0 0 1 221 -48  8
+anchor 18 0 0 0 0 0 295 426  8
+anchor 11 0 1 0 0 1 358 -202  -212
+anchor 7 0 1 0 0 0 -101 419  8
+anchor 11 0 1 0 0 0 -359 -588  -212
+anchor 8 1 0 0 0 0 -72 186  8
+anchor 12 0 1 1 0 0 43 -462  8
+anchor 11 6 1 0 0 0 349 -145  -212
+anchor 11 0 0 0 0 0 -120 534  542
+anchor 11 0 1 0 1 0 -251 -532  -243
+anchor 11 2 0 0 0 1 201 565  542
+anchor 11 0 0 0 0 1 -135 585  8
+anchor 14 3 0 0 0 0 -133 -278  8
+anchor 0 0 0 0 0 0 -344 523  8
+anchor 11 0 0 0 0 1 18 -550  8
+anchor 4 0 0 1 0 0 -221 -550  8
+anchor 11 0 0 0 0 1 98 52  8
+anchor 11 0 1 1 0 1 -74 286  -66
+anchor 5 0 0 0 0 1 -20 -583  8
+anchor 11 0 0 1 0 1 -9 422  -1
+anchor 11 0 0 0 0 1 -400 -14  8
+anchor 11 4 0 0 1 0 -4 18  4
+anchor 11 0 0 1 0 0 190 -45  198
+anchor 11 0 0 1 0 0 -184 28  -176
+anchor 11 13 0 0 0 0 -121 568  -176
+anchor 11 5 0 1 1 1 127 -463  135
+anchor 11 0 0 0 0 1 195 367  8
+anchor 6 10 0 0 0 0 -74 401  8
+anchor 11 0 0 0 0 0 211 -56  -48
+anchor 11 0 0 0 1 0 -223 369  377
+anchor 7 0 0 0 0 1 -62 386  8
+anchor 11 15 0 0 0 0 217 -467  377
+anchor 11 8 0 0 1 1 -126 341  -118
+anchor 11 9 0 0 0 1 10 -76  377
+anchor 11 12 1 0 0 1 -234 589  377
+anchor 11 0 1 1 0 0 -175 -138  -167
+anchor 11 0 0 0 0 0 -51 -16  -8
+anchor 11 11 0 1 0 0 32 343  40
+anchor 11 1 1 0 0 0 56 103  -8
+anchor 11 0 1 1 0 0 85 567  93
+anchor 11 0 0 0 0 0 -14 153  161
+anchor 1 6 0 0 0 1 -4 -205  8
+anchor 11 0 1 0 0 1 -6 252  161
+anchor 11 0 1 1 1 1 349 438  357
+anchor 11 4 0 0 0 0 373 -159  161
+anchor 11 1 0 0 0 1 -31 -133  161
+anchor 11 0 1 0 0 0 -293 -600  161
+anchor 11 7 0 0 0 1 66 255  161
+anchor 9 3 0 0 0 1 -236 -203  8
+anchor 11 0 1 0 0 1 265 -340  161
+anchor 11 0 0 0 0 1 45 578  8
+anchor 11 2 0 1 0 0 351 -539  359
+anchor 11 0 1 1 1 1 98 179  106
+anchor 11 0 0 0 1 0 94 -129  -121
+anchor 11 0 0 1 0 0 341 -407  349
+anchor 11 15 0 0 0 0 372 120  349
+anchor 3 0 1 0 0 0 143 -563  8
+anchor 11 13 0 1 0 1 84 -368  92
+anchor 11 0 0 1 1 1 169 -360  177
+anchor 11 7 0 0 0 0 271 -473  177
+anchor 11 8 1 1 1 0 -124 -173  -116
+anchor 11 0 0 0 1 0 149 -124  -116
+anchor 11 0 0 0 1 1 5 -166  8
+anchor 11 13 0 1 0 1 -147 -518  -139
+anchor 1 0 0 1 0 0 -70 -30  8
+anchor 11 0 0 0 1 1 -398 208  8
+anchor 11 10 1 0 1 0 -37 337  -29
+anchor 11 0 0 0 1 1 -376 -410  8
+anchor 11 7 0 0 1 0 85 -436  93
+anchor 11 0 0 0 0 0 -69 -102  -94
+anchor 11 5 1 0 0 0 -35 140  -94
+anchor 11 0 1 0 1 1 -196 387  -188
+anchor 11 5 0 0 0 1 -349 -178  -94
+anchor 11 0 0 0 0 1 50 525  8
+anchor 11 2 0 1 1 0 263 -38  271
+anchor 11 0 0 0 0 0 -210 -538  -530
+anchor 11 0 0 1 0 0 375 164  383
+anchor 11 0 0 0 0 0 -17 -346  -338
+anchor 20 12 0 0 1 1 173 370  8
+anchor 11 0 1 0 0 1 328 -592  -338
+anchor 11 8 0 0 0 1 -375 489  -338
+anchor 3 0 0 0 0 1 141 47  8
+anchor 11 0 0 0 0 1 312 381  8
+anchor 11 10 0 0 0 1 242 297  8
+anchor 11 10 1 0 0 1 -91 -116  8
+anchor 11 0 0 0 0 0 -203 17  25
+anchor 11 6 1 0 0 1 -23 -487  25
+anchor 7 0 0 1 0 1 326 -74  8
+anchor 11 0 0 0 0 0 -298 -580  -572
+anchor 11 0 1 0 0 1 -16 -404  -572
+anchor 9 0 0 0 1 0 215 500  8
+anchor 11 0 0 0 0 0 -386 111  119
+anchor 3 7 0 0 1 0 -185 -304  8
+anchor 11 9 1 1 0 1 -3 -188  5
+anchor 11 0 0 0 1 0 -265 -548  -540
+anchor 11 0 0 0 0 0 -49 571  579
+anchor 11 0 0 0 0 0 135 -302  -294
+anchor 20 7 1 0 0 0 191 -347  8
+anchor 11 0 1 0 0 1 392 75  -294
+anchor 11 0 0 1 0 1 -203 -582  -195
+anchor 11 0 0 1 0 1 -400 110  -392
+anchor 11 0 0 1 1 0 50 87  58
+anchor 11 5 0 1 0 1 -264 -530  -256
+anchor 4 8 0 0 0 0 -41 -438  8
+anchor 11 0 0 1 1 0 -316 390  -308
+anchor 11 0 0 0 0 0 -192 392  400
+anchor 17 13 1 0 1 1 -104 -341  8
+anchor 11 0 0 0 1 1 -313 -15  8
+anchor 11 3 0 0 0 0 -268 -194  8
+anchor 17 0 0 1 0 0 -18 -103  8
+anchor 11 3 0 0 1 0 287 -388  295
+anchor 11 3 0 0 1 1 -86 -468  -78
+anchor 20 12 0 0 0 0 346 -107  8
+anchor 15 12 0 0 0 1 158 -417  8
+anchor 11 0 1 0 0 1 9 246  8
+anchor 2 0 0 0 1 1 -129 192  8
+anchor 1 2 0 0 0 1 16 434  8
+anchor 0 2 0 0 0 0 -102 -527  8
+anchor 11 0 0 0 0 0 -332 -352  -344
+anchor 11 0 0 1 1 0 370 -297  378
+anchor 11 4 0 0 1 0 -76 -169  -68
+anchor 11 0 1 1 0 1 -15 314  -7
+anchor 11 13 0 0 1 0 244 570  252
+anchor 11 0 0 0 0 1 29 55  8
+anchor 11 13 1 0 0 1 80 -254  8
+anchor 11 0 0 1 0 1 -130 277  -122
+anchor 11 15 0 0 1 1 131 565  139
+anchor 1 0 0 1 0 0 -67 -261  8
+anchor 11 14 0 0 0 0 -173 -341  -122
+anchor 8 0 0 0 1 0 -383 6  8
+anchor 11 15 0 1 0 1 17 -103  25
+anchor 11 0 1 0 0 0 -305 -426  -122
+anchor 11 5 0 0 0 0 316 210  -122
+anchor 11 10 0 0 0 0 308 -270  -122
+anchor 0 10 0 1 0 1 -235 187  8
+anchor 11 10 0 0 0 0 13 131  -122
+anchor 11 6 1 1 1 0 -151 -421  -143
+anchor 11 0 0 1 1 0 -1 89  7
+anchor 6 4 0 1 0 1 101 -257  8
+anchor 11 0 0 0 0 1 25 514  8
+anchor 11 7 0 0 0 0 -211 238  8
+anchor 21 6 0 0 0 0 -300 -536  8
+anchor 11 14 0 1 0 0 -33 50  -25
+anchor 17 0 0 0 0 1 169 -339  8
+anchor 11 0 0 1 0 0 47 581  55
+anchor 11 1 0 1 0 1 -316 117  -308
+anchor 11 0 0 0 1 0 -130 577  585
+anchor 11 4 0 1 0 1 305 -497  313
+anchor 11 8 0 0 1 1 -386 -132  -378
+anchor 11 0 0 0 1 0 328 -16  -8
+anchor 11 15 0 0 0 1 383 -564  -8
+anchor 11 0 0 1 0 0 18 493  26
+anchor 11 4 0 0 0 0 389 450  26
+anchor 11 15 1 0 0 0 -337 -208  26
+anchor 13 0 1 0 1 1 260 -372  8
+anchor 11 0 0 0 0 1 235 -531  8
+anchor 11 14 1 0 1 1 222 152  230
+anchor 11 0 1 1 0 1 -66 453  -58
+anchor 11 0 0 0 0 0 -220 523  531
+anchor 11 0 0 0 0 1 50 -494  8
+anchor 19 0 0 0 0 0 -279 -218  8
+anchor 21 7 1 1 1 1 -174 -151  8
+anchor 11 0 0 0 1 1 137 438  8
+anchor 11 13 0 0 1 1 -39 -10  -31
+anchor 1 12 0 1 0 0 301 -322  8
+anchor 11 0 0 0 0 1 -110 18  8
+anchor 0 0 1 0 0 0 -55 -509  8
+anchor 7 14 0 0 0 0 -65 220  8
+anchor 18 0 0 0 0 0 -366 -362  8
+anchor 11 0 1 0 0 0 -261 -206  8
+anchor 0 0 0 0 0 0 315 -256  8
+anchor 11 4 1 0 0 1 -294 -35  8
+anchor 11 0 0 0 0 1 332 -405  8
+anchor 11 12 0 0 0 0 348 37  8
+anchor 0 15 0 0 0 1 -120 551  8
+anchor 11 0 0 0 0 0 -141 474  482
+anchor 10 14 0 0 1 0 -330 263  8
+anchor 11 0 1 0 0 1 368 -354  482
+anchor 11 14 1 0 0 0 -160 551  482
+anchor 11 0 0 1 1 0 170 220  178
+anchor 11 0 0 1 1 1 -332 342  -324
+anchor 11 4 1 0 0 0 -4 430  -324
+anchor 11 0 1 0 1 0 152 529  160
+anchor 11 0 0 0 1 1 -69 -274  8
+anchor 11 0 0 0 1 1 -1 -194  8
+anchor 11 0 0 1 1 1 -236 313  -228
+anchor 14 0 1 0 0 0 -332 -444  8
+anchor 11 0 1 0 0 1 -222 137  -228
+anchor 11 4 0 0 1 0 289 88  297
+anchor 11 0 1 0 1 1 -279 -344  -271
+anchor 11 4 1 1 1 1 31 -583  39
+anchor 11 0 1 0 0 1 121 -58  -228
+anchor 11 0 0 1 0 1 191 -573  199
+anchor 11 0 1 1 0 1 358 -371  366
+anchor 11 0 1 0 1 1 294 341  302
+anchor 11 0 1 0 0 1 143 322  199
+anchor 11 14 0 1 0 0 -306 -183  -298
+anchor 4 1 0 1 0 0 -12 422  8
+anchor 11 0 1 0 0 1 128 -170  199
+anchor 11 10 0 0 0 1 129 134  199
+anchor 11 12 0 0 0 0 -46 -400  199
+anchor 11 0 0 0 0 1 -144 350  8
+anchor 17 0 0 1 0 1 282 -65  8
+anchor 19 6 0 0 1 0 184 -447  8
+anchor 11 0 0 0 0 0 -55 -87  -79
+anchor 11 0 0 1 0 1 -339 409  -331
+anchor 11 0 0 0 0 1 -144 277  8
+anchor 11 0 1 0 1 0 -257 -484  -249
+anchor 11 5 0 0 0 0 -351 -66  8
+anchor 11 0 0 1 1 0 -168 226  -160
+anchor 2 0 0 1 0 0 -83 -18  8
+anchor 11 0 1 0 0 1 23 447  -160
+anchor 11 0 0 1 1 0 -49 364  -41
+anchor 11 10 0 0 0 1 214 475  -41
+anchor 11 12 1 1 1 1 -23 -189  -15
+anchor 16 0 0 1 0 1 -384 317  8
+anchor 11 1 1 0 0 0 243 -373  -41
+anchor 2 0 1 1 1 1 1 262  8
+anchor 11 0 0 0 0 1 -25 -193  8
+anchor 11 0 0 0 0 0 -366 -29  -21
+anchor 11 2 1 1 0 1 198 -461  206
+anchor 11 12 1 1 0 0 194 181  202
+anchor 11 0 1 1 0 0 -360 200  -352
+anchor 11 3 0 1 1 1 256 142  264
+anchor 11 0 1 1 1 0 -172 -431  -164
+anchor 11 6 0 1 0 0 -368 402  -360
+anchor 11 0 0 0 0 0 129 -484  -476
+anchor 11 3 0 0 0 1 -148 -287  -476
+anchor 11 5 1 1 0 0 -127 1  -119
+anchor 9 14 0 0 1 1 159 17  8
+anchor 11 15 0 0 0 0 -50 534  -476
+anchor 11 13 1 0 0 1 28 -520  -476
+anchor 11 5 0 1 0 1 268 -462  276
+anchor 11 0 0 0 0 0 -378 -502  -494
+anchor 11 0 0 1 1 1 228 -462  236
+anchor 11 0 1 0 0 0 -165 262  236
+anchor 11 0 0 0 0 0 -139 -223  -215
+anchor 3 15 1 0 0 1 -18 519  8
+anchor 11 13 1 0 0 0 24 57  -215
+anchor 11 14 0 0 0 0 0 304  -215
+anchor 11 0 1 0 1 0 337 -361  345
+anchor 11 14 0 1 1 1 170 207  178
+anchor 11 4 1 0 1 0 -250 556  -242
+anchor 11 0 1 0 1 1 333 -127  341
+anchor 11 10 1 0 1 1 90 -351  98
+anchor 6 6 0 0 1 0 370 -539  8
+anchor 11 3 0 0 0 1 361 -532  -215
+anchor 11 0 0 0 0 1 272 336  8
+anchor 14 5 0 0 0 1 341 404  8
+anchor 11 15 0 1 1 1 19 -303  27
+anchor 11 0 0 0 0 1 -157 483  8
+anchor 11 0 0 0 0 0 -266 -35  -27
+anchor 19 0 0 0 0 0 -235 496  8
+anchor 11 0 0 0 1 0 -95 -483  -475
+anchor 5 12 0 1 0 0 -152 365  8
+anchor 11 0 1 1 0 0 -25 -112  -17
+anchor 11 1 0 0 0 1 -116 -316  -475
+anchor 11 14 0 0 1 1 -147 463  -139
+anchor 11 0 0 0 0 0 -17 -201  -193
+anchor 11 0 0 0 0 0 -232 -154  -146
+anchor 8 0 1 0 1 1 391 388  8
+anchor 11 0 0 1 0 0 145 163  153
+anchor 11 8 1 0 0 1 31 -340  153
+anchor 6 0 0 0 1 1 -348 -450  8
+anchor 11 15 0 0 0 0 -245 5  153
+anchor 19 0 0 0 0 0 -290 320  8
+anchor 21 13 1 1 0 0 318 -119  8
+anchor 11 11 0 1 1 0 -138 -133  -130
+anchor 11 0 1 0 0 1 -134 528  153
+anchor 11 1 1 0 0 0 343 355  153
+anchor 11 0 0 1 0 1 -4 -494  4
+anchor 11 1 0 0 0 0 -186 -365  4
+anchor 6 0 0 1 0 0 376 294  8
+anchor 11 0 0 0 0 1 -104 -302  8
+anchor 11 15 0 1 0 1 1 232  9
+anchor 11 0 0 0 0 1 -128 -33  8
+anchor 0 0 0 1 0 0 231 -345  8
+anchor 11 3 1 0 0 0 -279 226  8
+anchor 12 1 0 0 0 1 -153 -183  8
+anchor 11 11 0 0 1 0 306 15  314
+anchor 11 10 0 1 0 1 167 -260  175
+anchor 1 0 0 0 1 0 -341 302  8
+anchor 11 0 0 0 1 1 152 569  8
+anchor 11 0 0 0 0 0 192 45  53
+anchor 12 0 0 1 0 0 0 -577  8
+anchor 20 0 0 0 0 0 145 4  8
+anchor 11 0 0 1 0 0 -129 76  -121
+anchor 11 0 0 1 0 1 255 -7  263
+anchor 11 10 0 0 0 1 -361 383  263
+anchor 11 0 1 0 1 0 322 -270  330
+anchor 0 3 0 1 0 1 -245 443  8
+anchor 11 0 0 0 0 0 -293 -101  -93
+anchor 11 0 1 1 0 0 -141 555  -133
+anchor 18 0 0 0 1 1 193 143  8
+anchor 11 0 0 0 0 1 247 493  8
+anchor 11 0 0 0 0 1 -67 -343  8
+anchor 11 6 0 0 0 0 148 -44  8
+anchor 11 0 0 0 0 0 -308 442  450
+anchor 11 0 0 0 0 0 27 -336  -328
+anchor 11 0 0 1 1 1 324 292  332
+anchor 11 10 0 1 0 0 -342 7  -334
+anchor 11 0 0 1 0 1 -12 -305  -4
+anchor 11 11 0 0 1 0 -365 -360  -357
+anchor 11 0 0 1 0 0 114 121  122
+anchor 11 13 1 0 0 1 -329 -462  122
+anchor 6 14 1 1 1 0 371 -597  8
+anchor 11 0 1 0 0 1 196 -497  122
+anchor 11 0 1 1 0 0 -273 -594  -265
+anchor 11 0 0 0 0 0 -296 195  203
+anchor 11 0 0 0 0 1 23 236  8
+anchor 3 0 0 1 0 1 -108 -365  8
+anchor 11 0 0 0 0 1 -368 -79  8
+anchor 11 0 0 0 0 1 11 330  8
+anchor 11 0 0 1 1 1 100 -28  108
+anchor 11 0 1 1 0 0 -279 243  -271
+anchor 11 0 0 0 1 1 -126 164  8
+anchor 10 10 0 1 0 0 -155 -464  8
+anchor 11 4 0 0 0 1 -26 -198  8
+anchor 11 14 0 1 0 1 261 564  269
+anchor 11 0 0 1 1 1 142 -391  150
+anchor 11 2 0 1 0 0 -320 422  -312
+anchor 11 0 0 0 0 1 -199 -462  8
+anchor 11 1 1 1 0 0 249 -275  257
+anchor 11 0 0 0 1 0 133 -575  -567
+anchor 11 0 0 0 0 1 -382 166  8
+anchor 12 4 0 0 0 1 -320 534  8
+anchor 6 0 0 0 0 1 -33 -558  8
+anchor 11 5 0 0 0 0 366 -115  8
+anchor 11 0 0 0 0 0 40 -267  -259
+anchor 11 15 1 0 0 1 202 -429  -259
+anchor 11 0 0 0 1 1 -258 -287  8
+anchor 11 15 0 0 0 0 51 -349  8
+anchor 11 0 0 0 1 0 380 -120  -112
+anchor 11 0 0 0 1 0 149 356  364
+anchor 11 0 1 1 1 1 260 -454  268
+anchor 11 6 1 0 0 0 3 -228  364
+anchor 11 0 0 0 0 1 31 274  8
+anchor 11 4 0 1 0 0 99 -264  107
+anchor 11 0 1 0 0 0 -46 88  8
+anchor 11 0 1 0 1 0 84 3  92
+anchor 15 0 0 0 1 1 -76 395  8
+anchor 11 0 0 0 0 1 368 106  8
+anchor 5 9 0 1 0 1 -32 -458  8
+anchor 11 4 1 0 1 1 -258 539  -250
+anchor 11 0 0 0 1 0 -133 527  535
+anchor 11 12 0 0 0 0 128 -274  535
+anchor 11 0 0 0 0 1 190 368  8
+anchor 11 2 1 0 0 0 -314 -527  8
+anchor 11 13 0 1 0 1 264 286  272
+anchor 11 0 0 0 0 1 383 -171  8
+anchor 11 14 0 0 1 1 60 -306  68
+anchor 3 3 0 1 1 0 -301 77  8
+anchor 11 0 1 0 0 0 400 -493  8
+anchor 11 8 0 1 1 1 8 -402  16
+anchor 11 9 0 1 0 1 -327 -423  -319
+anchor 6 5 0 0 1 0 132 -562  8
+anchor 11 6 0 0 1 0 -384 -221  -376
+anchor 11 0 0 1 0 1 56 590  64
+anchor 11 0 0 1 1 1 -378 -359  -370
+anchor 11 0 1 1 0 1 141 -163  149
+anchor 11 10 0 0 0 0 -3 -544  -370
+anchor 17 4 1 0 0 1 -189 564  8
+anchor 8 0 0 1 0 0 -263 97  8
+anchor 11 0 0 0 0 0 348 -321  -313
+anchor 11 5 1 1 1 1 -302 268  -294
+anchor 15 9 0 1 0 1 6 417  8
+anchor 11 10 1 1 0 0 392 -95  400
+anchor 11 0 0 1 0 0 -398 -240  -390
+anchor 11 9 0 0 0 1 -69 436  -390
+anchor 11 3 0 1 0 1 -384 140  -376
+anchor 11 0 0 0 1 1 244 -251  8
+anchor 7 15 1 0 0 1 298 566  8
+anchor 6 6 0 0 0 0 -33 -318  8
+anchor 11 0 0 0 0 1 31 -14  8
+anchor 11 13 0 1 0 0 120 1  128
+anchor 11 7 0 0 1 1 248 474  256
+anchor 19 0 0 0 0 1 -199 507  8
+anchor 11 0 0 0 0 1 -370 -159  8
+anchor 10 10 0 0 0 1 240 153  8
+anchor 11 13 0 1 0 0 26 323  34
+anchor 7 0 1 1 0 0 -65 114  8
+anchor 21 0 0 1 1 1 212 49  8
+anchor 11 14 0 0 0 1 155 -371  8
+anchor 11 0 1 1 0 0 248 -356  256
+anchor 11 4 1 0 0 1 -380 -557  8
+anchor 11 0 0 0 0 0 75 -313  -305
+anchor 11 0 0 1 0 0 269 -126  277
+anchor 11 0 0 0 0 0 180 -200  -192
+anchor 18 8 1 1 0 1 158 379  8
+anchor 11 12 0 1 0 1 -179 -345  -171
+anchor 11 2 0 0 1 0 259 -408  267
+anchor 11 8 0 0 0 0 -201 124  -192
+anchor 4 0 0 0 0 1 -270 491  8
+anchor 9 0 1 0 0 1 83 -113  8
+anchor 13 0 0 0 0 0 -191 344  8
+anchor 11 12 1 1 1 0 -168 -592  -160
+anchor 11 12 0 1 0 1 -72 380  -64
+anchor 11 0 0 0 0 1 -356 -124  8
+anchor 11 0 0 0 0 1 -14 -254  8
+anchor 11 0 0 1 1 0 265 -275  273
+anchor 11 1 0 0 0 1 -294 154  273
+anchor 11 9 1 0 1 0 -106 141  -98
+anchor 7 0 0 0 0 1 395 -485  8
+anchor 11 12 1 0 1 0 -117 307  -109
+anchor 11 8 1 1 0 1 -264 -108  -256
+anchor 11 4 0 0 1 0 -144 -520  -136
+anchor 15 14 0 0 0 1 -193 432  8
+anchor 11 0 0 0 1 1 -135 -416  8
+anchor 11 2 1 1 0 1 371 528  379
+anchor 11 8 0 1 0 0 178 557  186
+anchor 11 13 0 0 0 0 -30 367  8
+anchor 4 0 0 1 0 1 -16 -478  8
+anchor 11 1 1 0 0 0 -345 594  8
+anchor 11 0 1 1 0 0 218 511  226
+anchor 6 4 0 0 0 0 -351 -115  8
+anchor 11 2 0 0 0 0 -153 -25  8
+anchor 11 0 0 0 1 1 340 326  8
+anchor 16 0 0 1 0 0 196 335  8
+anchor 11 0 0 0 0 0 -158 145  153
+anchor 11 12 1 1 0 1 -71 482  -63
+anchor 11 7 1 0 0 0 -79 126  153
+anchor 11 8 0 1 0 0 186 238  194
+anchor 14 0 0 0 1 1 271 491  8
+anchor 11 0 0 0 1 0 -180 572  580
+anchor 11 9 1 1 0 1 162 -406  170
+anchor 11 0 0 1 0 0 -285 -365  -277
+anchor 11 15 1 0 0 1 169 355  -277
+anchor 11 2 1 0 0 0 62 439  -277
+anchor 11 7 0 1 1 0 127 -509  135
+anchor 11 0 0 0 1 0 365 -217  -209
+anchor 11 0 1 0 0 0 346 -467  -209
+anchor 11 0 0 0 0 0 294 120  128
+anchor 11 0 0 0 0 0 -289 -335  -327
+anchor 11 0 0 1 1 1 268 181  276
+anchor 11 0 1 1 0 0 -88 -33  -80
+anchor 8 0 1 0 0 0 -56 413  8
+anchor 9 5 1 0 1 0 -113 -489  8
+anchor 18 0 0 1 0 1 -267 480  8
+anchor 11 14 0 1 0 0 -217 383  -209
+anchor 11 0 0 1 0 1 366 -151  374
+anchor 11 0 0 1 0 0 379 -485  387
+anchor 19 0 0 1 1 0 -373 -373  8
+anchor 11 0 0 0 0 1 -32 -72  8
+anchor 11 4 1 0 0 1 -334 -469  8
+anchor 11 8 0 0 0 1 32 6  8
+anchor 11 0 1 0 0 0 -138 432  8
+anchor 17 0 0 0 0 1 -369 -557  8
+anchor 21 0 0 0 0 1 208 -591  8
+anchor 11 0 0 0 0 0 267 -251  -243
+anchor 11 2 0 1 0 0 -17 -300  -9
+anchor 11 0 0 1 0 1 -342 98  -334
+anchor 11 11 1 1 0 0 148 -1  156
+anchor 11 0 1 1 0 0 134 396  142
+anchor 11 0 0 1 0 0 -79 -313  -71
+anchor 11 0 1 0 0 1 347 -167  -71
+anchor 11 1 0 0 1 0 68 524  76
+anchor 11 0 1 0 0 0 127 391  -71
+anchor 11 0 0 0 0 0 -132 -155  -147
+anchor 11 8 1 0 1 0 91 -432  99
+anchor 0 2 0 0 0 1 23 535  8
+anchor 11 0 0 0 1 0 124 568  576
+anchor 11 15 0 0 0 0 225 174  576
+anchor 11 0 0 0 0 0 -223 -382  -374
+anchor 11 1 0 0 0 0 -306 554  -374
+anchor 11 7 0 1 0 0 -106 -395  -98
+anchor 15 0 0 1 0 1 205 -379  8
+anchor 11 0 0 1 0 1 376 -184  384
+anchor 11 0 0 0 0 0 99 573  581
+anchor 11 15 0 0 1 1 -22 -169  -14
+anchor 6 0 0 0 1 1 234 -526  8
+anchor 11 7 0 1 0 0 -54 -139  -46
+anchor 11 13 0 1 0 0 110 30  118
+anchor 20 0 0 1 0 1 -347 -238  8
+anchor 11 0 0 1 0 0 -329 -157  -321
+anchor 6 0 1 0 0 1 -302 295  8
+anchor 10 0 0 1 0 1 31 -376  8
+anchor 19 0 0 0 0 0 336 -169  8
+anchor 11 10 1 0 0 1 79 -262  -321
+anchor 6 5 0 1 0 0 -167 -297  8
+anchor 13 3 1 0 0 1 -190 -521  8
+anchor 4 5 0 0 1 1 345 353  8
+anchor 11 8 0 0 0 0 -32 0  -321
+anchor 11 2 0 0 0 0 74 311  -321
+anchor 11 0 0 1 0 1 56 -543  64
+anchor 11 9 1 0 0 0 -237 -228  64
+anchor 9 13 0 1 0 1 20 456  8
+anchor 11 4 1 0 0 1 272 -454  64
+anchor 11 0 0 0 1 0 -384 -452  -444
+anchor 11 7 0 0 0 1 -362 -473  -444
+anchor 11 0 0 0 1 0 -6 500  508
+anchor 0 6 0 0 0 1 -203 -312  8
+anchor 11 0 0 1 1 0 -84 406  -76
+anchor 6 0 1 0 1 0 223 467  8
+anchor 11 3 0 0 1 1 234 453  242
+anchor 11 2 0 0 1 1 -204 -584  -196
+anchor 11 0 0 0 1 1 -125 -598  8
+anchor 11 0 0 0 0 0 -309 124  132
+anchor 11 0 0 0 1 0 -284 -242  -234
+anchor 11 0 0 1 1 1 37 361  45
+anchor 11 8 1 0 0 1 -199 -225  45
+anchor 11 0 0 0 1 1 56 87  8
+anchor 17 0 1 0 0 1 212 -385  8
+anchor 11 0 1 0 0 1 -180 -522  8
+anchor 11 13 0 0 0 1 140 -267  8
+anchor 11 0 0 0 0 0 325 393  401
+anchor 11 0 0 1 0 1 122 135  130
+anchor 1 2 0 0 0 1 108 -371  8
+anchor 11 0 0 0 0 0 103 6  14
+anchor 11 13 0 0 0 1 105 455  14
+anchor 11 0 0 0 0 1 -194 -87  8
+anchor 11 0 1 0 0 1 320 266  8
+anchor 11 0 0 0 0 0 77 -383  -375
+anchor 11 3 0 0 1 0 266 220  274
+anchor 11 0 1 1 1 1 65 -192  73
+anchor 11 2 0 0 0 1 -70 328  -375
+anchor 5 0 0 0 1 1 231 425  8
+anchor 11 0 0 1 0 1 -173 -428  -165
+anchor 11 0 0 1 0 1 176 -311  184
+anchor 17 0 0 0 1 0 342 289  8
+anchor 11 0 0 0 0 0 148 -533  -525
+anchor 18 0 0 0 0 1 164 239  8
+anchor 11 0 1 0 0 1 266 -539  -525
+anchor 1 15 0 0 0 0 167 595  8
+anchor 11 14 0 0 1 0 -241 192  -233
+anchor 11 0 0 0 0 1 306 -209  8
+anchor 11 12 0 1 0 0 46 -5  54
+anchor 11 0 0 0 1 0 -64 -392  -384
+anchor 8 0 0 0 0 0 -325 -349  8
+anchor 11 0 0 1 0 0 353 431  361
+anchor 13 13 0 0 0 0 -179 101  8
+anchor 11 0 0 1 0 1 -367 -257  -359
+anchor 11 13 1 0 0 0 289 -236  -359
+anchor 11 0 0 1 1 0 -262 576  -254
+anchor 11 0 0 0 0 1 296 -293  8
+anchor 11 0 1 1 1 0 45 -137  53
+anchor 11 0 0 0 0 1 260 32  8
+anchor 11 0 0 0 0 0 -370 -584  -576
+anchor 11 9 0 0 0 0 320 -511  -576
+anchor 11 0 1 0 0 0 379 25  -576
+anchor 8 0 0 0 0 0 -128 147  8
+anchor 11 0 0 0 0 0 86 583  591
+anchor 11 4 0 1 0 0 243 316  251
+anchor 9 9 0 0 0 0 9 -231  8
+anchor 11 0 0 1 1 1 -116 -383  -108
+anchor 11 5 0 0 0 1 225 385  -108
+anchor 11 1 0 0 0 0 285 329  -108
+anchor 11 0 0 1 1 1 260 -133  268
+anchor 8 12 0 0 1 0 384 -531  8
+anchor 8 2 0 0 0 0 -28 438  8
+anchor 11 0 0 1 0 0 296 497  304
+anchor 4 10 0 1 1 1 346 94  8
+anchor 11 4 0 1 0 0 294 -526  302
+anchor 11 0 0 0 1 0 84 -40  -32
+anchor 11 7 0 1 1 0 -329 -432  -321
+anchor 11 0 1 0 0 1 -283 456  -32
+anchor 11 10 0 0 0 1 61 -93  -32
+anchor 11 1 0 0 1 1 -335 -555  -327
+anchor 1 14 0 1 0 1 -203 -253  8
+anchor 11 0 0 1 0 0 -71 -333  -63
+anchor 13 11 1 0 0 1 65 -194  8
+anchor 11 0 1 0 0 1 -23 -324  -63
+anchor 11 0 1 0 0 1 -170 -161  -63
+anchor 11 0 1 0 0 0 253 -113  -63
+anchor 11 7 0 0 0 0 257 220  -63
+anchor 11 1 1 0 1 1 204 26  212
+anchor 11 2 0 0 0 1 338 38  -63
+anchor 11 0 1 0 1 0 -256 499  -248
+anchor 11 15 0 0 0 1 -341 -575  -63
+anchor 11 9 0 0 0 0 -97 37  -63
+anchor 4 0 1 0 0 1 -399 -242  8
+anchor 9 0 0 1 1 1 -181 -377  8
+anchor 11 0 0 0 1 0 50 -121  -113
+anchor 11 0 1 0 0 0 -35 -152  -113
+anchor 19 0 0 0 0 0 248 -589  8
+anchor 11 0 1 0 0 0 8 -240  -113
+anchor 11 0 0 1 0 1 174 217  182
+anchor 11 0 0 1 0 1 -169 185  -161
+anchor 12 4 0 0 0 1 -385 -378  8
+anchor 11 8 0 0 0 1 195 -573  -161
+anchor 11 0 0 0 0 1 -118 177  8
+anchor 10 6 1 0 0 1 -45 -524  8
+anchor 11 2 0 1 0 0 349 281  357
+anchor 8 3 0 1 0 0 226 -578  8
+anchor 11 0 1 0 1 1 72 367  80
+anchor 11 6 1 0 1 0 -69 -12  -61
+anchor 21 5 0 0 0 0 58 -124  8
+anchor 11 15 0 0 0 1 -232 -582  8
+anchor 11 0 0 0 0 1 383 -354  8
+anchor 11 2 1 1 0 0 382 109  390
+anchor 11 6 1 1 0 0 256 368  264
+anchor 11 6 1 0 1 1 -65 -125  -57
+anchor 11 0 1 0 0 1 -381 -459  8
+anchor 13 0 0 0 1 1 225 397  8
+anchor 11 0 1 0 0 1 -70 153  8
+anchor 17 0 0 1 1 0 -22 -319  8
+anchor 11 0 0 0 1 1 320 500  8
+anchor 11 0 0 1 0 1 -262 -532  -254
+anchor 11 0 1 0 0 0 -160 116  -254
+anchor 11 7 1 0 0 1 -271 303  -254
+anchor 11 7 1 1 0 0 392 100  400
+anchor 11 13 0 1 0 0 -382 381  -374
+anchor 11 9 0 0 1 1 319 88  327
+anchor 11 13 0 0 0 0 -329 37  -254
+anchor 11 15 0 0 0 1 -373 -128  -254
+anchor 11 4 0 0 0 0 132 -408  -254
+anchor 11 2 1 0 0 1 176 -109  -254
+anchor 11 14 0 0 1 1 38 -453  46
+anchor 11 0 0 0 0 0 249 -385  -377
+anchor 11 5 0 1 0 1 273 -600  281
+anchor 11 0 1 1 0 1 -207 263  -199
+anchor 21 0 0 0 1 0 250 -57  8
+anchor 11 9 0 0 1 1 -229 381  -221
+anchor 7 0 0 1 1 0 319 34  8
+anchor 11 5 0 0 1 1 40 234  48
+anchor 18 0 1 0 0 0 379 294  8
+anchor 11 8 1 0 0 1 -96 239  -377
+anchor 11 3 0 1 1 1 344 479  352
+anchor 11 7 0 1 1 1 -198 530  -190
+anchor 8 11 0 0 0 1 -341 418  8
+anchor 14 14 0 0 1 1 51 163  8
+anchor 21 8 0 0 0 1 278 -541  8
+anchor 11 9 0 1 1 0 83 -43  91
+anchor 1 0 0 0 0 0 256 -483  8
+anchor 11 0 0 1 0 1 -246 446  -238
+anchor 11 14 1 0 1 1 -32 260  -24
+anchor 20 0 0 0 1 0 134 295  8
+anchor 3 0 0 0 0 0 130 -30  8
+anchor 11 13 0 0 0 1 -192 254  -238
+anchor 11 0 1 0 1 0 349 -382  357
+anchor 16 0 0 1 0 1 246 190  8
+anchor 11 6 0 0 0 0 -325 -98  -238
+anchor 2 10 0 1 0 1 176 461  8
+anchor 11 8 0 0 0 0 307 -309  -238
+anchor 11 9 1 0 0 0 280 -379  -238
+anchor 11 0 0 0 0 1 179 123  8
+anchor 11 4 0 1 0 0 -30 -82  -22
+anchor 11 7 0 0 0 1 240 -115  8
+anchor 11 10 1 1 0 1 120 252  128
+anchor 2 0 0 1 0 0 -36 -195  8
+anchor 11 0 0 1 0 1 -216 582  -208
+anchor 11 2 1 1 0 0 153 521  161
+anchor 11 0 1 1 0 0 -272 230  -264
+anchor 5 3 1 0 0 1 -105 -12  8
+anchor 11 0 0 0 0 0 -261 332  340
+anchor 4 0 0 1 0 1 101 209  8
+anchor 11 1 1 0 0 0 33 -528  340
+anchor 11 7 1 1 0 1 64 50  72
+anchor 16 0 0 0 1 1 67 152  8
+anchor 11 0 0 1 0 0 -30 -242  -22
+anchor 11 3 0 0 1 0 -216 325  -208
+anchor 11 0 0 1 0 1 -25 -294  -17
+anchor 11 0 0 0 0 0 141 -245  -237
+anchor 6 0 1 0 0 0 -57 -432  8
+anchor 11 0 0 0 1 1 -143 -585  8
+anchor 11 0 0 0 0 0 -222 -567  -559
+anchor 19 6 0 0 1 1 197 -193  8
+anchor 20 0 0 0 1 1 -40 68  8
+anchor 12 0 0 0 0 1 -309 538  8
+anchor 11 11 0 1 0 1 382 -251  390
+anchor 11 5 0 0 0 0 -172 -284  -559
+anchor 2 5 0 0 0 1 -266 -318  8
+anchor 11 15 0 1 1 0 -22 -44  -14
+anchor 11 0 0 1 0 1 -113 358  -105
+anchor 11 14 1 0 0 0 177 -80  -105
+anchor 19 0 0 0 0 0 -32 -119  8
+anchor 11 11 0 1 0 1 -308 56  -300
+anchor 11 13 0 0 0 0 162 64  -105
+anchor 11 0 1 1 0 1 -47 -259  -39
+anchor 11 7 1 0 0 0 16 -558  -105
+anchor 11 0 0 0 0 0 -32 126  134
+anchor 11 0 1 0 0 0 277 400  134
+anchor 19 5 0 1 1 0 166 -332  8
+anchor 10 0 1 0 0 0 341 427  8
+anchor 11 14 1 1 0 1 242 200  250
+anchor 11 15 0 0 0 0 363 386  134
+anchor 11 0 0 1 1 0 -176 552  -168
+anchor 11 0 1 1 1 0 -265 -200  -257
+anchor 11 0 0 1 0 0 -362 180  -354
+anchor 7 14 0 1 1 0 -212 -141  8
+anchor 11 0 0 1 0 0 132 -530  140
+anchor 11 0 0 0 0 1 219 472  8
+anchor 11 9 0 1 0 1 73 181  81
+anchor 11 0 1 1 1 1 339 -252  347
+anchor 11 11 0 0 1 0 -70 -32  -62
+anchor 12 0 0 0 0 0 188 -135  8
+anchor 11 13 0 1 1 1 -66 -148  -58
+anchor 4 11 0 0 0 1 -221 -556  8
+anchor 11 0 0 0 0 0 -199 215  223
+anchor 11 0 0 0 0 0 -200 554  562
+anchor 11 0 0 1 0 1 241 73  249
+anchor 11 0 0 1 0 1 -31 551  -23
+anchor 11 14 0 0 0 0 61 -91  -23
+anchor 11 0 0 0 0 1 60 -597  8
+anchor 11 0 0 0 0 1 -370 -521  8
+anchor 11 0 0 1 0 1 374 -585  382
+anchor 11 0 1 0 0 1 142 -82  382
+anchor 11 0 0 0 1 0 338 311  319
+anchor 11 0 0 0 1 1 -194 -282  8
+anchor 13 3 0 0 0 1 -197 460  8
+anchor 11 12 0 1 0 1 -348 -187  -340
+anchor 11 13 1 0 0 0 342 514  8
+anchor 11 7 0 0 1 0 -294 -385  -286
+anchor 11 0 0 1 0 0 -30 367  -22
+anchor 2 0 0 0 0 0 273 -505  8
+anchor 16 4 0 0 0 1 66 99  8
+anchor 20 0 0 0 0 0 -350 -235  8
+anchor 11 10 0 1 0 1 278 341  286
+anchor 13 0 0 0 0 1 278 -376  8
+anchor 11 15 1 1 0 0 388 510  396
+anchor 11 0 1 0 0 1 -192 -493  -22
+anchor 12 0 1 0 0 1 272 167  8
+anchor 11 4 0 0 0 0 249 -383  -22
+anchor 11 0 0 0 0 1 -142 -420  8
+anchor 4 4 0 0 0 0 -268 -484  8
+anchor 9 0 0 1 1 1 370 -549  8
+anchor 6 0 1 0 1 1 -109 553  8
+anchor 8 4 0 1 0 1 198 -256  8
+anchor 11 0 0 0 0 0 -338 230  238
+anchor 11 8 0 0 0 1 364 267  238
+anchor 11 0 0 0 1 1 125 34  8
+anchor 14 0 0 1 1 0 -243 412  8
+anchor 11 12 0 0 0 0 259 100  8
+anchor 11 3 0 0 0 0 -296 216  8
+anchor 11 0 1 1 0 0 162 -236  170
+anchor 7 0 0 0 0 0 386 144  8
+anchor 11 0 0 0 1 1 338 -528  8
+anchor 11 0 0 1 0 1 -67 445  -59
+anchor 11 0 0 0 1 1 -241 -13  8
+anchor 4 8 0 0 0 0 -298 331  8
+anchor 8 0 0 0 0 1 211 -522  8
+anchor 11 2 1 1 0 0 -20 -58  -12
+anchor 11 0 0 1 0 0 163 8  171
+anchor 16 0 0 0 1 0 206 -464  8
+anchor 11 4 0 0 1 0 388 -357  396
+anchor 11 14 1 0 1 1 79 -170  87
+anchor 11 4 0 0 0 1 259 170  171
+anchor 1 0 0 0 1 0 -132 564  8
+anchor 11 0 0 0 0 0 51 -201  -193
+anchor 14 0 1 0 0 1 57 -571  8
+anchor 11 0 0 0 0 0 -74 -266  -258
+anchor 11 0 0 0 0 0 -176 281  289
+anchor 11 13 0 0 0 1 -219 232  289
+anchor 11 0 0 1 1 0 87 596  95
+anchor 11 0 0 0 0 0 -302 -428  -420
+anchor 11 13 0 1 0 0 -197 -217  -189
+anchor 11 0 0 0 0 1 311 59  8
+anchor 11 14 0 0 0 0 179 -258  8
+anchor 11 0 0 0 1 1 245 335  8
+anchor 11 2 0 0 0 1 -335 524  8
+anchor 11 0 0 0 1 1 31 -464  8
+anchor 11 15 0 1 1 0 -139 95  -131
+anchor 11 3 0 0 1 1 95 372  103
+anchor 11 4 1 1 0 0 385 378  393
+anchor 11 1 0 0 1 0 109 -275  117
+anchor 11 7 0 0 1 0 -34 524  -26
+anchor 11 0 1 1 1 1 -54 402  -46
+anchor 1 0 0 1 0 0 159 -512  8
+anchor 11 7 0 0 1 0 -366 -473  -358
+anchor 11 0 0 0 0 0 150 -319  -311
+anchor 11 15 0 0 0 1 -286 189  -311
+anchor 11 0 0 1 1 0 258 286  266
+anchor 11 0 0 0 0 1 -202 -395  8
+anchor 11 15 1 1 0 1 -38 -229  -30
+anchor 11 8 1 0 0 0 -27 65  8
+anchor 11 12 1 0 0 0 269 98  8
+anchor 1 0 0 0 0 0 157 -545  8
+anchor 19 0 0 0 1 0 319 563  8
+anchor 11 12 0 0 0 0 -370 -301  8
+anchor 11 2 0 0 1 0 219 -232  227
+anchor 11 10 0 0 1 0 271 -397  279
+anchor 11 0 1 0 0 1 203 -375  8
+anchor 11 6 0 0 0 1 140 -573  8
+anchor 15 0 0 0 0 0 -344 519  8
+anchor 21 4 0 1 1 0 -218 575  8
+anchor 2 0 1 0 0 0 70 -395  8
+anchor 11 0 0 1 0 1 -49 573  -41
+anchor 11 0 0 1 0 1 -242 -277  -234
+anchor 11 9 0 1 1 1 -353 395  -345
+anchor 2 0 0 1 0 0 -297 -476  8
+anchor 11 0 0 0 1 0 293 -289  -281
+anchor 11 0 0 1 0 1 102 -144  110
+anchor 11 0 1 1 0 1 145 -351  153
+anchor 11 0 0 0 0 0 221 -125  -117
+anchor 18 5 0 0 0 1 15 -236  8
+anchor 11 13 0 0 1 1 13 -144  21
+anchor 11 0 0 0 0 1 357 -47  8
+anchor 11 14 0 0 1 1 12 -550  20
+anchor 11 0 1 0 1 1 3 556  11
+anchor 0 6 0 0 0 1 -257 245  8
+anchor 11 10 0 0 0 1 233 582  8
+anchor 11 3 0 0 1 1 299 -330  307
+anchor 11 0 0 1 0 1 4 158  12
+anchor 11 2 1 0 0 1 370 -169  12
+anchor 20 0 0 0 0 1 24 -234  8
+anchor 11 0 1 0 0 1 400 -255  12
+anchor 11 13 0 0 1 0 197 -287  205
+anchor 11 1 0 0 1 0 -394 202  -386
+anchor 11 0 0 1 1 1 -225 477  -217
+anchor 9 15 0 0 0 1 53 319  8
+anchor 11 0 0 1 1 0 -243 484  -235
+anchor 11 0 0 0 0 0 186 -435  -427
+anchor 11 13 1 0 1 1 311 -306  319
+anchor 8 0 0 0 0 0 -262 500  8
+anchor 11 0 0 1 0 1 51 -189  59
+anchor 11 2 1 1 0 1 -72 -19  -64
+anchor 11 0 0 1 0 1 -245 206  -237
+anchor 11 0 0 0 0 0 -169 -382  -374
+anchor 11 0 0 0 1 1 242 306  8
+anchor 8 0 0 0 1 0 -276 566  8
+anchor 11 0 1 0 0 0 303 119  8
+anchor 11 5 0 0 0 1 231 203  8
+anchor 8 0 0 0 0 1 224 515  8
+anchor 11 0 0 0 0 0 -221 -207  -199
+anchor 11 0 0 1 0 1 -9 39  -1
+anchor 11 0 0 0 0 0 -380 579  587
+anchor 11 13 1 0 1 0 36 395  44
+anchor 11 13 1 1 0 0 -276 -593  -268
+anchor 11 0 0 0 0 1 67 -333  8
+anchor 11 1 0 0 1 1 365 -323  373
+anchor 11 0 0 0 0 0 -398 51  59
+anchor 11 0 0 0 0 1 -333 -267  8
+anchor 11 0 1 0 0 0 46 213  8
+anchor 11 13 0 1 0 0 25 -62  33
+anchor 11 0 0 0 0 0 176 -558  -550
+anchor 11 9 1 0 0 1 121 207  -550
+anchor 11 3 0 0 0 0 -125 -516  -550
+anchor 11 4 0 1 0 1 -362 -301  -354
+anchor 11 0 0 0 1 0 -288 42  50
+anchor 11 13 1 1 0 1 -218 499  -210
+anchor 11 0 1 1 0 1 -73 -464  -65
+anchor 11 0 0 1 0 1 -165 -450  -157
+anchor 8 5 0 0 0 0 359 -560  8
+anchor 11 15 0 1 1 1 365 -30  373
+anchor 11 0 0 1 0 1 388 142  396
+anchor 11 0 0 0 0 0 202 152  160
+anchor 8 4 0 0 0 0 -298 363  8
+anchor 11 0 1 1 0 1 353 346  361
+anchor 11 11 0 0 0 0 -7 597  160
+anchor 2 4 0 1 0 0 120 -466  8
+anchor 11 0 0 1 1 0 -246 390  -238
+anchor 11 0 0 0 1 1 -240 -168  8
+anchor 11 0 0 0 0 0 -376 353  361
+anchor 11 0 0 1 0 1 -217 484  -209
+anchor 11 0 0 0 0 1 303 -19  8
+anchor 11 0 0 1 0 0 -334 -370  -326
+anchor 11 3 0 0 1 0 106 -161  114
+anchor 11 0 0 0 0 0 -281 269  277
+anchor 8 15 0 0 1 0 -298 -166  8
+anchor 14 0 0 0 0 0 -102 -436  8
+anchor 11 14 0 0 0 1 -390 296  277
+anchor 11 0 0 1 0 1 -341 -143  -333
+anchor 11 0 0 0 0 1 -265 106  8
+anchor 11 3 0 0 0 1 -88 -223  8
+anchor 18 10 0 1 0 0 -342 -303  8
+anchor 11 0 1 0 0 0 123 -133  8
+anchor 1 1 0 0 1 0 254 56  8
+anchor 11 13 0 0 0 0 49 365  8
+anchor 11 0 0 0 0 0 368 543  551
+anchor 11 0 0 1 0 0 -338 -254  -330
+anchor 11 5 0 0 0 1 35 277  -330
+anchor 11 4 0 0 0 1 -34 -10  -330
+anchor 11 0 0 0 0 1 58 -194  8
+anchor 5 0 1 0 0 1 -120 29  8
+anchor 11 0 0 1 0 0 398 46  406
+anchor 11 14 0 1 0 1 332 274  340
+anchor 11 4 1 1 0 1 55 86  63
+anchor 2 0 0 1 0 0 -129 -281  8
+anchor 11 13 0 1 0 1 -149 202  -141
+anchor 5 0 0 0 0 0 234 -46  8
+anchor 11 2 0 1 0 0 -275 -170  -267
+anchor 6 9 0 0 1 0 153 255  8
+anchor 11 0 0 0 0 0 -299 -228  -220
+anchor 11 0 0 0 1 1 234 318  8
+anchor 11 0 0 1 1 0 236 133  244
+anchor 11 0 0 1 0 0 -150 266  -142
+anchor 11 15 1 0 1 0 -371 293  -363
+anchor 11 7 1 0 0 0 -114 154  -142
+anchor 11 0 0 1 0 1 -187 559  -179
+anchor 11 0 1 0 0 1 -329 302  -179
+anchor 11 10 1 1 0 1 294 -307  302
+anchor 21 11 0 0 0 1 314 309  8
+anchor 11 0 1 0 1 0 -54 376  -46
+anchor 11 0 1 0 0 0 93 237  -179
+anchor 11 9 1 0 0 0 -288 -388  -179
+anchor 11 7 0 0 1 1 296 42  304
+anchor 6 14 0 0 1 1 167 463  8
+anchor 11 10 0 1 1 0 344 -467  352
+anchor 11 0 1 0 0 1 -127 16  -179
+anchor 11 0 0 1 0 0 -118 559  -110
+anchor 17 0 0 1 0 0 296 -450  8
+anchor 11 7 1 1 0 1 296 465  304
+anchor 6 0 1 0 0 0 306 249  8
+anchor 11 11 0 0 0 1 -270 234  -110
+anchor 11 7 0 0 1 1 -278 276  -270
+anchor 11 0 0 0 0 1 374 -450  8
+anchor 11 13 0 0 0 0 -137 430  8
+anchor 18 0 0 1 0 1 177 140  8
+anchor 11 2 0 0 1 1 -61 -26  -53
+anchor 11 0 1 1 0 1 16 508  24
+anchor 11 0 1 0 0 1 -226 -584  8
+anchor 11 0 0 0 0 0 -203 -438  -430
+anchor 11 0 0 0 0 1 175 218  8
+anchor 17 12 0 0 0 1 -172 -401  8
+anchor 11 0 1 0 1 0 -361 128  -353
+anchor 11 0 1 0 1 0 347 392  355
+anchor 11 0 0 0 0 0 -164 -385  -377
+anchor 11 0 0 1 0 0 -127 -475  -119
+anchor 3 4 0 1 1 1 -388 54  8
+anchor 11 0 0 0 0 0 -124 347  355
+anchor 11 0 1 1 0 0 314 -596  322
+anchor 21 0 1 0 0 1 -34 85  8
+anchor 11 0 0 0 0 1 -302 126  8
+anchor 11 11 0 1 1 0 28 -246  36
+anchor 11 11 1 0 1 1 269 -445  277
+anchor 11 6 0 0 0 0 344 174  8
+anchor 11 9 1 1 0 0 344 -171  352
+anchor 11 11 0 0 0 0 -60 336  8
+anchor 9 0 0 0 0 1 326 473  8
+anchor 11 0 0 0 0 0 343 -299  -291
+anchor 11 2 1 0 0 1 15 533  -291
+anchor 11 3 0 0 0 1 -330 -397  -291
+anchor 11 0 0 0 0 0 28 -358  -350
+anchor 11 6 0 0 0 0 292 -6  -350
+anchor 11 0 1 0 0 0 257 -424  -350
+anchor 11 9 1 1 0 0 103 351  111
+anchor 12 0 0 0 0 0 -42 -59  8
+anchor 11 15 0 1 0 1 -351 556  -343
+anchor 11 0 0 0 0 0 210 -328  -320
+anchor 11 7 0 0 0 1 -182 -546  -320
+anchor 11 0 0 1 0 0 307 507  315
+anchor 11 0 0 1 1 1 277 514  285
+anchor 11 0 0 1 0 1 -13 -332  -5
+anchor 11 14 0 1 1 0 238 92  246
+anchor 11 0 1 0 0 0 -348 223  -5
+anchor 11 1 1 0 1 0 358 -563  366
+anchor 11 0 0 0 0 1 32 -377  8
+anchor 11 5 1 1 0 0 -359 -484  -351
+anchor 11 0 0 0 1 1 156 -504  8
+anchor 11 15 0 0 0 0 -308 446  8
+anchor 11 0 1 1 0 0 -135 447  -127
+anchor 2 3 0 1 0 1 -226 -421  8
+anchor 11 0 1 0 0 0 -226 182  8
+anchor 11 7 0 1 1 0 -178 319  -170
+anchor 11 7 0 1 0 0 252 371  260
+anchor 20 0 0 0 0 0 -380 214  8
+anchor 11 8 1 1 0 0 292 127  300
+anchor 11 0 0 1 1 0 -290 -256  -282
+anchor 3 0 0 0 0 1 57 -144  8
+anchor 11 0 0 0 1 0 -333 204  212
+anchor 11 0 1 0 1 1 25 -177  33
+anchor 11 0 0 0 0 0 379 -380  -372
+anchor 10 7 0 0 0 0 -163 -426  8
+anchor 11 0 0 0 0 0 -295 61  69
+anchor 11 0 0 0 0 0 -11 -330  -322
+anchor 13 5 0 0 0 1 -378 -476  8
+anchor 11 0 1 1 1 0 -314 -66  -306
+anchor 13 0 1 0 0 0 -35 -67  8
+anchor 11 11 0 1 0 1 395 345  403
+anchor 11 0 0 0 0 0 -321 441  449
+anchor 11 0 1 1 0 0 -99 -476  -91
+anchor 17 0 1 0 1 1 -41 -392  8
+anchor 11 0 1 1 0 1 -245 290  -237
+anchor 11 13 0 0 0 1 291 592  449
+anchor 11 15 1 0 0 1 230 450  449
+anchor 11 9 0 1 0 0 255 -282  263
+anchor 11 11 0 0 0 1 113 -80  449
+anchor 11 0 0 0 1 0 27 -311  -303
+anchor 11 1 0 0 1 1 -29 -68  -21
+anchor 10 0 0 0 0 1 313 -277  8
+anchor 19 0 1 0 0 1 -301 -450  8
+anchor 11 0 1 0 0 1 337 599  -303
+anchor 11 0 0 0 0 1 -245 -546  8
+anchor 11 2 0 0 0 0 -165 536  8
+anchor 11 10 0 1 1 1 149 54  157
+anchor 11 0 1 1 0 0 -67 360  -59
+anchor 11 0 0 0 0 0 279 -590  -582
+anchor 11 0 0 1 0 0 353 -330  361
+anchor 11 0 1 1 0 1 182 121  190
+anchor 11 0 0 1 0 0 213 -32  221
+anchor 2 0 0 1 0 1 339 -249  8
+anchor 11 0 0 0 1 0 305 102  110
+anchor 18 0 1 0 0 0 -150 -577  8
+anchor 11 4 0 0 0 1 -395 550  110
+anchor 11 15 0 0 0 1 -52 5  110
+anchor 11 0 1 0 0 1 -191 303  110
+anchor 7 0 0 0 0 1 281 -517  8
+anchor 11 14 0 0 0 0 221 51  110
+anchor 11 0 0 0 0 0 -317 -116  -108
+anchor 10 0 0 0 0 0 291 433  8
+anchor 11 0 0 0 0 0 -367 -224  -216
+anchor 11 9 0 0 0 1 30 -527  -216
+anchor 11 0 0 0 1 1 -255 -11  8
+anchor 1 0 0 1 0 1 237 350  8
+anchor 17 5 0 1 0 1 -178 10  8
+anchor 11 0 0 0 1 0 -228 393  401
+anchor 11 0 0 0 0 1 -85 365  8
+anchor 20 13 1 0 0 0 82 -460  8
+anchor 11 0 1 0 0 0 -267 295  8
+anchor 11 6 0 0 1 0 257 22  265
+anchor 7 0 0 1 0 1 144 403  8
+anchor 11 11 1 0 0 0 -71 491  8
+anchor 11 11 1 1 0 0 164 -223  172
+anchor 11 0 0 1 0 1 -282 273  -274
+anchor 11 0 0 1 0 0 318 -173  326
+anchor 11 0 0 0 1 1 -364 -316  8
+anchor 11 0 1 0 1 0 -59 315  -51
+anchor 11 7 0 0 0 0 59 477  8
+anchor 11 12 1 0 0 1 -81 540  8
+anchor 11 0 0 0 1 1 -18 253  8
+anchor 11 9 1 0 1 0 -43 116  -35
+anchor 11 10 0 0 1 1 276 -105  284
+anchor 11 0 0 1 1 1 -71 -470  -63
+anchor 20 13 0 0 0 1 -314 -9  8
+anchor 7 0 1 0 0 0 -357 529  8
+anchor 11 0 0 0 0 1 -362 -308  8
+anchor 16 11 1 0 1 1 -27 -78  8
+anchor 11 11 0 1 0 0 -145 -573  -137
+anchor 11 0 0 1 0 1 -318 -337  -310
+anchor 3 12 0 0 0 1 -135 -82  8
+anchor 11 0 1 0 1 1 -7 37  1
+anchor 11 0 0 0 0 0 259 -124  -116
+anchor 11 0 0 0 0 0 59 -162  -154
+anchor 11 6 0 0 1 0 276 -553  284
+anchor 11 0 0 0 0 0 -23 106  114
+anchor 11 14 1 0 0 0 -252 -400  114
+anchor 11 0 0 1 0 1 -45 -568  -37
+anchor 17 13 0 0 0 1 -231 -207  8
+anchor 11 0 0 1 0 0 314 -329  322
+anchor 0 0 0 1 0 0 236 -168  8
+anchor 11 0 0 1 0 1 172 374  180
+anchor 11 0 0 1 0 0 -264 239  -256
+anchor 11 15 0 0 0 1 -8 -282  -256
+anchor 11 0 0 1 1 0 -193 -370  -185
+anchor 11 14 1 1 1 0 9 -393  17
+anchor 6 0 0 0 0 0 102 -233  8
+anchor 11 0 0 1 1 1 307 395  315
+anchor 11 10 1 0 1 0 -17 429  -9
+anchor 11 0 0 0 0 0 254 -341  -333
+anchor 11 0 1 1 0 0 73 218  81
+anchor 14 0 0 1 1 0 -290 227  8
+anchor 11 0 0 0 1 1 -341 -301  8
+anchor 11 4 0 0 0 0 278 -471  8
+anchor 3 3 0 0 1 1 202 -383  8
+anchor 11 0 0 0 0 1 -290 -71  8
+anchor 11 11 0 1 1 0 -137 -420  -129
+anchor 4 0 1 0 0 0 -14 283  8
+anchor 11 0 1 0 0 0 361 -102  8
+anchor 11 1 1 0 1 0 302 80  310
+anchor 15 0 1 0 0 1 148 179  8
+anchor 11 0 1 0 0 1 -272 -20  8
+anchor 0 11 0 0 0 0 -108 23  8
+anchor 8 5 0 1 0 1 181 -164  8
+anchor 4 7 0 1 0 0 -328 432  8
+anchor 11 0 0 0 0 0 -186 104  112
+anchor 11 0 1 0 0 1 376 532  112
+anchor 11 0 0 0 1 1 149 434  8
+anchor 12 15 1 0 0 0 -64 -367  8
+anchor 2 14 0 1 0 0 -382 200  8
+anchor 11 5 0 1 0 1 -11 -82  -3
+anchor 11 3 0 0 0 0 -341 269  8
+anchor 11 0 0 0 0 0 -60 -46  -38
+anchor 11 7 0 0 0 0 -69 -306  -38
+anchor 21 0 1 1 1 0 251 420  8
+anchor 1 0 1 1 0 1 -398 -311  8
+anchor 11 2 0 0 0 1 150 -436  -38
+anchor 11 0 0 0 1 0 -108 -598  -590
+anchor 11 0 0 0 1 1 -44 230  8
+anchor 7 0 0 1 0 0 359 273  8
+anchor 11 9 0 0 0 0 -233 10  8
+anchor 11 0 1 0 0 0 -285 -523  8
+anchor 11 11 0 1 1 0 -254 257  -246
+anchor 11 8 0 1 0 1 -138 214  -130
+anchor 11 13 0 0 0 1 231 -88  8
+anchor 11 0 0 0 0 0 -265 -470  -462
+anchor 11 9 0 1 0 0 105 -237  113
+anchor 17 11 1 1 0 0 245 -391  8
+anchor 11 0 0 0 0 0 -327 -572  -564
+anchor 11 0 1 0 0 0 -212 547  -564
+anchor 11 0 0 0 0 0 213 -78  -70
+anchor 11 0 0 0 0 1 -342 -526  8
+anchor 13 0 0 0 1 1 258 -40  8
+anchor 11 0 0 0 0 1 -272 553  8
+anchor 11 10 0 0 0 1 227 405  8
+anchor 11 5 0 0 0 0 -267 529  8
+anchor 0 0 1 0 1 0 385 -187  8
+anchor 11 0 1 1 0 1 -107 599  -99
+anchor 11 0 0 0 0 0 100 -500  -492
+anchor 11 1 0 0 0 1 -322 243  -492
+anchor 11 11 0 0 1 0 -120 449  -112
+anchor 11 15 0 1 0 1 -156 -305  -148
+anchor 13 0 0 0 1 1 266 -135  8
+anchor 11 0 0 0 1 0 102 371  379
+anchor 11 3 0 0 1 1 31 -127  39
+anchor 11 0 0 0 1 0 -263 43  51
+anchor 6 0 1 0 0 1 23 539  8
+anchor 11 12 0 0 0 1 30 227  51
+anchor 11 12 0 0 1 0 197 -311  205
+anchor 11 0 0 0 0 0 367 -177  -169
+anchor 11 11 1 0 0 0 -59 595  -169
+anchor 11 0 1 1 0 0 156 249  164
+anchor 11 0 0 1 0 0 68 -58  76
+anchor 15 15 0 0 0 1 169 394  8
+anchor 13 4 0 0 0 0 3 -178  8
+anchor 11 0 0 0 0 0 314 -408  -400
+anchor 11 1 0 0 0 0 -174 -217  -400
+anchor 11 0 1 0 1 1 348 215  356
+anchor 11 0 0 0 0 1 307 -207  8
+anchor 11 0 0 1 0 1 -181 -338  -173
+anchor 11 9 0 1 1 0 232 599  240
+anchor 11 0 1 0 0 1 -193 -51  -173
+anchor 11 0 0 0 0 1 364 540  8
+anchor 11 0 1 1 0 0 274 576  282
+anchor 11 12 0 0 1 1 -214 -18  -206
+anchor 6 12 1 0 0 0 -24 -512  8
+anchor 11 2 0 0 0 1 363 -317  8
+anchor 18 0 1 0 0 0 -222 570  8
+anchor 11 0 0 1 1 1 308 -99  316
+anchor 11 5 0 1 0 1 -65 1  -57
+anchor 11 0 0 1 1 0 121 -415  129
+anchor 11 5 0 1 1 0 321 -484  329
+anchor 11 4 0 0 0 0 393 -183  129
+anchor 11 0 0 0 0 1 262 359  8
+anchor 11 0 0 1 0 0 -60 -321  -52
+anchor 11 0 0 1 1 0 -230 108  -222
+anchor 11 0 0 0 0 1 -81 315  8
+anchor 11 0 0 1 0 1 233 239  241
+anchor 7 5 0 0 0 1 -1 -111  8
+anchor 11 8 0 1 0 0 -81 51  -73
+anchor 11 9 1 1 0 0 135 -138  143
+anchor 11 6 0 0 0 0 294 530  241
+anchor 11 5 1 0 0 0 -12 -223  241
+anchor 11 0 1 0 0 1 -55 357  241
+anchor 11 3 0 0 0 0 327 -124  241
+anchor 11 15 1 0 0 1 386 429  241
+anchor 11 0 1 0 1 0 10 -293  18
+anchor 19 14 0 0 0 1 -308 472  8
+anchor 11 0 0 0 1 1 -169 473  8
+anchor 11 2 0 0 0 1 118 -372  8
+anchor 11 1 0 0 1 1 224 -100  232
+anchor 11 0 0 0 0 1 -51 93  8
+anchor 11 0 0 1 0 0 -289 62  -281
+anchor 8 11 0 0 1 0 -217 -586  8
+anchor 11 4 1 1 0 1 -180 -332  -172
+anchor 11 0 0 1 0 1 333 -444  341
+anchor 10 0 0 1 0 0 -3 479  8
+anchor 6 0 0 1 1 0 -273 493  8
+anchor 7 0 0 0 1 0 -100 145  8
+anchor 11 0 0 0 0 1 362 -160  8
+anchor 11 0 1 0 0 0 -180 231  8
+anchor 19 0 0 1 1 1 281 404  8
+anchor 11 0 0 0 0 0 38 270  278
+anchor 11 0 0 0 1 0 -222 102  110
+anchor 8 0 0 1 0 0 -253 -154  8
+anchor 10 0 0 1 0 1 -183 171  8
+anchor 11 2 0 0 0 1 188 257  110
+anchor 6 0 0 0 1 1 344 338  8
+anchor 11 14 0 0 0 1 -222 -4  110
+anchor 11 0 0 1 0 1 -278 -146  -270
+anchor 11 12 1 1 0 0 -138 -600  -130
+anchor 11 0 1 0 0 0 225 -401  -270
+anchor 11 0 0 0 0 0 387 -427  -419
+anchor 10 8 0 0 1 0 -297 -486  8
+anchor 20 0 0 0 1 0 -132 -108  8
+anchor 11 6 0 1 1 1 -105 -43  -97
+anchor 11 0 0 1 1 0 246 -404  254
+anchor 11 12 0 1 0 1 -331 -402  -323
+anchor 8 0 0 0 1 0 372 487  8
+anchor 12 0 0 0 1 1 72 -33  8
+anchor 11 0 0 0 0 1 216 478  8
+anchor 11 6 0 0 0 0 104 -489  8
+anchor 11 0 0 1 0 1 108 155  116
+anchor 0 0 1 0 0 0 -124 -404  8
+anchor 11 14 0 0 0 0 -167 -104  116
+anchor 11 8 0 1 0 0 155 -530  163
+anchor 11 0 0 0 0 0 -357 232  240
+anchor 11 15 0 0 1 1 371 -341  379
+anchor 11 0 0 0 0 1 -309 -176  8
+anchor 17 11 0 0 0 0 329 577  8
+anchor 2 0 0 1 1 1 283 210  8
+anchor 11 0 1 0 1 1 -384 275  -376
+anchor 11 9 0 0 0 1 -48 -46  8
+anchor 11 0 0 1 1 0 -16 23  -8
+anchor 11 8 0 0 0 0 175 -575  -8
+anchor 11 0 0 0 0 0 -203 127  135
+anchor 11 4 0 0 0 1 -18 -272  135
+anchor 10 14 0 1 0 1 -122 -67  8
+anchor 11 12 0 1 0 1 -89 105  -81
+anchor 11 0 0 0 0 0 -352 274  282
+anchor 11 0 0 0 0 1 -127 -340  8
+anchor 11 0 0 1 0 1 99 468  107
+anchor 11 0 0 0 1 0 -197 89  97
+anchor 7 0 1 0 0 1 69 -187  8
+anchor 11 0 0 0 0 0 -313 -233  -225
+anchor 11 3 0 1 1 0 -380 -49  -372
+anchor 20 0 0 0 0 0 254 -287  8
+anchor 11 10 0 0 1 0 356 572  364
+anchor 11 12 0 1 0 1 -170 -26  -162
+anchor 11 0 0 0 0 1 -71 67  8
+anchor 11 0 0 0 0 0 396 342  350
+anchor 11 3 0 0 0 0 -335 341  350
+anchor 11 13 0 0 0 0 -85 589  350
+anchor 15 0 1 1 0 0 69 -23  8
+anchor 11 1 0 0 1 1 -374 -407  -366
+anchor 11 0 1 1 0 0 4 -266  12
+anchor 11 0 1 1 1 1 398 231  406
+anchor 11 7 0 0 0 0 -94 117  350
+anchor 11 8 1 0 0 0 268 525  350
+anchor 11 0 0 0 1 1 12 -322  8
+anchor 11 0 0 1 0 0 195 172  203
+anchor 11 9 0 0 1 1 -48 28  -40
+anchor 11 15 0 0 0 0 131 -214  203
+anchor 11 3 0 0 0 0 186 206  203
+anchor 11 9 1 0 0 1 192 261  203
+anchor 11 0 0 1 0 1 -68 71  -60
+anchor 11 0 0 0 0 0 -146 201  209
+anchor 21 5 1 0 0 0 316 -313  8
+anchor 11 7 1 0 0 0 -118 311  209
+anchor 5 0 1 0 0 1 -115 420  8
+anchor 11 4 0 1 1 0 268 -74  276
+anchor 11 7 0 0 0 0 -68 91  209
+anchor 11 7 0 1 0 0 -43 244  -35
+anchor 11 9 1 1 0 0 -26 -567  -18
+anchor 11 1 0 0 0 0 -157 -203  209
+anchor 6 0 0 0 0 0 250 -193  8
+anchor 11 11 0 0 0 0 297 -494  209
+anchor 12 0 0 1 0 1 255 78  8
+anchor 11 0 1 0 0 0 188 -173  209
+anchor 11 0 1 0 1 0 389 -414  397
+anchor 11 8 0 0 0 1 -313 75  209
+anchor 11 1 0 0 0 0 -293 69  209
+anchor 11 0 0 0 1 0 -238 -13  -5
+anchor 8 2 0 0 0 0 206 51  8
+anchor 11 0 0 0 0 1 339 162  8
+anchor 11 0 0 0 0 1 382 -317  8
+anchor 11 1 0 0 1 1 160 104  168
+anchor 11 0 0 1 0 1 -216 -100  -208
+anchor 11 11 0 0 0 1 -236 -193  -208
+anchor 11 0 0 1 1 0 -40 -585  -32
+anchor 17 0 0 1 0 1 -370 -59  8
+anchor 11 1 0 1 0 1 41 -274  49
+anchor 11 0 0 0 1 0 -52 -10  -2
+anchor 11 0 0 1 1 0 377 172  385
+anchor 11 0 0 1 0 0 111 387  119
+anchor 11 9 1 0 0 0 107 -420  119
+anchor 11 0 0 0 1 1 276 516  8
+anchor 17 0 0 1 0 1 -378 -223  8
+anchor 11 9 0 0 0 0 -345 503  8
+anchor 11 15 1 1 0 1 -371 349  -363
+anchor 7 0 0 1 0 0 -349 -380  8
+anchor 11 1 0 1 0 1 -245 334  -237
+anchor 11 6 0 0 0 1 -54 -292  8
+anchor 5 14 0 0 0 1 -224 428  8
+anchor 11 12 0 0 0 1 200 93  8
+anchor 11 0 0 1 0 0 366 -569  374
+anchor 18 0 1 1 0 1 246 -282  8
+anchor 11 5 0 0 1 0 241 -550  249
+anchor 11 0 0 1 1 1 160 206  168
+anchor 11 10 1 0 1 0 393 -8  401
+anchor 3 7 1 1 0 1 -184 465  8
+anchor 11 8 0 0 0 1 -235 412  168
+anchor 11 0 0 1 0 0 398 257  406
+anchor 17 0 0 0 0 0 -21 230  8
+anchor 11 0 0 1 0 0 151 379  159
+anchor 11 0 1 1 1 1 -285 -242  -277
+anchor 11 0 0 1 1 0 -281 -261  -273
+anchor 11 10 1 0 1 1 40 485  48
+anchor 11 2 0 0 0 1 -262 316  -273
+anchor 11 12 0 0 0 1 394 -542  -273
+anchor 11 4 0 0 0 0 -329 -596  -273
+anchor 11 2 0 0 0 1 261 348  -273
+anchor 11 0 0 1 1 0 337 427  345
+anchor 11 0 0 0 0 1 394 -39  8
+anchor 21 13 0 0 0 0 -178 -560  8
+anchor 10 0 0 0 1 0 400 87  8
+anchor 11 0 0 1 1 1 21 -499  29
+anchor 11 0 0 0 0 1 -100 151  8
+anchor 3 7 0 0 0 0 118 -539  8
+anchor 11 0 0 1 0 1 -389 -75  -381
+anchor 11 9 0 1 0 1 -387 553  -379
+anchor 11 5 1 1 0 0 -392 92  -384
+anchor 11 1 0 0 0 1 395 -356  -381
+anchor 11 11 0 0 0 0 327 230  -381
+anchor 11 15 1 0 1 1 -125 378  -117
+anchor 11 8 0 0 0 1 -297 253  -381
+anchor 11 9 0 0 0 1 -275 -252  -381
+anchor 11 0 0 0 1 0 84 86  94
+anchor 11 0 0 1 0 0 -220 166  -212
+anchor 12 9 1 0 0 1 -22 206  8
+anchor 11 0 1 0 0 1 -83 -239  -212
+anchor 11 7 0 1 0 1 107 165  115
+anchor 11 1 0 0 0 1 376 451  -212
+anchor 14 8 0 0 0 1 -138 -63  8
+anchor 13 0 1 0 0 1 387 149  8
+anchor 12 14 0 0 0 1 -20 123  8
+anchor 11 0 0 0 1 1 -298 -264  8
+anchor 20 4 0 1 0 1 -49 457  8
+anchor 11 12 1 0 0 0 -317 327  8
+anchor 11 0 0 0 1 1 -400 398  8
+anchor 11 13 0 0 0 1 179 -394  8
+anchor 11 14 0 0 0 0 -179 254  8
+anchor 11 0 0 0 0 1 -118 -110  8
+anchor 11 0 0 0 0 1 91 -280  8
+anchor 11 7 0 1 0 0 103 -22  111
+anchor 11 0 0 0 0 1 364 -463  8
+anchor 11 9 0 0 0 1 -285 -303  8
+anchor 11 8 0 0 0 1 -247 -171  8
+anchor 11 2 1 1 0 1 32 -287  40
+anchor 11 3 1 0 0 1 115 155  8
+anchor 7 15 1 1 1 0 200 -102  8
+anchor 11 0 0 0 0 0 219 527  535
+anchor 11 0 0 0 0 0 -361 291  299
+anchor 11 0 0 1 0 0 -309 -267  -301
+anchor 11 0 0 0 0 0 99 305  313
+anchor 11 0 1 0 0 1 -362 -452  313
+anchor 11 12 1 0 0 1 33 -244  313
+anchor 11 0 0 0 0 1 217 -38  8
+anchor 11 0 1 0 1 1 -373 -58  -365
+anchor 11 4 0 0 1 1 194 -35  202
+anchor 9 0 0 0 0 1 281 246  8
+anchor 11 1 1 0 0 1 304 382  8
+anchor 1 0 0 0 0 0 -47 -218  8
+anchor 17 4 0 0 1 1 -19 141  8
+anchor 11 0 0 0 0 1 326 49  8
+anchor 11 0 0 1 0 0 -39 -144  -31
+anchor 11 11 0 1 0 1 201 -510  209
+anchor 11 1 0 1 1 1 -266 -119  -258
+anchor 11 0 0 0 1 0 -214 243  251
+anchor 11 15 0 0 0 1 -376 383  251
+anchor 10 6 0 0 0 0 -299 409  8
+anchor 11 13 0 0 1 0 -290 -301  -282
+anchor 11 0 1 0 0 0 243 -67  251
+anchor 9 7 0 1 0 0 -176 18  8
+anchor 5 14 1 0 0 0 38 250  8
+anchor 17 0 0 1 0 1 -364 251  8
+anchor 11 10 0 0 0 1 -391 121  251
+anchor 14 0 0 0 0 1 -299 -103  8
+anchor 11 9 0 0 0 0 -345 404  251
+anchor 11 0 1 0 1 1 -383 381  -375
+anchor 18 15 0 1 0 1 173 -375  8
+anchor 11 0 0 1 0 0 -277 5  -269
+anchor 12 7 0 0 1 1 359 -280  8
+anchor 11 0 0 1 0 1 -80 552  -72
+anchor 11 14 0 0 1 1 335 -147  343
+anchor 6 14 1 1 1 0 151 -596  8
+anchor 9 0 0 0 0 1 -173 -419  8
+anchor 8 0 1 1 1 0 -384 -362  8
+anchor 11 0 0 0 0 0 114 -476  -468
+anchor 11 0 1 0 0 1 381 586  -468
+anchor 5 11 0 0 0 1 203 118  8
+anchor 11 0 0 0 0 0 -96 137  145
+anchor 11 7 1 0 1 1 140 -230  148
+anchor 11 8 0 0 0 0 187 -249  145
+anchor 11 9 1 0 0 0 79 -5  145
+anchor 11 0 0 1 0 0 271 255  279
+anchor 11 0 1 1 0 0 -170 -370  -162
+anchor 11 3 0 0 0 1 -221 199  279
+anchor 11 0 0 0 0 0 351 -37  -29
+anchor 11 2 0 1 0 1 338 317  346
+anchor 11 0 0 1 1 1 24 -460  32
+anchor 11 10 0 1 0 1 235 577  243
+anchor 15 12 0 0 1 1 103 22  8
+anchor 11 0 0 0 1 0 172 12  20
+anchor 11 12 0 0 0 0 -256 -405  20
+anchor 11 0 0 0 0 1 -108 -498  8
+anchor 11 4 0 0 0 1 -172 110  8
+anchor 20 0 0 1 0 1 -312 -36  8
+anchor 11 5 0 0 1 1 197 81  205
+anchor 11 0 0 1 1 0 293 188  301
+anchor 9 8 0 0 0 1 -310 -49  8
+anchor 11 12 1 1 0 1 -341 -339  -333
+anchor 11 0 0 1 0 1 350 -53  358
+anchor 20 11 0 1 0 1 194 502  8
+anchor 11 0 0 0 0 0 148 18  26
+anchor 11 4 0 0 0 0 -69 330  26
+anchor 11 0 0 1 0 1 353 -591  361
+anchor 20 0 1 0 0 1 244 -147  8
+anchor 11 0 0 0 1 0 -262 -582  -574
+anchor 11 0 0 0 1 1 340 -528  8
+anchor 11 0 0 1 0 0 380 -466  388
+anchor 0 2 0 0 0 1 -308 101  8
+anchor 11 0 0 1 0 0 -181 -552  -173
+anchor 19 5 0 0 0 1 217 498  8
+anchor 11 0 0 0 0 0 66 -179  -171
+anchor 11 14 0 0 0 1 108 342  -171
+anchor 11 8 0 0 0 0 109 485  -171
+anchor 11 0 0 0 0 1 115 -428  8
+anchor 11 0 0 1 0 0 126 -79  134
+anchor 11 4 0 1 0 1 -258 23  -250
+anchor 11 11 0 1 0 0 298 464  306
+anchor 11 0 0 1 1 0 -211 22  -203
+anchor 11 0 0 0 1 0 -342 -43  -35
+anchor 11 0 1 0 0 0 97 357  -35
+anchor 11 0 1 0 1 0 242 -300  250
+anchor 11 0 0 0 0 0 70 -406  -398
+anchor 11 0 0 0 0 1 275 -496  8
+anchor 11 4 0 0 0 0 157 190  8
+anchor 11 7 0 1 1 1 -16 -347  -8
+anchor 5 0 1 0 1 1 -317 504  8
+anchor 11 0 0 1 1 1 -164 -326  -156
+anchor 11 4 0 0 0 0 -167 -364  -156
+anchor 11 0 0 0 0 1 -232 425  8
+anchor 11 5 0 0 1 0 293 160  301
+anchor 11 0 0 1 1 1 310 -160  318
+anchor 11 10 0 1 1 0 -222 -40  -214
+anchor 11 13 0 0 1 1 354 411  362
+anchor 11 3 0 0 0 0 82 235  318
+anchor 16 0 0 1 0 1 -199 246  8
+anchor 9 0 0 1 0 0 330 -536  8
+anchor 18 0 1 0 0 1 -87 -56  8
+anchor 21 0 0 0 0 1 -186 -43  8
+anchor 11 7 0 0 1 0 -4 -313  4
+anchor 11 0 1 1 0 0 46 599  54
+anchor 11 13 1 0 1 1 -357 -482  -349
+anchor 11 0 0 0 0 0 -7 -523  -515
+anchor 11 0 0 0 1 0 147 560  568
+anchor 3 15 0 0 1 0 373 -340  8
+anchor 11 0 0 1 0 0 278 476  286
+anchor 11 0 1 1 0 1 -363 596  -355
+anchor 11 0 0 0 0 1 -177 312  8
+anchor 11 7 0 0 0 0 -43 64  8
+anchor 21 0 0 0 0 1 -156 -329  8
+anchor 11 0 0 0 1 1 -170 298  8
+anchor 14 3 0 0 0 1 130 -203  8
+anchor 11 0 0 0 0 0 -280 583  591
+anchor 11 0 1 0 0 1 323 -391  591
+anchor 14 0 1 0 0 1 -369 162  8
+anchor 11 3 0 1 0 1 72 -388  80
+anchor 11 5 1 0 1 0 -365 -411  -357
+anchor 19 0 0 0 0 0 -99 525  8
+anchor 11 0 0 0 0 0 363 210  218
+anchor 11 0 0 0 0 0 209 -567  -559
+anchor 4 0 0 0 0 1 337 533  8
+anchor 11 0 0 0 0 1 -160 -569  8
+anchor 11 0 0 0 0 1 382 -111  8
+anchor 11 8 1 0 0 0 37 384  8
+anchor 20 11 1 0 0 0 -147 -123  8
+anchor 11 0 0 1 0 0 371 -404  379
+anchor 11 0 0 0 0 1 380 35  8
+anchor 11 0 1 0 1 1 267 589  275
+anchor 11 0 0 0 0 0 229 135  143
+anchor 11 7 1 1 0 0 -176 -128  -168
+anchor 11 13 1 0 0 0 143 520  143
+anchor 11 0 0 1 0 0 -149 523  -141
+anchor 15 15 0 1 0 1 199 351  8
+anchor 11 12 0 0 0 0 -334 284  -141
+anchor 21 0 0 0 0 0 -207 -14  8
+anchor 11 0 0 1 1 0 234 -483  242
+anchor 13 3 1 0 0 0 375 31  8
+anchor 11 0 0 0 1 0 -220 -398  -390
+anchor 11 15 0 0 0 1 -215 19  -390
+anchor 11 0 0 0 0 0 69 -29  -21
+anchor 19 11 0 1 1 1 267 207  8
+anchor 19 3 1 1 0 1 132 259  8
+anchor 11 0 0 1 0 0 -93 324  -85
+anchor 11 0 1 0 0 0 191 -417  -85
+anchor 11 0 0 0 0 0 368 -412  -404
+anchor 11 0 0 0 0 1 -59 -121  8
+anchor 11 11 0 0 0 1 -143 -288  8
+anchor 3 0 0 0 1 0 330 -591  8
+anchor 4 0 0 1 1 1 98 -475  8
+anchor 11 0 1 1 0 1 -28 -347  -20
+anchor 11 0 0 0 0 0 -162 -347  -339
+anchor 11 0 0 1 1 1 154 -185  162
+anchor 11 2 0 0 0 1 210 -399  162
+anchor 11 14 0 1 0 0 262 305  270
+anchor 11 9 1 1 0 1 381 128  389
+anchor 11 0 0 0 0 1 -55 -417  8
+anchor 11 14 1 1 0 0 250 327  258
+anchor 11 0 0 1 0 1 400 -287  408
+anchor 11 0 0 0 1 1 252 -532  8
+anchor 11 7 0 0 0 0 315 -226  8
+anchor 11 12 1 0 0 0 329 341  8
+anchor 12 0 1 1 0 0 273 -75  8
+anchor 11 0 0 0 0 1 383 -572  8
+anchor 11 0 0 1 0 0 -6 187  2
+anchor 11 0 0 1 0 1 -319 -278  -311
+anchor 11 0 0 0 0 0 -218 -219  -211
+anchor 11 3 1 1 0 0 -185 -387  -177
+anchor 11 0 0 1 0 1 -355 -266  -347
+anchor 11 3 0 0 0 0 -323 -516  -347
+anchor 16 0 1 1 1 0 -190 417  8
+anchor 11 15 0 0 0 0 163 175  -347
+anchor 2 0 1 0 0 1 -115 -289  8
+anchor 11 3 1 0 0 1 136 -224  -347
+anchor 11 0 1 0 0 0 243 325  -347
+anchor 11 0 0 1 0 0 107 -294  115
+anchor 11 0 0 0 0 1 70 -174  8
+anchor 21 0 0 0 1 0 -67 -384  8
+anchor 11 0 1 0 0 1 162 130  8
+anchor 11 0 0 1 0 1 -34 -504  -26
+anchor 11 0 0 1 0 0 324 501  332
+anchor 11 9 1 0 0 1 44 -348  332
+anchor 13 13 0 1 0 1 -225 279  8
+anchor 11 1 0 1 0 1 124 -125  132
+anchor 11 6 0 0 0 1 130 -549  332
+anchor 8 0 0 0 1 0 400 -213  8
+anchor 11 0 0 1 0 0 -317 382  -309
+anchor 5 0 1 0 0 0 -398 456  8
+anchor 11 3 1 0 1 0 34 -157  42
+anchor 14 0 0 0 0 1 278 579  8
+anchor 11 6 0 1 0 0 64 482  72
+anchor 20 9 0 0 1 1 -303 25  8
+anchor 11 6 1 0 1 1 117 -436  125
+anchor 11 0 0 0 1 0 288 389  397
+anchor 11 0 0 0 1 1 -273 -549  8
+anchor 11 14 0 1 0 0 86 532  94
+anchor 11 0 0 1 0 1 -238 -513  -230
+anchor 5 0 0 0 0 1 -104 -108  8
+anchor 11 11 1 0 0 0 167 -203  -230
+anchor 11 9 0 1 0 0 -7 488  1
+anchor 11 9 0 0 0 0 -205 361  -230
+anchor 11 10 0 1 1 0 -53 -577  -45
+anchor 18 9 0 0 0 0 67 247  8
+anchor 11 0 0 0 1 0 397 -262  -254
+anchor 11 10 1 1 0 1 -137 480  -129
+anchor 6 0 0 0 1 0 71 217  8
+anchor 11 15 1 0 0 0 148 -140  -254
+anchor 11 11 0 0 1 0 354 -218  362
+anchor 11 0 0 0 0 1 -164 -505  8
+anchor 11 15 1 0 0 1 -210 -566  8
+anchor 16 15 0 0 0 1 198 354  8
+anchor 17 11 1 0 0 0 188 279  8
+anchor 14 0 0 0 1 0 91 -435  8
+anchor 11 0 0 0 0 1 46 295  8
+anchor 11 0 0 0 0 0 47 -42  -34
+anchor 11 7 1 0 0 1 206 351  -34
+anchor 8 5 1 1 1 0 -89 45  8
+anchor 11 0 0 0 0 0 238 -245  -237
+anchor 5 0 1 0 1 0 149 242  8
+anchor 11 9 0 0 0 0 -127 -499  -237
+anchor 11 9 0 0 0 1 -282 -305  -237
+anchor 11 0 0 1 1 0 -21 -150  -13
+anchor 10 8 0 1 0 0 291 -597  8
+anchor 11 0 0 1 0 0 297 63  305
+anchor 11 5 0 1 0 1 -10 417  -2
+anchor 11 10 1 0 1 1 -258 424  -250
+anchor 3 2 1 0 0 1 -65 583  8
+anchor 11 0 1 0 0 0 -350 -275  305
+anchor 14 0 0 0 0 0 -86 362  8
+anchor 11 0 0 0 0 1 -400 141  8
+anchor 11 8 0 0 0 0 181 -368  8
+anchor 11 0 1 0 1 0 -136 -262  -128
+anchor 4 5 0 1 0 1 14 -134  8
+anchor 11 8 0 0 0 0 236 433  8
+anchor 11 2 0 1 1 0 -17 574  -9
+anchor 11 0 0 1 0 0 207 11  215
+anchor 11 0 0 0 1 0 -195 334  342
+anchor 2 0 1 0 0 0 334 584  8
+anchor 11 0 0 1 0 0 -295 548  -287
+anchor 11 0 0 0 1 1 -295 -280  8
+anchor 11 5 1 0 0 0 57 -585  8
+anchor 13 10 0 0 0 0 -75 -580  8
+anchor 9 0 1 0 0 1 370 -531  8
+anchor 19 7 1 1 1 1 355 -35  8
+anchor 11 12 1 1 0 0 256 -149  264
+anchor 11 1 0 0 0 1 -396 218  8
+anchor 0 2 0 0 1 0 56 235  8
+anchor 11 0 0 0 0 1 -81 356  8
+anchor 18 13 1 1 0 0 65 -222  8
+anchor 11 0 1 0 0 0 107 -144  8
+anchor 11 0 0 0 0 0 106 493  501
+anchor 11 2 0 0 0 1 -97 -62  501
+anchor 11 12 1 0 0 0 -108 -414  501
+anchor 11 12 0 0 1 1 -290 257  -282
+anchor 11 5 1 1 0 0 323 466  331
+anchor 11 14 0 1 1 1 93 -192  101
+anchor 16 13 1 0 0 1 143 4  8
+anchor 11 0 1 0 0 0 226 -327  501
+anchor 6 0 1 1 1 0 -84 313  8
+anchor 11 0 0 0 0 1 329 -318  8
+anchor 11 0 0 0 1 1 16 -220  8
+anchor 11 9 0 1 1 0 161 46  169
+anchor 0 2 0 0 0 1 -124 -117  8
+anchor 11 0 0 0 0 0 -291 339  347
+anchor 8 0 1 1 1 0 -203 525  8
+anchor 6 0 0 0 1 0 29 -504  8
+anchor 11 13 0 0 0 1 -105 -367  347
+anchor 13 0 0 0 0 0 44 -357  8
+anchor 11 1 1 0 0 0 -136 -501  347
+anchor 11 0 0 1 1 1 16 -254  24
+anchor 11 0 0 1 1 1 120 380  128
+anchor 5 6 0 0 0 1 -392 -404  8
+anchor 11 2 0 1 0 1 -197 398  -189
+anchor 19 0 0 0 1 0 31 181  8
+anchor 11 13 0 1 0 1 -67 190  -59
+anchor 11 12 0 1 0 0 232 274  240
+anchor 11 8 0 0 0 1 149 -77  128
+anchor 11 0 0 0 1 1 -136 -382  8
+anchor 11 0 0 0 1 0 -146 477  485
+anchor 11 5 0 1 0 0 23 -147  31
+anchor 11 0 0 0 0 0 -193 90  98
+anchor 11 7 0 1 0 0 400 -3  408
+anchor 11 2 1 1 0 1 -341 463  -333
+anchor 11 5 0 1 0 1 -205 -457  -197
+anchor 11 0 1 0 0 1 265 -374  98
+anchor 11 1 0 1 0 1 -167 504  -159
+anchor 11 2 0 1 0 0 -240 46  -232
+anchor 11 7 0 0 0 0 16 38  98
+anchor 11 0 1 0 0 0 238 -262  98
+anchor 11 0 0 0 0 1 125 29  8
+anchor 11 15 1 1 1 1 81 341  89
+anchor 11 0 1 0 0 1 77 -145  8
+anchor 11 15 1 1 0 1 344 82  352
+anchor 11 0 0 1 0 1 47 -125  55
+anchor 3 14 0 0 0 0 -1 -458  8
+anchor 11 0 0 1 0 1 -35 141  -27
+anchor 11 0 0 0 0 0 -182 -396  -388
+anchor 11 0 0 0 0 0 282 -594  -586
+anchor 11 5 1 0 0 0 296 222  -586
+anchor 1 2 1 0 0 1 341 -443  8
+anchor 11 9 0 1 0 1 -385 -130  -377
+anchor 11 7 0 0 0 1 349 120  -586
+anchor 11 0 0 1 1 0 -72 61  -64
+anchor 11 0 0 0 0 0 -353 -406  -398
+anchor 11 9 0 0 0 0 386 182  -398
+anchor 11 0 0 0 0 1 -86 -46  8
+anchor 11 0 1 0 0 1 -327 -92  8
+anchor 11 14 0 1 0 0 17 -411  25
+anchor 13 0 0 0 0 0 329 43  8
+anchor 11 10 0 0 1 0 -256 356  -248
+anchor 11 12 0 1 0 1 -43 -100  -35
+anchor 11 0 0 1 1 1 139 137  147
+anchor 11 10 1 0 0 0 380 581  147
+anchor 18 5 1 0 1 0 -311 217  8
+anchor 11 0 0 1 0 1 108 88  116
+anchor 11 12 1 0 0 0 -334 -296  116
+anchor 17 4 1 0 1 1 -325 261  8
+anchor 11 8 1 0 0 0 -228 70  116
+anchor 11 3 0 0 0 0 243 484  116
+anchor 11 0 0 0 0 1 -330 -546  8
+anchor 11 11 0 1 1 1 225 236  233
+anchor 11 4 0 1 0 0 322 -345  330
+anchor 11 13 0 0 0 0 83 282  8
+anchor 11 0 0 1 0 1 -180 -190  -172
+anchor 11 0 0 0 0 0 178 -75  -67
+anchor 11 0 0 0 0 0 82 -421  -413
+digest 12345 1000000 65316fbe725c998e

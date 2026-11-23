@@ -1,0 +1,15 @@
+{
+  "format": "sh-text",
+  "version": 1,
+  "lang": "ar",
+  "map": "map0_s02",
+  "strings": {
+    "map0_s02.there_is_a_chain_saw": "يوجد هنا {color 2}منشار آلي{/color}.\nهل تأخذه؟{choice 4}",
+    "map0_s02.some_oil_cans_are_on": "على الرف بضع علب زيت.{end}",
+    "map0_s02.a_car_engine_no_problem": "محرك سيارة.\nلا خلل فيه.{end}",
+    "map0_s02.theres_a_tv_set_it": "هنا جهاز تلفاز.\nإنه لا يعمل.{end}",
+    "map0_s02.there_is_a_gasoline_tank": "يوجد هنا {color 2}خزان بنزين{/color}.\nهل تأخذه؟{choice 4}",
+    "map0_s02.there_is_a_katana_take": "يوجد هنا {color 2}كاتانا{/color}.\nهل تأخذها؟{choice 4}",
+    "map0_s02.there_is_a_channeling_stone": "يوجد هنا {color 2}حجر الاستحضار{/color}.\nهل تأخذه؟{choice 4}"
+  }
+}

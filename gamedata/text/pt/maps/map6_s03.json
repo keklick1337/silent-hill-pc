@@ -1,0 +1,10 @@
+{
+  "format": "sh-text",
+  "version": 1,
+  "lang": "pt",
+  "map": "map6_s03",
+  "strings": {
+    "map6_s03.there_is_a_sewer_map": "{hires}Há um {color 5}mapa do esgoto (ligação\ncom o parque de diversões){/color}.\nPegar?{choice 4}",
+    "map6_s03.gotta_go_find_cybil_no": "Preciso achar a Cybil!\nNão há tempo para voltar.{end}"
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "format": "sh-text",
+  "version": 1,
+  "lang": "ru",
+  "strings": {
+    "ui.pause.continue": "ПРОДОЛЖИТЬ (ПРИМЕР МОДА)",
+    "example_mod:ui.entry": "ПРИМЕР МОДА",
+    "example_mod:ui.title": "ПРИМЕР МОДА",
+    "example_mod:ui.about": "Сделано модом mods/example_mod",
+    "example_mod:ui.greeting": "Приветствие в журнале"
+  }
+}

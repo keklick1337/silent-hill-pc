@@ -1,0 +1,204 @@
+{
+  "format": "sh-map-world-objects",
+  "version": 2,
+  "map": "map1_s02",
+  "description": "Static world objects of map1_s02 (School Otherworld - 1F and courtyard): 26 objects, drawn in file order. An object is drawn while the player is in one of its \"zones\" (each {\"x\": [...], \"z\": [...]} lists 40 m cells along that axis: cell c holds 40c..40(c+1) m; no zones = everywhere) and every flag of \"flags_set\" is set and every flag of \"flags_clear\" is clear (event flag names, e.g. the pickup flags). \"name\" is the object's id for scripts and mods, \"model\" its model (at most 8 characters, the map's or an item model), \"position\" in metres and \"rotation\" in degrees (x, y, z). \"pose\" instead takes position and rotation from a table of the map's overlay on the disc (\"disc_table\" from tables.json, row \"index\"), resolved when the map loads; pickups use it. \"item_model\" ({\"file\": an item model file, \"scale\"}) draws the object from that item model instead of a model of the map (\"model\" is then only the object's own name). \"script\": true lets world_objects.lua and events.lua move, turn, re-model or hide the object. \"pc_near_pickup\": true (not in the original) also draws the pickup while the player is in a neighbouring cell of the same floor. Fan0/Fan1 turn and BathroomDoor/BossDoor1/BossDoor2 are set by world_objects.lua; events.lua turns the doors and lifts Box by these names. A mod's maps/map1_s02/world_objects.json changes or adds objects by name.",
+  "objects": [
+    {
+      "name": "ClassroomKey",
+      "description": "The key the water washed out of the drain pipe. The original drew a flat picture of a key 0.15 m above the grass (model KEY_HIDE of the cell at -16.51, -0.11, -51.54, turned -19.3 degrees); here the Classroom Key's own item model lies on the ground where that picture's middle was.",
+      "model": "CLASSKEY",
+      "item_model": {"file": "ITEM/UNQ46.TMD", "scale": 0.09},
+      "position": [-16.2, -0.01, -51.59],
+      "rotation": [0, 70.7, 0],
+      "zones": [{"x": -1, "z": -2}],
+      "flags_set": ["M1S03_KeyDownTheDrain"],
+      "flags_clear": ["M1S02_PickupClassroomKey"]
+    },
+    {
+      "name": "Fan0",
+      "model": "FAN_HIDE",
+      "position": [100.0, -1.6, 142.9],
+      "script": true,
+      "zones": [{"x": 2, "z": 3}]
+    },
+    {
+      "name": "Fan1",
+      "model": "FAN_HIDE",
+      "position": [100.0, -1.6, 145.25],
+      "script": true,
+      "zones": [{"x": 2, "z": 3}]
+    },
+    {
+      "name": "RubberBall",
+      "model": "BOLL_HID",
+      "position": [100.124, -1.08, 101.166],
+      "zones": [{"x": 2, "z": 2}],
+      "flags_clear": ["M1S02_PickupRubberBall"]
+    },
+    {
+      "name": "Shotgun",
+      "model": "GUN_HIDE",
+      "position": [17.8643, -0.04, 59.5135],
+      "rotation": [0, -215.3, 0],
+      "zones": [{"x": 0, "z": 1}],
+      "flags_clear": ["M1S02_PickupShotgun"]
+    },
+    {
+      "name": "BathroomDoor",
+      "model": "DOOR_HID",
+      "position": [18.37, -0.8, 59.51],
+      "script": true,
+      "zones": [{"x": 0, "z": 1}]
+    },
+    {
+      "name": "Ring1",
+      "model": "RING1_HI",
+      "position": [60.5, -1.04, -61.0],
+      "zones": [{"x": 1, "z": -2}]
+    },
+    {
+      "name": "Ring2",
+      "model": "RING2_HI",
+      "position": [60.5, -1.04, -59.0],
+      "zones": [{"x": 1, "z": -2}]
+    },
+    {
+      "name": "BossDoor2",
+      "model": "DOOR2_HI",
+      "position": [58.4, 0.0, -60.4],
+      "script": true,
+      "zones": [{"x": 1, "z": -2}]
+    },
+    {
+      "name": "BossDoor1",
+      "model": "DOOR1_HI",
+      "position": [58.4, 0.0, -59.6],
+      "script": true,
+      "zones": [{"x": 1, "z": -2}]
+    },
+    {
+      "name": "Box",
+      "model": "BOX_HIDE",
+      "position": [54.47, 0.0, -60.0],
+      "script": true,
+      "zones": [{"x": 1, "z": -2}]
+    },
+    {
+      "name": "PictureCard",
+      "model": "KEY_HIDE",
+      "position": [139.199, -0.8753, 99.3733],
+      "rotation": [0, 46.2, 0],
+      "zones": [{"x": 3, "z": 2}],
+      "flags_clear": ["M1S02_PickupPictureCard"]
+    },
+    {
+      "name": "Phone3",
+      "model": "PHONE3_H",
+      "position": [18.974, -0.9, 143.515],
+      "rotation": [0, -78.3, 0],
+      "zones": [{"x": 0, "z": 3}],
+      "flags_clear": ["M1S02_PhoneReceiverInHand"]
+    },
+    {
+      "name": "Phone2",
+      "model": "PHONE2_H",
+      "position": [18.974, -0.9, 143.515],
+      "rotation": [0, -78.3, 0],
+      "zones": [{"x": 0, "z": 3}],
+      "flags_clear": ["M1S02_PhoneReceiverInHand"]
+    },
+    {
+      "name": "SavePad",
+      "model": "PAD_NEAR",
+      "position": [60.14, -0.902, 141.763],
+      "rotation": [0, 92.4, 0],
+      "zones": [{"x": 1, "z": 3}]
+    },
+    {
+      "name": "Ampoule0",
+      "model": "AMPULE_N",
+      "pose": {"disc_table": "CommonWorldObjectPoses", "index": 0},
+      "zones": [{"x": 0, "z": -2}],
+      "flags_clear": ["M1S02_Ampoule0"]
+    },
+    {
+      "name": "ShotgunShells0",
+      "model": "SHOT_NEA",
+      "pose": {"disc_table": "CommonWorldObjectPoses", "index": 1},
+      "pc_near_pickup": true,
+      "zones": [{"x": 0, "z": -2}],
+      "flags_clear": ["M1S02_ShotgunShells0"]
+    },
+    {
+      "name": "ShotgunShells1",
+      "model": "SHOT_NEA",
+      "pose": {"disc_table": "CommonWorldObjectPoses", "index": 2},
+      "pc_near_pickup": true,
+      "zones": [{"x": 0, "z": -2}],
+      "flags_clear": ["M1S02_ShotgunShells1"]
+    },
+    {
+      "name": "FirstAidKit0",
+      "model": "AIDKIT_N",
+      "pose": {"disc_table": "CommonWorldObjectPoses", "index": 3},
+      "zones": [{"x": 2, "z": 3}],
+      "flags_clear": ["M1S02_FirstAidKit0"]
+    },
+    {
+      "name": "HandgunBullets0",
+      "model": "BULLET_N",
+      "pose": {"disc_table": "CommonWorldObjectPoses", "index": 4},
+      "pc_near_pickup": true,
+      "zones": [{"x": 2, "z": 3}],
+      "flags_clear": ["M1S02_HandgunBullets0"]
+    },
+    {
+      "name": "HandgunBullets1",
+      "model": "BULLET_N",
+      "pose": {"disc_table": "CommonWorldObjectPoses", "index": 5},
+      "pc_near_pickup": true,
+      "zones": [{"x": 0, "z": 3}],
+      "flags_clear": ["M1S02_HandgunBullets1"]
+    },
+    {
+      "name": "HandgunBullets2",
+      "model": "BULLET_N",
+      "pose": {"disc_table": "CommonWorldObjectPoses", "index": 6},
+      "pc_near_pickup": true,
+      "zones": [{"x": 1, "z": 0}],
+      "flags_clear": ["M1S02_HandgunBullets2"]
+    },
+    {
+      "name": "Ampoule1",
+      "model": "AMPULE_N",
+      "pose": {"disc_table": "CommonWorldObjectPoses", "index": 7},
+      "pc_near_pickup": true,
+      "zones": [{"x": 2, "z": 0}],
+      "flags_clear": ["M1S02_Ampoule1"]
+    },
+    {
+      "name": "HealthDrink0",
+      "model": "DRINK_NE",
+      "pose": {"disc_table": "CommonWorldObjectPoses", "index": 8},
+      "pc_near_pickup": true,
+      "zones": [{"x": 1, "z": 3}],
+      "flags_clear": ["M1S02_HealthDrink0"]
+    },
+    {
+      "name": "FirstAidKit1",
+      "model": "AIDKIT_N",
+      "pose": {"disc_table": "CommonWorldObjectPoses", "index": 9},
+      "zones": [{"x": 1, "z": 3}],
+      "flags_clear": ["M1S02_FirstAidKit1"]
+    },
+    {
+      "name": "HealthDrink1",
+      "model": "DRINK_NE",
+      "pose": {"disc_table": "CommonWorldObjectPoses", "index": 10},
+      "pc_near_pickup": true,
+      "zones": [{"x": 2, "z": 1}],
+      "flags_clear": ["M1S02_HealthDrink1"]
+    }
+  ]
+}

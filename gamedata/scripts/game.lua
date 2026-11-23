@@ -1,0 +1,37 @@
+-- Silent Hill PC - base game script.
+-- The engine runs gamedata/scripts/game.lua at boot; a mod replaces this file whole
+-- (the highest-priority mod wins). Everything here is optional: a hook that is not
+-- defined is simply never called, and without this file nothing changes at all.
+--
+-- Sandbox: the base/table/string/math libraries only; load, dofile, require, os, io
+-- and friends are removed; every call has an instruction budget. API version 2.
+--
+-- Hooks (all optional):
+--   on_boot()              once, right after the script runs
+--   on_new_game()          when a new game starts (after the savegame is wiped)
+--   on_map_load(map)       every map load; map is the map name, e.g. "map1_s02"
+--   on_update()            every frame while the game runs - keep it light
+--
+-- Per-map scripts: gamedata/maps/<map>/events.lua (or a mod's copy) loads when that map
+-- loads and may define on_boot() and on_update() of its own, in a separate sandbox.
+--
+-- API:
+--   sh.log(msg)            log a line (level 0); sh.log(1, msg) for a warning
+--   sh.api_version()       this file documents version 2
+--   sh.engine.version      the engine version, e.g. "1.0.0" (also .major, .minor, .patch, .at_least(1, 2))
+--   sh.flag_get(id)        story/event/pickup flag of the savegame (returns boolean)
+--   sh.flag_set(id, v)     set or clear a flag (this is how the plot remembers)
+--   sh.give_item(name, n)  put n of an item ("HealthDrink", "mymod:Crowbar"; items/<Name>.json) in the inventory
+--   sh.player_pos()        x, y, z of the player, world units (4096 = 1 m)
+--   sh.map_name()          the active map's name, e.g. "map1_s02"
+
+-- The base game ships no scripted behaviour: this file exists so the hook points are
+-- exercised with the shipped data and as a starting point for mods. A minimal mod:
+--
+--     local seen = {}
+--     function on_map_load(map)
+--         if not seen[map] then
+--             seen[map] = true
+--             sh.log("entered " .. map)
+--         end
+--     end

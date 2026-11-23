@@ -1,0 +1,42 @@
+{
+  "map": "map6_s01",
+  "table": "g_MapEventFuncs",
+  "handlers": [
+    {
+      "index": 0,
+      "symbol": "MapEvent_DoorJammed",
+      "name": "MapEvent_DoorJammed",
+      "shape": "script"
+    },
+    {
+      "index": 1,
+      "symbol": "MapEvent_DoorLocked",
+      "name": "MapEvent_DoorLocked",
+      "shape": "script"
+    },
+    {
+      "index": 2,
+      "symbol": "MapEvent_CommonItemTake",
+      "name": "MapEvent_CommonItemTake",
+      "shape": "script"
+    },
+    {
+      "index": 3,
+      "symbol": "Cutscene_LighthouseCybilDahlia",
+      "name": "Cutscene_LighthouseCybilDahlia",
+      "shape": "cutscene"
+    },
+    {
+      "index": 4,
+      "symbol": "Cutscene_LighthouseCybilLeaves",
+      "name": "Cutscene_LighthouseCybilLeaves",
+      "shape": "script"
+    },
+    {
+      "index": 5,
+      "symbol": "Cutscene_LighthouseUfo",
+      "name": "Cutscene_LighthouseUfo",
+      "shape": "cutscene"
+    }
+  ]
+}

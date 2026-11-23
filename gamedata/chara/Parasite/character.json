@@ -1,0 +1,22 @@
+{
+  "description": "Parasite: the creature that had possessed Cybil, seen at the Lakeside Amusement Park once it leaves her.",
+  "category": "Bosses",
+  "maps": ["map6_s04"],
+  "model": "models/CHARA/ICU.glb",
+  "animations": "anim/ANIM/ICU.anim.json",
+  "clip_tables": ["parasite"],
+  "textures": ["textures/CHARA/ICU.png"],
+  "shadow": 0.25,
+  "blend_mode": "additive",
+  "camera_anchor": "character",
+  "camera_offset_y": 0.0,
+  "controls": {
+    "none": 0,
+    "appear": 1
+  },
+  "spawn": {
+    "state": 0,
+    "kind": "prop",
+    "auto": "full"
+  }
+}

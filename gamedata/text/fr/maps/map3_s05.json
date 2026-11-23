@@ -1,0 +1,33 @@
+{
+  "format": "sh-text",
+  "version": 1,
+  "lang": "fr",
+  "map": "map3_s05",
+  "strings": {
+    "map3_s05.there_is_a_video_tape": "Il y a une {color 2}cassette vidéo{/color}.\nPrendre ?{choice 4}",
+    "map3_s05.alessa": "{color 3}Alessa{end}",
+    "map3_s05.alessa_2": "Alessa... ?{end}",
+    "map3_s05.whats_this": "{wait 1.2}Qu'est-ce que c'est ?{end}",
+    "map3_s05.looks_like_someones_been_here": "{wait 2.6}On dirait que quelqu'un\nest passé ici...{end}",
+    "map3_s05.msg20": "{wait 0.4}{end}",
+    "map3_s05.there_is_an_examination_room": "Il y a\nune {color 2}clé de la salle d'examen{/color}.\nPrendre ?{choice 4}",
+    "map3_s05.looks_like_a_hallway_under": "On dirait un couloir\nsous la grille.",
+    "map3_s05.cant_move_it_since_the": "Impossible de la déplacer :\nles lianes l'ont envahie.{end}",
+    "map3_s05.no_the_fire_goes_out": "Non.\nLe feu s'éteint aussitôt\nquand j'allume les lianes.{end}",
+    "map3_s05.poured_disinfecting_alcohol_on": "{color 2}Alcool désinfectant{/color} versé\nsur les lianes.{end}",
+    "map3_s05.the_vines_absorbed_the_alcohol": "Les lianes ont absorbé l'alcool.{end}",
+    "map3_s05.used_the_basement_storeroom": "{color 2}Clé de la remise{/color} utilisée.{end}",
+    "map3_s05.do_you_want_to_push": "Pousser\nl'armoire ?{choice 4}",
+    "map3_s05.the_generator_is_on": "Le groupe électrogène\nest en marche.{end}",
+    "map3_s05.there_are_skid_marks_from": "Il y a des traces de frottement :\nl'armoire a été déplacée.{end}",
+    "map3_s05.there_is_a_hammer_take": "Il y a une {color 2}masse{/color}.\nPrendre ?{choice 4}",
+    "map3_s05.a_bed_whats_it_doing": "Un lit ? Qu'est-ce qu'il fait là ?\nQui aurait...{end}",
+    "map3_s05.a_body_is_laid_out": "Un corps est étendu sur le lit.\nAucune envie d'y\nregarder de plus près.{end}",
+    "map3_s05.nothing_helpful": "Rien qui puisse m'aider.{end}",
+    "map3_s05.nothing_useful_in_the_boxes": "Rien d'utile dans les cartons.{end}",
+    "map3_s05.theres_a_bottle_filled_with": "Il y a un flacon rempli\nd'une sorte de médicament.\nMieux vaut ne pas y toucher.{end}",
+    "map3_s05.there_are_some_empty_bottles": "Il y a quelques flacons vides.{end}",
+    "map3_s05.nothing_special_in_the_box": "Rien de spécial dans la boîte.\nRien d'inquiétant.{end}",
+    "map3_s05.nothing_inside": "Rien à l'intérieur.{end}"
+  }
+}

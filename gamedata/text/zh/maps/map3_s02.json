@@ -1,0 +1,10 @@
+{
+  "format": "sh-text",
+  "version": 1,
+  "lang": "zh",
+  "map": "map3_s02",
+  "strings": {
+    "map3_s02.nothing_happens_when_the": "按了电梯按钮，\n却没有任何反应。{end}",
+    "map3_s02.its_locked": "锁着！{end}"
+  }
+}

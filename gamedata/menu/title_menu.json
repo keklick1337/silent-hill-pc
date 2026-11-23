@@ -1,0 +1,34 @@
+{
+  "description": "The title menu. entries: in drawing order; kind = load | continue | new_game | options | exit (load and continue show when saves exist, continue also with an autosave, the others always); label = menu text key; offset_x = hand-measured half width of the untranslated label (absent = measured); sound = played when picked (sounds/sounds.json name); next = the game state the menu hands off to; next_alt = for continue the state when an autosave exists, for new_game the state when the opening movie is skipped. idle_frames / intro_every / idle_state: what happens when the title is left idle. A mod replaces the whole file with its own copy at the same path.",
+  "entries": [
+    { "kind": "load",         "label": "LOAD",         "offset_x": 29, "sound": "menu_start_game", "next": "LoadSavegameScreen" },
+    { "kind": "continue",     "label": "CONTINUE",     "offset_x": 50, "sound": "menu_start_game", "next": "AutoLoadSavegame", "next_alt": "MainLoadScreen" },
+    { "kind": "new_game",     "label": "START",        "offset_x": 32, "sound": "menu_confirm",    "next": "MovieOpening", "next_alt": "MainLoadScreen" },
+    { "kind": "options",      "label": "OPTION",       "offset_x": 39, "sound": "menu_confirm",    "next": "OptionScreen" },
+    { "kind": "exit",         "label": "EXIT",                         "sound": "menu_confirm" }
+  ],
+  "layout": {
+    "column_x": 158,
+    "row_pitch": 20,
+    "last_row_y": 264,
+    "hover_lead": 3,
+    "difficulty_y": 204,
+    "difficulty_align": "center",
+    "difficulty_offset_x": 34
+  },
+  "exit_confirm": {
+    "question": "QUIT_THE_GAME?",
+    "answers": ["YES", "NO"],
+    "answer_spread": 40,
+    "row": "options"
+  },
+  "sounds": {
+    "move": "menu_move",
+    "cancel": "menu_cancel",
+    "start_game": "menu_start_game",
+    "open_confirm": "menu_confirm"
+  },
+  "idle_frames": 1740,
+  "intro_every": 3,
+  "idle_state": "MovieIntro"
+}

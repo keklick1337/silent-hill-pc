@@ -1,0 +1,8 @@
+{
+  "format": "sh-text",
+  "version": 1,
+  "lang": "ja",
+  "strings": {
+    "ui.pause.controls": "操作設定"
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "format": "sh-text",
+  "version": 1,
+  "lang": "tr",
+  "map": "map4_s05",
+  "strings": {
+    "map4_s05.what": "{wait 1.0}Ne?{end}",
+    "map4_s05.that_light": "{wait 2.5}Bu ışık!?{end}",
+    "map4_s05.the_stairs_are_wrecked": "Merdiven yıkılmış!{end}",
+    "map4_s05.alchemilla_hospital": "{color 3}Alchemilla Hastanesi{end}"
+  }
+}

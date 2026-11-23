@@ -1,0 +1,22 @@
+{
+  "format": "sh-text",
+  "version": 1,
+  "lang": "pt",
+  "strings": {
+    "common.yes": "Sim",
+    "common.no": "Não",
+    "common.notes_useful": "Um dia, alguém pode viver\nestes acontecimentos bizarros.\nTomara que minhas notas ajudem.{end}",
+    "common.no_map": "{instant}Não tenho o mapa\ndeste lugar.{end}",
+    "common.too_dark_for_map": "{instant}Está escuro demais\npara ver o mapa aqui.{end}",
+    "common.take_first_aid_kit": "Há um {color 2}kit médico{/color} aqui.\nPegar?{choice 4}",
+    "common.take_health_drink": "Há um {color 2}tônico{/color} aqui.\nPegar?{choice 4}",
+    "common.take_ampoule": "Há uma {color 2}ampola{/color} aqui.\nPegar?{choice 4}",
+    "common.take_handgun_bullets": "Há {color 2}balas de pistola{/color} aqui.\nPegar?{choice 4}",
+    "common.take_rifle_shells": "Há {color 2}balas de rifle{/color} aqui.\nPegar?{choice 4}",
+    "common.take_shotgun_shells": "Há {color 2}cartuchos de escopeta{/color} aqui.\nPegar?{choice 4}",
+    "common.lock_jammed": "A fechadura está emperrada.\nNão dá para abrir esta porta.{end}",
+    "common.locked": "Está trancada.{end}",
+    "common.unlocked": "Está destrancada.{end}",
+    "common.now_making": "{color 6}Em construção!{/color}{end}"
+  }
+}

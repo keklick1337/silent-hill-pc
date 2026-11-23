@@ -1,0 +1,38 @@
+{
+  "format": "sh-held-items",
+  "description": "What Harry holds in a hand. Per item (gamedata/items names, \"none\" = empty hand): \"model\" is the game file drawn on the hand bone, \"texture\" the game file read into video memory at image_own (without one the model uses the character's sheet at image_shared), \"texture_name\" the material the model's texture binds to (absent: the previous one stays), \"hand\" right (default) or left. An item not listed draws nothing.",
+  "image_shared": {
+    "tpage": [0, 27],
+    "u": 0,
+    "v": 0,
+    "clut_x": 736,
+    "clut_y": 480
+  },
+  "image_own": {
+    "tpage": [0, 27],
+    "u": 48,
+    "v": 224,
+    "clut_x": 736,
+    "clut_y": 498
+  },
+  "items": {
+    "none": {"texture_name": "HERO"},
+    "KitchenKnife": {"texture_name": "HERO", "model": "ITEM/KNIFE.PLM"},
+    "Hammer": {"texture_name": "HERO", "model": "ITEM/HAMMER.PLM"},
+    "Axe": {"texture_name": "HERO", "model": "ITEM/AXE.PLM"},
+    "Handgun": {"texture_name": "HERO", "model": "ITEM/HANDGUN.PLM"},
+    "HuntingRifle": {"texture_name": "HERO", "model": "ITEM/RIFLE.PLM"},
+    "Shotgun": {"texture_name": "HERO", "model": "ITEM/SHOTGUN.PLM"},
+    "SteelPipe": {"texture_name": "PIPE", "texture": "ITEM/PIPE.TIM", "model": "ITEM/PIPE.PLM"},
+    "CutscenePhone": {"texture_name": "PHONE", "texture": "ITEM/PHONE.TIM", "model": "ITEM/PHONE.PLM", "hand": "left"},
+    "CutsceneFlauros": {"texture_name": "FLAUROS", "texture": "ITEM/FLAUROS.TIM", "model": "ITEM/FLAUROS.PLM"},
+    "CutsceneAglaophotis": {"texture_name": "AGLA", "texture": "ITEM/AGLA.TIM", "model": "ITEM/AGLA.PLM"},
+    "CutscenePlasticBottle": {"texture_name": "BOTL", "texture": "ITEM/BOTL.TIM", "model": "ITEM/BOTL.PLM"},
+    "CutsceneBaby": {"texture_name": "BABY", "texture": "ITEM/BABY.TIM", "model": "ITEM/BABY.PLM"},
+    "CutsceneBloodPack": {"texture_name": "BLOOD", "texture": "ITEM/BLOOD.TIM", "model": "ITEM/BLOOD.PLM"},
+    "Chainsaw": {"texture_name": "CSAW", "texture": "ITEM/CSAW.TIM", "model": "ITEM/CSAW.PLM"},
+    "HyperBlaster": {"texture_name": "HPRGUN", "texture": "ITEM/HPRGUN.TIM", "model": "ITEM/HPRGUN.PLM"},
+    "RockDrill": {"texture_name": "DRILL", "texture": "ITEM/DRILL.TIM", "model": "ITEM/DRILL.PLM"},
+    "Katana": {"texture_name": "KATANA", "texture": "ITEM/KATANA.TIM", "model": "ITEM/KATANA.PLM"}
+  }
+}

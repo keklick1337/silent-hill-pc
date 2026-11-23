@@ -1,0 +1,16 @@
+{
+  "format": "sh-demos",
+  "version": 1,
+  "description": "The attract-mode demos played when the title screen is left idle. rotation: played in order, wrapping around; setup is the disc file with the demo's settings, save, frame count and start seed, play the recorded pad input (16 bytes per frame). step_states: the game states in which the recording advances one frame. exit: while the game is in in_state, the demo ends when the system state becomes on_sys_state or the previous game state was after_state. exit_timer_vblanks: the demo timer set on exit, in vblanks (60 per second; past soft_reset.json demo_vblanks). seed_advance: added to the saved random seed between the two world passes of a demo frame. A mod replaces the whole file with its own copy at the same path.",
+  "rotation": [
+    {"setup": "MISC/DEMO0009.DAT", "play": "MISC/PLAY0009.DAT"},
+    {"setup": "MISC/DEMO000A.DAT", "play": "MISC/PLAY000A.DAT"},
+    {"setup": "MISC/DEMO0003.DAT", "play": "MISC/PLAY0003.DAT"},
+    {"setup": "MISC/DEMO000B.DAT", "play": "MISC/PLAY000B.DAT"},
+    {"setup": "MISC/DEMO0005.DAT", "play": "MISC/PLAY0005.DAT"}
+  ],
+  "step_states": ["InGame", "MapEvent", "ExitMovie", "InventoryScreen", "PaperMapScreen", "OptionScreen"],
+  "exit": {"in_state": "InGame", "on_sys_state": "GameOver", "after_state": "SaveScreen"},
+  "exit_timer_vblanks": 59940,
+  "seed_advance": 1013904223
+}

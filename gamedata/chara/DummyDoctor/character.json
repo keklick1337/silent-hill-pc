@@ -1,0 +1,23 @@
+{
+  "description": "Dummy Doctor: a placeholder type of the Otherworld Alchemilla Hospital. Its map group slot exists (map3_s04), but the original never spawns it and gives it only CHARA/DUMMY.ILM, a 256-byte model of one triangle with no texture; the Puppet Doctor's AI would drive it. Not spawnable.",
+  "category": "OtherworldEnemies",
+  "maps": ["map3_s04"],
+  "model": "models/CHARA/DUMMY.glb",
+  "animations": "anim/ANIM/DUMMY.anim.json",
+  "clip_tables": ["puppet_nurse_a", "puppet_nurse_b"],
+  "textures": null,
+  "shadow": 0.25,
+  "blend_mode": "subtractive",
+  "camera_anchor": "character",
+  "camera_offset_y": -0.9,
+  "spawn": {
+    "state": 17,
+    "kind": "prop",
+    "auto": "none",
+    "note": "unused placeholder of the original: its only model is CHARA/DUMMY.ILM (one triangle, no texture)"
+  },
+  "pool": false,
+  "behavior": "PuppetNurse",
+  "harry_reactions": ["Hit", "TorsoGrab", "Death"],
+  "enemy": true
+}

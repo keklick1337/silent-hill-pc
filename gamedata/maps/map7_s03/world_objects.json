@@ -1,0 +1,133 @@
+{
+  "format": "sh-map-world-objects",
+  "version": 2,
+  "map": "map7_s03",
+  "description": "Static world objects of map7_s03 (Nowhere - final boss): 12 objects, drawn in file order. An object is drawn while the player is in one of its \"zones\" (each {\"x\": [...], \"z\": [...]} lists 40 m cells along that axis: cell c holds 40c..40(c+1) m; no zones = everywhere) and every flag of \"flags_set\" is set and every flag of \"flags_clear\" is clear (event flag names, e.g. the pickup flags). \"name\" is the object's id for scripts and mods, \"model\" its model (at most 8 characters, the map's or an item model), \"position\" in metres and \"rotation\" in degrees (x, y, z). \"script\": true lets world_objects.lua and events.lua move, turn, re-model or hide the object. Every object is script-driven (world_objects.lua): Bin, Nu and Baby show with the map variables update_bin, update_nu and update_baby (the ending scenes move the bin and the baby along the cutscene); Real, Ura and Under are three copies each of the scrolling worlds, interleaved as the original drew them. A mod's maps/map7_s03/world_objects.json changes or adds objects by name.",
+  "objects": [
+    {
+      "name": "Bin",
+      "model": "BIN_HIDE",
+      "position": [
+        140.0,
+        0.0,
+        -100.0
+      ],
+      "script": true
+    },
+    {
+      "name": "Nu",
+      "model": "NU_HIDE",
+      "position": [
+        139.7,
+        0.0,
+        -99.1
+      ],
+      "rotation": [
+        0,
+        -90.0,
+        0
+      ],
+      "script": true
+    },
+    {
+      "name": "Baby",
+      "model": "BABY_HID",
+      "position": [
+        140.0,
+        0.0,
+        -100.0
+      ],
+      "script": true
+    },
+    {
+      "name": "Real0",
+      "model": "REAL_HID",
+      "position": [
+        100.0,
+        0.0,
+        -140.0
+      ],
+      "script": true
+    },
+    {
+      "name": "Ura0",
+      "model": "URA_HIDE",
+      "position": [
+        100.0,
+        0.0,
+        -140.0
+      ],
+      "script": true
+    },
+    {
+      "name": "Under0",
+      "model": "UNDER_HI",
+      "position": [
+        100.0,
+        0.0,
+        -140.0
+      ],
+      "script": true
+    },
+    {
+      "name": "Real1",
+      "model": "REAL_HID",
+      "position": [
+        100.0,
+        0.0,
+        -140.0
+      ],
+      "script": true
+    },
+    {
+      "name": "Ura1",
+      "model": "URA_HIDE",
+      "position": [
+        100.0,
+        0.0,
+        -140.0
+      ],
+      "script": true
+    },
+    {
+      "name": "Under1",
+      "model": "UNDER_HI",
+      "position": [
+        100.0,
+        0.0,
+        -140.0
+      ],
+      "script": true
+    },
+    {
+      "name": "Real2",
+      "model": "REAL_HID",
+      "position": [
+        100.0,
+        0.0,
+        -140.0
+      ],
+      "script": true
+    },
+    {
+      "name": "Ura2",
+      "model": "URA_HIDE",
+      "position": [
+        100.0,
+        0.0,
+        -140.0
+      ],
+      "script": true
+    },
+    {
+      "name": "Under2",
+      "model": "UNDER_HI",
+      "position": [
+        100.0,
+        0.0,
+        -140.0
+      ],
+      "script": true
+    }
+  ]
+}

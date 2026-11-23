@@ -1,0 +1,71 @@
+{
+  "format": "sh-text",
+  "version": 1,
+  "lang": "en",
+  "map": "map3_s05",
+  "description": "The map's messages: the keys by message number from \"first\" (the numbers before it are common.json's), and the English text of the original game.",
+  "index": {
+    "map": {
+      "first": 15,
+      "keys": [
+        "map3_s05.there_is_a_video_tape",
+        "map3_s05.alessa",
+        "map3_s05.alessa_2",
+        "map3_s05.whats_this",
+        "map3_s05.looks_like_someones_been_here",
+        "map3_s05.msg20",
+        "map3_s05.there_is_an_examination_room",
+        "map3_s05.looks_like_a_hallway_under",
+        "map3_s05.cant_move_it_since_the",
+        "map3_s05.no_the_fire_goes_out",
+        "map3_s05.poured_disinfecting_alcohol_on",
+        "map3_s05.the_vines_absorbed_the_alcohol",
+        "map3_s05.used_the_basement_storeroom",
+        "map3_s05.do_you_want_to_push",
+        "map3_s05.the_generator_is_on",
+        "map3_s05.there_are_skid_marks_from",
+        "map3_s05.there_is_a_hammer_take",
+        "map3_s05.a_bed_whats_it_doing",
+        "map3_s05.a_body_is_laid_out",
+        "map3_s05.nothing_helpful",
+        "map3_s05.nothing_useful_in_the_boxes",
+        "map3_s05.theres_a_bottle_filled_with",
+        "map3_s05.there_are_some_empty_bottles",
+        "map3_s05.nothing_special_in_the_box",
+        "map3_s05.nothing_inside"
+      ]
+    }
+  },
+  "strings": {
+    "map3_s05.there_is_a_video_tape": "There is a {color 2}Video tape{/color}.\nTake it?{choice 4}",
+    "map3_s05.alessa": "{color 3}Alessa{end}",
+    "map3_s05.alessa_2": "Alessa...?{end}",
+    "map3_s05.whats_this": "{wait 1.2}What's this?{end}",
+    "map3_s05.looks_like_someones_been_here": "{wait 2.6}Looks like someone's been here...{end}",
+    "map3_s05.msg20": "{wait 0.4}{end}",
+    "map3_s05.there_is_an_examination_room": "There is an {color 2}Examination room key{/color}.\nTake it?{choice 4}",
+    "map3_s05.looks_like_a_hallway_under": "Looks like a hallway\nunder the grate.",
+    "map3_s05.cant_move_it_since_the": "Can't move it since the vines\nhave grown around it.{end}",
+    "map3_s05.no_the_fire_goes_out": "No.\nThe fire goes out right away\nwhen I light the vines.{end}",
+    "map3_s05.poured_disinfecting_alcohol_on": "Poured {color 2}Disinfecting alcohol{/color}\non the vines.{end}",
+    "map3_s05.the_vines_absorbed_the_alcohol": "The vines absorbed the alcohol.{end}",
+    "map3_s05.used_the_basement_storeroom": "Used the {color 2}Basement storeroom key{/color}.{end}",
+    "map3_s05.do_you_want_to_push": "Do you want to push\nthe cabinet?{choice 4}",
+    "map3_s05.the_generator_is_on": "The generator is on.{end}",
+    "map3_s05.there_are_skid_marks_from": "There are skid marks from\nthe cabinet being moved.{end}",
+    "map3_s05.there_is_a_hammer_take": "There is a {color 2}Hammer{/color}.\nTake it?{choice 4}",
+    "map3_s05.a_bed_whats_it_doing": "A bed? What's it doing here?\nWho would...{end}",
+    "map3_s05.a_body_is_laid_out": "A body is laid out on the bed.\nDon't feel like checking this out.{end}",
+    "map3_s05.nothing_helpful": "Nothing helpful.{end}",
+    "map3_s05.nothing_useful_in_the_boxes": "Nothing useful in the boxes.{end}",
+    "map3_s05.theres_a_bottle_filled_with": "There's a bottle filled\nwith some kind of drug.\nBetter leave it.{end}",
+    "map3_s05.there_are_some_empty_bottles": "There are some empty bottles.{end}",
+    "map3_s05.nothing_special_in_the_box": "Nothing special in the box.\nNothing to worry about.{end}",
+    "map3_s05.nothing_inside": "Nothing inside.{end}"
+  },
+  "ws": {
+    "map3_s05.alessa": "6a01bc67:1=t",
+    "map3_s05.msg20": "79139f11:0=t,1=s",
+    "map3_s05.poured_disinfecting_alcohol_on": "0b5b1930:29=ss"
+  }
+}

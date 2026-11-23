@@ -1,0 +1,196 @@
+{
+  "format": "sh-game-manifest",
+  "version": 1,
+  "title": "Silent Hill",
+  "exe_name": "SilentHillPC",
+  "log_prefix": "silenthill",
+  "disc": {
+    "exe_file": "SLUS_007.07",
+    "game_id": "SLUS-007.07",
+    "containers": [
+      "SILENT.",
+      "HILL."
+    ],
+    "region": "NTSC USA 1.1"
+  },
+  "start_map": "map0_s02",
+  "new_game_map": "map0_s00",
+  "maps": [
+    {
+      "name": "map0_s00",
+      "description": "Old Silent Hill - intro sequence"
+    },
+    {
+      "name": "map0_s01",
+      "description": "Old Silent Hill - cafe"
+    },
+    {
+      "name": "map0_s02",
+      "description": "Old Silent Hill - bonus unlockable areas"
+    },
+    {
+      "name": "map1_s00",
+      "description": "School - 1F, courtyard, basement"
+    },
+    {
+      "name": "map1_s01",
+      "description": "School - 2F"
+    },
+    {
+      "name": "map1_s02",
+      "description": "School Otherworld - 1F and courtyard"
+    },
+    {
+      "name": "map1_s03",
+      "description": "School Otherworld - 2F and roof"
+    },
+    {
+      "name": "map1_s04",
+      "description": "Unused"
+    },
+    {
+      "name": "map1_s05",
+      "description": "School - boss fight (Split Head)"
+    },
+    {
+      "name": "map1_s06",
+      "description": "School - 1F and basement after the boss"
+    },
+    {
+      "name": "map2_s00",
+      "description": "Old Silent Hill - streets"
+    },
+    {
+      "name": "map2_s01",
+      "description": "Church"
+    },
+    {
+      "name": "map2_s02",
+      "description": "Central Silent Hill - streets"
+    },
+    {
+      "name": "map2_s03",
+      "description": "Unused"
+    },
+    {
+      "name": "map2_s04",
+      "description": "Police station (Central Silent Hill)"
+    },
+    {
+      "name": "map3_s00",
+      "description": "Hospital - until Kaufmann meeting"
+    },
+    {
+      "name": "map3_s01",
+      "description": "Hospital - 1F and basement after Kaufmann"
+    },
+    {
+      "name": "map3_s02",
+      "description": "Hospital - antique shop cutscene"
+    },
+    {
+      "name": "map3_s03",
+      "description": "Hospital Otherworld - 3F and 2F"
+    },
+    {
+      "name": "map3_s04",
+      "description": "Hospital Otherworld - 1F"
+    },
+    {
+      "name": "map3_s05",
+      "description": "Hospital Otherworld - basement"
+    },
+    {
+      "name": "map3_s06",
+      "description": "Hospital - 1F after Otherworld"
+    },
+    {
+      "name": "map4_s00",
+      "description": "Unused"
+    },
+    {
+      "name": "map4_s01",
+      "description": "Green Lion Antiques (normal + Otherworld)"
+    },
+    {
+      "name": "map4_s02",
+      "description": "Central Silent Hill Otherworld - streets"
+    },
+    {
+      "name": "map4_s03",
+      "description": "Mall and boss fight"
+    },
+    {
+      "name": "map4_s04",
+      "description": "Hospital - 1F (Lisa cutscene)"
+    },
+    {
+      "name": "map4_s05",
+      "description": "Central SH Otherworld - Floatstinger boss"
+    },
+    {
+      "name": "map4_s06",
+      "description": "Unused"
+    },
+    {
+      "name": "map5_s00",
+      "description": "Sewers - lower and upper levels"
+    },
+    {
+      "name": "map5_s01",
+      "description": "Resort Area"
+    },
+    {
+      "name": "map5_s02",
+      "description": "Annie's Bar and Indian Runner (Resort Area)"
+    },
+    {
+      "name": "map5_s03",
+      "description": "Norman's Motel (Resort Area)"
+    },
+    {
+      "name": "map6_s00",
+      "description": "Resort Area Otherworld"
+    },
+    {
+      "name": "map6_s01",
+      "description": "Boat at Lakeside Pier"
+    },
+    {
+      "name": "map6_s02",
+      "description": "Lakeside Pier and Lighthouse"
+    },
+    {
+      "name": "map6_s03",
+      "description": "Sewer to Lakeside Amusement Park"
+    },
+    {
+      "name": "map6_s04",
+      "description": "Amusement Park - Cybil boss, Alessa kidnapping"
+    },
+    {
+      "name": "map6_s05",
+      "description": "Unused"
+    },
+    {
+      "name": "map7_s00",
+      "description": "Nowhere - hospital 1F, Lisa cutscene"
+    },
+    {
+      "name": "map7_s01",
+      "description": "Nowhere"
+    },
+    {
+      "name": "map7_s02",
+      "description": "Nowhere - Alessa vs. Dahlia cutscene"
+    },
+    {
+      "name": "map7_s03",
+      "description": "Nowhere - final boss"
+    }
+  ],
+  "intro_file": "XA/C1_20670",
+  "intro_file_extra": "XA/C2_20670",
+  "intro_frame_offset": 2060,
+  "opening_file": "XA/M1_03500"
+}

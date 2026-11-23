@@ -1,0 +1,36 @@
+{
+  "description": "Character type 23, never named by the game: it shares the Incubator's model and animations and only the final boss map in Nowhere runs its AI.",
+  "category": "Bosses",
+  "maps": ["map7_s03"],
+  "model": "models/CHARA/MAR.glb",
+  "animations": "anim/ANIM/MAR.anim.json",
+  "clip_tables": ["unkkown_23"],
+  "textures": ["textures/CHARA/MAR.png"],
+  "shadow": 0.0,
+  "blend_mode": "average",
+  "camera_anchor": "camera",
+  "camera_offset_y": 0.0,
+  "sounds": {
+    "hit": "cybil_bullet_impact"
+  },
+  "controls": {
+    "none": 0,
+    "wait": 1,
+    "float": 2,
+    "attack": 3,
+    "lift": 4,
+    "fall": 5,
+    "hold_fallen": 6
+  },
+  "spawn": {
+    "state": 0,
+    "kind": "boss",
+    "auto": "fallback",
+    "note": "its own AI is the final fight of map7_s03 (arena effects)"
+  },
+  "harry_reactions": ["Hit", "Bolt", "Death"],
+  "fresh_hit_blood_strength": 7,
+  "fresh_hit_blood_strength_scatter": 4,
+  "enemy": true,
+  "state_layout": "Incubus"
+}

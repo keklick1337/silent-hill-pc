@@ -1,0 +1,6 @@
+{
+  "description": "The sewers' floors and ledges, always wet.",
+  "match": ["DR*"],
+  "roughness": 0.3,
+  "wet": 0.45
+}

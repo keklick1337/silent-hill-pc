@@ -1,0 +1,13 @@
+{
+  "group": "puzzle",
+  "inventory": {
+    "order": 46,
+    "command": "Use",
+    "pickup_once": true,
+    "used_up_on_event": true
+  },
+  "display_tilt": {
+    "x": 45.0
+  },
+  "close_up_model": "ITEM/UNQ67.TMD"
+}

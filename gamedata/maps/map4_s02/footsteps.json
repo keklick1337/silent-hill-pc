@@ -1,0 +1,8 @@
+{
+  "format": "sh-footstep-places",
+  "version": 1,
+  "description": "Footstep sounds by place on map4_s02 (Central Silent Hill Otherworld - streets). After the character's own footsteps table, every rule of \"places\" whose conditions all hold replaces the step sound, in file order, so the last match wins. Conditions (each optional): \"surface\" / \"not_surface\" (surface names of gamedata/world/surfaces.json), \"room\" (the map's room index), \"x\" / \"z\" ([min, max] of the player's position in metres, inclusive, null = open), \"y_above\" (metres; the player's y is greater, y grows downwards). They test the player's position for every character's step, as the original did. \"sound\" is a sound name of gamedata/sounds; \"name\" identifies the rule (on_footstep scripts see it as e.place, and a mod's maps/map4_s02/footsteps.json replaces or adds rules by name). Here the metal mesh floors of the Otherworld streets get the Otherworld step.",
+  "places": [
+    {"name": "metal_mesh", "surface": ["metal_mesh"], "sound": "otherworld_streets_footstep"}
+  ]
+}

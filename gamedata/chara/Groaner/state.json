@@ -1,0 +1,24 @@
+{
+  "description": "Named variables of the Groaner's behaviour (chara/Groaner/behavior.lua reads and writes them by name). Each character instance owns a small block of bytes; every entry of \"fields\" names one value in it: \"name\" is the name the script uses, \"kind\" the storage type (s8, u8, s16, u16, s32, u32: a write keeps the low bits, a read sign- or zero-extends), \"at\" the byte offset in the block (absent: the next naturally aligned offset), \"note\" what the value means. Values are raw integers in the units the behaviour uses (usually Q12, 4096 = 1.0 or 1 m; angles Q12, 4096 = a full turn). A mod adds or changes fields with a state.json of the same path; keep the offsets of fields the behaviour already uses.",
+  "fields": [
+    {"name": "groaner_flags", "kind": "u16", "at": 0},
+    {"name": "groaner_flags_word", "kind": "s32", "at": 0},
+    {"name": "groaner_heading_target", "kind": "s16", "at": 4},
+    {"name": "groaner_flex", "kind": "s16", "at": 6},
+    {"name": "groaner_push_x", "kind": "s16", "at": 8},
+    {"name": "groaner_push_z", "kind": "s16", "at": 10},
+    {"name": "groaner_target_x", "kind": "s32", "at": 12},
+    {"name": "groaner_target_z", "kind": "s32", "at": 16},
+    {"name": "groaner_turn_target", "kind": "s16", "at": 20},
+    {"name": "groaner_spin", "kind": "s16", "at": 22},
+    {"name": "groaner_recoil_keyframe", "kind": "u16", "at": 24},
+    {"name": "groaner_timer", "kind": "s32", "at": 28},
+    {"name": "groaner_circle_timer", "kind": "u32", "at": 32},
+    {"name": "groaner_voice_timer", "kind": "s16", "at": 36},
+    {"name": "groaner_voice", "kind": "u8", "at": 38},
+    {"name": "groaner_voice_request", "kind": "u8", "at": 39},
+    {"name": "groaner_step_left", "kind": "u8", "at": 40},
+    {"name": "groaner_step_right", "kind": "u8", "at": 41},
+    {"name": "groaner_speed", "kind": "s16", "at": 44}
+  ]
+}

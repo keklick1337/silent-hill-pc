@@ -1,0 +1,33 @@
+{
+  "format": "sh-text",
+  "version": 1,
+  "lang": "tr",
+  "map": "map3_s05",
+  "strings": {
+    "map3_s05.there_is_a_video_tape": "Burada {color 2}Video kaset{/color} var.\nAlınsın mı?{choice 4}",
+    "map3_s05.alessa": "{color 3}Alessa{end}",
+    "map3_s05.alessa_2": "Alessa...?{end}",
+    "map3_s05.whats_this": "{wait 1.2}Bu ne?{end}",
+    "map3_s05.looks_like_someones_been_here": "{wait 2.6}Buraya biri uğramış gibi...{end}",
+    "map3_s05.msg20": "{wait 0.4}{end}",
+    "map3_s05.there_is_an_examination_room": "Burada {color 2}Muayene odası anahtarı{/color} var.\nAlınsın mı?{choice 4}",
+    "map3_s05.looks_like_a_hallway_under": "Izgaranın altında\nbir geçit var gibi.",
+    "map3_s05.cant_move_it_since_the": "Sarmaşıklar her yanını\nsardığı için yerinden oynamıyor.{end}",
+    "map3_s05.no_the_fire_goes_out": "Olmuyor.\nSarmaşıkları tutuşturunca\nateş hemen sönüyor.{end}",
+    "map3_s05.poured_disinfecting_alcohol_on": "Sarmaşıklara\n{color 2}Dezenfektan alkol{/color} döküldü.{end}",
+    "map3_s05.the_vines_absorbed_the_alcohol": "Sarmaşıklar alkolü emdi.{end}",
+    "map3_s05.used_the_basement_storeroom": "{color 2}Bodrum deposu anahtarı{/color}\nkullanıldı.{end}",
+    "map3_s05.do_you_want_to_push": "Dolap\nitilsin mi?{choice 4}",
+    "map3_s05.the_generator_is_on": "Jeneratör çalışıyor.{end}",
+    "map3_s05.there_are_skid_marks_from": "Dolabın sürüklendiğini\ngösteren izler var.{end}",
+    "map3_s05.there_is_a_hammer_take": "Burada {color 2}Balyoz{/color} var.\nAlınsın mı?{choice 4}",
+    "map3_s05.a_bed_whats_it_doing": "Yatak mı? Burada ne işi var?\nKim böyle bir şeyi...{end}",
+    "map3_s05.a_body_is_laid_out": "Yatağa bir ceset yatırılmış.\nİçimden hiç bakmak gelmiyor.{end}",
+    "map3_s05.nothing_helpful": "Yararlı bir şey yok.{end}",
+    "map3_s05.nothing_useful_in_the_boxes": "Kutularda işe yarar bir şey yok.{end}",
+    "map3_s05.theres_a_bottle_filled_with": "İçi bir tür ilaçla dolu\nbir şişe var.\nDokunmasam iyi olur.{end}",
+    "map3_s05.there_are_some_empty_bottles": "Birkaç boş şişe var.{end}",
+    "map3_s05.nothing_special_in_the_box": "Kutuda özel bir şey yok.\nKaygılanacak bir şey yok.{end}",
+    "map3_s05.nothing_inside": "İçi boş.{end}"
+  }
+}

@@ -1,0 +1,475 @@
+{
+  "format": "sh-map-world-objects",
+  "version": 2,
+  "map": "map2_s00",
+  "description": "Static world objects of map2_s00 (Old Silent Hill - streets): 60 objects, drawn in file order. An object is drawn while the player is in one of its \"zones\" (each {\"x\": [...], \"z\": [...]} lists 40 m cells along that axis: cell c holds 40c..40(c+1) m; no zones = everywhere) and every flag of \"flags_set\" is set and every flag of \"flags_clear\" is clear (event flag names, e.g. the pickup flags). \"name\" is the object's id for scripts and mods, \"model\" its model (at most 8 characters, the map's or an item model), \"position\" in metres and \"rotation\" in degrees (x, y, z). \"pose\" instead takes position and rotation from a table of the map's overlay on the disc (\"disc_table\" from tables.json, row \"index\"), resolved when the map loads; pickups use it. \"script\": true lets world_objects.lua and events.lua move, turn, re-model or hide the object. \"pc_near_pickup\": true (not in the original) also draws the pickup while the player is in a neighbouring cell of the same floor. Zones are the map's projected cells. BridgeAxle*/Bridge* (the drawbridge) turn with the map variable bridge_rot, SwingingDoor and ChainBroken1/2 with swing_door_rot (world_objects.lua); the locks and keys of Lion, Woodman and Scarecrow show by their flags. A mod's maps/map2_s00/world_objects.json changes or adds objects by name.",
+  "objects": [
+    {
+      "name": "SketchbookPage",
+      "model": "SKB2_NEA",
+      "position": [-186.68, -0.483, 300.829],
+      "rotation": [4.1, -74.05, -9.5],
+      "zones": [{"x": -5, "z": 7}],
+      "flags_clear": ["M2S00_NoteToSchoolFound"]
+    },
+    {
+      "name": "SteelPipe",
+      "model": "IRONPIPE",
+      "position": [-187.591, -0.093, 300.271],
+      "rotation": [4.4, 36.8, 2.9],
+      "zones": [{"x": -5, "z": 7}],
+      "flags_clear": ["M2S00_PickupSteelPipe"]
+    },
+    {
+      "name": "DoghouseNote1",
+      "model": "PPR1_NEA",
+      "position": [-154.56, 0.0, 1.78],
+      "rotation": [0, -51.7, 0],
+      "zones": [{"x": -4, "z": 0}, {"x": -4, "z": -1}],
+      "flags_clear": ["M2S00_DogHouseNoteFound"]
+    },
+    {
+      "name": "DoghouseNote2",
+      "model": "PPR2_NEA",
+      "position": [-154.6, 0.0, 2.22],
+      "rotation": [0, 74.3, 0],
+      "zones": [{"x": -4, "z": 0}, {"x": -4, "z": -1}],
+      "flags_clear": ["M2S00_DogHouseNoteFound"]
+    },
+    {
+      "name": "BridgeAxleWest",
+      "model": "AXIS1_HI",
+      "position": [-35.0, 0.0, 360.0],
+      "script": true,
+      "zones": [{"x": -2, "z": 8}]
+    },
+    {
+      "name": "BridgeWest",
+      "model": "AXIS2_BA",
+      "position": [-35.0, 0.0, 360.0],
+      "script": true,
+      "zones": [{"x": -2, "z": 8}]
+    },
+    {
+      "name": "Map",
+      "model": "MAP_NEAR",
+      "position": [-43.694, -3.1824, 345.764],
+      "rotation": [6.7, 6.1, 0],
+      "zones": [{"x": -2, "z": 8}],
+      "flags_clear": ["M2S00_PickupMap"]
+    },
+    {
+      "name": "SavePadBridge",
+      "model": "PAD_NEAR",
+      "position": [-44.234, -3.453, 345.2],
+      "rotation": [0, 180.0, 0],
+      "zones": [{"x": -2, "z": 8}]
+    },
+    {
+      "name": "BridgeAxleEast",
+      "model": "AXIS1_HI",
+      "position": [205.0, 0.0, -80.0],
+      "script": true,
+      "zones": [{"x": 4, "z": -3}, {"x": 4, "z": -2}, {"x": 5, "z": -2}, {"x": 5, "z": -3}]
+    },
+    {
+      "name": "BridgeEast",
+      "model": "AXIS2_BA",
+      "position": [205.0, 0.0, -80.0],
+      "script": true,
+      "zones": [{"x": 4, "z": -3}, {"x": 4, "z": -2}, {"x": 5, "z": -2}, {"x": 5, "z": -3}]
+    },
+    {
+      "name": "SwingingDoor",
+      "model": "DOOR1_BA",
+      "position": [-263.0, 0.0, -104.0],
+      "script": true,
+      "zones": [{"x": -7, "z": -3}]
+    },
+    {
+      "name": "Chain1",
+      "model": "CHAIN1_1",
+      "position": [-262.0, 0.0, -104.0],
+      "zones": [{"x": -7, "z": -3}],
+      "flags_clear": ["M2S00_ChainedDoorPassed", "M2S00_ChainedDoorSwungOpen"]
+    },
+    {
+      "name": "Chain2",
+      "model": "CHAIN1_2",
+      "position": [-262.0, 0.0, -104.0],
+      "zones": [{"x": -7, "z": -3}],
+      "flags_clear": ["M2S00_ChainedDoorPassed", "M2S00_ChainedDoorSwungOpen"]
+    },
+    {
+      "name": "Chain3",
+      "model": "CHAIN1_3",
+      "position": [-262.0, 0.0, -104.0],
+      "zones": [{"x": -7, "z": -3}],
+      "flags_clear": ["M2S00_ChainedDoorPassed", "M2S00_ChainedDoorSwungOpen"]
+    },
+    {
+      "name": "ChainBroken1",
+      "model": "CHAIN2_1",
+      "position": [-263.0, 0.0, -104.0],
+      "script": true,
+      "zones": [{"x": -7, "z": -3}],
+      "flags_set": ["M2S00_ChainedDoorSwungOpen"],
+      "flags_clear": ["M2S00_ChainedDoorPassed"]
+    },
+    {
+      "name": "ChainBroken2",
+      "model": "CHAIN2_2",
+      "position": [-263.0, 0.0, -104.0],
+      "script": true,
+      "zones": [{"x": -7, "z": -3}],
+      "flags_set": ["M2S00_ChainedDoorSwungOpen"],
+      "flags_clear": ["M2S00_ChainedDoorPassed"]
+    },
+    {
+      "name": "ChainBroken3",
+      "model": "CHAIN2_3",
+      "position": [-262.0, 0.0, -104.0],
+      "zones": [{"x": -7, "z": -3}],
+      "flags_set": ["M2S00_ChainedDoorSwungOpen"],
+      "flags_clear": ["M2S00_ChainedDoorPassed"]
+    },
+    {
+      "name": "ChainBroken4",
+      "model": "CHAIN2_4",
+      "position": [-262.0, 0.0, -104.0],
+      "zones": [{"x": -7, "z": -3}],
+      "flags_set": ["M2S00_ChainedDoorSwungOpen"],
+      "flags_clear": ["M2S00_ChainedDoorPassed"]
+    },
+    {
+      "name": "LockOfLion",
+      "model": "JO0A_HID",
+      "position": [111.94, -0.81, 216.25],
+      "zones": [{"x": 2, "z": 5}, {"x": 3, "z": 5}],
+      "flags_clear": ["M2S00_LockOfLionOpen"]
+    },
+    {
+      "name": "LockOfWoodman",
+      "model": "JO0B_HID",
+      "position": [111.94, -0.57, 216.25],
+      "zones": [{"x": 2, "z": 5}, {"x": 3, "z": 5}],
+      "flags_clear": ["M2S00_LockOfWoodmanOpen"]
+    },
+    {
+      "name": "LockOfScarecrow",
+      "model": "JO0C_HID",
+      "position": [111.94, -0.32, 216.25],
+      "zones": [{"x": 2, "z": 5}, {"x": 3, "z": 5}],
+      "flags_clear": ["M2S00_LockOfScarecrowOpen"]
+    },
+    {
+      "name": "SavePadEclipse",
+      "model": "PAD_NEAR",
+      "position": [117.681641, -1.01, 216.263],
+      "rotation": [0, 193.51, 0],
+      "zones": [{"x": 2, "z": 5}, {"x": 3, "z": 5}]
+    },
+    {
+      "name": "KeyOfLion",
+      "model": "KEY_HIDE",
+      "position": [185.76, -0.59, 116.12],
+      "zones": [{"x": 4, "z": 2}],
+      "flags_clear": ["M2S00_PickupKeyOfLion"]
+    },
+    {
+      "name": "KeyOfWoodman",
+      "model": "KEY_NEAR",
+      "position": [-190.42, 0.0, 376.63],
+      "rotation": [0, 58.5, 0],
+      "zones": [{"x": -5, "z": 9}],
+      "flags_clear": ["M2S00_PickupKeyOfWoodman"]
+    },
+    {
+      "name": "KeyOfScarecrow",
+      "model": "KEY_NEAR",
+      "position": [99.4, -0.35, -33.26],
+      "rotation": [1.6, 0, 0.9],
+      "zones": [{"x": 2, "z": -1}],
+      "flags_clear": ["M2S00_PickupKeyOfScarecrow"]
+    },
+    {
+      "name": "SavePadNorth",
+      "model": "PAD_NEAR",
+      "position": [116.3013, -0.905, 299.1139],
+      "rotation": [0, 84.56, 0],
+      "zones": [{"x": 2, "z": 7}, {"x": 3, "z": 7}]
+    },
+    {
+      "name": "RockDrill",
+      "model": "DRILL_NE",
+      "position": [236.7151, -0.281, 345.046],
+      "rotation": [2.8, 7.5, -180.5],
+      "zones": [{"x": 5, "z": 8}],
+      "flags_clear": ["M2S00_PickupRockDrill"]
+    },
+    {
+      "name": "Chainsaw",
+      "model": "CHAINSAW",
+      "position": [-82.3, -0.7, -91.6],
+      "rotation": [-17.0, 18.1, -7.22],
+      "zones": [{"x": -3, "z": -3}, {"x": -2, "z": -3}],
+      "flags_clear": ["M2S00_PickupChainsaw"]
+    },
+    {
+      "name": "FirstAidKit0",
+      "model": "AIDKIT_N",
+      "pose": {"disc_table": "CommonWorldObjectPoses", "index": 0},
+      "pc_near_pickup": true,
+      "zones": [{"x": -2, "z": -1}],
+      "flags_clear": ["M2S00_FirstAidKit0"]
+    },
+    {
+      "name": "HandgunBullets0",
+      "model": "BULLET_N",
+      "pose": {"disc_table": "CommonWorldObjectPoses", "index": 1},
+      "pc_near_pickup": true,
+      "zones": [{"x": 1, "z": -1}],
+      "flags_clear": ["M2S00_HandgunBullets0"]
+    },
+    {
+      "name": "HandgunBullets1",
+      "model": "BULLET_N",
+      "pose": {"disc_table": "CommonWorldObjectPoses", "index": 2},
+      "pc_near_pickup": true,
+      "zones": [{"x": 1, "z": -1}],
+      "flags_clear": ["M2S00_HandgunBullets1"]
+    },
+    {
+      "name": "HealthDrink0",
+      "model": "DRINK_NE",
+      "pose": {"disc_table": "CommonWorldObjectPoses", "index": 3},
+      "pc_near_pickup": true,
+      "zones": [{"x": 2, "z": -1}],
+      "flags_clear": ["M2S00_HealthDrink0"]
+    },
+    {
+      "name": "HandgunBullets2",
+      "model": "BULLET_N",
+      "pose": {"disc_table": "CommonWorldObjectPoses", "index": 4},
+      "pc_near_pickup": true,
+      "zones": [{"x": 2, "z": -4}],
+      "flags_clear": ["M2S00_HandgunBullets2"]
+    },
+    {
+      "name": "ShotgunShells0",
+      "model": "SHOT_NEA",
+      "pose": {"disc_table": "CommonWorldObjectPoses", "index": 5},
+      "pc_near_pickup": true,
+      "zones": [{"x": 2, "z": -4}],
+      "flags_clear": ["M2S00_ShotgunShells0"]
+    },
+    {
+      "name": "HealthDrink1",
+      "model": "DRINK_NE",
+      "pose": {"disc_table": "CommonWorldObjectPoses", "index": 6},
+      "pc_near_pickup": true,
+      "zones": [{"x": 2, "z": 5}],
+      "flags_clear": ["M2S00_HealthDrink1"]
+    },
+    {
+      "name": "HandgunBullets3",
+      "model": "BULLET_N",
+      "pose": {"disc_table": "CommonWorldObjectPoses", "index": 7},
+      "pc_near_pickup": true,
+      "zones": [{"x": 2, "z": 5}],
+      "flags_clear": ["M2S00_HandgunBullets3"]
+    },
+    {
+      "name": "HandgunBullets4",
+      "model": "BULLET_N",
+      "pose": {"disc_table": "CommonWorldObjectPoses", "index": 8},
+      "pc_near_pickup": true,
+      "zones": [{"x": 2, "z": 5}],
+      "flags_clear": ["M2S00_HandgunBullets4"]
+    },
+    {
+      "name": "HandgunBullets5",
+      "model": "BULLET_N",
+      "pose": {"disc_table": "CommonWorldObjectPoses", "index": 9},
+      "pc_near_pickup": true,
+      "zones": [{"x": 2, "z": 7}],
+      "flags_clear": ["M2S00_HandgunBullets5"]
+    },
+    {
+      "name": "HandgunBullets6",
+      "model": "BULLET_N",
+      "pose": {"disc_table": "CommonWorldObjectPoses", "index": 10},
+      "pc_near_pickup": true,
+      "zones": [{"x": 2, "z": 7}],
+      "flags_clear": ["M2S00_HandgunBullets6"]
+    },
+    {
+      "name": "HandgunBullets7",
+      "model": "BULLET_N",
+      "pose": {"disc_table": "CommonWorldObjectPoses", "index": 11},
+      "pc_near_pickup": true,
+      "zones": [{"x": -7, "z": 3}],
+      "flags_clear": ["M2S00_HandgunBullets7"]
+    },
+    {
+      "name": "HandgunBullets8",
+      "model": "BULLET_N",
+      "pose": {"disc_table": "CommonWorldObjectPoses", "index": 12},
+      "pc_near_pickup": true,
+      "zones": [{"x": 4, "z": 2}],
+      "flags_clear": ["M2S00_HandgunBullets8"]
+    },
+    {
+      "name": "HealthDrink2",
+      "model": "DRINK_NE",
+      "pose": {"disc_table": "CommonWorldObjectPoses", "index": 13},
+      "pc_near_pickup": true,
+      "zones": [{"x": -2, "z": 8}],
+      "flags_clear": ["M2S00_HealthDrink2"]
+    },
+    {
+      "name": "HealthDrink3",
+      "model": "DRINK_NE",
+      "pose": {"disc_table": "CommonWorldObjectPoses", "index": 14},
+      "pc_near_pickup": true,
+      "zones": [{"x": -7, "z": 3}],
+      "flags_clear": ["M2S00_HealthDrink3"]
+    },
+    {
+      "name": "HealthDrink4",
+      "model": "DRINK_NE",
+      "pose": {"disc_table": "CommonWorldObjectPoses", "index": 15},
+      "pc_near_pickup": true,
+      "zones": [{"x": -5, "z": -1}],
+      "flags_clear": ["M2S00_HealthDrink4"]
+    },
+    {
+      "name": "HandgunBullets9",
+      "model": "BULLET_N",
+      "pose": {"disc_table": "CommonWorldObjectPoses", "index": 16},
+      "pc_near_pickup": true,
+      "zones": [{"x": -5, "z": -2}],
+      "flags_clear": ["M2S00_HandgunBullets9"]
+    },
+    {
+      "name": "HealthDrink5",
+      "model": "DRINK_NE",
+      "pose": {"disc_table": "CommonWorldObjectPoses", "index": 17},
+      "pc_near_pickup": true,
+      "zones": [{"x": -2, "z": -5}],
+      "flags_clear": ["M2S00_HealthDrink5"]
+    },
+    {
+      "name": "HandgunBullets10",
+      "model": "BULLET_N",
+      "pose": {"disc_table": "CommonWorldObjectPoses", "index": 18},
+      "pc_near_pickup": true,
+      "zones": [{"x": -2, "z": -4}],
+      "flags_clear": ["M2S00_HandgunBullets10"]
+    },
+    {
+      "name": "HealthDrink6",
+      "model": "DRINK_NE",
+      "pose": {"disc_table": "CommonWorldObjectPoses", "index": 19},
+      "pc_near_pickup": true,
+      "zones": [{"x": -3, "z": -2}],
+      "flags_clear": ["M2S00_HealthDrink6"]
+    },
+    {
+      "name": "HealthDrink7",
+      "model": "DRINK_NE",
+      "pose": {"disc_table": "CommonWorldObjectPoses", "index": 20},
+      "pc_near_pickup": true,
+      "zones": [{"x": -3, "z": -4}],
+      "flags_clear": ["M2S00_HealthDrink7"]
+    },
+    {
+      "name": "HealthDrink8",
+      "model": "DRINK_NE",
+      "pose": {"disc_table": "CommonWorldObjectPoses", "index": 21},
+      "pc_near_pickup": true,
+      "zones": [{"x": 3, "z": 9}],
+      "flags_clear": ["M2S00_HealthDrink8"]
+    },
+    {
+      "name": "HealthDrink9",
+      "model": "DRINK_NE",
+      "pose": {"disc_table": "CommonWorldObjectPoses", "index": 22},
+      "pc_near_pickup": true,
+      "zones": [{"x": 3, "z": 9}],
+      "flags_clear": ["M2S00_HealthDrink9"]
+    },
+    {
+      "name": "HealthDrink10",
+      "model": "DRINK_NE",
+      "pose": {"disc_table": "CommonWorldObjectPoses", "index": 23},
+      "pc_near_pickup": true,
+      "zones": [{"x": -5, "z": 9}],
+      "flags_clear": ["M2S00_HealthDrink10"]
+    },
+    {
+      "name": "HealthDrink11",
+      "model": "DRINK_NE",
+      "pose": {"disc_table": "CommonWorldObjectPoses", "index": 24},
+      "pc_near_pickup": true,
+      "zones": [{"x": 0, "z": 0}],
+      "flags_clear": ["M2S00_HealthDrink11"]
+    },
+    {
+      "name": "ShotgunShells1",
+      "model": "SHOT_NEA",
+      "pose": {"disc_table": "CommonWorldObjectPoses", "index": 25},
+      "pc_near_pickup": true,
+      "zones": [{"x": 3, "z": -3}],
+      "flags_clear": ["M2S00_ShotgunShells1"]
+    },
+    {
+      "name": "FirstAidKit1",
+      "model": "AIDKIT_N",
+      "pose": {"disc_table": "CommonWorldObjectPoses", "index": 26},
+      "pc_near_pickup": true,
+      "zones": [{"x": 3, "z": -3}],
+      "flags_clear": ["M2S00_FirstAidKit1"]
+    },
+    {
+      "name": "HandgunBullets11",
+      "model": "BULLET_N",
+      "pose": {"disc_table": "CommonWorldObjectPoses", "index": 27},
+      "pc_near_pickup": true,
+      "zones": [{"x": 0, "z": 1}],
+      "flags_clear": ["M2S00_HandgunBullets11"]
+    },
+    {
+      "name": "HandgunBullets12",
+      "model": "BULLET_N",
+      "pose": {"disc_table": "CommonWorldObjectPoses", "index": 28},
+      "pc_near_pickup": true,
+      "zones": [{"x": 0, "z": 1}],
+      "flags_clear": ["M2S00_HandgunBullets12"]
+    },
+    {
+      "name": "HandgunBullets13",
+      "model": "BULLET_N",
+      "pose": {"disc_table": "CommonWorldObjectPoses", "index": 29},
+      "pc_near_pickup": true,
+      "zones": [{"x": -5, "z": 7}],
+      "flags_clear": ["M2S00_HandgunBullets13"]
+    },
+    {
+      "name": "HandgunBullets14",
+      "model": "BULLET_N",
+      "pose": {"disc_table": "CommonWorldObjectPoses", "index": 30},
+      "pc_near_pickup": true,
+      "zones": [{"x": -5, "z": 7}],
+      "flags_clear": ["M2S00_HandgunBullets14"]
+    },
+    {
+      "name": "FirstAidKit2",
+      "model": "AIDKIT_N",
+      "pose": {"disc_table": "CommonWorldObjectPoses", "index": 31},
+      "pc_near_pickup": true,
+      "zones": [{"x": 3, "z": 5}],
+      "flags_clear": ["M2S00_FirstAidKit2"]
+    }
+  ]
+}

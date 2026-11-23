@@ -1,0 +1,13 @@
+{
+  "format": "sh-text",
+  "version": 1,
+  "lang": "zh",
+  "map": "map5_s01",
+  "strings": {
+    "map5_s01.there_is_a_resort_area": "{hires}这里有{color 5}度假区地图{/color}。\n要拿走吗？{choice 4}",
+    "map5_s01.nothing_unusual": "没什么异常。{end}",
+    "map5_s01.used_the_kaufmann_key": "使用了{color 2}考夫曼的钥匙{/color}。{end}",
+    "map5_s01.what": "{wait 1.0}什么？{end}",
+    "map5_s01.that_light": "{wait 2.5}那道光！？{end}"
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "group": "guns",
+  "inventory": {
+    "order": 5,
+    "keep_when_empty": true,
+    "counts_ammo_in_hand": true,
+    "command": "EquipReload",
+    "command_in_hand": "UnequipReload",
+    "name_tag": "stock",
+    "stock_in_hand": true,
+    "usable_ammo": "loaded"
+  },
+  "display_tilt": {
+    "x": 45.0
+  },
+  "close_up_model": "ITEM/UNQA2.TMD",
+  "display_lit": true
+}

@@ -1,0 +1,108 @@
+{
+  "map": "map3_s05",
+  "table": "g_MapEventFuncs",
+  "handlers": [
+    {
+      "index": 0,
+      "symbol": "MapEvent_GrateDoorJammed",
+      "name": "MapEvent_GrateDoorJammed",
+      "shape": "script"
+    },
+    {
+      "index": 1,
+      "symbol": "MapEvent_DoorLocked",
+      "name": "MapEvent_DoorLocked",
+      "shape": "script"
+    },
+    {
+      "index": 2,
+      "symbol": "MapEvent_CommonItemTake",
+      "name": "MapEvent_CommonItemTake",
+      "shape": "script"
+    },
+    {
+      "index": 3,
+      "symbol": "MapEvent_BasementStoreroomKeyUse",
+      "name": "MapEvent_BasementStoreroomKeyUse",
+      "shape": "script"
+    },
+    {
+      "index": 4,
+      "symbol": "MapEvent_IviesInspect",
+      "name": "MapEvent_IviesInspect",
+      "shape": "script"
+    },
+    {
+      "index": 5,
+      "symbol": "MapEvent_CrawlUnderGrate",
+      "name": "MapEvent_CrawlUnderGrate",
+      "shape": "script"
+    },
+    {
+      "index": 6,
+      "symbol": "MapEvent_VinesDisinfectantUse",
+      "name": "MapEvent_VinesDisinfectantUse",
+      "shape": "script"
+    },
+    {
+      "index": 7,
+      "symbol": "MapEvent_VinesAbsorbedAlcohol",
+      "name": "MapEvent_VinesAbsorbedAlcohol",
+      "shape": "script"
+    },
+    {
+      "index": 8,
+      "symbol": "Cutscene_BurnVines",
+      "name": "Cutscene_BurnVines",
+      "shape": "script"
+    },
+    {
+      "index": 9,
+      "symbol": "MapEvent_VideoTapeTake",
+      "name": "MapEvent_VideoTapeTake",
+      "shape": "item"
+    },
+    {
+      "index": 10,
+      "symbol": "MapEvent_AlessaVisionShow",
+      "name": "MapEvent_AlessaVisionShow",
+      "shape": "script"
+    },
+    {
+      "index": 11,
+      "symbol": "MapEvent_ExaminationRoomKeyTake",
+      "name": "MapEvent_ExaminationRoomKeyTake",
+      "shape": "item"
+    },
+    {
+      "index": 12,
+      "symbol": "Cutscene_AlessaConfrontation",
+      "name": "Cutscene_AlessaConfrontation",
+      "shape": "script"
+    },
+    {
+      "index": 13,
+      "symbol": "MapEvent_CabinetPush",
+      "name": "MapEvent_CabinetPush",
+      "shape": "cutscene"
+    },
+    {
+      "index": 14,
+      "symbol": "MapEvent_HammerTake",
+      "name": "MapEvent_HammerTake",
+      "shape": "item"
+    },
+    {
+      "index": 15,
+      "symbol": "MapEvent_GeneratorOn",
+      "name": "MapEvent_GeneratorOn",
+      "shape": "script"
+    },
+    {
+      "index": 16,
+      "symbol": "ElevatorPanel",
+      "name": "ElevatorPanel",
+      "shape": "script"
+    }
+  ]
+}

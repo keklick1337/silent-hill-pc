@@ -1,0 +1,80 @@
+{
+    "colors": {
+        "white": 7,
+        "rank_perfect": 0
+    },
+    "labels": {
+        "game_result":          { "text": "GAME_RESULT", "x": 100, "y": -84, "budget": 20 },
+        "mode":                 { "text": "Mode", "x": 24, "y": -56, "budget": 20 },
+        "difficulty_easy":      { "text": "EASY", "x": 252, "y": -56, "budget": 20, "align_right": true },
+        "difficulty_normal":    { "text": "NORMAL", "x": 222, "y": -56, "budget": 20, "align_right": true },
+        "difficulty_hard":      { "text": "HARD", "x": 247, "y": -56, "budget": 20, "align_right": true },
+        "saves":                { "text": "Saves", "x": 24, "y": 7, "budget": 20 },
+        "continues":            { "text": "Continues", "x": 24, "y": 28, "budget": 20 },
+        "total_time":           { "text": "Total_time", "x": 24, "y": 49, "budget": 20 },
+        "hours_unit":           { "text": "h", "x": 220, "y": 49, "budget": 5 },
+        "minutes_unit":         { "text": "m", "x": 254, "y": 49, "budget": 5 },
+        "seconds_unit":         { "text": "s", "x": 288, "y": 49, "budget": 5 },
+        "decimal_point":        { "text": ".", "budget": 5 },
+        "km_unit":              { "text": "km", "budget": 5 },
+        "walking_distance":     { "text": "Walking_distance", "x": 24, "y": 70, "budget": 20 },
+        "running_distance":     { "text": "Running_distance", "x": 24, "y": 91, "budget": 20 },
+        "items":                { "text": "Items", "x": 24, "y": 112, "budget": 20 },
+        "slash":                { "text": "/", "budget": 5 },
+        "plus":                 { "text": "+", "budget": 5 },
+        "game_clear":           { "text": "Game_clear", "x": 24, "y": -35, "budget": 20 },
+        "ending":               { "text": "Ending", "x": 24, "y": -14, "budget": 20 },
+        "ending_good_plus":     { "text": "GOOD+", "x": 234, "y": -14, "budget": 10 },
+        "ending_good":          { "text": "GOOD", "x": 244, "y": -14, "budget": 10 },
+        "ending_bad_plus":      { "text": "BAD+", "x": 249, "y": -14, "budget": 10 },
+        "ending_bad":           { "text": "BAD", "x": 258, "y": -14, "budget": 10 },
+        "ending_ufo":           { "text": "UFO", "x": 256, "y": -14, "budget": 10 },
+        "your_rank":            { "text": "==Your_rank==", "x": 24, "y": 292, "budget": 20 },
+        "star":                 { "text": "@", "budget": 1 },
+        "defeated_by_shooting": { "text": "Defeated_\u0001\u0001enemy_\u0001\u0001by_\u0001\u0001shooting", "x": 24, "y": 154, "budget": 32 },
+        "defeated_by_fighting": { "text": "Defeated_\u0001\u0001enemy_\u0001\u0001by_\u0001\u0001fighting", "x": 24, "y": 133, "budget": 32 },
+        "shooting_style":       { "text": "Shooting_style", "x": 24, "y": 175, "budget": 32 },
+        "short_range_shots":    { "text": "Short_range_shots", "x": 72, "y": 196, "budget": 32 },
+        "middle_range_shots":   { "text": "Middle_range_shots", "x": 72, "y": 217, "budget": 32 },
+        "long_range_shots":     { "text": "Long_range_shots", "x": 72, "y": 238, "budget": 32 },
+        "no_aiming_shots":      { "text": "No_aiming_shots", "x": 72, "y": 259, "budget": 32 },
+        "paren_left":           { "text": "(", "budget": 1 },
+        "paren_right":          { "text": ")", "x": 292, "y": 112, "budget": 1 }
+    },
+    "values": {
+        "saves":            { "anchor_x": 286, "digit_span": 10, "span": "digits_minus_one", "width_min": 3 },
+        "continues":        { "anchor_x": 286, "digit_span": 10, "span": "digits_minus_one", "width_min": 3 },
+        "hours":            { "anchor_x": 220, "digit_span": 10, "span": "digits", "width_min": 5 },
+        "minutes":          { "anchor_x": 254, "digit_span": 10, "span": "digits", "width_min": 2 },
+        "seconds":          { "anchor_x": 288, "digit_span": 10, "span": "digits", "width_min": 2 },
+        "walk_km":          { "anchor_x": 229, "digit_span": 10, "span": "digits_minus_one", "width_min": 4 },
+        "run_km":           { "anchor_x": 229, "digit_span": 10, "span": "digits_minus_one", "width_min": 4 },
+        "items":            { "anchor_x": 218, "digit_span": 10, "span": "digits_minus_one", "width_min": 3 },
+        "game_clear":       { "anchor_x": 286, "digit_span": 10, "span": "digits_minus_one", "width_min": 3 },
+        "kills_shooting":   { "anchor_x": 296, "digit_span": 10, "span": "digits", "width_min": 4 },
+        "kills_fighting":   { "anchor_x": 296, "digit_span": 10, "span": "digits", "width_min": 4 }
+    },
+    "percent_rows": {
+        "value_x": 262,
+        "first_value_y": 196,
+        "row_pitch": 21,
+        "value_budget": 5,
+        "rows": ["short_range_shots", "middle_range_shots", "long_range_shots", "no_aiming_shots"]
+    },
+    "rank": {
+        "tens_only": { "x": 160, "y": 198, "budget": 1, "hi_res": true },
+        "ones_only": { "x": 160, "y": 292, "budget": 1, "hi_res": false },
+        "both_tens": { "x": 160, "y": 194, "budget": 20, "hi_res": true },
+        "both_ones": { "x": 160, "y": 300, "budget": 20, "hi_res": false }
+    },
+    "rank_bars": {
+        "left_x": -64,
+        "right_x": 66,
+        "top_y": -196,
+        "band_height": 6,
+        "easy":   [ { "top": [0, 0, 0], "bottom": [128, 192, 0] }, { "top": [128, 192, 0], "bottom": [0, 0, 0] } ],
+        "normal": [ { "top": [0, 0, 0], "bottom": [0, 128, 192] }, { "top": [0, 128, 192], "bottom": [0, 0, 0] } ],
+        "hard":   [ { "top": [0, 0, 0], "bottom": [128, 0, 192] }, { "top": [128, 0, 192], "bottom": [0, 0, 0] } ]
+    },
+    "items_total": 204
+}

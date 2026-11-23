@@ -1,0 +1,22 @@
+{
+  "format": "sh-text",
+  "version": 1,
+  "lang": "fr",
+  "strings": {
+    "common.yes": "Oui",
+    "common.no": "Non",
+    "common.notes_useful": "Un jour, quelqu'un d'autre vivra\npeut-être ces événements étranges.\nPuissent mes notes lui servir.{end}",
+    "common.no_map": "{instant}Je n'ai pas le plan\nde cet endroit.{end}",
+    "common.too_dark_for_map": "{instant}Il fait trop sombre\npour consulter le plan.{end}",
+    "common.take_first_aid_kit": "Il y a une {color 2}trousse de secours{/color}.\nPrendre ?{choice 4}",
+    "common.take_health_drink": "Il y a une {color 2}boisson tonique{/color}.\nPrendre ?{choice 4}",
+    "common.take_ampoule": "Il y a une {color 2}ampoule{/color}.\nPrendre ?{choice 4}",
+    "common.take_handgun_bullets": "Il y a des {color 2}balles de pistolet{/color}.\nPrendre ?{choice 4}",
+    "common.take_rifle_shells": "Il y a des {color 2}balles de carabine{/color}.\nPrendre ?{choice 4}",
+    "common.take_shotgun_shells": "Il y a des {color 2}cartouches de fusil{/color}.\nPrendre ?{choice 4}",
+    "common.lock_jammed": "La serrure est bloquée.\nImpossible d'ouvrir cette porte.{end}",
+    "common.locked": "C'est verrouillé.{end}",
+    "common.unlocked": "C'est déverrouillé.{end}",
+    "common.now_making": "{color 6}En chantier !{/color}{end}"
+  }
+}

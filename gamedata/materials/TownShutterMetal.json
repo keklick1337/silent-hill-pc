@@ -1,0 +1,10 @@
+{
+  "description": "The corrugated steel shutters of the town's shops: brushed metal whose sheen takes its own grey. Regions of the house page and of the town's common sign page (pixels of convert/textures/BG/THR7501F.png and THR0004F.png).",
+  "regions": [
+    {"page": "THR7501F", "rect": [0, 0, 128, 64]},
+    {"page": "THR0004F", "rect": [0, 160, 128, 256]}
+  ],
+  "roughness": 0.4,
+  "metalness": 0.85,
+  "reflective": 0.3
+}

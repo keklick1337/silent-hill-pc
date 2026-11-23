@@ -1,0 +1,8 @@
+{
+  "format": "sh-text-lang",
+  "version": 1,
+  "code": "tr",
+  "name": "Türkçe",
+  "english_name": "Turkish",
+  "direction": "ltr"
+}

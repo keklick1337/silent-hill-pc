@@ -1,0 +1,10 @@
+{
+  "description": "Animation tables of the story characters in the cutscenes of map7_s01 (Nowhere). A cutscene asks whether a character's animation is done (\"playback\") and which keyframe it starts at (\"start_keyframe\"; the same tables as playback when absent); the answer comes from the table named here, a file gamedata/tables/anim/<table>.json indexed by the character's animation status. \"tables\" maps a character name to its table and \"fallback\" is the table of every character not listed (none: such a character has no table). On this map, playback: GhostChildAlessa uses \"ghost_child_alessa\", Lisa uses \"lisa\", BloodyLisa uses \"bloody_lisa\" and other characters have no table. Sounds that an animation keyframe cues play at volume 128 (no \"cue_sounds\" here). Read when the map loads.",
+  "playback": {
+    "tables": {
+      "GhostChildAlessa": "ghost_child_alessa",
+      "Lisa": "lisa",
+      "BloodyLisa": "bloody_lisa"
+    }
+  }
+}

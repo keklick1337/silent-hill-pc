@@ -1,0 +1,20 @@
+{
+  "format": "sh-text",
+  "version": 1,
+  "lang": "tr",
+  "map": "map2_s04",
+  "strings": {
+    "map2_s04.theres_a_memo_on_the": "Masada bir not var.",
+    "map2_s04.coroner_seals_called": "{color 3}Adli tabip Seals aradı.",
+    "map2_s04.officer_gucci_is_unlikely_to": "{color 3}Memur Gucci'nin öldürülmüş\nolması pek olası değil.\nGörünüşe göre eceliyle ölmüş.",
+    "map2_s04.but_medical_records_show": "{color 3}Ancak sağlık kayıtlarına göre\nMemur Gucci'de daha önce hiçbir\nkalp hastalığı belirtisi yoktu.{end}",
+    "map2_s04.theres_something_on_it": "Üzerinde bir şeyler yazıyor.",
+    "map2_s04.product_only_available_in": "{color 3}Mal yalnızca Silent Hill'in\nbelirli kesimlerinde bulunuyor.",
+    "map2_s04.raw_material_is_white_claudia": "{color 3}Ham maddesi Beyaz Claudia,\nyöreye özgü bir bitki.",
+    "map2_s04.manufactured_here_dealer": "{color 3}Burada mı üretiliyor?\nSatıcı * üretici?{end}",
+    "map2_s04.there_is_a_shopping_district": "{hires}Burada {color 5}Çarşı bölgesi haritası{/color} var.\nAlınsın mı?{choice 4}",
+    "map2_s04.nothing_helpful": "Yararlı bir şey yok.{end}",
+    "map2_s04.the_desk_is_messy": "Masa darmadağın.{end}",
+    "map2_s04.there_is_a_shotgun_take": "Burada {color 2}Pompalı tüfek{/color} var.\nAlınsın mı?{choice 4}"
+  }
+}

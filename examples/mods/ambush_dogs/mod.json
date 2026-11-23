@@ -1,0 +1,11 @@
+{
+  "format": 1,
+  "id": "ambush_dogs",
+  "name": "Ambush: dogs at the bench",
+  "version": "1.0.0",
+  "description": "Taking the handgun ammo from the bench outside the cafe brings Groaners from behind: 1 on easy, 2 on normal, 3 on hard. Once per playthrough.",
+  "authors": ["Silent Hill PC"],
+  "api": "^1.0",
+  "gameplay": true,
+  "scripts": true
+}

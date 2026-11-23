@@ -1,0 +1,15 @@
+{
+  "format": "sh-text",
+  "version": 1,
+  "lang": "pl",
+  "map": "map0_s02",
+  "strings": {
+    "map0_s02.there_is_a_chain_saw": "Jest tu {color 2}piła łańcuchowa{/color}.\nZabrać?{choice 4}",
+    "map0_s02.some_oil_cans_are_on": "Na półce stoi kilka puszek z olejem.{end}",
+    "map0_s02.a_car_engine_no_problem": "Silnik samochodowy.\nWygląda na sprawny.{end}",
+    "map0_s02.theres_a_tv_set_it": "Telewizor.\nNie włącza się.{end}",
+    "map0_s02.there_is_a_gasoline_tank": "Jest tu {color 2}kanister z benzyną{/color}.\nZabrać?{choice 4}",
+    "map0_s02.there_is_a_katana_take": "Jest tu {color 2}katana{/color}.\nZabrać?{choice 4}",
+    "map0_s02.there_is_a_channeling_stone": "Jest tu {color 2}kamień przekazu{/color}.\nZabrać?{choice 4}"
+  }
+}

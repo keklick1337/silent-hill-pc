@@ -1,0 +1,10 @@
+{
+  "format": "sh-text",
+  "version": 1,
+  "lang": "ar",
+  "map": "map6_s03",
+  "strings": {
+    "map6_s03.there_is_a_sewer_map": "{hires}يوجد هنا {color 5}خريطة المجاري\n(المؤدية إلى مدينة الملاهي){/color}.\nهل تأخذها؟{choice 4}",
+    "map6_s03.gotta_go_find_cybil_no": "علي أن أجد سيبل!\nلا وقت للعودة.{end}"
+  }
+}

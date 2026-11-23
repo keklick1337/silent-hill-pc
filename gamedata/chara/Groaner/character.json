@@ -1,0 +1,83 @@
+{
+  "description": "Groaner: a skinless dog-like creature that roams the foggy streets of Old Silent Hill, Central Silent Hill and the Resort Area, usually in pairs.",
+  "category": "CommonEnemies",
+  "maps": ["map2_s00", "map2_s02", "map5_s01"],
+  "model": "models/CHARA/DOG.glb",
+  "animations": "anim/ANIM/DOG.anim.json",
+  "clip_tables": ["groaner"],
+  "textures": ["textures/CHARA/DOG.png"],
+  "shadow": 0.25,
+  "blend_mode": "subtractive",
+  "camera_anchor": "character",
+  "camera_offset_y": -0.7,
+  "sounds": {
+    "attack": "groaner_attack",
+    "damage": "groaner_damage",
+    "death": "groaner_death",
+    "footstep": "groaner_footstep",
+    "idle": "groaner_idle",
+    "run": "groaner_run"
+  },
+  "params": {
+    "health_base": 210.0,
+    "health_bonus_max": 70.0,
+    "health_max": 280.0,
+    "collision_ground_walker": 1,
+    "collision_holes_as_walls": 1
+  },
+  "_param_units": {
+    "health_base": "health points, Q12 on use",
+    "health_bonus_max": "health points, Q12 on use",
+    "health_max": "health points, Q12 on use",
+    "collision_ground_walker": "1: the wall / ledge / void classification applies (walks on the ground)",
+    "collision_holes_as_walls": "1: floors without ground block movement like walls up to the ceiling"
+  },
+  "anims": {
+    "still": 0,
+    "stun_from_jump_death_start": 1,
+    "stand_recoil_front": 2,
+    "jump_to_stun": 3,
+    "stun_from_jump": 4,
+    "stun_from_stand_right_death_start": 5,
+    "stand_recoil_right": 6,
+    "stand_to_stun_right": 7,
+    "stun_from_stand_right": 8,
+    "stand_idle": 9,
+    "jump_attack": 10,
+    "stun_from_stand_left_death_start": 11,
+    "stand_recoil_left": 12,
+    "stand_to_stun_left": 13,
+    "stun_from_stand_left": 14,
+    "stand_to_jump_attack": 15,
+    "run_forward": 16,
+    "walk_forward": 17,
+    "stun_from_jump_death_end": 18,
+    "stun_from_stand_right_death_end": 19,
+    "stun_from_stand_left_death_end": 20,
+    "stun_from_jump_recoil": 21,
+    "stun_from_stand_right_recoil": 22,
+    "stun_from_stand_left_recoil": 23
+  },
+  "controls": {
+    "none": 0,
+    "walk_forward": 1,
+    "run_forward": 2,
+    "jump_attack": 3,
+    "circle": 4,
+    "stand_recoil": 5,
+    "stun_from_jump": 6,
+    "stun_from_stand_right": 7,
+    "stun_from_stand_left": 8,
+    "death": 9
+  },
+  "spawn": {
+    "state": 3,
+    "kind": "enemy",
+    "auto": "full"
+  },
+  "harry_reactions": ["Hit", "Death"],
+  "blood": "Groaner",
+  "enemy": true,
+  "single_clip_table": true,
+  "preview": {"rotate": [0, 0, -90]}
+}

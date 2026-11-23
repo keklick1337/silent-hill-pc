@@ -1,0 +1,20 @@
+{
+  "format": "sh-text",
+  "version": 1,
+  "lang": "tr",
+  "map": "map6_s00",
+  "strings": {
+    "map6_s00.whats_this": "{wait 1.5}Bu da ne!{end}",
+    "map6_s00.msg16": "{wait 0.1}{end}",
+    "map6_s00.msg17": "{wait 0.1}{end}",
+    "map6_s00.msg18": "{wait 0.1}{end}",
+    "map6_s00.not_again_no_this_time": "{wait1 4.0}Yine mi...!?\nHayır, bu sefer başka türlü.",
+    "map6_s00.rather_than_shifting_from": "{wait1 4.5}Gerçeklikten kâbusa\ngeçmek değil bu,",
+    "map6_s00.this_is_more_like_reality": "{wait1 4.5}daha çok gerçekliğin\nkâbusa dönüşmesi gibi.",
+    "map6_s00.i_dont_like_this_feeling": "{wait1 6.0}Bu his hoşuma gitmiyor.\nSanki kötü bir şey\nolacakmış gibi...",
+    "map6_s00.no_doubt_something_terrible_is": "{wait1 4.0}Hiç şüphe yok, korkunç\nbir şeyler oluyor...{end}",
+    "map6_s00.the_cover_has_been_removed": "Kapak kaldırılmış...",
+    "map6_s00.could_cybil_have_gotten_to": "Cybil lunaparka buradan mı\ngeçmiş olabilir?{end}",
+    "map6_s00.lake_side_amusement_park": "{color 3}LAKE SIDE LUNAPARKI{end}"
+  }
+}

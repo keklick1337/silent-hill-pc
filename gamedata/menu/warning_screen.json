@@ -1,0 +1,14 @@
+{
+    "description": "The boot warning screen: fade step per frame, hold_frames and black_frames, and the page quads in framebuffer space (x, w) with their source texel ranges (u0, u1). Every key is checked: an unknown key is an error.",
+    "fade_step": 8,
+    "hold_frames": 180,
+    "black_frames": 3,
+    "quad_y": -240, "quad_h": 480,
+    "first_page": 13,
+    "tex_height": 224,
+    "quads": [
+        {"x": -320, "width": 128, "u_start": 64, "u_end": 128},
+        {"x": -192, "width": 256, "u_start": 0, "u_end": 128},
+        {"x": 64, "width": 256, "u_start": 0, "u_end": 128}
+    ]
+}

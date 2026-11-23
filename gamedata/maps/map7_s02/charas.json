@@ -1,0 +1,20 @@
+{
+  "description": "Animation tables of the story characters in the cutscenes of map7_s02 (Nowhere - Alessa vs. Dahlia cutscene). A cutscene asks whether a character's animation is done (\"playback\") and which keyframe it starts at (\"start_keyframe\"; the same tables as playback when absent); the answer comes from the table named here, a file gamedata/tables/anim/<table>.json indexed by the character's animation status. \"tables\" maps a character name to its table and \"fallback\" is the table of every character not listed (none: such a character has no table). On this map, playback: Dahlia uses \"dahlia\", GhostChildAlessa uses \"ghost_child_alessa\", Kaufmann uses \"kaufmann\", GhostDoctor uses \"ghost_doctor\" and other characters have no table. Start keyframe: Dahlia uses \"dahlia\", GhostChildAlessa uses \"ghost_child_alessa\", Kaufmann uses \"kaufmann\", Lisa uses \"lisa\", BloodyLisa uses \"bloody_lisa\" and other characters have no table. The first-keyframe query knows Lisa and Bloody Lisa but not the Ghost Doctor, as in the original. Sounds that an animation keyframe cues play at volume 128 (no \"cue_sounds\" here). Read when the map loads.",
+  "playback": {
+    "tables": {
+      "Dahlia": "dahlia",
+      "GhostChildAlessa": "ghost_child_alessa",
+      "Kaufmann": "kaufmann",
+      "GhostDoctor": "ghost_doctor"
+    }
+  },
+  "start_keyframe": {
+    "tables": {
+      "Dahlia": "dahlia",
+      "GhostChildAlessa": "ghost_child_alessa",
+      "Kaufmann": "kaufmann",
+      "Lisa": "lisa",
+      "BloodyLisa": "bloody_lisa"
+    }
+  }
+}

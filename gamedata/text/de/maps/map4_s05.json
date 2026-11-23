@@ -1,0 +1,12 @@
+{
+  "format": "sh-text",
+  "version": 1,
+  "lang": "de",
+  "map": "map4_s05",
+  "strings": {
+    "map4_s05.what": "{wait 1.0}Was?{end}",
+    "map4_s05.that_light": "{wait 2.5}Dieses Licht!?{end}",
+    "map4_s05.the_stairs_are_wrecked": "Die Treppe ist zerstört!{end}",
+    "map4_s05.alchemilla_hospital": "{color 3}Alchemilla-Krankenhaus{end}"
+  }
+}

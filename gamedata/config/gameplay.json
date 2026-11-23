@@ -1,0 +1,25 @@
+{
+  "description": "Core gameplay numbers, as in the original game. player: max_health (100) and max_saturation (300, the health-drink overheal cap). health_items: how much each healing item restores. grab_escape: the number of button inputs needed to break free of an enemy grab, per situation, as [easy, normal, hard]. Changing these changes the game balance. A mod changes it with a file of the same path in its own folder; objects are merged key by key, so the patch only needs the keys it changes. Keys must keep their names.",
+  "player": {
+    "max_health": 100.0,
+    "max_saturation": 300.0
+  },
+  "health_items": {
+    "description": "Health restored by each item, in health points (max_health is 100): first_aid_kit 80, health_drink 40, ampoule 100 (the ampoule also fills the saturation).",
+    "health_drink": 40.0,
+    "first_aid_kit": 80.0,
+    "ampoule": 100.0
+  },
+  "grab_escape": {
+    "description": "Inputs needed to break free of a grab, as [easy, normal, hard]. Keys name the player's state while grabbed (on_floor, grab_pinned_front, grab_torso_back, ...).",
+    "on_floor": [1600, 3200, 4800],
+    "grab_pinned_front": [800, 1600, 2400],
+    "grab_pinned_back": [1200, 2400, 3600],
+    "grab_torso_front": [800, 1600, 2400],
+    "grab_torso_back": [1000, 2000, 3000],
+    "grab_legs_front": [700, 1400, 2100],
+    "grab_legs_back": [800, 1600, 2400],
+    "grab_neck_front": [3600, 7200, 10800],
+    "grab_neck_back": [3600, 7200, 10800]
+  }
+}

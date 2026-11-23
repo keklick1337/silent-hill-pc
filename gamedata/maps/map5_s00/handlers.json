@@ -1,0 +1,78 @@
+{
+  "map": "map5_s00",
+  "table": "g_MapEventFuncs",
+  "handlers": [
+    {
+      "index": 0,
+      "symbol": "MapEvent_DoorJammed",
+      "name": "MapEvent_DoorJammed",
+      "shape": "script"
+    },
+    {
+      "index": 1,
+      "symbol": "MapEvent_DoorLocked",
+      "name": "MapEvent_DoorLocked",
+      "shape": "script"
+    },
+    {
+      "index": 2,
+      "symbol": "MapEvent_SewerKeyUse",
+      "name": "MapEvent_SewerKeyUse",
+      "shape": "script"
+    },
+    {
+      "index": 3,
+      "symbol": "MapEvent_CommonItemTake",
+      "name": "MapEvent_CommonItemTake",
+      "shape": "script"
+    },
+    {
+      "index": 4,
+      "symbol": "MapEvent_SewerKeyTake",
+      "name": "MapEvent_SewerKeyTake",
+      "shape": "item"
+    },
+    {
+      "index": 5,
+      "symbol": "Cutscene_DrainKeyAmbush",
+      "name": "Cutscene_DrainKeyAmbush",
+      "shape": "script"
+    },
+    {
+      "index": 6,
+      "symbol": "MapEvent_SewerLadderDown1",
+      "name": "MapEvent_SewerLadderDown1",
+      "shape": "script"
+    },
+    {
+      "index": 7,
+      "symbol": "MapEvent_SewerLadderUp1",
+      "name": "MapEvent_SewerLadderUp1",
+      "shape": "script"
+    },
+    {
+      "index": 8,
+      "symbol": "MapEvent_SewerLadderDown2",
+      "name": "MapEvent_SewerLadderDown2",
+      "shape": "script"
+    },
+    {
+      "index": 9,
+      "symbol": "MapEvent_SewerLadderUp2",
+      "name": "MapEvent_SewerLadderUp2",
+      "shape": "script"
+    },
+    {
+      "index": 10,
+      "symbol": "MapEvent_SewerLadderDown3",
+      "name": "MapEvent_SewerLadderDown3",
+      "shape": "script"
+    },
+    {
+      "index": 11,
+      "symbol": "MapEvent_PaperMapTake",
+      "name": "MapEvent_PaperMapTake",
+      "shape": "script"
+    }
+  ]
+}

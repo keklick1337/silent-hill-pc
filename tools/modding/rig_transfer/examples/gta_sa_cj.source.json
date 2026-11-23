@@ -1,0 +1,35 @@
+{
+  "description": "Source profile for rig_transfer.py: the Carl Johnson model of GTA San Andreas as the 3ds Max ASCII FBX 6.1 export (CarlJohnson-GTASA.FBX). The model itself is not in the repository; pass its path with --source-file. 'up' and 'forward' are the model's own axes, 'roles' name the model's bones for the body parts the tool matches, 'textures' give the picture of every material (file names as they are written into the glb after --texture-uri).",
+  "name": "CJ",
+  "file": "CarlJohnson-GTASA.FBX",
+  "up": "+y",
+  "forward": "+z",
+  "roles": {
+    "hips": "pelvis",
+    "chest": "spine lower",
+    "neck": "head neck lower",
+    "head": "head neck upper",
+    "l_clavicle": "arm left shoulder 1",
+    "l_upperarm": "arm left shoulder 2",
+    "l_forearm": "arm left elbow",
+    "l_hand": "arm left wrist",
+    "r_clavicle": "arm right shoulder 1",
+    "r_upperarm": "arm right shoulder 2",
+    "r_forearm": "arm right elbow",
+    "r_hand": "arm right wrist",
+    "l_thigh": "leg left thigh",
+    "l_shin": "leg left knee",
+    "l_foot": "leg left ankle",
+    "l_toes": "leg left toes",
+    "r_thigh": "leg right thigh",
+    "r_shin": "leg right knee",
+    "r_foot": "leg right ankle",
+    "r_toes": "leg right toes"
+  },
+  "textures": {
+    "body upper": "upper_body.png",
+    "head": "head.png",
+    "shoes": "shoes.png",
+    "legs": "legs.png"
+  }
+}

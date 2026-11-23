@@ -1,0 +1,11 @@
+{
+  "format": "sh-text",
+  "version": 1,
+  "lang": "es",
+  "strings": {
+    "ui.bind.debug_options": "Opciones de depuración",
+    "ui.menu.off": "No",
+    "ui.menu.on": "Sí",
+    "ui.pause.debug_options": "OPCIONES DE DEPURACIÓN"
+  }
+}

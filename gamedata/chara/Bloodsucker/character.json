@@ -1,0 +1,46 @@
+{
+  "description": "Bloodsucker: a rooted mass of tentacles that cannot move and lashes out at anyone close, found in the Otherworld Alchemilla Hospital and in Nowhere.",
+  "category": "Bosses",
+  "maps": ["map3_s03", "map7_s02"],
+  "model": "models/CHARA/ROD.glb",
+  "animations": "anim/ANIM/ROD.anim.json",
+  "clip_tables": ["bloodsucker"],
+  "textures": ["textures/CHARA/ROD.png"],
+  "shadow": 0.0,
+  "blend_mode": "subtractive",
+  "camera_anchor": "character",
+  "camera_offset_y": -0.7,
+  "sounds": {
+    "attack_loop": "bloodsucker_attack_loop",
+    "idle_loop": "bloodsucker_idle_loop"
+  },
+  "anims": {
+    "still": 0,
+    "enter_sway_a": 1,
+    "enter_sway_b": 2,
+    "enter_sway_c": 3,
+    "sway_loop_a": 4,
+    "sway_loop_b": 5,
+    "sway_loop_c": 6,
+    "frozen_pose": 7
+  },
+  "controls": {
+    "none": 0,
+    "hold_pose": 1,
+    "sway_set_a": 2,
+    "sway_set_b": 3,
+    "hospital_hold": 4
+  },
+  "spawn": {
+    "state": 19,
+    "kind": "boss",
+    "auto": "full",
+    "note": "rooted in place; it sways and strikes at Harry when he is near"
+  },
+  "harry_reactions": ["Hit", "Death"],
+  "blood": "Bloodsucker",
+  "blood_strength": 1,
+  "enemy": true,
+  "is_boss": true,
+  "single_clip_table": true
+}

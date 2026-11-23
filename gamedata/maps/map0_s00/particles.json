@@ -1,0 +1,25 @@
+{
+  "insects": true,
+  "snow": {
+    "aperture": {
+      "fallback": { "type": "roof" }
+    },
+    "far_slot_mode": 2
+  },
+  "rain": { "boundary": true, "match_anim": true, "sound": true },
+  "rest_gate": true,
+  "init": [
+    {
+      "mode": 1,
+      "corners": [[-5, -4.5, 211], [15, -4.5, 211]]
+    }
+  ],
+  "update": [
+    {
+      "rooms": [3],
+      "when": { "z_gt": 200 },
+      "mode": 1
+    },
+    { "mode": 0 }
+  ]
+}

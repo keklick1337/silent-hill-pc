@@ -1,0 +1,24 @@
+{
+  "format": "sh-text",
+  "version": 1,
+  "lang": "pt",
+  "map": "map1_s06",
+  "strings": {
+    "map1_s06.msg15": "{wait 1.3}",
+    "map1_s06.what_was_that": "{wait2 1.5}O que foi aquilo...?{end}",
+    "map1_s06.who_in_the_hell_was": "{wait 2.4}Quem diabos era aquela?{end}",
+    "map1_s06.there_is_a_k_gordon": "Há uma {color 2}chave de K. Gordon{/color} aqui.\nPegar?{choice 4}",
+    "map1_s06.the_boiler_is_off": "A caldeira está desligada.{end}",
+    "map1_s06.it_appears_to_be_broken": "Parece que está com defeito.{end}",
+    "map1_s06.the_valve_is_tightly_shut": "A válvula está bem fechada.\nNão dá para girar.{end}",
+    "map1_s06.i_hear_a": "{wait 2.0}Estou ouvindo um...",
+    "map1_s06.a_church_bell_maybe_who": "{wait 3.0}Um sino de igreja, talvez?\nQuem está tocando o sino?{end}",
+    "map1_s06.moore_ranaldo_gordon_this_must": "Moore, Ranaldo, Gordon...\nDeve ser a lista de professores.{end}",
+    "map1_s06.list_of_teachers": "Lista de professores.",
+    "map1_s06.k_gordon_thats_it_ill": "K. Gordon... é isso.\nVou anotar o endereço\nno mapa.{end}",
+    "map1_s06.there_is_a_school_map": "{hires}Há um {color 5}mapa da escola{/color} aqui.\nPegar?{choice 4}",
+    "map1_s06.where_am_i": "{wait1 3.5}Onde estou?",
+    "map1_s06.this_is_a_boiler_room": "{wait1 3.0}Isto é... uma sala de caldeira!?",
+    "map1_s06.what_is_going_on_here": "{wait1 3.5}O que está acontecendo aqui?{end}"
+  }
+}

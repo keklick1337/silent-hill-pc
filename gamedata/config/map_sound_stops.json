@@ -1,0 +1,9 @@
+{
+  "format": "sh-map-sound-stops",
+  "version": 1,
+  "description": "Looping sounds stopped when the inventory screen opens on a given map: map is the map name (map0_s00), sounds the sound names of sounds/sounds.json. A mod changes it with a file of the same path in its own folder; objects are merged key by key, so the patch only needs the keys it changes.",
+  "stops": [
+    { "map": "map0_s00", "sounds": ["alley_nightmare_sfx"] },
+    { "map": "map3_s03", "sounds": ["bloodsucker_idle_loop", "bloodsucker_attack_loop"] }
+  ]
+}

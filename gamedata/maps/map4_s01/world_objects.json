@@ -1,0 +1,57 @@
+{
+  "format": "sh-map-world-objects",
+  "version": 2,
+  "map": "map4_s01",
+  "description": "Static world objects of map4_s01 (Green Lion Antiques (normal + Otherworld)): 7 objects, drawn in file order. An object is drawn while the player is in one of its \"zones\" (each {\"x\": [...], \"z\": [...]} lists 40 m cells along that axis: cell c holds 40c..40(c+1) m; no zones = everywhere) and every flag of \"flags_set\" is set and every flag of \"flags_clear\" is clear (event flag names, e.g. the pickup flags). \"name\" is the object's id for scripts and mods, \"model\" its model (at most 8 characters, the map's or an item model), \"position\" in metres and \"rotation\" in degrees (x, y, z). \"script\": true lets world_objects.lua and events.lua move, turn, re-model or hide the object. world_objects.lua keeps the cabinet at its closed place until M4S01_CabinetPushed and picks the cube's model by the map variable cube_model_variant; the cabinet scene pushes the cabinet through the map variable cabinet (bound to the object). A mod's maps/map4_s01/world_objects.json changes or adds objects by name.",
+  "objects": [
+    {
+      "name": "Cabinet",
+      "model": "MOV1_HID",
+      "position": [178.2681, -0.387, 63.6814],
+      "script": true,
+      "zones": [{"x": 4, "z": 1}]
+    },
+    {
+      "name": "SavePad",
+      "model": "PAD_NEAR",
+      "position": [183.3833, -1.2673, 60.951],
+      "rotation": [0, 66.01, 0],
+      "zones": [{"x": 4, "z": 1}]
+    },
+    {
+      "name": "Wall",
+      "model": "WALLX_HI",
+      "position": [181.22, 0.0, 61.2015],
+      "zones": [{"x": 4, "z": 1}],
+      "flags_set": ["M4S01_CutsceneWallShown"]
+    },
+    {
+      "name": "Cube",
+      "model": "CUBE90_H",
+      "position": [180.5647, -0.502, 63.8853],
+      "script": true,
+      "zones": [{"x": 4, "z": 1}]
+    },
+    {
+      "name": "CubeTurned",
+      "model": "CUBE9_HI",
+      "position": [180.5647, -0.502, 63.8853],
+      "script": true,
+      "zones": [{"x": 4, "z": 1}]
+    },
+    {
+      "name": "Axe",
+      "model": "MOV1_HID",
+      "position": [174.81, -1.4197, 21.3344],
+      "zones": [{"x": 4, "z": 0}],
+      "flags_clear": ["M4S01_PickupAxe"]
+    },
+    {
+      "name": "SavePad2",
+      "model": "PAD_NEAR",
+      "position": [23.4, -0.91, 60.8],
+      "rotation": [0, 90.4, 0],
+      "zones": [{"x": 0, "z": 1}]
+    }
+  ]
+}

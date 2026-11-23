@@ -1,0 +1,32 @@
+{
+  "format": "sh-text",
+  "version": 1,
+  "lang": "ko",
+  "map": "map0_s00",
+  "strings": {
+    "map0_s00.cheryl_where_could_you_be": "{wait 2.5}셰릴. 대체 어디 있는 거니?{end}",
+    "map0_s00.its_strange": "{wait 1.5}이상하군...",
+    "map0_s00.its_quiet_too_quiet": "{wait 2.0}조용해. 지나치게 조용해.",
+    "map0_s00.this_place_is_like_a": "{wait 3.0}마치 유령 도시 같군.{end}",
+    "map0_s00.cheryl": "{wait 3.0}셰릴.{end}",
+    "map0_s00.footsteps": "{wait 1.5}발소리?{end}",
+    "map0_s00.cheryl_is_that_cheryl": "{wait 2.8}셰릴?\n저건 셰릴인가!?{end}",
+    "map0_s00.where_are_you_going": "{wait 1.2}어디로 가는 거니?{end}",
+    "map0_s00.hey_wait_stop": "{wait 1.8}얘, 기다려... 멈춰!{end}",
+    "map0_s00.id_better_follow_cheryl": "셰릴을 따라가야겠어...{end}",
+    "map0_s00.thats_strange_its_getting": "이상하군,\n점점 어두워지고 있어.{end}",
+    "map0_s00.a_dead_end_what_the": "막다른 길?\n이게 대체!?{end}",
+    "map0_s00.what_is_this": "{wait 1.6}이건 뭐지?",
+    "map0_s00.whats_going_on_here": "{wait 2.5}대체 무슨 일이 벌어지는 거야!?{end}",
+    "map0_s00.whats_this": "이건 뭐지?{end}",
+    "map0_s00.better_than_nothing_i_guess": "......없는 것보다는\n낫겠지.{end}",
+    "map0_s00.what_whats_this_doing_here": "뭐지?\n이게 왜 여기 있는 거지?{end}",
+    "map0_s00.blocked_by_a_fence": "철망으로 막혀 있나?{end}",
+    "map0_s00.a_broken_wheelchair_whats_this": "부서진 휠체어?\n이게 왜 여기 있는 거지?{end}",
+    "map0_s00.what_the_what_is_it": "이게 대체..?\n저건 뭐지?{end}",
+    "map0_s00.the_street_is_blocked": "길이 막혀 있다.",
+    "map0_s00.cant_get_out_of_town": "이쪽으로는 마을을\n빠져나갈 수 없다.{end}",
+    "map0_s00.my_car_too_banged_up": "내 차...\n너무 망가져서 몰 수가 없군.",
+    "map0_s00.wheres_cheryl_hope_shes_safe": "셰릴은 어디 있지?\n무사해야 할 텐데.{end}"
+  }
+}

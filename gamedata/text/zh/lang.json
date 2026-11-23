@@ -1,0 +1,17 @@
+{
+  "format": "sh-text-lang",
+  "version": 1,
+  "code": "zh",
+  "name": "简体中文",
+  "english_name": "Chinese (Simplified)",
+  "direction": "ltr",
+  "fonts": [
+    "Noto Sans CJK SC",
+    "Noto Sans SC",
+    "Microsoft YaHei",
+    "PingFang SC",
+    "SimHei",
+    "Source Han Sans SC",
+    "WenQuanYi Zen Hei"
+  ]
+}

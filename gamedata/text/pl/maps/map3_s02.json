@@ -1,0 +1,10 @@
+{
+  "format": "sh-text",
+  "version": 1,
+  "lang": "pl",
+  "map": "map3_s02",
+  "strings": {
+    "map3_s02.nothing_happens_when_the": "Po naciśnięciu przycisku\nwindy nic się nie dzieje.{end}",
+    "map3_s02.its_locked": "Zamknięte na klucz!{end}"
+  }
+}

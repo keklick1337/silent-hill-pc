@@ -1,0 +1,14 @@
+{
+  "format": "sh-text",
+  "version": 1,
+  "lang": "zh",
+  "map": "map5_s00",
+  "strings": {
+    "map5_s00.used_the_sewer_key": "使用了{color 2}下水道钥匙{/color}。{end}",
+    "map5_s00.used_the_sewer_exit_key": "使用了{color 2}下水道出口钥匙{/color}。{end}",
+    "map5_s00.there_is_a_sewer_key": "这里有{color 2}下水道钥匙{/color}。\n要拿走吗？{choice 4}",
+    "map5_s00.there_is_a_sewer_exit": "水里有{color 2}下水道出口钥匙{/color}。\n要拿走吗？{choice 4}",
+    "map5_s00.got_to_find_cheryl_no": "得去找雪柔。\n没时间回头了。{end}",
+    "map5_s00.there_is_a_sewer_map": "{hires}这里有{color 5}下水道地图\n（通往度假区）{/color}。\n要拿走吗？{choice 4}"
+  }
+}

@@ -1,0 +1,83 @@
+{
+  "description": "Monster Cybil: Cybil Bennett possessed by a parasite, who attacks Harry on the merry-go-round of the Lakeside Amusement Park.",
+  "category": "Bosses",
+  "maps": ["map6_s04"],
+  "model": "models/CHARA/MSB.glb",
+  "animations": "anim/ANIM/MSB.anim.json",
+  "clip_tables": ["monster_cybil"],
+  "textures": ["textures/CHARA/MSB.png"],
+  "shadow": 0.25,
+  "blend_mode": "subtractive",
+  "camera_anchor": "character",
+  "camera_offset_y": -1.35,
+  "sounds": {
+    "bullet_hit": "monster_cybil_bullet_hit",
+    "freeze": "monster_cybil_freeze",
+    "gun_lower": "monster_cybil_gun_lower",
+    "gun_raise": "monster_cybil_gun_raise",
+    "gunshot": "cybil_handgun_shot",
+    "scene_sound": "monster_cybil_scene_sound",
+    "scene_sound_2": "monster_cybil_scene_sound_2"
+  },
+  "footsteps": {
+    "default": "footstep_concrete",
+    "concrete": "footstep_concrete",
+    "planks": "footstep_planks",
+    "grass": "footstep_grass",
+    "gravel": "footstep_gravel",
+    "metal_mesh": "footstep_metal_mesh",
+    "metal": "footstep_metal",
+    "sewer_floor": "footstep_concrete",
+    "wood": "footstep_wood",
+    "carpet": "footstep_carpet",
+    "metal_plate": "footstep_metal",
+    "metal_grating": "footstep_metal",
+    "*": "footstep_concrete"
+  },
+  "params": {
+    "health": 4000.0
+  },
+  "_param_units": {
+    "health": "health points, Q12 on use"
+  },
+  "anims": {
+    "still": 0,
+    "walk": 1,
+    "raise_gun": 2,
+    "shoot": 3,
+    "unused_after_shoot": 4,
+    "charge": 5,
+    "hold_player": 6,
+    "release": 7,
+    "strike": 8,
+    "stagger": 9,
+    "lower_gun": 10,
+    "drop_from_horse": 11,
+    "ride_horse": 12
+  },
+  "controls": {
+    "none": 0,
+    "phase_two": 1,
+    "unused_between_phases": 2,
+    "phase_three": 3,
+    "scene_between_phases": 4,
+    "scene_fall": 5,
+    "scene_lie": 6,
+    "scene_hold_a": 7,
+    "scene_hold_b": 8,
+    "scene_stand": 9,
+    "scene_raise_gun": 10,
+    "scene_shot": 11,
+    "scene_end_pose": 12,
+    "after_fight": 13
+  },
+  "spawn": {
+    "state": 3,
+    "kind": "boss",
+    "auto": "full",
+    "note": "off map6_s04 her fight starts at once and needs no scene: phase two follows phase one, at no health she falls"
+  },
+  "harry_reactions": ["Hit", "Thrown", "NeckGrab", "Death"],
+  "enemy": true,
+  "is_boss": true
+}

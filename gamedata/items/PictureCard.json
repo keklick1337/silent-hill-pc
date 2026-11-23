@@ -1,0 +1,12 @@
+{
+  "group": "keys",
+  "inventory": {
+    "order": 30,
+    "command": "Use",
+    "used_up_on_event": true
+  },
+  "display_tilt": {
+    "x": 45.0
+  },
+  "close_up_model": "ITEM/UNQ55.TMD"
+}

@@ -1,0 +1,33 @@
+{
+  "format": "sh-text",
+  "version": 1,
+  "lang": "zh",
+  "map": "map3_s05",
+  "strings": {
+    "map3_s05.there_is_a_video_tape": "这里有{color 2}录像带{/color}。\n要拿走吗？{choice 4}",
+    "map3_s05.alessa": "{color 3}阿蕾莎{end}",
+    "map3_s05.alessa_2": "阿蕾莎……？{end}",
+    "map3_s05.whats_this": "{wait 1.2}这是什么？{end}",
+    "map3_s05.looks_like_someones_been_here": "{wait 2.6}好像有人来过这里……{end}",
+    "map3_s05.msg20": "{wait 0.4}{end}",
+    "map3_s05.there_is_an_examination_room": "这里有{color 2}诊察室钥匙{/color}。\n要拿走吗？{choice 4}",
+    "map3_s05.looks_like_a_hallway_under": "铁栅下面好像有条通道。",
+    "map3_s05.cant_move_it_since_the": "藤蔓缠在上面，\n搬不动。{end}",
+    "map3_s05.no_the_fire_goes_out": "不行。\n一点着藤蔓，\n火马上就灭了。{end}",
+    "map3_s05.poured_disinfecting_alcohol_on": "把{color 2}消毒酒精{/color}\n浇在了藤蔓上。{end}",
+    "map3_s05.the_vines_absorbed_the_alcohol": "藤蔓吸收了酒精。{end}",
+    "map3_s05.used_the_basement_storeroom": "使用了{color 2}地下储藏室钥匙{/color}。{end}",
+    "map3_s05.do_you_want_to_push": "要推动柜子吗？{choice 4}",
+    "map3_s05.the_generator_is_on": "发电机已启动。{end}",
+    "map3_s05.there_are_skid_marks_from": "地上有柜子\n被挪动过的擦痕。{end}",
+    "map3_s05.there_is_a_hammer_take": "这里有{color 2}大锤{/color}。\n要拿走吗？{choice 4}",
+    "map3_s05.a_bed_whats_it_doing": "床？怎么会在这儿？\n是谁……{end}",
+    "map3_s05.a_body_is_laid_out": "床上躺着一具尸体。\n实在不想去查看。{end}",
+    "map3_s05.nothing_helpful": "没什么有用的。{end}",
+    "map3_s05.nothing_useful_in_the_boxes": "箱子里没什么有用的东西。{end}",
+    "map3_s05.theres_a_bottle_filled_with": "这里有个瓶子，\n装着某种药物。\n还是别碰为好。{end}",
+    "map3_s05.there_are_some_empty_bottles": "这里有几个空瓶子。{end}",
+    "map3_s05.nothing_special_in_the_box": "箱子里没什么特别的。\n不必在意。{end}",
+    "map3_s05.nothing_inside": "里面什么也没有。{end}"
+  }
+}

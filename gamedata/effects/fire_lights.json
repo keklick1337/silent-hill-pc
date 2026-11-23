@@ -1,0 +1,31 @@
+{
+  "format": "sh-fire-lights",
+  "version": 1,
+  "description": "The light of the game's fires for the modern lighting (extra_lights on every renderer; with rt_lights also ray-traced shadows and bounce). Every flame particle a fire effect draws reports its point and its share of light (its drawn brightness, times its size for the fire pools); the light sits at their weighted middle and its intensity follows their sum: intensity is reached when the sum is full, and it grows up to twice that, so a fire flares, flickers and dies out with its own particles, and is gone the moment the effect draws none. flicker adds a fast render-side noise (never the game's random numbers). lift moves the light from the particles' middle (metres, y down: negative is higher). color is linear 0..1, range and radius (the flame's size: how soft its shadows are) in metres. fires: ParticleEmitter is the map effect particle_emitter (the burning lamp of the Split Head room, map1_s05; the burning vines, map3_s05), FirePool every pool of fire_pools.json (the fire of the Incubus fights and of the endings, map7_s03). A fire set to null gives no light. A mod patches the file key by key.",
+  "fires": {
+    "ParticleEmitter": {
+      "description": "Flames that swirl and rise from a burner or a fire on the ground: a warm, strong light that reaches the walls of a room.",
+      "color": [1.0, 0.58, 0.26],
+      "intensity": 3.0,
+      "full": 120.0,
+      "range": 10.0,
+      "radius": 0.4,
+      "lift": 0.0,
+      "flicker": 0.2,
+      "casts_shadows": true,
+      "gi": true
+    },
+    "FirePool": {
+      "description": "The boss's fire balls, the burning ground and the flames of the endings: as many particles as burn give light.",
+      "color": [1.0, 0.55, 0.25],
+      "intensity": 3.0,
+      "full": 24.0,
+      "range": 12.0,
+      "radius": 0.6,
+      "lift": -0.3,
+      "flicker": 0.2,
+      "casts_shadows": true,
+      "gi": true
+    }
+  }
+}

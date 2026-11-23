@@ -1,0 +1,14 @@
+{
+  "format": "sh-text",
+  "version": 1,
+  "lang": "ar",
+  "map": "map4_s03",
+  "strings": {
+    "map4_s03.daddy_where_are_you": "بابا... أين أنت...؟",
+    "map4_s03.cheryl": "{wait 1.0}شيريل!{end}",
+    "map4_s03.there_is_a_hunting_rifle": "يوجد هنا {color 2}بندقية صيد{/color}.\nهل تأخذها؟{choice 4}",
+    "map4_s03.nothing_unusual": "لا شيء غير عادي.{end}",
+    "map4_s03.a_picture_is_projected_on": "صورة معروضة على الشاشة.",
+    "map4_s03.cheryl_where_could_she_be": "شيريل...\nأين عساها تكون؟{end}"
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "format": "sh-text",
+  "version": 1,
+  "lang": "es",
+  "map": "map4_s06",
+  "strings": {
+    "map4_s06.no_stage": "¡NO HAY NIVEL!{end}"
+  }
+}

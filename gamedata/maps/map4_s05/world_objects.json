@@ -1,0 +1,22 @@
+{
+  "format": "sh-map-world-objects",
+  "version": 2,
+  "map": "map4_s05",
+  "description": "Static world objects of map4_s05 (Central SH Otherworld - Floatstinger boss): 2 objects, drawn in file order. An object is drawn while the player is in one of its \"zones\" (each {\"x\": [...], \"z\": [...]} lists 40 m cells along that axis: cell c holds 40c..40(c+1) m; no zones = everywhere) and every flag of \"flags_set\" is set and every flag of \"flags_clear\" is clear (event flag names, e.g. the pickup flags). \"name\" is the object's id for scripts and mods, \"model\" its model (at most 8 characters, the map's or an item model), \"position\" in metres and \"rotation\" in degrees (x, y, z). KidnappedEarly and KidnappedLate are shown before and after M4S05_CybilStairsSceneWarpDone. A mod's maps/map4_s05/world_objects.json changes or adds objects by name.",
+  "objects": [
+    {
+      "name": "KidnappedLate",
+      "model": "KIDN05_H",
+      "position": [-114.89, 5.0, 108.36],
+      "zones": [{"z": 2}],
+      "flags_set": ["M4S05_CybilStairsSceneWarpDone"]
+    },
+    {
+      "name": "KidnappedEarly",
+      "model": "KIDN04_H",
+      "position": [-119.8019, 5.0, 107.861],
+      "zones": [{"z": 2}],
+      "flags_clear": ["M4S05_CybilStairsSceneWarpDone"]
+    }
+  ]
+}

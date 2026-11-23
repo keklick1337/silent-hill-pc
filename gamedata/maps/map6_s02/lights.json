@@ -1,0 +1,12 @@
+{
+  "format": "sh-map-lights",
+  "version": 1,
+  "map": "map6_s02",
+  "description": "The lights of the lighthouse for the setting extra_lights. The room at the top of the lighthouse (cell RSU01FF) has the seal drawn into its floor (FLOOR4_I, texture RSULH3): a ring about 7 m across around the spiral stair at (60, -20) whose lines are the brightest texels of the map, a warm glow the original draws at every moment, so it shines all the time. Four low bulbs on the ring, each with a wide emitter, stand for the glowing disc: the floor, the stair, the railing and the poles take a soft warm light from below. Positions are metres, PS1 axes (y down).",
+  "lights": [
+    {"name": "SealGlowEast", "description": "The seal's ring east of the stair.", "extra": true, "position": [62.6, -0.5, -20.0], "color": [1.0, 0.6, 0.3], "intensity": 2.0, "range": 4.0, "radius": 1.0, "casts_shadows": true, "gi": true},
+    {"name": "SealGlowWest", "description": "The seal's ring west of the stair.", "extra": true, "position": [57.4, -0.5, -20.0], "color": [1.0, 0.6, 0.3], "intensity": 2.0, "range": 4.0, "radius": 1.0, "casts_shadows": true, "gi": true},
+    {"name": "SealGlowNorth", "description": "The seal's ring north of the stair.", "extra": true, "position": [60.0, -0.5, -17.4], "color": [1.0, 0.6, 0.3], "intensity": 2.0, "range": 4.0, "radius": 1.0, "casts_shadows": true, "gi": true},
+    {"name": "SealGlowSouth", "description": "The seal's ring south of the stair.", "extra": true, "position": [60.0, -0.5, -22.6], "color": [1.0, 0.6, 0.3], "intensity": 2.0, "range": 4.0, "radius": 1.0, "casts_shadows": true, "gi": true}
+  ]
+}

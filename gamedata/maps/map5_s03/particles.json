@@ -1,0 +1,27 @@
+{
+  "snow": {
+    "aperture": {
+      "fallback": {
+        "lines": [[0, 1, 0]]
+      }
+    },
+    "far_slot_mode": 2
+  },
+  "rest_gate": true,
+  "init": [
+    { "mode": 2 }
+  ],
+  "update": [
+    {
+      "rooms": [7],
+      "mode": 2,
+      "corners": [[55.5, 63], [55.5, 58]]
+    },
+    {
+      "rooms": [8],
+      "mode": 2,
+      "corners": [[100, 56.5], [104, 56.5]]
+    },
+    { "mode": 2, "skip": true }
+  ]
+}

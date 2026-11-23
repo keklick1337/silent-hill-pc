@@ -1,0 +1,18 @@
+{
+  "description": "Named variables of the SplitHead's behaviour (chara/SplitHead/behavior.lua reads and writes them by name). Each character instance owns a small block of bytes; every entry of \"fields\" names one value in it: \"name\" is the name the script uses, \"kind\" the storage type (s8, u8, s16, u16, s32, u32: a write keeps the low bits, a read sign- or zero-extends), \"at\" the byte offset in the block (absent: the next naturally aligned offset), \"note\" what the value means. Values are raw integers in the units the behaviour uses (usually Q12, 4096 = 1.0 or 1 m; angles Q12, 4096 = a full turn). A mod adds or changes fields with a state.json of the same path; keep the offsets of fields the behaviour already uses.",
+  "fields": [
+    {"name": "split_head_flags", "kind": "u16", "at": 0},
+    {"name": "split_head_blood_alpha", "kind": "u8", "at": 2, "note": "Opacity of the blood strands between the jaws; fades while the body lies dead."},
+    {"name": "split_head_prev_rot_y", "kind": "s16", "at": 4, "note": "rot_y of the previous tick: a turn twists the body."},
+    {"name": "split_head_twist", "kind": "s16", "at": 6},
+    {"name": "split_head_steer_angle", "kind": "u16", "at": 8, "note": "The heading the circling states steer to (the free ray towards Harry)."},
+    {"name": "split_head_steer_timer", "kind": "u16", "at": 10},
+    {"name": "split_head_roar_timer", "kind": "u16", "at": 12},
+    {"name": "split_head_walk_time", "kind": "s32", "at": 16, "note": "anim_time of the walk cycle on the previous tick (201 when not walking): a wrap is a step."},
+    {"name": "split_head_leg_1", "kind": "u8", "at": 32},
+    {"name": "split_head_leg_2", "kind": "u8", "at": 33},
+    {"name": "split_head_leg_3", "kind": "u8", "at": 34},
+    {"name": "split_head_leg_4", "kind": "u8", "at": 35},
+    {"name": "split_head_vocal_timer", "kind": "s32", "at": 36}
+  ]
+}

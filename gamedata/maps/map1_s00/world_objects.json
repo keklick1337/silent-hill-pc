@@ -1,0 +1,156 @@
+{
+  "format": "sh-map-world-objects",
+  "version": 2,
+  "map": "map1_s00",
+  "description": "Static world objects of map1_s00 (School - 1F, courtyard, basement): 21 objects, drawn in file order. An object is drawn while the player is in one of its \"zones\" (each {\"x\": [...], \"z\": [...]} lists 40 m cells along that axis: cell c holds 40c..40(c+1) m; no zones = everywhere) and every flag of \"flags_set\" is set and every flag of \"flags_clear\" is clear (event flag names, e.g. the pickup flags). \"name\" is the object's id for scripts and mods, \"model\" its model (at most 8 characters, the map's or an item model), \"position\" in metres and \"rotation\" in degrees (x, y, z). \"script\": true lets world_objects.lua and events.lua move, turn, re-model or hide the object. \"pc_near_pickup\": true (not in the original) also draws the pickup while the player is in a neighbouring cell of the same floor. The medallions and their slots, the boiler (BoilerOn/BoilerOff) and the pickups of the school 1F. BoilerLight is also drawn by the boiler scene in events.lua (map variable boiler_light). A mod's maps/map1_s00/world_objects.json changes or adds objects by name.",
+  "objects": [
+    {
+      "name": "GoldMedallion",
+      "model": "GOLD_HID",
+      "position": [-12.2, -1.0999, -67.88],
+      "zones": [{"x": -1, "z": -2}],
+      "flags_set": ["M1S00_GoldMedallionPlaced"]
+    },
+    {
+      "name": "GoldMedallionSlot",
+      "model": "ANA3_HID",
+      "position": [-12.72, -1.0, -68.5999],
+      "zones": [{"x": -1, "z": -2}],
+      "flags_clear": ["M1S00_GoldMedallionPlaced"]
+    },
+    {
+      "name": "SilverMedallion",
+      "model": "SILVER_H",
+      "position": [-13.5198, -1.0999, -69.0999],
+      "zones": [{"x": -1, "z": -2}],
+      "flags_set": ["M1S00_SilverMedallionPlaced"]
+    },
+    {
+      "name": "SilverMedallionSlot",
+      "model": "ANA2_HID",
+      "position": [-12.7898, -1.0, -69.6199],
+      "zones": [{"x": -1, "z": -2}],
+      "flags_clear": ["M1S00_SilverMedallionPlaced"]
+    },
+    {
+      "name": "SavePad",
+      "model": "PAD_NEAR",
+      "position": [61.8531, -0.805, 140.6099],
+      "rotation": [0, 92.9, 0],
+      "zones": [{"x": 1, "z": 3}]
+    },
+    {
+      "name": "BoilerOn",
+      "model": "R_HIDE_I",
+      "position": [19.5799, 0.0, -18.3],
+      "zones": [{"x": 0, "z": -1}],
+      "flags_set": ["M1S00_SilverMedallionPlaced"]
+    },
+    {
+      "name": "BoilerOff",
+      "model": "REDX_HID",
+      "position": [20.4568, -0.8345, -17.97],
+      "zones": [{"x": 0, "z": -1}],
+      "flags_clear": ["M1S00_SilverMedallionPlaced"]
+    },
+    {
+      "name": "BoilerLight",
+      "model": "G_HIDE_I",
+      "position": [19.5799, 0.0, -18.3],
+      "script": true,
+      "zones": [{"x": 0, "z": -1}],
+      "flags_set": ["M1S00_BoilerRunning"]
+    },
+    {
+      "name": "Picture",
+      "model": "PICT00_H",
+      "position": [133.294, -0.8614, 19.04],
+      "rotation": [0, 162.6, 0],
+      "zones": [{"x": 3, "z": 0}]
+    },
+    {
+      "name": "Paper",
+      "model": "PAPER1_H",
+      "position": [133.63, -0.816, 17.089],
+      "zones": [{"x": 3, "z": 0}]
+    },
+    {
+      "name": "Note",
+      "model": "NOTE_HID",
+      "position": [133.991, -0.8, 16.307],
+      "zones": [{"x": 3, "z": 0}]
+    },
+    {
+      "name": "Blood1",
+      "model": "TINORI1_",
+      "position": [133.6, -1.7, 16.0],
+      "zones": [{"x": 3, "z": 0}]
+    },
+    {
+      "name": "Blood2",
+      "model": "TINORI2_",
+      "position": [133.6, -1.19, 18.2],
+      "zones": [{"x": 3, "z": 0}]
+    },
+    {
+      "name": "Blood3",
+      "model": "TINORI3_",
+      "position": [134.486, -1.19, 18.2],
+      "zones": [{"x": 3, "z": 0}]
+    },
+    {
+      "name": "Grid",
+      "model": "GRID2_HI",
+      "position": [134.4, -0.91, 17.9568],
+      "zones": [{"x": 3, "z": 0}]
+    },
+    {
+      "name": "Map",
+      "model": "MAP_HIDE",
+      "position": [96.9405, -0.3365, 21.0918],
+      "rotation": [0, 66.8, 0],
+      "zones": [{"x": 2, "z": 0}],
+      "flags_clear": ["M1S00_PickupMap"]
+    },
+    {
+      "name": "HandgunBullets0",
+      "model": "BULLET_N",
+      "position": [59.73, -0.5, 18.37],
+      "rotation": [0.0, 34.0, 0.0],
+      "pc_near_pickup": true,
+      "zones": [{"x": 1, "z": 0}],
+      "flags_clear": ["M1S00_HandgunBullets0"]
+    },
+    {
+      "name": "HandgunBullets1",
+      "model": "BULLET_N",
+      "position": [103.05, -0.55, 139.0],
+      "rotation": [0.0, 16.0, 0.0],
+      "zones": [{"x": 2, "z": 3}],
+      "flags_clear": ["M1S00_HandgunBullets1"]
+    },
+    {
+      "name": "HandgunBullets2",
+      "model": "BULLET_N",
+      "position": [141.2, -0.69, 105.1],
+      "rotation": [0.0, 10.0, 0.0],
+      "zones": [{"x": 3, "z": 2}],
+      "flags_clear": ["M1S00_HandgunBullets2"]
+    },
+    {
+      "name": "HealthDrink",
+      "model": "DRINK_NE",
+      "position": [61.27, -0.87, 143.3],
+      "zones": [{"x": 1, "z": 3}],
+      "flags_clear": ["M1S00_HealthDrink"]
+    },
+    {
+      "name": "FirstAidKit",
+      "model": "AIDKIT_N",
+      "position": [60.54, -0.9, 142.5],
+      "rotation": [0.0, 15.0, 0.0],
+      "zones": [{"x": 1, "z": 3}],
+      "flags_clear": ["M1S00_FirstAidKit"]
+    }
+  ]
+}

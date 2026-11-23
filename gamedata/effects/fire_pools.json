@@ -1,0 +1,253 @@
+{
+  "description": "Fire pools: textured flame sprites around the pool origin (Q12 world position). sprites: [u, v, w, h, tpage, clut, ox, oy] cells of the fire sheets; (ox, oy) is the anchor on the particle. animations: steps [hold, sprite] shown for hold / hold_rate seconds, ending with {\"loop\": step} or {\"stop\": true}. A particle ends on the frame it reaches its stop, but a paused pool keeps it there and draws it every frame: the original read the stop's link as a sprite, so a stop names that sprite (\"sprite\"; the last sprites of the list reproduce those bytes, tpage 0 and sizes far outside the sheet, as on the PS1; omit it to draw nothing). A billboard is sized geom * w / 4 / depth times the particle's scale (Q12); one whose top left corner is left of cull[0] - width, right of cull[1], above cull[2] - height or below cull[3] is not drawn. Behaviours: a fireball falls along its throw until the ground, throws \"embers\" embers, waits land_time and burns (scale times burn_scale); a burn plays Flame from a random step (rand16() / start_divisor), may start its sound, throws a tongue when tongue_sprite shows and a spark when rand16() is 0, and after its time fades by \"fade\" per frame (Q12) for fade_time; embers drift with their speed damped (Q12 factor per frame); tongues, sparks and trails rise until their animation ends; flashes (glow, burst) wait their delay, then play once, fading by \"fade\" per frame after \"wait\" frames. cue: how the scene cues of maps/map7_s03/ending_cues.json throw particles (count = area * rate * time; ring area factor \"area\", brightness (brightness_top - spread) / brightness_divisor; above reseed_above the random generator is reseeded with 0). attached: one flame per bone bone_first..bone_last of the character. Times are Q12 seconds unless said otherwise. Every key is checked. A mod replaces the whole file with its own copy at the same path.",
+  "pools": {
+    "BossFire": {
+      "description": "map7_s03: the Incubus fights and the endings (sh.map.boss_fire_*, the ending cues, the boss's hits, the flames on Harry).",
+      "capacity": 80,
+      "attached_capacity": 400,
+      "origin": [262144, 0, -262144],
+      "hold_rate": 30,
+      "cull": [-160, 160, -160, 112],
+      "sprites": [
+        [0, 0, 48, 64, 54, 4, 24, 44],
+        [48, 0, 48, 64, 54, 4, 24, 44],
+        [96, 0, 48, 64, 54, 4, 24, 44],
+        [144, 0, 48, 64, 54, 4, 24, 44],
+        [192, 0, 48, 64, 54, 4, 24, 44],
+        [0, 64, 48, 64, 54, 4, 24, 44],
+        [48, 64, 48, 64, 54, 4, 24, 44],
+        [96, 64, 48, 64, 54, 4, 24, 44],
+        [144, 64, 48, 64, 54, 4, 24, 44],
+        [192, 64, 48, 64, 54, 4, 24, 44],
+        [0, 128, 48, 64, 54, 4, 24, 44],
+        [48, 128, 48, 64, 54, 4, 24, 44],
+        [96, 128, 48, 64, 54, 4, 24, 44],
+        [144, 128, 48, 64, 54, 4, 24, 44],
+        [192, 128, 48, 64, 54, 4, 24, 44],
+        [0, 0, 64, 64, 57, 7, 32, 32],
+        [64, 0, 64, 64, 57, 7, 32, 32],
+        [128, 0, 64, 64, 57, 7, 32, 32],
+        [192, 0, 63, 64, 57, 7, 32, 32],
+        [0, 64, 64, 64, 57, 7, 32, 32],
+        [64, 64, 64, 64, 57, 7, 32, 32],
+        [128, 64, 64, 64, 57, 7, 32, 32],
+        [192, 64, 63, 64, 57, 7, 32, 32],
+        [0, 0, 64, 96, 55, 5, 32, 96],
+        [64, 0, 64, 96, 55, 5, 32, 96],
+        [128, 0, 64, 96, 55, 5, 32, 96],
+        [192, 0, 63, 96, 55, 5, 32, 96],
+        [0, 96, 64, 96, 55, 5, 32, 96],
+        [64, 96, 64, 96, 55, 5, 32, 96],
+        [128, 96, 64, 96, 55, 5, 32, 96],
+        [192, 96, 63, 96, 55, 5, 32, 96],
+        [0, 0, 32, 96, 56, 6, 16, 96],
+        [32, 0, 32, 96, 56, 6, 16, 96],
+        [64, 0, 32, 96, 56, 6, 16, 96],
+        [96, 0, 32, 96, 56, 6, 16, 96],
+        [128, 0, 32, 96, 56, 6, 16, 96],
+        [160, 0, 32, 96, 56, 6, 16, 96],
+        [192, 0, 32, 96, 56, 6, 16, 96],
+        [224, 0, 31, 96, 56, 6, 16, 96],
+        [0, 96, 32, 96, 56, 6, 16, 96],
+        [32, 96, 32, 96, 56, 6, 16, 96],
+        [64, 96, 32, 96, 56, 6, 16, 96],
+        [96, 96, 32, 96, 56, 6, 16, 96],
+        [128, 96, 32, 96, 56, 6, 16, 96],
+        [160, 96, 32, 96, 56, 6, 16, 96],
+        [192, 96, 32, 96, 56, 6, 16, 96],
+        [224, 96, 31, 96, 56, 6, 16, 96],
+        [0, 160, 32, 64, 56, 6, 16, 64],
+        [32, 160, 32, 64, 56, 6, 16, 64],
+        [64, 160, 32, 64, 56, 6, 16, 64],
+        [96, 160, 32, 64, 56, 6, 16, 64],
+        [128, 160, 32, 64, 56, 6, 16, 64],
+        [160, 160, 32, 64, 56, 6, 16, 64],
+        [192, 160, 32, 64, 56, 6, 16, 64],
+        [224, 160, 31, 64, 56, 6, 16, 64],
+        [0, 192, 32, 60, 55, 5, 16, 60],
+        [32, 192, 32, 60, 55, 5, 16, 60],
+        [64, 192, 32, 60, 55, 5, 16, 60],
+        [96, 192, 32, 60, 55, 5, 16, 60],
+        [0, 0, -16072, -32754, 0, 0, 0, 0],
+        [1, 0, -16312, -32754, 0, 0, 1, 0],
+        [1, 0, -16232, -32754, 0, 0, 1, 0],
+        [1, 0, -16152, -32754, 0, 0, 1, 0],
+        [0, 0, -15108, -32754, 0, 0, 0, 0],
+        [0, 0, -15364, -32754, 0, 0, 0, 0],
+        [0, 0, -15236, -32754, 0, 0, 0, 0]
+      ],
+      "animations": {
+        "Glow": [
+          [0, 15],
+          [0, 16],
+          [0, 17],
+          [0, 18],
+          [0, 19],
+          [0, 20],
+          [0, 21],
+          [0, 22],
+          {"stop": true, "sprite": 59}
+        ],
+        "Burst0": [
+          [1, 0],
+          [1, 1],
+          [1, 2],
+          [1, 3],
+          [4, 4],
+          {"stop": true, "sprite": 60}
+        ],
+        "Burst1": [
+          [1, 5],
+          [1, 6],
+          [1, 7],
+          [1, 8],
+          [4, 9],
+          {"stop": true, "sprite": 61}
+        ],
+        "Burst2": [
+          [1, 10],
+          [1, 11],
+          [1, 12],
+          [1, 13],
+          [4, 14],
+          {"stop": true, "sprite": 62}
+        ],
+        "Spark": [
+          [0, 55],
+          [0, 56],
+          [0, 57],
+          [0, 58],
+          [0, 58],
+          [0, 58],
+          [0, 58],
+          [0, 58],
+          {"stop": true, "sprite": 63}
+        ],
+        "Trail": [
+          [0, 39],
+          [0, 40],
+          [0, 41],
+          [0, 42],
+          [0, 43],
+          [0, 44],
+          [0, 45],
+          [0, 46],
+          {"stop": true, "sprite": 64}
+        ],
+        "Tongue": [
+          [0, 47],
+          [0, 48],
+          [0, 49],
+          [0, 50],
+          [0, 51],
+          [0, 52],
+          [0, 53],
+          [0, 54],
+          {"stop": true, "sprite": 65}
+        ],
+        "Flame": [
+          [0, 23],
+          [0, 24],
+          [0, 25],
+          [0, 26],
+          [0, 27],
+          [0, 28],
+          [0, 29],
+          [0, 30],
+          {"loop": 0}
+        ],
+        "Fireball": [
+          [0, 31],
+          [0, 32],
+          [0, 33],
+          [0, 34],
+          [0, 35],
+          [0, 36],
+          [0, 37],
+          [0, 38],
+          {"loop": 0}
+        ]
+      },
+      "ember": {
+        "animation": "Spark",
+        "speed": 4096,
+        "scale": 8192,
+        "damping": 3276
+      },
+      "tongue": {
+        "animation": "Tongue",
+        "lift": -1024,
+        "rise": -4096
+      },
+      "spark": {
+        "animation": "Spark",
+        "rise": 4096
+      },
+      "trail": {
+        "animation": "Trail",
+        "speed_divisor": 41,
+        "speed_base": 1228
+      },
+      "burn": {
+        "animation": "Flame",
+        "start_divisor": 4096,
+        "sound": "finale_fire_burn",
+        "volume": 255,
+        "tongue_sprite": 28,
+        "fade_time": 2867,
+        "fade": 3686
+      },
+      "fireball": {
+        "animation": "Fireball",
+        "ceiling": 20480,
+        "embers": 5,
+        "land_time": 20480,
+        "burn_time": 20480,
+        "burn_scale": 8192,
+        "trail_sprite": 38
+      },
+      "flash": {
+        "wait": 8,
+        "fade": 10
+      },
+      "glow": {
+        "animation": "Glow",
+        "alpha": 30,
+        "delay": 0,
+        "scale": 10240
+      },
+      "burst": {
+        "animations": [
+          "Burst0",
+          "Burst1",
+          "Burst2"
+        ],
+        "alpha": 128,
+        "pick_divisor": 10923,
+        "count_mask": 80,
+        "count_if_set": 2,
+        "count_if_clear": 3,
+        "delays": [0, 819, 1638],
+        "scales": [8192, 12288, 10240]
+      },
+      "cue": {
+        "tilt": 170,
+        "tilt_speed": 20480,
+        "area": 25734,
+        "brightness": 128,
+        "brightness_top": 40960,
+        "brightness_divisor": 320,
+        "reseed_above": 50
+      },
+      "attached": {
+        "animation": "Flame",
+        "start_divisor": 4096,
+        "bone_first": 1,
+        "bone_last": 17,
+        "scale_divisor": 16,
+        "scale_base": 2048,
+        "alpha": 96
+      }
+    }
+  }
+}

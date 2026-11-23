@@ -1,0 +1,20 @@
+{
+  "format": "sh-text",
+  "version": 1,
+  "lang": "pl",
+  "map": "map2_s04",
+  "strings": {
+    "map2_s04.theres_a_memo_on_the": "Na biurku leży notatka.",
+    "map2_s04.coroner_seals_called": "{color 3}Dzwonił koroner Seals.",
+    "map2_s04.officer_gucci_is_unlikely_to": "{color 3}Funkcjonariusz Gucci raczej\nnie został zamordowany.\nWygląda na śmierć naturalną.",
+    "map2_s04.but_medical_records_show": "{color 3}Jednak według kartoteki\nmedycznej Gucci nie miał\nwcześniej objawów choroby serca.{end}",
+    "map2_s04.theres_something_on_it": "Coś na niej napisano.",
+    "map2_s04.product_only_available_in": "{color 3}Towar dostępny tylko\nw wybranych rejonach Silent Hill.",
+    "map2_s04.raw_material_is_white_claudia": "{color 3}Surowiec to Biała Klaudia,\nroślina typowa dla tych okolic.",
+    "map2_s04.manufactured_here_dealer": "{color 3}Wytwarzany tutaj?\nDiler * producent?{end}",
+    "map2_s04.there_is_a_shopping_district": "{hires}Jest tu\n{color 5}mapa dzielnicy handlowej{/color}.\nZabrać?{choice 4}",
+    "map2_s04.nothing_helpful": "Nic, co by pomogło.{end}",
+    "map2_s04.the_desk_is_messy": "Na biurku panuje bałagan.{end}",
+    "map2_s04.there_is_a_shotgun_take": "Jest tu {color 2}strzelba{/color}.\nZabrać?{choice 4}"
+  }
+}

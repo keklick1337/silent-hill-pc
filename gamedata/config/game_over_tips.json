@@ -1,0 +1,54 @@
+{
+  "format": "sh-game-over-tips",
+  "version": 1,
+  "description": "The tips shown on the game-over screen, at most 16. image: the picture file in TIM/ without extension (TIPS_E01 = TIM/TIPS_E01.TIM). dark: true marks a tip favoured in dark scenes (weight 3 there and 1 in lit ones; tips without it the other way round). The save remembers seen tips as a 16-bit set by position in this list, so keep the order. A mod changes it with a file of the same path in its own folder; objects are merged key by key, so the patch only needs the keys it changes.",
+  "tips": [
+    {
+      "image": "TIPS_E01"
+    },
+    {
+      "image": "TIPS_E02"
+    },
+    {
+      "image": "TIPS_E03"
+    },
+    {
+      "image": "TIPS_E04"
+    },
+    {
+      "image": "TIPS_E05"
+    },
+    {
+      "image": "TIPS_E06"
+    },
+    {
+      "image": "TIPS_E07"
+    },
+    {
+      "image": "TIPS_E08"
+    },
+    {
+      "image": "TIPS_E09"
+    },
+    {
+      "image": "TIPS_E10"
+    },
+    {
+      "image": "TIPS_E11"
+    },
+    {
+      "image": "TIPS_E12"
+    },
+    {
+      "image": "TIPS_E13"
+    },
+    {
+      "image": "TIPS_E14",
+      "dark": true
+    },
+    {
+      "image": "TIPS_E15",
+      "dark": true
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "group": "health",
+  "inventory": {
+    "order": 1,
+    "stack_limit": 100,
+    "command": "UseHealth",
+    "heal": "first_aid_kit",
+    "name_tag": "stock"
+  },
+  "display_tilt": {
+    "x": 45.0
+  },
+  "display_lit": true,
+  "world_model": "AIDKIT_N"
+}

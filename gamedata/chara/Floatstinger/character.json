@@ -1,0 +1,56 @@
+{
+  "description": "Floatstinger: a giant moth, the adult form of the Twinfeeler, fought as a boss in the Otherworld streets of Central Silent Hill.",
+  "category": "Bosses",
+  "maps": ["map4_s05"],
+  "model": "models/CHARA/MTH.glb",
+  "animations": "anim/ANIM/MTH.anim.json",
+  "clip_tables": ["floatstinger"],
+  "textures": ["textures/CHARA/MOTH.png"],
+  "shadow": 0.0,
+  "blend_mode": "additive",
+  "camera_anchor": "character",
+  "camera_offset_y": -2.3,
+  "sounds": {
+    "attack": "floatstinger_attack",
+    "attack_2": "floatstinger_attack_2",
+    "damage": "floatstinger_damage",
+    "death": "floatstinger_death",
+    "vocal": "floatstinger_vocal",
+    "vocal_loop": "floatstinger_vocal_loop"
+  },
+  "params": {
+    "health": 4000.0,
+    "health_hard": 6000.0
+  },
+  "_param_units": {
+    "health": "health points, Q12 on use",
+    "health_hard": "health points, Q12 on use"
+  },
+  "anims": {
+    "still": 0,
+    "sting": 1,
+    "to_hover": 2,
+    "to_stall": 3,
+    "to_landed": 4,
+    "descend": 5,
+    "landed": 6,
+    "landed_idle": 7,
+    "hover_fast_a": 8,
+    "hover": 9,
+    "hover_fast_b": 10,
+    "stall_hold": 11,
+    "spit": 12
+  },
+  "spawn": {
+    "state": 12,
+    "kind": "boss",
+    "auto": "fallback",
+    "note": "its own AI flies to its arena in map5_s01 (the fight position is fixed)"
+  },
+  "harry_reactions": ["Hit", "HeadHit", "Death"],
+  "blood": "Floatstinger",
+  "blood_depth_bias": 96,
+  "enemy": true,
+  "is_boss": true,
+  "acid_attack": "FloatstingerAcid"
+}
