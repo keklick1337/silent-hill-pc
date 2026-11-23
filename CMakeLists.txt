@@ -649,12 +649,6 @@ if(MSVC)
 else()
     target_compile_options(SilentHillPC PRIVATE
         -Wall
-        -Wno-unused-variable
-        -Wno-unused-function
-        -Wno-sign-compare
-        -Wno-missing-braces
-        -Wno-int-to-pointer-cast
-        -Wno-builtin-declaration-mismatch
     )
 endif()
 

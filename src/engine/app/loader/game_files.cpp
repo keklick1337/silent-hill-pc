@@ -73,7 +73,6 @@ FileQueue& queue() {
 
 DiscFiles& table() { return disc_files(); }
 bool file_valid(std::int32_t file) { return file >= 0 && file < table().count(); }
-std::string file_name(std::int32_t file) { return file_valid(file) ? table().name(file) : std::string(); }
 
 // Reads a whole mod file (64 MB cap); empty with the failing step logged.
 std::optional<std::string> slurp(const char* path) {

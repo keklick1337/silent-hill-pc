@@ -234,8 +234,6 @@ std::array<double, 3> to_view(const Camera& c, const std::array<double, 3>& p) {
     return {r[0], r[1], r[2] + c.distance};
 }
 
-const std::vector<anim::Clip>* clips_of(const CharaEntry& e) { return e.anm ? &e.clips : nullptr; }
-
 // The clip's keyframe range: the whole file without a clip.
 void clip_range(const CharaEntry& e, int clip, int* start, int* end) {
     *start = 0;

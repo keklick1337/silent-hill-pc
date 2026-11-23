@@ -239,12 +239,6 @@ Result<void> add_object(dt::ModObjectKind kind, const Vec3& at, std::int32_t yaw
     return Result<void>::ok();
 }
 
-dt::ModObject* find_object(const std::string& id) {
-    for (dt::ModObject& o : st().objects)
-        if (o.id == id) return &o;
-    return nullptr;
-}
-
 std::vector<dt::ModMapObjects> all_maps() {
     State& s = st();
     std::vector<dt::ModMapObjects> maps;
