@@ -6,7 +6,14 @@
 // STATIC: the exe already carries a non-static stb_truetype implementation (ui/stb_truetype_impl.cpp).
 #define STBTT_STATIC
 #define STB_TRUETYPE_IMPLEMENTATION
+#if defined(__GNUC__)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-function"
+#endif
 #include "stb/include/stb_truetype.h"
+#if defined(__GNUC__)
+#pragma GCC diagnostic pop
+#endif
 
 #include <algorithm>
 #include <cmath>

@@ -45,7 +45,10 @@ std::string mini_glb(const std::string& uri) {
     prim.material = 0;
     mesh.primitives.push_back(std::move(prim));
     doc.meshes.push_back(std::move(mesh));
-    doc.nodes.push_back({.name = "n", .mesh = 0});
+    sh::gltf::Node node;
+    node.name = "n";
+    node.mesh = 0;
+    doc.nodes.push_back(std::move(node));
     doc.scene_roots.push_back(0);
     auto glb = sh::gltf::write_glb(doc);
     SH_CHECK(glb);

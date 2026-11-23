@@ -80,7 +80,7 @@ public:
     }
     std::vector<std::uint8_t> alloced_groups;
 
-    GlassShard load(int slot) override { return the_shard; }
+    GlassShard load(int /*slot*/) override { return the_shard; }
     void store(int slot, const GlassShard& shard) override
     {
         stored_slot = slot;

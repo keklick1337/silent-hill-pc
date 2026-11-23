@@ -128,7 +128,7 @@ void load_vars(const std::string& map) {
     const auto active = reg.active();
     for (auto it = active.rbegin(); it != active.rend(); ++it) roots.push_back((*it)->candidate.root);
     roots.push_back(reg.config().base_dir);
-    for (const fs::path rel : {fs::path("maps") / map / "map_vars.json", fs::path("config") / "map_vars.json"}) {
+    for (const fs::path& rel : {fs::path("maps") / map / "map_vars.json", fs::path("config") / "map_vars.json"}) {
         for (const fs::path& root : roots) {
             std::error_code ec;
             if (fs::is_regular_file(root / rel, ec)) dt::read_map_var_rows(read_file(root / rel), s.vars);

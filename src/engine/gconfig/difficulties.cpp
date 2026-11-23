@@ -28,12 +28,12 @@ std::string where(const Value& value, std::string_view what) {
 DifficultyLibrary::DifficultyLibrary() {
     // The original's picker (title.cpp MainMenu_DifficultyTextDraw): EASY/NORMAL/HARD,
     // NORMAL preselected, indices 0..2 mapping to e_GameDifficulty -1/0/+1.
-    entries_.push_back({"EASY", -1, false});
-    entries_.push_back({"NORMAL", 0, true});
-    entries_.push_back({"HARD", 1, false});
+    entries_.push_back({"EASY", -1, false, {}});
+    entries_.push_back({"NORMAL", 0, true, {}});
+    entries_.push_back({"HARD", 1, false, {}});
 }
 
-Result<DifficultyLibrary> DifficultyLibrary::parse(std::string_view text, std::vector<std::string>& warnings) try {
+Result<DifficultyLibrary> DifficultyLibrary::parse(std::string_view text, std::vector<std::string>& /*warnings*/) try {
     const Result<Value> doc = json::parse(text);
     if (!doc) {
         return Result<DifficultyLibrary>::fail("difficulties.json: " + doc.error());

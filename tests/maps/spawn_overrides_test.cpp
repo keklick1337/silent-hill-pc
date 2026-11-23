@@ -218,7 +218,7 @@ SH_TEST(spawn_overrides_mapdata_read) {
 
     // A malformed entry fails the whole read (the store falls back to the disc); it never
     // silently applies half a section. Raw numbers are not difficulties either.
-    for (const std::string broken :
+    for (const std::string& broken :
          {std::string(R"("spawn_overrides":[{"when":{"difficulty":"nightmare"},"set":[]}]}])"),
           std::string(R"("spawn_overrides":[{"when":{"difficulty":0},"set":[]}]}])"),
           std::string(R"("spawn_overrides":[{"when":{},"set":[]}]})")}) {

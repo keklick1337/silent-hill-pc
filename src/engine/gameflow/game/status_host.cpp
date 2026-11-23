@@ -63,7 +63,7 @@ std::string map_name_of(int index) {
     static const int kPerArea[] = {3, 7, 5, 7, 7, 4, 6, 4};
     for (int area = 0; area < 8; ++area) {
         if (index < kPerArea[area]) {
-            char name[16];
+            char name[32];
             std::snprintf(name, sizeof(name), "map%d_s%02d", area, index);
             return name;
         }

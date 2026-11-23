@@ -3,8 +3,10 @@
 #include "framework/sh_test.h"
 #include "render/decals/bullet_hole.h"
 
+#include <algorithm>
 #include <cmath>
 #include <set>
+#include <vector>
 
 namespace {
 
@@ -55,15 +57,15 @@ SH_TEST(bullet_hole_cells_are_holes_that_fade_before_their_edge) {
 SH_TEST(bullet_hole_cells_differ) {
     const std::vector<std::uint8_t> sheet = r::bullet_hole_sheet(0x5348B011u);
     const int n = r::kBulletHoleCell;
-    std::set<std::vector<std::uint8_t>> seen;
+    std::vector<std::vector<std::uint8_t>> seen;
     for (int cell = 0; cell < r::kBulletHoleVariants; ++cell) {
         std::vector<std::uint8_t> alpha;
         for (int y = 0; y < n; ++y) {
             for (int x = 0; x < n; ++x) alpha.push_back(texel(sheet, cell, x, y)[3]);
         }
-        seen.insert(std::move(alpha));
+        SH_CHECK(std::find(seen.begin(), seen.end(), alpha) == seen.end());
+        seen.push_back(std::move(alpha));
     }
-    SH_CHECK(seen.size() == static_cast<std::size_t>(r::kBulletHoleVariants));
 }
 
 SH_TEST(bullet_hole_look_depends_on_the_hit_point_alone) {

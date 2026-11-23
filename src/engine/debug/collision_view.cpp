@@ -611,7 +611,10 @@ std::vector<std::string> CollisionView::describe() const {
     std::vector<std::string> lines;
     char text[160];
     const auto add = [&](const char* format, auto... values) {
-        std::snprintf(text, sizeof(text), format, values...);
+        if constexpr (sizeof...(values) == 0)
+            std::snprintf(text, sizeof(text), "%s", format);
+        else
+            std::snprintf(text, sizeof(text), format, values...);
         lines.emplace_back(text);
     };
     if (!enabled_) {

@@ -54,7 +54,10 @@ template <typename... Args>
 ModelFileIssue issue(int rule, const char* format, Args... args) {
     char text[200];
     const int head = std::snprintf(text, sizeof(text), "V%d: ", rule);
-    std::snprintf(text + head, sizeof(text) - static_cast<std::size_t>(head), format, args...);
+    if constexpr (sizeof...(args) == 0)
+        std::snprintf(text + head, sizeof(text) - static_cast<std::size_t>(head), "%s", format);
+    else
+        std::snprintf(text + head, sizeof(text) - static_cast<std::size_t>(head), format, args...);
     return {rule, text};
 }
 

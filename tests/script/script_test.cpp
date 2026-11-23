@@ -531,7 +531,7 @@ SH_TEST(api_state_names) {
                 g->play[0] = slot; g->play[1] = state;
                 g->calls++;
             };
-            a.event_waypoint_player = [](int state, int count, int inc) {
+            a.event_waypoint_player = [](int state, int count, int /*inc*/) {
                 States* g = self();
                 g->way[0] = state; g->way[1] = count;
                 g->calls++;
@@ -582,7 +582,6 @@ SH_TEST(api_v3_2_event_steppers) {
         }
         sh::script::GameApi api() {
             sh::script::GameApi a;  // only the binds under test
-            auto* g = this;
             a.event_msg = [](int has, int idx, int s0, int s1, int s2, int inc) {
                 Steppers* g = self();
                 g->msg[0] = has; g->msg[1] = idx; g->msg[2] = s0; g->msg[3] = s1;

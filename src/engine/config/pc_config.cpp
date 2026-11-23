@@ -252,7 +252,10 @@ const Setting* find_setting(std::string_view key) {
 
 char* scheme_slot(s_PcConfig& c, std::string_view key, int scheme) {
     for (const sh::config::SchemeBind& b : sh::config::kSchemeBinds) {
-        if (b.key == key) return (scheme != 0 ? c.altcam : c.classic).*b.slot;
+        if (b.key == key) {
+            ControlScheme& s = scheme != 0 ? c.altcam : c.classic;
+            return s.*b.slot;
+        }
     }
     return nullptr;
 }

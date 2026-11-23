@@ -84,8 +84,13 @@ private:
 };
 
 std::vector<std::uint8_t> solid(int w, int h, std::uint8_t r, std::uint8_t g, std::uint8_t b, std::uint8_t a) {
-    std::vector<std::uint8_t> px;
-    for (int i = 0; i < w * h; ++i) px.insert(px.end(), {r, g, b, a});
+    std::vector<std::uint8_t> px(static_cast<std::size_t>(w * h) * 4);
+    for (std::size_t i = 0; i < px.size(); i += 4) {
+        px[i] = r;
+        px[i + 1] = g;
+        px[i + 2] = b;
+        px[i + 3] = a;
+    }
     return px;
 }
 

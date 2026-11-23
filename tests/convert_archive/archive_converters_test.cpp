@@ -70,11 +70,11 @@ SH_TEST(DemoConverterRoundTrip) {
         const auto back = conv->encode(out.value());
         SH_CHECK(back && back.value() == state);
     }
-    Bytes play;
+    Bytes play(4 * 16);
     for (int f = 0; f < 4; ++f) {
         const std::uint8_t frame[16] = {0, 0x73, 0xFF, static_cast<std::uint8_t>(0xFF - f), 0x7F, 0x6F, 0x81, 0x74,
                                         0x0B, 1, 0x2C, 0x2C, static_cast<std::uint8_t>(f), 0x1E, 0, 0x80};
-        play.insert(play.end(), frame, frame + 16);
+        std::copy(frame, frame + 16, play.begin() + f * 16);
     }
     SH_CHECK(conv->accepts(play, "MISC/PLAY0001.DAT"));
     out = conv->decode(play, "MISC/PLAY0001.DAT");

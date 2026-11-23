@@ -90,7 +90,7 @@ public:
         p.shade = {(code & 2) != 0, (code & 1) != 0};
         for (int i = 0; i < 4; i++) {
             const std::uint32_t c = q.color[i];
-            p.v[i].xy = {q.x[i], q.y[i]};
+            p.v[i].xy = {static_cast<std::int16_t>(q.x[i]), static_cast<std::int16_t>(q.y[i])};
             p.v[i].color = {static_cast<std::uint8_t>(c), static_cast<std::uint8_t>(c >> 8),
                             static_cast<std::uint8_t>(c >> 16)};
         }

@@ -394,9 +394,7 @@ SH_TEST(mapdata_unified_round_trip) {
     std::vector<std::string> warnings;
     const sh::Result<void> read = md::read_unified_json(scene, l, back, warnings);
     SH_CHECK(read);
-    for (const std::string& w : warnings) {
-        SH_CHECK(!"unexpected warning");
-    }
+    SH_CHECK(warnings.empty());
 
     std::vector<std::uint8_t> a = blank_overlay(l);
     std::vector<std::uint8_t> b = blank_overlay(l);

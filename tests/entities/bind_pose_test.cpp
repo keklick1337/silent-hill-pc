@@ -21,7 +21,7 @@ SH_TEST(bind_pose_links_bones_and_fills_static_parts) {
     std::memcpy(file + 0x14 + 12, bone2, 6);
 
     BoneCoord bones[3];
-    std::memset(bones, 0x55, sizeof bones);
+    std::memset(static_cast<void*>(bones), 0x55, sizeof bones);
     bind_pose_init(file, bones);
 
     SH_CHECK(bones[0].world_current == 1 && bones[0].parent == nullptr && bones[0].local.m[1][1] == 4096 &&
@@ -35,7 +35,7 @@ SH_TEST(bind_pose_links_bones_and_fills_static_parts) {
 
 SH_TEST(bind_pose_without_file_sets_only_the_root) {
     BoneCoord bones[2];
-    std::memset(bones, 0x55, sizeof bones);
+    std::memset(static_cast<void*>(bones), 0x55, sizeof bones);
     bind_pose_init(nullptr, bones);
     SH_CHECK(bones[0].world_current == 1 && bones[0].local.m[2][2] == 4096);
     SH_CHECK(bones[1].world_current == 0x55555555u);
