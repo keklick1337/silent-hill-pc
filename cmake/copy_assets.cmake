@@ -8,6 +8,9 @@
 #                    run-time files itself (the sources and scripts stay in the repository).
 # Globbed at build time, so a new entry added to assets/ is deployed without a reconfigure.
 
+# A -P script starts without the policies of the project; IN_LIST needs CMP0057 (CMake before 4.0 leaves it OLD).
+cmake_policy(VERSION 3.16)
+
 file(GLOB ASSET_ENTRIES RELATIVE "${SRC_DIR}" "${SRC_DIR}/*")
 set(ASSET_SKIP config.cfg res icon linux)
 
