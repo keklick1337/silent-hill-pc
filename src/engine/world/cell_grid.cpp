@@ -162,7 +162,7 @@ void OutdoorCells::classify(const CellGrid& grid, std::span<const CellCoord> par
     if (!room_at)
         return;
 
-    std::array<std::array<std::uint8_t, 5>, outdoor_.size()> sampled{};
+    std::array<std::array<std::uint8_t, 5>, kCellCount> sampled{};
     grid.for_each_cell([&](CellCoord cell) {
         std::array<std::uint8_t, 5>& rooms = sampled[cell_index(cell)];
         const std::int32_t centre_x = cell.x * kCellSize + kCellSize / 2;

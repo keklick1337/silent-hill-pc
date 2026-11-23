@@ -142,7 +142,9 @@ public:
     bool room_partial(std::uint8_t room) const { return partial_[room] != 0; }
 
 private:
-    std::array<std::uint8_t, (CellGrid::kEndX - CellGrid::kMinX) * (CellGrid::kEndZ - CellGrid::kMinZ)> outdoor_{};
+    static constexpr std::size_t kCellCount = (CellGrid::kEndX - CellGrid::kMinX) * (CellGrid::kEndZ - CellGrid::kMinZ);
+
+    std::array<std::uint8_t, kCellCount> outdoor_{};
     std::array<std::uint16_t, 256> room_cells_{};
     std::array<std::uint8_t, 256> partial_{};
     std::int32_t count_ = 0;
