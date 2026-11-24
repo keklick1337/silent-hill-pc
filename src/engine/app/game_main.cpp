@@ -23,6 +23,7 @@
 #include "engine/app/command_script.h"
 #include "engine/app/control_scheme.h"
 #include "engine/app/dialog.h"
+#include "engine/app/app_bundle.h"
 #include "engine/app/first_run/first_run.h"
 #include "engine/app/quick_setup/hardware_probe.h"
 #include "engine/app/quick_setup/quick_setup.h"
@@ -39,6 +40,7 @@
 #include "engine/crash/crash_handler.h"
 #include "engine/debug/overlay/debug_overlay.h"
 #include "engine/desktop/desktop_entry.h"
+#include "engine/desktop/video_driver.h"
 #include "engine/desktop/window_icon.h"
 #include "engine/game_state/game_state_app.h"
 #include "engine/ids/game_numbers.h"
@@ -735,6 +737,8 @@ int main(int argc, char* argv[]) {
     // The restart hook first, so it runs last of all at exit. The manifest root before anything logs: the log
     // file's name and the disc names come from gamedata/game.json.
     sh::app::remember_command_line(argc, argv);
+    // Before any path: started from a macOS bundle, the root moves to the user's Application Support.
+    sh::app::use_bundle_root();
     sh::mods::set_restart_handler(sh::app::restart);
     MapManifest_SetRoot(PcPaths_ExeDir());
     ShLog_Init();
@@ -768,6 +772,7 @@ int main(int argc, char* argv[]) {
     }
     // Before any window: the window class and the Wayland app id the desktop entry is matched by.
     sh::desktop::set_app_identity(std::string(sh::version::kText).c_str());
+    sh::desktop::prepare_video_driver();
 
     const std::string config = find_config();
     PcConfig_Load(config.c_str());

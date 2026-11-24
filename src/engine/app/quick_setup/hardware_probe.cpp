@@ -33,6 +33,10 @@ void probe_gl(Hardware& hw) {
             if (vendor && hw.gl_renderer.find(reinterpret_cast<const char*>(vendor)) == std::string::npos)
                 hw.gl_renderer += std::string(" (") + reinterpret_cast<const char*>(vendor) + ")";
             hw.gl_software = sh::gpu::is_software_adapter(hw.gl_renderer);
+#ifdef __APPLE__
+            // Apple froze OpenGL at 4.1 and runs it over Metal; MoltenVK is the closer path to the GPU.
+            hw.gl_legacy = true;
+#endif
         }
         SDL_GL_DestroyContext(context);
     }
@@ -84,9 +88,9 @@ Hardware probe_hardware() {
 
 std::string describe(const Hardware& hw) {
     char text[768];
-    std::snprintf(text, sizeof text, "OpenGL %s%s; Vulkan %s (%s, %llu MiB, ray tracing %s)%s%s",
+    std::snprintf(text, sizeof text, "OpenGL %s%s%s; Vulkan %s (%s, %llu MiB, ray tracing %s)%s%s",
                   hw.gl ? hw.gl_renderer.c_str() : "none", hw.gl_software ? " [CPU]" : "",
-                  hw.vulkan ? hw.gpu_name.c_str() : "none", kind_name(hw.kind),
+                  hw.gl_legacy ? " [legacy]" : "", hw.vulkan ? hw.gpu_name.c_str() : "none", kind_name(hw.kind),
                   static_cast<unsigned long long>(hw.vram_bytes >> 20), hw.ray_tracing ? "yes" : "no",
                   hw.vulkan_error.empty() ? "" : ": ", hw.vulkan_error.c_str());
     return text;

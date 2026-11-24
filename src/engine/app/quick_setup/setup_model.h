@@ -20,6 +20,8 @@ enum class GpuKind { None, Cpu, Integrated, Discrete, Other };
 struct Hardware {
     bool gl = false;           // an OpenGL 3.3 context could be made
     bool gl_software = false;  // ...and it draws on the CPU (llvmpipe and the like)
+    bool gl_legacy = false;    // ...through the system's frozen OpenGL layer (macOS: 4.1 over Metal), Vulkan the better
+                               // path where there is one
     std::string gl_renderer;   // GL_RENDERER
     bool vulkan = false;       // a Vulkan device the game's Vulkan renderer accepts
     std::string vulkan_error;  // why not, when it is not
@@ -51,8 +53,8 @@ enum class Availability {
 Availability renderer_availability(const Hardware& hw, Renderer renderer);
 Availability preset_availability(const Hardware& hw, Renderer renderer, const Preset& preset);
 
-// The renderer that fits the hardware: Vulkan on a discrete GPU that has it, OpenGL (close to the original and the
-// lightest) everywhere else.
+// The renderer that fits the hardware: Vulkan on a discrete GPU that has it and wherever the system's OpenGL is a
+// legacy layer (macOS), OpenGL (close to the original and the lightest) everywhere else.
 Renderer recommend_renderer(const Hardware& hw);
 
 // The preset that fits the hardware on `renderer`: a CPU renderer gets original, an integrated GPU enhanced, a

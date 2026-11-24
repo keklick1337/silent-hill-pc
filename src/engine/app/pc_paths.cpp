@@ -5,8 +5,45 @@
 #include <stdio.h>
 #include <string.h>
 
+#ifdef __APPLE__
+#include <mach-o/dyld.h>
+#include <limits.h>
+#include <stdlib.h>
+#endif
 
 static char s_ExeDir[1024];
+static char s_BinDir[1024];
+static char s_ResourceDir[1024];
+
+void PcPaths_SetRoot(const char* root, const char* resources) {
+    snprintf(s_ExeDir, sizeof(s_ExeDir), "%s", root ? root : "");
+    snprintf(s_ResourceDir, sizeof(s_ResourceDir), "%s", resources ? resources : "");
+}
+
+const char* PcPaths_BinDir(void) {
+    if (s_BinDir[0] == '\0') {
+#ifdef __APPLE__
+        /* In a bundle SDL_GetBasePath answers Contents/Resources/: ask for the executable itself. */
+        char path[1024];
+        uint32_t size = sizeof(path);
+        char real[PATH_MAX];
+        if (_NSGetExecutablePath(path, &size) == 0 && realpath(path, real) != NULL) {
+            char* slash = strrchr(real, '/');
+            if (slash != NULL) {
+                slash[1] = '\0';
+                snprintf(s_BinDir, sizeof(s_BinDir), "%s", real);
+            }
+        }
+#endif
+        if (s_BinDir[0] == '\0') {
+            const char* base = SDL_GetBasePath();
+            snprintf(s_BinDir, sizeof(s_BinDir), "%s", base != NULL && strlen(base) < sizeof(s_BinDir) ? base : "./");
+        }
+    }
+    return s_BinDir;
+}
+
+const char* PcPaths_ResourceDir(void) { return s_ResourceDir[0] != '\0' ? s_ResourceDir : PcPaths_ExeDir(); }
 
 const char* PcPaths_ExeDir(void)
 {

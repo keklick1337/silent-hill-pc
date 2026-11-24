@@ -115,6 +115,7 @@ Notes:
 - `map_sweep.sh` refuses to import into a build directory that already has a `gamedata/`; give it one with `-d`.
 - Game runs can go in parallel (`-j 8`); keep them silent and off the screen with the three variables above.
 - A change of CMake or of platform code also needs the mingw build ([BUILDING.md](BUILDING.md), section 2); `tools/ci/local_ci.sh` builds both platforms as the workflows do (section 5).
+- On macOS the scripts need GNU coreutils and a current bash first in `PATH` ([BUILDING.md](BUILDING.md), section 3.1); the game steps run in hidden Cocoa windows. The *Build macOS* workflow builds and tests the macOS package; `local_ci.sh` does not cover it.
 - Work files belong in `.tmp/` (ignored by git).
 - `assets/config.cfg` explains every key the game accepts; the unit test `tests/gconfig/config_reference_test.cpp` fails when a key is read by the game and missing there, or set there and not read. A removed key goes into `src/engine/config/retired_keys.cpp`.
 - Writing unit tests, the recorded tables of `tests/data/`, the smoke test and the frame-rate independence test: [TESTING.md](TESTING.md). A test holds no second implementation of a rule to compare the engine with: it compares with a recorded table and states the rule in words.

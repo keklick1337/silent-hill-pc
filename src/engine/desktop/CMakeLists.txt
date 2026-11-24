@@ -10,7 +10,7 @@ set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS
 configure_file(desktop_entry_template.h.in
     "${CMAKE_BINARY_DIR}/generated/engine/desktop/desktop_entry_template.h" @ONLY)
 
-add_library(sh_desktop STATIC desktop_entry.cpp window_icon.cpp)
+add_library(sh_desktop STATIC desktop_entry.cpp video_driver.cpp window_icon.cpp)
 target_compile_features(sh_desktop PUBLIC cxx_std_20)
 target_include_directories(sh_desktop PUBLIC ${PROJECT_SOURCE_DIR}/src PRIVATE "${CMAKE_BINARY_DIR}/generated")
 target_link_libraries(sh_desktop PUBLIC sh_common PRIVATE sh_png ${SH_SDL3_TARGET})

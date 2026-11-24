@@ -36,4 +36,4 @@ add_library(sh_gpu STATIC ${SH_GPU_SOURCES} ${_gpu_shader_sources})
 target_compile_features(sh_gpu PUBLIC cxx_std_20)
 target_include_directories(sh_gpu PUBLIC ${PROJECT_SOURCE_DIR}/src)
 target_link_libraries(sh_gpu PUBLIC sh_rhi sh_rhi_gl sh_scene sh_frame sh_draw2d sh_draw3d sh_shaderstate sh_post sh_present sh_feedback
-                      sh_offscreen sh_override_tex sh_log)
+                      sh_offscreen sh_override_tex sh_log sh_desktop)

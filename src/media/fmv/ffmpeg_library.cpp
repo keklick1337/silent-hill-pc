@@ -3,6 +3,7 @@
 
 #if defined(SH_FMV_FFMPEG)
 
+#include "engine/app/pc_paths.h"
 #include "engine/loader/shared_library.h"
 #include "engine/log/sh_log.h"
 
@@ -67,7 +68,7 @@ sh::loader::SharedLibrary open_library(Library library, int major) {
     const std::vector<std::string> names = file_names(library, major);
     // The project's own build lies beside the exe and wins over a system FFmpeg of the same major. On Linux a
     // bare name never looks there, so that file is opened by its full path.
-    if (const char* exe_folder = SDL_GetBasePath(); exe_folder != nullptr && exe_folder[0] != '\0') {
+    if (const char* exe_folder = PcPaths_BinDir(); exe_folder != nullptr && exe_folder[0] != '\0') {
         const std::string beside = std::string(exe_folder) + names.front();
         if (std::FILE* file = std::fopen(beside.c_str(), "rb")) {
             std::fclose(file);

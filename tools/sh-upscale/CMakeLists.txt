@@ -26,6 +26,10 @@ set_target_properties(sh-upscale PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${PROJECT_
 target_link_libraries(sh-upscale PRIVATE sh_upscale_tool sh_png ncnn)
 target_compile_options(sh-upscale PRIVATE
     $<$<OR:$<CXX_COMPILER_ID:GNU>,$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>>:-Wall -Wextra -Wpedantic>)
+if(APPLE)
+    # ncnn calls vkGetInstanceProcAddr directly on Apple; MoltenVK is opened at run time (vulkan_loader_apple.cpp).
+    target_sources(sh-upscale PRIVATE vulkan_loader_apple.cpp)
+endif()
 if(MINGW)
     # The tool carries its runtime: it runs beside the game without the MinGW DLLs.
     target_link_options(sh-upscale PRIVATE -static)

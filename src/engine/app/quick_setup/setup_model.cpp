@@ -53,7 +53,8 @@ Availability preset_availability(const Hardware& hw, Renderer renderer, const Pr
 }
 
 Renderer recommend_renderer(const Hardware& hw) {
-    if (renderer_availability(hw, Renderer::Vulkan) == Availability::Available && hw.kind == GpuKind::Discrete)
+    if (renderer_availability(hw, Renderer::Vulkan) == Availability::Available &&
+        (hw.kind == GpuKind::Discrete || hw.gl_legacy))
         return Renderer::Vulkan;
     return Renderer::Gl;
 }

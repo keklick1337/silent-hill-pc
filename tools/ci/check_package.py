@@ -3,17 +3,17 @@
 
 The set of libraries a package needs is read from the binaries themselves, not from a list kept by hand: every
 executable and library in the package is opened, its imports are followed (the PE import and delay-import tables on
-Windows, DT_NEEDED on Linux), and each imported library must either be in the package or belong to the operating
-system. tools/ci/package.sh uses the same walk to decide what to copy, and runs the full check on the archive it
+Windows, DT_NEEDED on Linux, the load commands of a Mach-O file on macOS), and each imported library must either be in
+the package or belong to the operating system. tools/ci/package.sh uses the same walk to decide what to copy, and runs the full check on the archive it
 has written.
 
-  check_package.py missing <dir> <linux|windows>
+  check_package.py missing <dir> <linux|windows|macos>
       print the libraries the binaries of <dir> import that are neither in <dir> nor the system's, one per line
       ("<library>\t<imported by>")
 
-  check_package.py check <archive or dir> <linux|windows> [--run]
+  check_package.py check <archive or dir> <linux|windows|macos> [--run]
       the full check: required files, no disc-derived content, the import walk, on Linux run paths that are
-      $ORIGIN only. --run also starts the game from the unpacked package with --version and --help (Windows:
+      $ORIGIN only, on macOS libraries of the package named by @loader_path or @executable_path only. --run also starts the game from the unpacked package with --version and --help (Windows:
       under wine) in a directory that holds nothing else. Exit code 0 only when everything holds.
 """
 
@@ -44,6 +44,12 @@ LINUX_SYSTEM = re.compile(
     r"^(ld-linux-x86-64\.so\.2|lib(c|m|dl|pthread|rt|util|resolv)\.so\.\d+|libgcc_s\.so\.1|libstdc\+\+\.so\.6"
     r"|lib(GL|OpenGL|GLX|EGL|GLdispatch)\.so\.\d+)$")
 
+# macOS: the system's own libraries and frameworks. Anything else (Homebrew's /opt/homebrew, /usr/local) is not on a
+# user's Mac.
+MACOS_SYSTEM = re.compile(r"^(/usr/lib/|/System/Library/)")
+MACOS_RELATIVE = ("@loader_path/", "@executable_path/")
+MACHO_MAGICS = {b"\xcf\xfa\xed\xfe", b"\xce\xfa\xed\xfe", b"\xca\xfe\xba\xbe", b"\xfe\xed\xfa\xcf"}
+
 # What the first run writes into gamedata/ from a disc image, and the formats of the disc: never in a package.
 FORBIDDEN_PATHS = ("gamedata/raw", "gamedata/convert", "gamedata/tables", "gamedata/version.cfg", "gamedata/save",
                    "gamedata.legacy", "data", "logs", ".savegames")
@@ -58,7 +64,9 @@ REQUIRED = {
     "windows": ["SilentHillPC.exe", "sh-import.exe", "sh-upscale.exe", "software_gl/opengl32.dll",
                 "licenses/LICENSE-Mesa-MIT.txt"],
     "linux": ["SilentHillPC", "sh-import", "sh-upscale", "install-desktop.sh", "silent-hill-pc.desktop.in"],
+    "macos": ["SilentHillPC", "sh-import", "sh-upscale", "libMoltenVK.dylib", "licenses/LICENSE-MoltenVK.txt"],
 }
+PLATFORMS = ("linux", "windows", "macos")
 
 
 def fail(message):
@@ -124,6 +132,27 @@ def elf_dynamic(path):
     return needed, run_paths
 
 
+def macho_dynamic(path):
+    """(imported install names, run path entries) of a Mach-O file, or None when it is not one."""
+    with open(path, "rb") as f:
+        if f.read(4) not in MACHO_MAGICS:
+            return None
+    # -L lists the file's own id first for a library; -D prints that id alone, so it can be left out.
+    listed = subprocess.run(["otool", "-L", path], capture_output=True, text=True, check=False).stdout
+    own = subprocess.run(["otool", "-D", path], capture_output=True, text=True, check=False).stdout.splitlines()[1:]
+    needed = []
+    for line in listed.splitlines()[1:]:
+        # A universal file repeats the list under a "<path> (architecture <cpu>):" line per architecture.
+        if line.rstrip().endswith(":"):
+            continue
+        name = line.strip().split(" (compatibility version")[0]
+        if name and name not in own and name not in needed:
+            needed.append(name)
+    commands = subprocess.run(["otool", "-l", path], capture_output=True, text=True, check=False).stdout
+    run_paths = re.findall(r"cmd LC_RPATH\n\s+cmdsize \d+\n\s+path (.*?) \(offset", commands)
+    return needed, run_paths
+
+
 def binaries(root, platform):
     """Every executable and library of the package: (path, imported names, run paths)."""
     found = []
@@ -140,7 +169,7 @@ def binaries(root, platform):
                     fail(f"{os.path.relpath(path, root)} is not a PE file")
                 found.append((path, imports, []))
             else:
-                dynamic = elf_dynamic(path)
+                dynamic = macho_dynamic(path) if platform == "macos" else elf_dynamic(path)
                 if dynamic is not None:
                     found.append((path, dynamic[0], dynamic[1]))
     return found
@@ -151,7 +180,21 @@ def is_system(name, platform):
         base = name.lower()
         base = base[:-4] if base.endswith(".dll") else base
         return base in WINDOWS_SYSTEM or base.startswith(WINDOWS_SYSTEM_PREFIXES)
+    if platform == "macos":
+        return bool(MACOS_SYSTEM.match(name))
     return bool(LINUX_SYSTEM.match(name))
+
+
+def library_file(name, platform):
+    """The file name a binary looks for: a Mach-O import is an install name, found in the package only when it is
+    relative to the binary (an absolute path of the build machine is not on the user's Mac, a run path is not
+    checked here)."""
+    if platform != "macos":
+        return name
+    for prefix in MACOS_RELATIVE:
+        if name.startswith(prefix) and "/" not in name[len(prefix):]:
+            return name[len(prefix):]
+    return None
 
 
 def missing_imports(root, platform):
@@ -164,7 +207,10 @@ def missing_imports(root, platform):
     missing = []
     for path, imports, _ in found:
         for name in imports:
-            if (os.path.dirname(path), key(name)) in have or is_system(name, platform):
+            if is_system(name, platform):
+                continue
+            file = library_file(name, platform)
+            if file is not None and (os.path.dirname(path), key(file)) in have:
                 continue
             missing.append((name, os.path.relpath(path, root)))
     return missing
@@ -199,7 +245,8 @@ def run_smoke(root, platform):
         env.setdefault("WINEDEBUG", "-all")
     else:
         # Only what the package brings and the system has: no library path of the build machine.
-        env.pop("LD_LIBRARY_PATH", None)
+        for name in ("LD_LIBRARY_PATH", "DYLD_LIBRARY_PATH", "DYLD_FALLBACK_LIBRARY_PATH", "DYLD_FRAMEWORK_PATH"):
+            env.pop(name, None)
     for option in ("--version", "--help"):
         result = subprocess.run(command + [option], cwd=root, env=env, capture_output=True, text=True, timeout=300,
                                 check=False)
@@ -235,8 +282,16 @@ def check(target, platform, run):
             errors.append(f"{importer} imports {name}, which is neither in the package nor a system library")
         for path, _, run_paths in found:
             for entry in run_paths:
-                if entry != "$ORIGIN" and not entry.startswith("$ORIGIN/"):
+                if platform == "macos":
+                    if not entry.startswith(MACOS_RELATIVE) and entry not in ("@loader_path", "@executable_path"):
+                        errors.append(f"{os.path.relpath(path, root)} has the run path {entry} (only @loader_path or "
+                                      "@executable_path may be there)")
+                elif entry != "$ORIGIN" and not entry.startswith("$ORIGIN/"):
                     errors.append(f"{os.path.relpath(path, root)} has the run path {entry} (only $ORIGIN may be there)")
+        if platform == "macos":
+            for path, _, _ in found:
+                if not os.path.basename(path).endswith(".dylib") and not os.access(path, os.X_OK):
+                    errors.append(f"{os.path.relpath(path, root)} is not executable")
         if platform == "linux":
             # A run path is not inherited: every binary that asks for a library of the package must itself say
             # $ORIGIN, or the loader takes the system's library of that name (or none).
@@ -268,11 +323,11 @@ def check(target, platform, run):
 
 
 def main(argv):
-    if len(argv) >= 4 and argv[1] == "missing" and argv[3] in ("linux", "windows"):
+    if len(argv) >= 4 and argv[1] == "missing" and argv[3] in PLATFORMS:
         for name, importer in missing_imports(argv[2], argv[3]):
             print(f"{name}\t{importer}")
         return
-    if len(argv) >= 4 and argv[1] == "check" and argv[3] in ("linux", "windows"):
+    if len(argv) >= 4 and argv[1] == "check" and argv[3] in PLATFORMS:
         check(argv[2], argv[3], "--run" in argv[4:])
         return
     sys.stderr.write(__doc__)

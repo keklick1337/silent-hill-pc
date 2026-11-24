@@ -4,7 +4,7 @@ Thank you for wanting to help. Contributions of every size are welcome: a fixed 
 
 ## Getting started
 
-1. **Build it.** Linux builds natively; Windows is cross-compiled on Linux. Everything is in [docs/BUILDING.md](docs/BUILDING.md).
+1. **Build it.** Linux and macOS build natively; Windows is cross-compiled on Linux. Everything is in [docs/BUILDING.md](docs/BUILDING.md).
 2. **Run it** with your own disc image of Silent Hill (NTSC USA v1.1, `SLUS-007.07`): the first start imports it ([README.md](README.md#first-start)). Without an image you can still build, run the unit tests and the static checks.
 3. **Read** [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) (layers, modules, where each subsystem lives) and, for graphics, [docs/RENDER.md](docs/RENDER.md). Mods and data: [docs/modding/](docs/modding/README.md).
 4. **Pick something.** Look at the [issues](https://github.com/keklick1337/silent-hill-pc/issues); a difference from the original game, a crash with its log, or a missing translation are all good first contributions. For a larger change, open an issue first so we can agree on the approach.
@@ -31,7 +31,7 @@ These are few, but firm. They exist so the project can stay public and so the ga
 
 ## Checks
 
-Before you open a pull request, run the checks of [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md), section 4. Without a disc image that is the build, the unit tests and the static checks; `tools/ci/gate.sh -b build` runs them. With an imported game, also the replay check, the map sweep and the map scenarios (`tools/ci/gate.sh -b build -i <image.cue>`). A change of CMake or of platform code also needs the Windows cross-build.
+Before you open a pull request, run the checks of [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md), section 4. Without a disc image that is the build, the unit tests and the static checks; `tools/ci/gate.sh -b build` runs them. With an imported game, also the replay check, the map sweep and the map scenarios (`tools/ci/gate.sh -b build -i <image.cue>`). A change of CMake or of platform code also needs the Windows cross-build, and the *Build macOS* workflow must pass.
 
 ## Commits and pull requests
 

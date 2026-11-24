@@ -1,6 +1,6 @@
 name: Release
 
-# A pushed v* tag builds both packages and publishes them as a GitHub Release.
+# A pushed v* tag builds the three packages and publishes them as a GitHub Release.
 # The packages hold only engine binaries, the repository's base data and the
 # licenses: the game imports the user's own disc image at first run. The example
 # mods are published beside them as their own archive.
@@ -33,6 +33,14 @@ jobs:
     with:
       version: ${{ github.ref_name }}
 
+  macos:
+    needs: version
+    uses: ./.github/workflows/build-macos.yml
+    with:
+      version: ${{ github.ref_name }}
+    # The optional Developer ID certificate and notarization login (build-macos.yml).
+    secrets: inherit
+
   mods:
     needs: version
     uses: ./.github/workflows/example-mods.yml
@@ -40,7 +48,7 @@ jobs:
       version: ${{ github.ref_name }}
 
   publish:
-    needs: [linux, windows, mods]
+    needs: [linux, windows, macos, mods]
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/download-artifact@v4
@@ -59,3 +67,4 @@ jobs:
           files: |
             dist/*.tar.gz
             dist/*.zip
+            dist/*.dmg

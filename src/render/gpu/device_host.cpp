@@ -1,5 +1,6 @@
 #include "render/gpu/device_host.h"
 
+#include "engine/desktop/video_driver.h"
 #include "engine/log/sh_log.h"
 #include "render/gpu/renderer.h"
 #include "render/rhi/rhi_gl.h"
@@ -126,7 +127,7 @@ std::uint64_t window_flags(const DeviceParams& params) {
     // SDL3: FULLSCREEN alone is borderless desktop fullscreen; exclusive is a display mode set on top of it.
     if (params.fullscreen != FullscreenMode::Windowed || params.width <= 0 || params.height <= 0)
         flags |= SDL_WINDOW_FULLSCREEN;
-    return flags;
+    return flags | sh::desktop::hidden_window_flag();
 }
 
 std::unique_ptr<DeviceHost> DeviceHost::create(const InitParams& params) { return create(device_params(params)); }
@@ -174,7 +175,7 @@ bool DeviceHost::open_window(std::uint64_t flags) {
         if (SDL_GetClosestFullscreenDisplayMode(display, p.width, p.height, 0.0f, false, &mode))
             SDL_SetWindowFullscreenMode(window_, &mode);
     }
-    if (p.raise) {
+    if (p.raise && sh::desktop::hidden_window_flag() == 0) {
         // The program that spawned the game (a shell, a file manager, the previous process on restart) may keep
         // keyboard focus: the first key press would land there instead of skipping the intro.
         SDL_ShowWindow(window_);
@@ -255,6 +256,10 @@ bool DeviceHost::init_vulkan_native() {
     // backend renders into images of its own, and the screenshot reads them back as on a real window.
     const char* video = SDL_GetCurrentVideoDriver();
     const bool surfaceless = video && std::strcmp(video, "offscreen") == 0;
+    if (!rhi::loadVulkanLibrary()) {
+        SH_WARN("[GPU] renderer = vulkan: no Vulkan library (MoltenVK); trying the SDL3 GPU device");
+        return false;
+    }
     std::uint64_t flags = window_flags(params_);
     if (!surfaceless) flags |= SDL_WINDOW_VULKAN;
     if (!open_window(flags)) {

@@ -50,7 +50,8 @@ fi
 
 mkdir -p "$BUILD_DIR" "$PREFIX"
 echo "ncnn: configure ($BUILD_DIR)"
-cmake -G Ninja -S "$SRC_DIR/ncnn" -B "$BUILD_DIR" "${CMAKE_FLAGS[@]}" \
+# The guard keeps an empty list (a native build) usable under set -u in bash 3.2, the system bash of macOS.
+cmake -G Ninja -S "$SRC_DIR/ncnn" -B "$BUILD_DIR" ${CMAKE_FLAGS[@]+"${CMAKE_FLAGS[@]}"} \
     -DCMAKE_BUILD_TYPE=Release \
     -DCMAKE_INSTALL_PREFIX="$PREFIX" -DCMAKE_INSTALL_LIBDIR=lib \
     -DCMAKE_POSITION_INDEPENDENT_CODE=ON \

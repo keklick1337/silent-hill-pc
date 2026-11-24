@@ -47,7 +47,7 @@ prepare_source() {  # job
     git -C "$ROOT" bundle create --quiet "$OUT/$1.bundle" HEAD --tags 2>/dev/null \
         || git -C "$ROOT" bundle create --quiet "$OUT/$1.bundle" HEAD
     (cd "$ROOT" && git ls-files -z -co --exclude-standard | xargs -0 -r sh -c 'for f; do [ -e "$f" ] && printf "%s\0" "$f"; done' _ \
-        | tar --null -cf "$OUT/$1.tar" -T -)
+        | COPYFILE_DISABLE=1 tar --null -cf "$OUT/$1.tar" -T -)  # macOS tar: no ._ files of extended attributes
 }
 
 # actions/checkout: the clone into $GITHUB_WORKSPACE.

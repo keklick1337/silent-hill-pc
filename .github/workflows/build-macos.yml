@@ -1,0 +1,174 @@
+name: Build macOS
+
+# Release build on macOS for Apple silicon (arm64) and Intel (x86_64, built
+# natively on an Intel runner), unit tests without a disc
+# image, a disk image with "Silent Hill PC.app" (tools/ci/package_dmg.sh) and
+# the tar.gz package it is made from (tools/ci/package.sh: engine binaries, the
+# project's FFmpeg dylibs, MoltenVK, the repository's base gamedata/, licenses;
+# tools/ci/check_package.py checks the archive and starts the game from it).
+# SDL3 and libjpeg-turbo are linked statically, OpenAL and OpenGL are the
+# system's frameworks: the package needs neither Homebrew nor anything else.
+# release.yml calls this workflow on a v* tag and publishes the package.
+on:
+  push:
+    branches: ['**']
+    paths-ignore: ['docs/**', '**.md']
+  pull_request:
+    paths-ignore: ['docs/**', '**.md']
+  workflow_dispatch:
+  workflow_call:
+    inputs:
+      version:
+        type: string
+        required: true
+
+concurrency:
+  # Not github.workflow: inside release.yml the builds would share the caller's name.
+  group: build-macos-${{ github.ref }}
+  cancel-in-progress: ${{ !startsWith(github.ref, 'refs/tags/') }}
+
+jobs:
+  macos:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: arm64
+            runner: macos-15
+          - arch: x86_64
+            runner: macos-15-intel
+    name: macos (${{ matrix.arch }})
+    runs-on: ${{ matrix.runner }}
+    env:
+      # The oldest macOS the package runs on; the dependencies are built for the same one.
+      MACOSX_DEPLOYMENT_TARGET: '13.3'
+      SDL_AUDIODRIVER: dummy
+      SDL_AUDIO_DRIVER: dummy
+      # On macOS the game answers it with hidden Cocoa windows (src/engine/desktop/video_driver.h).
+      SDL_VIDEODRIVER: offscreen
+      # Developer ID signing only when the repository has the certificate.
+      HAS_SIGNING: ${{ secrets.MACOS_CERTIFICATE_P12 != '' }}
+      HOMEBREW_NO_AUTO_UPDATE: '1'
+      HOMEBREW_NO_INSTALL_CLEANUP: '1'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # Build tools only; no library of Homebrew is linked into the package.
+      # coreutils: the scripts expect the GNU sha256sum and nproc. glslang: the
+      # SPIR-V of renderer = vulkan (MoltenVK).
+      - name: Install build tools
+        run: |
+          brew install ninja nasm coreutils glslang
+          echo "$(brew --prefix coreutils)/libexec/gnubin" >> "$GITHUB_PATH"
+
+      - name: Cache dependency sources
+        uses: actions/cache@v4
+        with:
+          path: third_party/deps/src
+          key: deps-src-macos-${{ hashFiles('tools/win-deps/fetch.sh') }}
+
+      # The game compiles SDL3 statically from third_party/SDL3.
+      - name: Fetch dependency sources
+        run: |
+          tools/win-deps/fetch.sh SDL3 libjpeg-turbo FFmpeg ncnn
+          ln -sfn deps/src/SDL3 third_party/SDL3
+
+      # Rebuilt whenever the pinned list or the build scripts change.
+      - name: Cache macOS dependencies
+        id: deps
+        uses: actions/cache@v4
+        with:
+          path: third_party/deps/darwin-${{ matrix.arch }}
+          key: macos-deps-${{ matrix.arch }}-${{ env.MACOSX_DEPLOYMENT_TARGET }}-${{ hashFiles('tools/win-deps/fetch.sh', 'tools/macos-deps/build.sh', 'tools/ffmpeg/build.sh', 'tools/ncnn/build.sh') }}
+
+      # libjpeg-turbo (static), the project's own LGPL FFmpeg for mod mp4 movies
+      # (dylibs beside the exe), MoltenVK (the pinned Khronos release) and ncnn
+      # with the Real-ESRGAN model for sh-upscale.
+      - name: Build dependencies
+        if: steps.deps.outputs.cache-hit != 'true'
+        run: tools/macos-deps/build.sh
+
+      - name: Configure
+        run: >
+          cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
+          -DCMAKE_DISABLE_FIND_PACKAGE_SDL3=ON
+          -DCMAKE_OSX_DEPLOYMENT_TARGET="$MACOSX_DEPLOYMENT_TARGET"
+
+      - name: Build
+        run: cmake --build build --parallel "$(sysctl -n hw.ncpu)"
+
+      # Tests that need the disc image look for data/ in the tree and skip without it.
+      - name: Unit tests
+        working-directory: build/tests
+        run: ./sh_tests
+
+      - name: Version
+        id: ver
+        run: |
+          v='${{ inputs.version }}'
+          [ -n "$v" ] || v="$(git describe --tags --always --dirty)"
+          echo "version=$v" >> "$GITHUB_OUTPUT"
+
+      # Fails if a binary imports a library that is neither the system's nor in
+      # the package, or if anything disc-derived got in.
+      - name: Package
+        run: tools/ci/package.sh build macos '${{ steps.ver.outputs.version }}' dist
+
+      # The archive as a user gets it, unpacked into an empty directory: every
+      # imported library a system one, and the game starts (--version, --help).
+      - name: Check the package
+        run: python3 -I tools/ci/check_package.py check dist/*.tar.gz macos --run
+
+      # Optional Developer ID signing and notarization: with these repository
+      # secrets the app opens without a warning. Without them it is signed ad
+      # hoc and macOS asks once to allow it (README, First start).
+      - name: Import the signing certificate
+        if: env.HAS_SIGNING == 'true'
+        env:
+          MACOS_CERTIFICATE_P12: ${{ secrets.MACOS_CERTIFICATE_P12 }}
+          MACOS_CERTIFICATE_PASSWORD: ${{ secrets.MACOS_CERTIFICATE_PASSWORD }}
+        run: |
+          keychain="$RUNNER_TEMP/signing.keychain-db"
+          password="$(uuidgen)"
+          echo "$MACOS_CERTIFICATE_P12" | base64 --decode > "$RUNNER_TEMP/certificate.p12"
+          security create-keychain -p "$password" "$keychain"
+          security set-keychain-settings -lut 21600 "$keychain"
+          security unlock-keychain -p "$password" "$keychain"
+          security import "$RUNNER_TEMP/certificate.p12" -P "$MACOS_CERTIFICATE_PASSWORD" \
+            -A -t cert -f pkcs12 -k "$keychain"
+          security set-key-partition-list -S apple-tool:,apple: -k "$password" "$keychain"
+          security list-keychains -d user -s "$keychain" $(security list-keychains -d user | tr -d '"')
+          rm "$RUNNER_TEMP/certificate.p12"
+
+      # "Silent Hill PC.app" in a disk image, made from the checked package.
+      - name: Disk image
+        env:
+          SH_MACOS_SIGN_IDENTITY: ${{ secrets.MACOS_SIGN_IDENTITY }}
+          SH_NOTARY_APPLE_ID: ${{ secrets.MACOS_NOTARY_APPLE_ID }}
+          SH_NOTARY_TEAM_ID: ${{ secrets.MACOS_NOTARY_TEAM_ID }}
+          SH_NOTARY_PASSWORD: ${{ secrets.MACOS_NOTARY_PASSWORD }}
+        run: tools/ci/package_dmg.sh dist/*.tar.gz dist
+
+      # The app as a user starts it: from the mounted image (read only), its
+      # root in a fresh home's Application Support.
+      - name: Check the disk image
+        run: |
+          mnt="$RUNNER_TEMP/dmg"
+          mkdir -p "$mnt" "$RUNNER_TEMP/home"
+          hdiutil attach -nobrowse -readonly -mountpoint "$mnt" dist/*.dmg
+          app="$mnt/Silent Hill PC.app"
+          codesign --verify --strict --deep "$app"
+          HOME="$RUNNER_TEMP/home" "$app/Contents/MacOS/SilentHillPC" --version | tee "$RUNNER_TEMP/version.txt"
+          grep -q "Silent Hill PC" "$RUNNER_TEMP/version.txt"
+          test -f "$RUNNER_TEMP/home/Library/Application Support/Silent Hill PC/gamedata/game.json"
+          hdiutil detach "$mnt"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: SilentHillPC-macos-${{ matrix.arch }}
+          path: |
+            dist/*.dmg
+            dist/*.tar.gz
+          if-no-files-found: error

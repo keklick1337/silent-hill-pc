@@ -28,11 +28,24 @@ endif()
 # of the disc formats look at the same bytes through several record types. Both
 # are undefined behaviour an optimizer may exploit, so both flags are required.
 add_compile_options(-fno-strict-aliasing -fwrapv)
+# No fused multiply-add: arm64 (Apple silicon) would otherwise contract a*b+c into one rounding where x86-64 rounds
+# twice, and float results, the replays' state included, would differ between the platforms.
+add_compile_options(-ffp-contract=off)
 
 # Build everything position-independent: the executable is a PIE and the static
 # module libraries are linked into it.
 # Harmless on Windows/MinGW (PE code is already position-independent).
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+
+# The test and tool targets name some module libraries twice to resolve their cycles; Apple's linker warns about
+# every repeated one.
+if(APPLE)
+    include(CheckLinkerFlag)
+    check_linker_flag(CXX "LINKER:-no_warn_duplicate_libraries" SH_LINKER_NO_DUPLICATE_WARNING)
+    if(SH_LINKER_NO_DUPLICATE_WARNING)
+        add_link_options("LINKER:-no_warn_duplicate_libraries")
+    endif()
+endif()
 
 # =============================================================================
 # Options
@@ -121,6 +134,16 @@ if(UNIX AND NOT APPLE)
         list(PREPEND CMAKE_PREFIX_PATH "${_sh_own_deps}")
         set(SH_LINUX_DEPS_PREFIX "${_sh_own_deps}")
         message(STATUS "Linux dependencies: the project's own build, ${_sh_own_deps}")
+    endif()
+endif()
+# macOS: the same for tools/macos-deps/build.sh (libjpeg-turbo static); OpenAL and OpenGL are the system's
+# frameworks. Without it Homebrew's libraries are linked, as a development build does.
+if(APPLE)
+    set(_sh_own_deps "${PROJECT_SOURCE_DIR}/third_party/deps/darwin-${CMAKE_SYSTEM_PROCESSOR}")
+    if(EXISTS "${_sh_own_deps}/lib/libjpeg.a")
+        list(PREPEND CMAKE_PREFIX_PATH "${_sh_own_deps}")
+        set(SH_MACOS_DEPS_PREFIX "${_sh_own_deps}")
+        message(STATUS "macOS dependencies: the project's own build, ${_sh_own_deps}")
     endif()
 endif()
 
@@ -308,6 +331,26 @@ if(SH_LINUX_DEPS_PREFIX)
         COMMAND ${CMAKE_COMMAND} -E copy_if_different
                 ${_sh_linux_deps_licenses} "$<TARGET_FILE_DIR:SilentHillPC>/licenses"
         COMMENT "Copying the project's OpenAL Soft beside the exe"
+    )
+endif()
+
+# The license texts of tools/macos-deps/build.sh (libjpeg-turbo is linked statically; FFmpeg and ncnn copy their
+# own), and MoltenVK beside the exe, where renderer = vulkan opens it (rhi::loadVulkanLibrary).
+if(SH_MACOS_DEPS_PREFIX)
+    file(GLOB _sh_macos_deps_licenses "${SH_MACOS_DEPS_PREFIX}/share/sh-licenses/*libjpeg*"
+         "${SH_MACOS_DEPS_PREFIX}/share/sh-licenses/*MoltenVK*")
+    if(EXISTS "${SH_MACOS_DEPS_PREFIX}/lib/libMoltenVK.dylib")
+        add_custom_command(TARGET SilentHillPC POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                    "${SH_MACOS_DEPS_PREFIX}/lib/libMoltenVK.dylib" "$<TARGET_FILE_DIR:SilentHillPC>"
+            COMMENT "Copying MoltenVK beside the exe"
+        )
+    endif()
+    add_custom_command(TARGET SilentHillPC POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E make_directory "$<TARGET_FILE_DIR:SilentHillPC>/licenses"
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                ${_sh_macos_deps_licenses} "$<TARGET_FILE_DIR:SilentHillPC>/licenses"
+        COMMENT "Copying the licenses of the project's macOS dependencies"
     )
 endif()
 
@@ -604,8 +647,15 @@ if(SH_FMV_FFMPEG)
             "${_ff_major}, headers: ${_ff_header_root})")
         # Windows DLLs and licenses travel with the SH_WIN_DEPS_PREFIX block above.
         if(SH_FFMPEG_OWN_BUILD AND NOT WIN32)
-            file(GLOB _sh_ffmpeg_libs "${SH_FFMPEG_PREFIX}/lib/lib*.so.*")
-            list(FILTER _sh_ffmpeg_libs INCLUDE REGEX "/lib(avformat|avcodec|avutil|swscale|swresample)\\.so\\.[0-9]+$")
+            if(APPLE)
+                file(GLOB _sh_ffmpeg_libs "${SH_FFMPEG_PREFIX}/lib/lib*.dylib")
+                list(FILTER _sh_ffmpeg_libs INCLUDE REGEX
+                     "/lib(avformat|avcodec|avutil|swscale|swresample)\\.[0-9]+\\.dylib$")
+            else()
+                file(GLOB _sh_ffmpeg_libs "${SH_FFMPEG_PREFIX}/lib/lib*.so.*")
+                list(FILTER _sh_ffmpeg_libs INCLUDE REGEX
+                     "/lib(avformat|avcodec|avutil|swscale|swresample)\\.so\\.[0-9]+$")
+            endif()
             file(GLOB _sh_ffmpeg_licenses "${SH_FFMPEG_PREFIX}/share/sh-licenses/*FFmpeg*")
             add_custom_command(TARGET SilentHillPC POST_BUILD
                 COMMAND ${CMAKE_COMMAND} -E copy_if_different
@@ -629,6 +679,10 @@ endif()
 # FMV picture shaders for the RHI (src/media/fmv/fmv_renderer.cpp).
 include(${PROJECT_SOURCE_DIR}/src/media/fmv/fmv_shaders.cmake)
 
+# The profiler's process and GPU figures on macOS (src/platform/process_stats.cpp).
+if(APPLE)
+    target_link_libraries(SilentHillPC PRIVATE "-framework IOKit" "-framework CoreFoundation")
+endif()
 if(WIN32)
     target_link_libraries(SilentHillPC PRIVATE opengl32 winmm m)
 elseif(UNIX)
