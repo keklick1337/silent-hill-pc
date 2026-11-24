@@ -5,7 +5,9 @@
 #include <cstdlib>
 
 #include "engine/log/sh_log.h"
+#include "engine/mods/mod_import.h"
 #include "input/pad.h"
+#include "platform/sh_platform.h"
 #include "render/gpu/frame_driver.h"
 #include "render/gpu/render_state.h"
 #include "render/gpu/renderer.h"
@@ -111,7 +113,10 @@ void handle_mouse_motion(const SDL_MouseMotionEvent& motion)
     // A one-pixel nudge is the pointer settling or a warp, not the player reaching for the mouse.
     if (motion.which != SDL_TOUCH_MOUSEID &&
         (motion.xrel > 1 || motion.xrel < -1 || motion.yrel > 1 || motion.yrel < -1))
+    {
         sh::input::set_last_device(LastDevice::Mouse);
+        Sh_ReleaseTouchPointer();  // the real mouse takes the pointer back from the touch screen
+    }
 
     sh::platform::debug_mouse_motion(static_cast<int>(motion.x), static_cast<int>(motion.y));
 }
@@ -158,6 +163,19 @@ void settle_resize(bool now)
 
 namespace {
 sh::platform::EventFilter g_event_filter = nullptr;
+sh::platform::TouchHook g_touch_hook = nullptr;
+
+void handle_finger(const SDL_TouchFingerEvent& finger)
+{
+    using sh::platform::TouchPhase;
+    if (!g_touch_hook)
+        return;
+    const TouchPhase phase = finger.type == SDL_EVENT_FINGER_DOWN     ? TouchPhase::Down
+                             : finger.type == SDL_EVENT_FINGER_MOTION ? TouchPhase::Move
+                             : finger.type == SDL_EVENT_FINGER_UP     ? TouchPhase::Up
+                                                                      : TouchPhase::Cancel;
+    g_touch_hook(phase, finger.fingerID, finger.x, finger.y, finger.touchID == SDL_MOUSE_TOUCHID);
+}
 
 // Only input may be kept from the game: a window change or a quit always goes through.
 bool input_event(Uint32 type)
@@ -181,6 +199,11 @@ bool input_event(Uint32 type)
 void sh::platform::set_event_filter(EventFilter filter)
 {
     g_event_filter = filter;
+}
+
+void sh::platform::set_touch_hook(TouchHook hook)
+{
+    g_touch_hook = hook;
 }
 
 void sh::platform::pump_events()
@@ -246,6 +269,19 @@ void sh::platform::pump_events()
         case SDL_EVENT_TEXT_INPUT:
             if (const auto onText = sh::input::text_input_handler())
                 onText(event.text.text);
+            break;
+
+        case SDL_EVENT_DROP_FILE:
+            // A folder or .zip dropped on the window while Options > Mods > Import is open is imported.
+            if (event.drop.data != nullptr)
+                sh::mods::import_session().offer_drop(event.drop.data);
+            break;
+
+        case SDL_EVENT_FINGER_DOWN:
+        case SDL_EVENT_FINGER_MOTION:
+        case SDL_EVENT_FINGER_UP:
+        case SDL_EVENT_FINGER_CANCELED:
+            handle_finger(event.tfinger);
             break;
 
         default:

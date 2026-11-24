@@ -41,7 +41,8 @@ def markdown_files():
     out = []
     for p in sorted(ROOT.rglob('*.md')):
         rel = p.relative_to(ROOT).as_posix()
-        if rel.startswith(('third_party/', '.tmp/', 'build', '.claude/', 'references/', 'data/')):
+        if rel.startswith(('third_party/', '.tmp/', 'build', '.claude/', 'references/', 'data/', 'android/app/build/',
+                           'android/build/')):
             continue
         out.append(p)
     return out

@@ -23,11 +23,13 @@ using sh::formats::records::LmModel;
 inline constexpr std::uint32_t kPartHidden = 1u << 31;
 inline constexpr std::uint32_t kPartCollapsed = 1u << 0;
 
+// alignas(8): a 32-bit build (Android armeabi-v7a, x86) keeps the 64-bit offsets, which the map variables bound to
+// world objects address (engine/runtime/world_object_record.h); on 64-bit it changes nothing.
 struct SkeletonPartModel {
     std::int32_t flags;
-    void* bone;           // the bone frame the drawer last used for it
-    LmModel* model;       // the part's model in the LM file
-    std::int32_t model_index;
+    alignas(8) void* bone;      // the bone frame the drawer last used for it
+    alignas(8) LmModel* model;  // the part's model in the LM file
+    alignas(8) std::int32_t model_index;
 };
 
 struct SkeletonPart {

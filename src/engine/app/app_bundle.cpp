@@ -14,6 +14,15 @@
 #include <string_view>
 #include <system_error>
 
+#ifdef __ANDROID__
+#include <SDL3/SDL_hints.h>
+#include <SDL3/SDL_system.h>
+#include <android/log.h>
+#include <unistd.h>
+
+#include <thread>
+#endif
+
 namespace sh::app {
 
 namespace {
@@ -63,9 +72,55 @@ bool copy_resources(const fs::path& from, const fs::path& to) {
 }
 #endif
 
+#ifdef __ANDROID__
+// An app's stdout and stderr go nowhere: a thread passes them on to the system log (adb logcat), line by line.
+void route_output_to_system_log() {
+    static int pipe_fds[2] = {-1, -1};
+    if (pipe_fds[0] >= 0 || pipe(pipe_fds) != 0) return;
+    std::setvbuf(stdout, nullptr, _IOLBF, 0);
+    std::setvbuf(stderr, nullptr, _IONBF, 0);
+    dup2(pipe_fds[1], STDOUT_FILENO);
+    dup2(pipe_fds[1], STDERR_FILENO);
+    std::thread([] {
+        std::string line;
+        char chunk[512];
+        for (;;) {
+            const ssize_t n = read(pipe_fds[0], chunk, sizeof(chunk));
+            if (n <= 0) return;
+            for (ssize_t i = 0; i < n; ++i) {
+                if (chunk[i] == '\n' || line.size() >= 1000) {
+                    __android_log_write(ANDROID_LOG_INFO, "SilentHillPC", line.c_str());
+                    line.clear();
+                    if (chunk[i] == '\n') continue;
+                }
+                line += chunk[i];
+            }
+        }
+    }).detach();
+}
+#endif
+
 }  // namespace
 
 bool use_bundle_root() {
+#ifdef __ANDROID__
+    // The activity (android/, SilentHillActivity.java) unpacks the base data of the APK into the app's own storage
+    // once per build and names that folder in SH_ANDROID_ROOT; config.cfg, the import, saves and mods live there too.
+    route_output_to_system_log();
+    // Every window of the game is landscape, the picker's and the progress window's too.
+    SDL_SetHint(SDL_HINT_ORIENTATIONS, "LandscapeLeft LandscapeRight");
+    const char* named = std::getenv("SH_ANDROID_ROOT");
+    const char* root = named != nullptr && named[0] != '\0' ? named : SDL_GetAndroidInternalStoragePath();
+    if (root == nullptr || root[0] == '\0') {
+        std::fprintf(stderr, "android: no storage for the game's files\n");
+        return false;
+    }
+    std::string dir = root;
+    if (dir.back() != '/') dir += '/';
+    PcPaths_SetRoot(dir.c_str(), dir.c_str());
+    if (chdir(dir.c_str()) != 0) std::fprintf(stderr, "android: cannot enter %s\n", dir.c_str());
+    return true;
+#endif
 #ifdef __APPLE__
     const std::string bin = PcPaths_BinDir();
     if (bin.size() < kMacOsDir.size() || bin.compare(bin.size() - kMacOsDir.size(), kMacOsDir.size(), kMacOsDir) != 0)

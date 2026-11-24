@@ -61,6 +61,13 @@ void pump_events();
 using EventFilter = bool (*)(const void* event);
 void set_event_filter(EventFilter filter);
 
+// Fingers on a touch screen (SDL's finger events), in window coordinates from 0 to 1, for the touch controls
+// (input/touch/touch_controls.h). `from_mouse` marks the fingers SDL makes of a mouse (SDL_HINT_MOUSE_TOUCH_EVENTS,
+// the desktop's test of the touch controls). nullptr removes it.
+enum class TouchPhase : std::uint8_t { Down, Move, Up, Cancel };
+using TouchHook = void (*)(TouchPhase phase, std::uint64_t finger, float x, float y, bool from_mouse);
+void set_touch_hook(TouchHook hook);
+
 // Opens the game's frame: pumps the window events, picks the swap interval and starts the renderer's frame (the
 // clear, the frozen frame while paused). False when a frame is already open.
 bool begin_frame();

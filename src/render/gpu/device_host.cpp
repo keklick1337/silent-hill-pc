@@ -127,6 +127,9 @@ std::uint64_t window_flags(const DeviceParams& params) {
     // SDL3: FULLSCREEN alone is borderless desktop fullscreen; exclusive is a display mode set on top of it.
     if (params.fullscreen != FullscreenMode::Windowed || params.width <= 0 || params.height <= 0)
         flags |= SDL_WINDOW_FULLSCREEN;
+#ifdef __ANDROID__
+    flags |= SDL_WINDOW_FULLSCREEN;  // the whole screen, which also hides the system bars
+#endif
     return flags | sh::desktop::hidden_window_flag();
 }
 
@@ -141,6 +144,10 @@ std::unique_ptr<DeviceHost> DeviceHost::create(const DeviceParams& params) {
     // Debugging a fullscreen game needs the debugger's window above it.
     SDL_SetHint(SDL_HINT_WINDOW_ALLOW_TOPMOST, "0");
 
+#ifdef __ANDROID__
+    // The GL backend needs desktop OpenGL 3.3 core; Android has OpenGL ES only, so a phone runs on Vulkan.
+    if (host->params_.backend == BackendKind::Gl) host->params_.backend = BackendKind::Vulkan;
+#endif
     if (host->params_.backend == BackendKind::Vulkan) {
         if (host->init_vulkan_native()) return host;
         host->params_.backend = BackendKind::SdlGpu;
@@ -149,6 +156,10 @@ std::unique_ptr<DeviceHost> DeviceHost::create(const DeviceParams& params) {
         if (host->init_vulkan()) return host;
         host->params_.backend = BackendKind::Gl;  // a config asking for Vulkan must still boot the game
     }
+#ifdef __ANDROID__
+    SH_ERR("[GPU] no Vulkan device: the game needs Vulkan on Android");
+    return nullptr;
+#endif
     if (!host->init_gl()) return nullptr;
     return host;
 }

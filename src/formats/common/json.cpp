@@ -5,10 +5,13 @@
 #include <cmath>
 #include <cstdio>
 
-#ifdef __APPLE__
+#if defined(__APPLE__) || defined(__ANDROID__)
 #include <cerrno>
+#include <clocale>
 #include <cstdlib>
 #include <string>
+#endif
+#ifdef __APPLE__
 #include <xlocale.h>
 #endif
 
@@ -44,9 +47,9 @@ namespace {
 // A number of the grammar the parser has checked, as a double: the nearest one, whatever the C locale. A value out
 // of range leaves `out` as it was, as from_chars does.
 bool parse_real(const char* first, const char* last, double& out) {
-#ifdef __APPLE__
-    // Apple's libc++ has from_chars for floating point only from macOS 26. strtod_l in the C locale rounds to
-    // nearest the same way.
+#if defined(__APPLE__) || defined(__ANDROID__)
+    // Apple's libc++ has from_chars for floating point only from macOS 26, the NDK's not at all. strtod_l in the C
+    // locale rounds to nearest the same way.
     static const locale_t c_locale = newlocale(LC_ALL_MASK, "C", nullptr);
     const std::string text(first, last);
     char* end = nullptr;

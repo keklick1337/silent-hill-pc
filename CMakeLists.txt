@@ -62,6 +62,23 @@ option(SH_FMV_FFMPEG "Enable ffmpeg FMV fallback decoder (h264/h265/vp9/av1, mp4
 option(SH_RHI_SDL3 "Require SPIR-V shaders for the SDL3 GPU backend" OFF)
 
 # =============================================================================
+# Android (docs/BUILDING.md section 5): the game is libmain.so, which SDL's Java activity loads; SDL3 and libjpeg come
+# from tools/android-deps/build.sh, one prefix per ABI. Sound goes through SDL3, so OpenAL is not linked; FFmpeg (mod
+# mp4 movies) is not part of the Android build.
+# =============================================================================
+if(ANDROID)
+    set(SH_ANDROID_DEPS_PREFIX "${PROJECT_SOURCE_DIR}/third_party/deps/android-${ANDROID_ABI}" CACHE PATH
+        "Prefix of the Android dependencies of one ABI (tools/android-deps/build.sh)")
+    if(NOT EXISTS "${SH_ANDROID_DEPS_PREFIX}/lib/cmake/SDL3/SDL3Config.cmake")
+        message(FATAL_ERROR "no SDL3 in ${SH_ANDROID_DEPS_PREFIX}: run tools/android-deps/build.sh ${ANDROID_ABI}")
+    endif()
+    set(SDL3_DIR "${SH_ANDROID_DEPS_PREFIX}/lib/cmake/SDL3" CACHE PATH "" FORCE)
+    set(JPEG_LIBRARY "${SH_ANDROID_DEPS_PREFIX}/lib/libjpeg.a" CACHE FILEPATH "" FORCE)
+    set(JPEG_INCLUDE_DIR "${SH_ANDROID_DEPS_PREFIX}/include" CACHE PATH "" FORCE)
+    set(SH_FMV_FFMPEG OFF CACHE BOOL "" FORCE)
+endif()
+
+# =============================================================================
 # AddressSanitizer (optional, for debugging memory corruption)
 # =============================================================================
 if(SH_ASAN)
@@ -148,7 +165,9 @@ if(APPLE)
 endif()
 
 # OpenAL Soft.
-find_package(OpenAL REQUIRED)
+if(NOT ANDROID)
+    find_package(OpenAL REQUIRED)
+endif()
 
 # =============================================================================
 # Source files
@@ -195,8 +214,9 @@ file(GLOB _game_state_sources CONFIGURE_DEPENDS "${PROJECT_SOURCE_DIR}/src/engin
 list(APPEND SH_EXE_SOURCES ${_game_state_sources})
 # The first-run library is C++20 and builds as its own target (src/engine/app/first_run).
 list(FILTER SH_EXE_SOURCES EXCLUDE REGEX "/src/engine/app/first_run/")
-# So is the quick setup shown before it (src/engine/app/quick_setup).
+# So is the quick setup shown before it (src/engine/app/quick_setup), and what both draw with (screen_kit).
 list(FILTER SH_EXE_SOURCES EXCLUDE REGEX "/src/engine/app/quick_setup/")
+list(FILTER SH_EXE_SOURCES EXCLUDE REGEX "/src/engine/app/screen_kit/")
 # The text preparation and the fallback fonts are their own library (src/i18n/core, sh_i18n).
 list(FILTER SH_EXE_SOURCES EXCLUDE REGEX "/src/i18n/core/")
 # The RHI is its own library (src/render/rhi): sh_rhi_gl always, sh_rhi with SH_RHI_SDL3.
@@ -272,10 +292,16 @@ else()
     message(STATUS "Lua scripting: disabled (third_party/lua missing)")
 endif()
 
-add_executable(SilentHillPC
-    ${SH_EXE_SOURCES}
-    ${SH_APP_RESOURCES}
-)
+if(ANDROID)
+    # SDL's activity (android/) loads libmain.so and calls SDL_main, which SDL_main.h makes of main().
+    add_library(SilentHillPC SHARED ${SH_EXE_SOURCES})
+    set_target_properties(SilentHillPC PROPERTIES OUTPUT_NAME main)
+else()
+    add_executable(SilentHillPC
+        ${SH_EXE_SOURCES}
+        ${SH_APP_RESOURCES}
+    )
+endif()
 
 # The executable exports nothing: data names its records by readable names the engine binds at start
 # (sh::maps::map_globals), never by a symbol of the program.
@@ -502,7 +528,8 @@ if(SH_HAVE_LUA)
     target_compile_definitions(SilentHillPC PRIVATE SH_LUA=1)
 endif()
 
-if(TARGET OpenAL::OpenAL)
+if(ANDROID)
+elseif(TARGET OpenAL::OpenAL)
     target_link_libraries(SilentHillPC PRIVATE OpenAL::OpenAL)
 elseif(TARGET OpenAL)
     target_link_libraries(SilentHillPC PRIVATE OpenAL)
@@ -519,6 +546,7 @@ endif()
 target_link_libraries(SilentHillPC PRIVATE ${SH_SDL3_TARGET})
 
 # After the SDL lookup above: the first-run library links SDL the same way.
+add_subdirectory(src/engine/app/screen_kit)
 add_subdirectory(src/engine/app/first_run)
 add_subdirectory(src/engine/app/quick_setup)
 
@@ -685,6 +713,9 @@ if(APPLE)
 endif()
 if(WIN32)
     target_link_libraries(SilentHillPC PRIVATE opengl32 winmm m)
+elseif(ANDROID)
+    # The system log (stdout and stderr go there) and the native activity's asset and window calls.
+    target_link_libraries(SilentHillPC PRIVATE android log)
 elseif(UNIX)
     find_package(OpenGL REQUIRED)
     target_link_libraries(SilentHillPC PRIVATE OpenGL::GL)
@@ -806,7 +837,8 @@ add_subdirectory(src/render/gpu)
 target_link_libraries(SilentHillPC PRIVATE sh_gpu sh_loop)
 
 enable_testing()
-if(EXISTS "${PROJECT_SOURCE_DIR}/tests/CMakeLists.txt")
+# The unit tests run on the build machine; an Android build has nothing to run them on.
+if(EXISTS "${PROJECT_SOURCE_DIR}/tests/CMakeLists.txt" AND NOT ANDROID)
     add_subdirectory(tests)
 endif()
 

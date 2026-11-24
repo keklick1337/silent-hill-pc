@@ -1,6 +1,6 @@
 # Building
 
-How to build Silent Hill PC from source on Linux and macOS, and for Windows. Nothing is installed into the system by the build or by any script of the project: sources of dependencies that are not vendored in `third_party/` are fetched at pinned tags and commits into `third_party/deps/` (ignored by git), and built there.
+How to build Silent Hill PC from source on Linux and macOS, and for Windows and Android. Nothing is installed into the system by the build or by any script of the project: sources of dependencies that are not vendored in `third_party/` are fetched at pinned tags and commits into `third_party/deps/` (ignored by git), and built there.
 
 The commands below are the ones the CI runs ([.github/workflows/](../.github/workflows/)). How to run the checks after a build: [DEVELOPMENT.md](DEVELOPMENT.md), section 4.
 
@@ -194,3 +194,58 @@ Without a certificate the app is signed ad hoc and not notarized: macOS refuses 
 ## 4. Packages
 
 `tools/ci/package.sh <build> <linux|windows|macos> <version> [<out dir>]` writes `SilentHillPC-<version>-<platform>-<cpu>.tar.gz` (Linux, macOS) or `.zip` (Windows); `<cpu>` is `x86_64`, on macOS the build's (`arm64` or `x86_64`; CI builds both, the Intel one natively on an Intel runner): the executable, `sh-import`, `sh-upscale` with its model, the libraries, `assets/`, `config.cfg`, the licenses and `gamedata/` strictly from the files tracked by git. It follows the import tables of every binary to decide which libraries go in, and refuses to write a package in which an imported library is missing or anything disc-derived is present. `python3 -I tools/ci/check_package.py check <archive> <linux|windows|macos> --run` checks a package unpacked into an empty directory. Releases: [DEVELOPMENT.md](DEVELOPMENT.md), section 5.
+
+## 5. Android
+
+The APK is built on Linux with the Android NDK; one APK holds all four ABIs (`arm64-v8a`, `armeabi-v7a`, `x86_64`, `x86`), Android 10 (API 29) or newer, the first release that requires Vulkan 1.1 on every new 64-bit device. The game is `libmain.so`, started by SDL's Java activity (`android/`, `SilentHillActivity` on SDL's `SDLActivity`, whose Java sources come from the pinned SDL3 source tree, not copied into the repository).
+
+### 5.1 Requirements
+
+- The Android SDK (`ANDROID_HOME`) with the platform `android-36` and build tools, and the NDK `28.2.13676358` (`ANDROID_NDK_HOME`, default `$ANDROID_HOME/ndk/28.2.13676358`).
+- JDK 17 or newer, Gradle 8.14 (the Android Gradle Plugin `8.13.1` is pinned in `android/settings.gradle`; Gradle fetches it into `~/.gradle`), CMake 3.16+, Ninja, `zip`, Python 3, `git`.
+- The SPIR-V compiler: the NDK's `shader-tools/*/glslc` is used.
+
+### 5.2 Build
+
+```sh
+tools/android/build.sh                 # all four ABIs; or name some: tools/android/build.sh x86_64
+adb install -r android/app/build/outputs/apk/debug/app-debug.apk
+```
+
+The script builds the dependencies of an ABI the first time (`tools/android-deps/build.sh`: SDL3 shared, libjpeg-turbo static, from the pinned sources of `tools/win-deps/fetch.sh`, into `third_party/deps/android-<abi>/`), the game for each ABI in `build-android/<abi>/`, stages the native libraries (`libmain.so`, `libSDL3.so`, the NDK's `libc++_shared.so`), the base data and the launcher icon in `android/app/build/sh/`, and runs `gradle assembleDebug` in `android/` (`--release` runs `assembleRelease`, unsigned). The debug APK is signed with the debug key of the machine.
+
+What differs from the desktop build:
+
+- Renderer: Vulkan only. The native Vulkan backend runs on Vulkan 1.1: with dynamic rendering and synchronization2 where the device has them, else with render pass objects and Vulkan 1.0 barriers ([RENDER.md](RENDER.md) 2.2a); when it cannot start, the SDL3 GPU backend takes over (asked without the clip distance, depth clamp and indirect first instance features it would otherwise require, which Mali GPUs lack). The OpenGL backend is desktop GL 3.3 core, which Android lacks (it has OpenGL ES), so `renderer = gl` runs Vulkan, and without Vulkan the game shows a message box (`ui.gpu.no_vulkan`, in every language) and ends.
+- Sound goes through SDL3 (AAudio or OpenSL ES); OpenAL Soft is not linked. FFmpeg (mods' mp4 movies) and the texture upscaler `sh-upscale` are not part of the Android build; the disc's movies have their own decoder.
+- The quick setup is skipped (its questions are a desktop's); a restart that a setting asks for ends the game, which the player starts again.
+- The game's root is the app's folder on the shared storage, `Android/data/<app id>/files/` (`getExternalFilesDir`, else the internal files folder): the activity unpacks the APK's `base.zip` there once per build (tracked `gamedata/`, the runtime assets, `config.cfg` only when there is none, the console font, the licenses), and names it in `SH_ANDROID_ROOT` (`src/engine/app/app_bundle.cpp`). The import, `config.cfg`, saves, logs and mods live there. `stdout` and `stderr` go to the system log (`adb logcat -s SilentHillPC`).
+- The disc image is chosen with the system file picker (Storage Access Framework) from the import screen's Browse. A `.zip` of the `.cue` and `.bin` is the way: a picked `.cue` cannot reach its `.bin`. The picker gives a `content://` URI; the activity opens it, and since the system lets no file path reach the open document, copies it into the app's folder for the import and deletes the copy afterwards (`SilentHillActivity.openDocument`, `src/engine/app/first_run/picked_document.cpp`).
+- Landscape, fullscreen without the system bars (into a notch's corners: the controls keep to the safe area), the screen kept on; the back key is Esc. The activity is resizeable and keeps running through size and density changes (tablets, foldables). The picture is always the screen's own size (`width`, `height`, `fullscreen` and `vsync` are not read there; the Display page hides their rows): the graphics preset `mobile` (the default there, [RENDER.md](RENDER.md) 7.2) sets `render_scale` from the screen's height, and frames are shown at the display's rhythm (FIFO), the frame clock sleeping instead of spinning. The Renderer row offers Vulkan and SDL GPU.
+- Touch: `src/input/touch/` (README, "Touch controls"). Once the game window is open the finger events reach it through `sh::platform::set_touch_hook` (`src/engine/platform/window.h`) and SDL's mouse made of the first finger is turned off (`SDL_HINT_TOUCH_MOUSE_EVENTS`): in gameplay the on-screen controls hold input actions (`PcActions_SetTouchActions`) and the stick drives the pad's analog bytes; elsewhere a finger moves a pointer the menus follow (`Sh_SetTouchPointer`), a drag turns the wheel, a tap (a finger that did not move, however long it rested) clicks (and is Cross on screens that do not follow the pointer). The lists drawn by the menu view (`src/ui/menu/menu_view.cpp`: Options, the pause menu, the debug menu and the list of a row's values) claim the drag (`claim_list_drag`) and follow the finger themselves (`src/engine/menu/touch_scroll.h`: 1:1 while it drags, a glide after a flick, a rubber band at the ends, at rest on a whole row); a tap on a row of values (On / Off included) opens the list of them, a bar is set where it is tapped or dragged sideways. The phone's Back key is counted by an event watch, so a press shorter than a frame still reaches the game as Back. The import screen (`src/engine/app/first_run/progress_window.cpp`, before the game window) reads the finger events itself: a tap presses a button, a drag scrolls, and it keeps out of the display cutout (`SDL_GetWindowSafeArea`). The controls are drawn as anti-aliased coverage masks made at their on-screen size (`touch_sprites.h`: discs, rings, soft shadows, the SVG icons sampled 4x4 per pixel) into the window overlay, on the window after the present at the display's resolution, whatever the render scale. `Sh_IsMobile()` (`src/platform/sh_platform.h`) tells code that a phone or tablet runs it. On a desktop `touch_controls = on` turns the mouse into a finger to try the controls.
+
+### 5.3 Testing on the emulator
+
+A debuggable build takes the command line from the launching intent, so the import runs without the picker. The app may read its own folder on the shared storage:
+
+```sh
+adb -s emulator-5554 push "Silent Hill (v1.1).zip" /sdcard/Android/data/io.github.keklick1337.silenthillpc/files/sh.zip
+adb -s emulator-5554 shell am start -n io.github.keklick1337.silenthillpc/.SilentHillActivity \
+    --es image /sdcard/Android/data/io.github.keklick1337.silenthillpc/files/sh.zip
+adb -s emulator-5554 logcat -s SilentHillPC
+adb -s emulator-5554 exec-out screencap -p > shot.png
+```
+
+`--es args "<words>"` passes any other options; through `adb shell` the words are quoted once more so the device's shell keeps them together, e.g. `--es args "'-skiptogame'"` (straight into play, to reach the pause menu) or `--es args "'-consolecmd /sdcard/Android/data/io.github.keklick1337.silenthillpc/files/t.cmd'"` with a line `@4 options interface` in that file (an Options page from the title). The emulator needs a host GPU with Vulkan (`emulator -avd <name> -gpu host -feature Vulkan`).
+
+### 5.4 Profiling on a phone
+
+The game writes `[PERF]` lines to the system log every 5 s on a phone or tablet: frames per second, the frame time and its worst, the GPU time (one timestamp pair per frame) with the GPU clock where the system shows it (`/sys/kernel/gpu/gpu_clock` on Exynos, `/sys/class/kgsl/kgsl-3d0/gpuclk` on Snapdragon) and the work in millions of GPU cycles per frame (ms × MHz: the governor lowers the clock until the GPU is nearly busy at 60 fps, so a light frame shows almost the GPU time of a heavy one; compare the cycles), and per frame what the commands did: GPU render passes and the passes merged into them, attachment loads and stores with their megabytes (on a phone's tile-based GPU each one moves the whole target through memory), transfers, copies, blits, uploads (and how many went ahead of the frame), draws, pipeline binds, descriptor sets, barriers; then the CPU load, the preset and the scene's and the window's size. The swapchain is logged when it is made (`[PERF] swapchain`: size, images, present mode, transforms, frames in flight). A file named `perf_capture` in the game's folder starts a 10 s capture: the timestamps between passes go on, the scene passes time the split kinds inside them (`~prims`, `~scene world`, `~scene item`), two frames' commands are traced (`[PERF] trace`), and at the end one line gives the GPU time per pass and section. Timestamps inside a pass can change how a tile-based GPU runs it: compare the capture's total with the 5 s lines around it.
+
+```sh
+adb logcat -c
+adb logcat -s SilentHillPC | grep --line-buffered PERF          # the 5 s lines
+adb shell touch /sdcard/Android/data/io.github.keklick1337.silenthillpc/files/perf_capture   # a capture
+```
+
+With the profiler overlay on (Options > Interface > Performance Overlay > Profiler, or `fps_profiler = 1`) the overlay shows the same counts (`Passes`, `Binds`) and the capture's countdown. `SH_VK_NO_MERGE=1` in the environment of a desktop run turns off the backend's pass merging and hoisted uploads ([RENDER.md](RENDER.md) 2.2a), to compare the counts and the picture.

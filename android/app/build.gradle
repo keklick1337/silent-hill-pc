@@ -1,0 +1,78 @@
+// The APK: SDL's Java glue (from the pinned SDL3 source of tools/win-deps/fetch.sh), the activity of this project,
+// and what tools/android/build.sh stages into build/sh/: the native libraries of every ABI (jniLibs/), the base data
+// (assets/base.zip) and the launcher icon (res/).
+plugins {
+    id 'com.android.application'
+}
+
+def shRoot = rootProject.file('..')
+def shStage = layout.buildDirectory.dir('sh').get().asFile
+def sdlJava = new File(shRoot, 'third_party/deps/src/SDL3/android-project/app/src/main/java')
+
+// versionName is the engine version (VERSION); versionCode packs it as MAJOR * 10000 + MINOR * 100 + PATCH.
+def engineVersion = new File(shRoot, 'VERSION').text.trim()
+def versionParts = engineVersion.tokenize('.').collect { it as int }
+
+android {
+    namespace = 'io.github.keklick1337.silenthillpc'
+    compileSdk = 36
+    ndkVersion = '28.2.13676358'
+
+    defaultConfig {
+        applicationId = 'io.github.keklick1337.silenthillpc'
+        // Android 10: every 64-bit device launched with it has Vulkan 1.1. The native code is built for the same API
+        // level (tools/android-deps/build.sh, tools/android/build.sh).
+        minSdk = 29
+        targetSdk = 35
+        versionCode = versionParts[0] * 10000 + versionParts[1] * 100 + versionParts[2]
+        versionName = engineVersion
+    }
+
+    sourceSets {
+        main {
+            java.srcDirs += [sdlJava]
+            jniLibs.srcDirs = [new File(shStage, 'jniLibs')]
+            assets.srcDirs = [new File(shStage, 'assets')]
+            res.srcDirs += [new File(shStage, 'res')]
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled = false
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
+    }
+
+    androidResources {
+        // base.zip is read as a stream once per build; compressing it again only costs time.
+        noCompress += 'zip'
+    }
+
+    packaging {
+        jniLibs {
+            // Uncompressed and page-aligned in the APK, loaded in place.
+            useLegacyPackaging = false
+        }
+    }
+
+    lint {
+        abortOnError = false
+    }
+}
+
+tasks.register('checkStagedFiles') {
+    doLast {
+        if (!sdlJava.isDirectory()) {
+            throw new GradleException("no SDL3 Java sources in ${sdlJava}: run tools/android/build.sh")
+        }
+        if (!new File(shStage, 'assets/base.zip').isFile() || !new File(shStage, 'jniLibs').isDirectory()) {
+            throw new GradleException("nothing staged in ${shStage}: run tools/android/build.sh")
+        }
+    }
+}
+preBuild.dependsOn checkStagedFiles

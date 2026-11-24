@@ -16,7 +16,8 @@
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <unistd.h>
-#if __has_include(<execinfo.h>)
+// Android's libc has backtrace() only from API level 33.
+#if __has_include(<execinfo.h>) && (!defined(__ANDROID__) || __ANDROID_API__ >= 33)
 #include <execinfo.h>
 #define SH_CRASH_HAS_BACKTRACE 1
 #endif

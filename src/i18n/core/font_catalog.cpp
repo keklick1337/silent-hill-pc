@@ -107,6 +107,10 @@ std::vector<fs::path> system_font_directories() {
     dirs.emplace_back("/usr/share/fonts");
     dirs.emplace_back("/usr/local/share/fonts");
     dirs.emplace_back("/usr/X11R6/lib/X11/fonts");
+#ifdef __ANDROID__
+    dirs.emplace_back("/system/fonts");
+    dirs.emplace_back("/product/fonts");
+#endif
 #endif
     // A directory named twice is walked once.
     std::vector<fs::path> unique;

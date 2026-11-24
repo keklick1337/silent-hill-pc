@@ -120,6 +120,12 @@ void close_on_exec_all() {
 }
 
 void relaunch() {
+#ifdef __ANDROID__
+    // The process is the system's app_process: an exec would not start the game. The game ends and the player starts
+    // it again from the launcher.
+    std::fprintf(stderr, "[RESTART] start the game again to apply the change\n");
+    return;
+#endif
     restore_stdio();
     close_on_exec_all();
     // exec keeps the signal mask and ignored signals: a thread that blocked SIGTERM (audio, SDL) would leave the

@@ -1,0 +1,110 @@
+name: Build Android
+
+# The Android APK for arm64-v8a, armeabi-v7a, x86_64 and x86 (docs/BUILDING.md
+# section 5): the game as libmain.so per ABI with the NDK, SDL3 and libjpeg-turbo
+# built from the pinned sources (tools/android-deps/build.sh), the repository's
+# base gamedata/ and the licenses, packaged by the Gradle project in android/
+# (tools/android/build.sh). The APK is signed with the runner's debug key.
+# release.yml calls this workflow on a v* tag and publishes the APK.
+on:
+  push:
+    branches: ['**']
+    paths-ignore: ['docs/**', '**.md']
+  pull_request:
+    paths-ignore: ['docs/**', '**.md']
+  workflow_dispatch:
+  workflow_call:
+    inputs:
+      version:
+        type: string
+        required: true
+
+concurrency:
+  # Not github.workflow: inside release.yml the builds would share the caller's name.
+  group: build-android-${{ github.ref }}
+  cancel-in-progress: ${{ !startsWith(github.ref, 'refs/tags/') }}
+
+env:
+  NDK_VERSION: '28.2.13676358'
+
+jobs:
+  android:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install build tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ninja-build nasm zip
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      # The SDK's command line tools, then the pinned NDK and platform.
+      - uses: android-actions/setup-android@v3
+        with:
+          packages: 'platform-tools'
+      - name: Install the NDK and the platform
+        run: |
+          sdkmanager --install "ndk;$NDK_VERSION" "platforms;android-36" "build-tools;36.0.0"
+          echo "ANDROID_NDK_HOME=$ANDROID_HOME/ndk/$NDK_VERSION" >> "$GITHUB_ENV"
+
+      # Gradle itself, pinned; the Android Gradle Plugin is pinned in android/settings.gradle.
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.14.2'
+
+      - name: Cache dependency sources
+        uses: actions/cache@v4
+        with:
+          path: third_party/deps/src
+          key: deps-src-android-${{ hashFiles('tools/win-deps/fetch.sh') }}
+
+      # Rebuilt whenever the pinned list or the build script changes.
+      - name: Cache Android dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            third_party/deps/android-arm64-v8a
+            third_party/deps/android-armeabi-v7a
+            third_party/deps/android-x86_64
+            third_party/deps/android-x86
+          key: android-deps-${{ env.NDK_VERSION }}-${{ hashFiles('tools/win-deps/fetch.sh', 'tools/android-deps/build.sh') }}
+
+      - name: Build
+        run: JOBS="$(nproc)" tools/android/build.sh
+
+      - name: Version
+        id: ver
+        run: |
+          v='${{ inputs.version }}'
+          [ -n "$v" ] || v="$(git describe --tags --always --dirty)"
+          echo "version=$v" >> "$GITHUB_OUTPUT"
+
+      # Every ABI's libraries in the APK, and nothing imported from a disc image in its base data.
+      - name: Check the APK
+        run: |
+          apk=android/app/build/outputs/apk/debug/app-debug.apk
+          list="$(unzip -l "$apk")"
+          for abi in arm64-v8a armeabi-v7a x86_64 x86; do
+            for lib in libmain.so libSDL3.so libc++_shared.so; do
+              grep -q "lib/$abi/$lib" <<<"$list" || { echo "missing lib/$abi/$lib"; exit 1; }
+            done
+          done
+          unzip -p "$apk" assets/base.zip > base.zip
+          if unzip -l base.zip | grep -E ' gamedata/(raw|convert|tables)/|version\.cfg'; then
+            echo "disc-derived files in the APK"; exit 1
+          fi
+          mkdir -p dist
+          cp "$apk" "dist/SilentHillPC-${{ steps.ver.outputs.version }}-android.apk"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: SilentHillPC-android
+          path: dist/*.apk
+          if-no-files-found: error

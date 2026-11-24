@@ -1,0 +1,24 @@
+// The Android build of the game (docs/BUILDING.md section 5). Run through tools/android/build.sh, which builds the
+// native libraries and the base data this project packages.
+pluginManagement {
+    repositories {
+        google()
+        mavenCentral()
+        gradlePluginPortal()
+    }
+    plugins {
+        // Pinned: the Android Gradle Plugin 8.13 needs Gradle 8.13 or newer (CI and docs: Gradle 8.14.2).
+        id 'com.android.application' version '8.13.1'
+    }
+}
+
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositories {
+        google()
+        mavenCentral()
+    }
+}
+
+rootProject.name = 'SilentHillPC'
+include ':app'

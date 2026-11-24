@@ -7,6 +7,11 @@ target_link_libraries(sh_upscale_tool PUBLIC sh_common)
 target_compile_options(sh_upscale_tool PRIVATE
     $<$<OR:$<CXX_COMPILER_ID:GNU>,$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>>:-Wall -Wextra -Wpedantic>)
 
+# The tool is not part of the Android build (docs/BUILDING.md section 5): the game there starts no helper programs.
+if(ANDROID)
+    return()
+endif()
+
 # ncnn from tools/ncnn/build.sh (the dependency prefix of this platform); without it only the game is built.
 get_filename_component(SH_UPSCALE_NCNN_PREFIX "${SH_UPSCALE_NCNN_PREFIX}" ABSOLUTE BASE_DIR "${PROJECT_SOURCE_DIR}")
 if(NOT TARGET ncnn)

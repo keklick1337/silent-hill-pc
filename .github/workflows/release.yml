@@ -1,6 +1,6 @@
 name: Release
 
-# A pushed v* tag builds the three packages and publishes them as a GitHub Release.
+# A pushed v* tag builds the packages (Linux, Windows, macOS, the Android APK) and publishes them as a GitHub Release.
 # The packages hold only engine binaries, the repository's base data and the
 # licenses: the game imports the user's own disc image at first run. The example
 # mods are published beside them as their own archive.
@@ -41,6 +41,12 @@ jobs:
     # The optional Developer ID certificate and notarization login (build-macos.yml).
     secrets: inherit
 
+  android:
+    needs: version
+    uses: ./.github/workflows/build-android.yml
+    with:
+      version: ${{ github.ref_name }}
+
   mods:
     needs: version
     uses: ./.github/workflows/example-mods.yml
@@ -48,7 +54,7 @@ jobs:
       version: ${{ github.ref_name }}
 
   publish:
-    needs: [linux, windows, macos, mods]
+    needs: [linux, windows, macos, android, mods]
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/download-artifact@v4
@@ -68,3 +74,4 @@ jobs:
             dist/*.tar.gz
             dist/*.zip
             dist/*.dmg
+            dist/*.apk

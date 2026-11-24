@@ -157,6 +157,19 @@ void resize_window(int width, int height)
     SDL_SyncWindow(g_window);
 }
 
+// The size the scene is drawn at: the chosen resolution, which a borderless window honours (Targets::resize). A phone's
+// window is the whole screen whatever config.cfg says, and its presets set the picture's share of it (render_scale):
+// a width and height from the file would draw a 768-line picture on a 1440-line screen there.
+static void set_render_size(int width, int height, WindowMode mode)
+{
+#ifdef __ANDROID__
+    width = height = 0;
+#endif
+    sh::render::graphics().render_width = width;
+    sh::render::graphics().render_height = height;
+    sh::render::graphics().fullscreen_mode = static_cast<int>(mode);
+}
+
 void apply_window_mode(int width, int height, WindowMode mode)
 {
     if (!g_window)
@@ -194,9 +207,7 @@ void apply_window_mode(int width, int height, WindowMode mode)
     // The window is the PRESENT size now. The renderer keeps its scene target at the RENDER size (the chosen
     // resolution) and stretches it to the window, so a borderless window honours the chosen resolution; it falls
     // back to the desktop size if no target can be made.
-    sh::render::graphics().render_width = width;
-    sh::render::graphics().render_height = height;
-    sh::render::graphics().fullscreen_mode = static_cast<int>(mode);
+    set_render_size(width, height, mode);
     sh::gpu::window_changed();
     update_mouse_confinement();
 }
@@ -252,9 +263,7 @@ void start(const char* title, int width, int height, WindowMode mode)
     g_window = sh::gpu::renderer()->host().window();
     // What the device granted (MSAA dropped when the window format could not carry it).
     sh::render::graphics().msaa_samples = sh::gpu::renderer()->host().msaa_samples();
-    sh::render::graphics().render_width = width;
-    sh::render::graphics().render_height = height;
-    sh::render::graphics().fullscreen_mode = static_cast<int>(mode);
+    set_render_size(width, height, mode);
 
     update_mouse_confinement();
 
