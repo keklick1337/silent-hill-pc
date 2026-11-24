@@ -20,6 +20,8 @@ namespace {
 
 namespace fs = std::filesystem;
 
+// Only a macOS bundle has a Resources folder to copy from.
+#ifdef __APPLE__
 constexpr std::string_view kMacOsDir = ".app/Contents/MacOS/";
 constexpr const char* kStampFile = ".bundle-files";
 
@@ -59,6 +61,7 @@ bool copy_resources(const fs::path& from, const fs::path& to) {
     if (ec) std::fprintf(stderr, "app bundle: cannot read %s: %s\n", from.c_str(), ec.message().c_str());
     return !ec;
 }
+#endif
 
 }  // namespace
 

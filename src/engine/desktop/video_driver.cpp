@@ -11,10 +11,12 @@ namespace sh::desktop {
 
 namespace {
 
+#ifdef __APPLE__
 bool offscreen_requested() {
     const char* driver = std::getenv("SDL_VIDEODRIVER");
     return driver != nullptr && std::strcmp(driver, "offscreen") == 0;
 }
+#endif
 
 }  // namespace
 
