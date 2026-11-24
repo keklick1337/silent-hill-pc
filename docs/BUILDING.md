@@ -177,9 +177,12 @@ cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_DISABLE_FIND_PAC
 cmake --build build
 tools/ci/package.sh build macos dev dist
 python3 -I tools/ci/check_package.py check dist/SilentHillPC-dev-macos-arm64.tar.gz macos --run
+tools/ci/package_dmg.sh dist/SilentHillPC-dev-macos-arm64.tar.gz dist
 ```
 
-The package is ad-hoc signed, not notarized: macOS keeps a downloaded copy in quarantine. After unpacking, `xattr -dr com.apple.quarantine <folder>` lets it start (or *Open* from the Finder's context menu, then *Open Anyway* in *System Settings > Privacy & Security*).
+`package_dmg.sh` turns the checked package into what Mac users install: `Silent Hill PC.app` (the binaries and dylibs in `Contents/MacOS`, everything else in `Contents/Resources`, the icon made from `assets/icon/master.png`) in `SilentHillPC-<version>-macos-<cpu>.dmg` beside an *Applications* link. A bundle cannot be written to, so the game started from it keeps its root (`config.cfg`, `gamedata/` with the import, `.savegames/`, `logs/`, `mods/`) in `~/Library/Application Support/Silent Hill PC/` and copies the bundle's resources there once per build (`src/engine/app/app_bundle.h`; `PcPaths_BinDir` is where the binaries are, `PcPaths_ResourceDir` the read-only files).
+
+Without a certificate the app is signed ad hoc and not notarized: macOS refuses a downloaded copy once, until *Open Anyway* in *System Settings > Privacy & Security* (or `xattr -dr com.apple.quarantine` on it). With an Apple Developer ID the workflow signs with the hardened runtime and notarizes: set the repository secrets `MACOS_CERTIFICATE_P12` (the base64 of the exported "Developer ID Application" certificate), `MACOS_CERTIFICATE_PASSWORD`, `MACOS_SIGN_IDENTITY` (its name, `Developer ID Application: <name> (<team>)`), and for notarization `MACOS_NOTARY_APPLE_ID`, `MACOS_NOTARY_TEAM_ID` and `MACOS_NOTARY_PASSWORD` (an app-specific password). Locally the same comes from `SH_MACOS_SIGN_IDENTITY` and `SH_NOTARY_*`.
 
 ### 3.4 Notes
 

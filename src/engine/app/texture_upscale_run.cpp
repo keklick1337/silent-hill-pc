@@ -3,6 +3,7 @@
 #include <cctype>
 #include <chrono>
 #include <cstdio>
+#include <cstring>
 #include <filesystem>
 #include <fstream>
 #include <iterator>
@@ -115,9 +116,9 @@ bool spawn(const fs::path& exe, const std::vector<std::string>& args) {
 
 fs::path tool_path() {
 #ifdef _WIN32
-    return fs::path(PcPaths_ExeDir()) / "sh-upscale.exe";
+    return fs::path(PcPaths_BinDir()) / "sh-upscale.exe";
 #else
-    return fs::path(PcPaths_ExeDir()) / "sh-upscale";
+    return fs::path(PcPaths_BinDir()) / "sh-upscale";
 #endif
 }
 
@@ -189,8 +190,14 @@ bool start(int scale) {
         spawn(exe, {L"--gamedata", gamedata.wstring(), L"--scale", std::wstring(scale_text.begin(), scale_text.end()),
                     L"--log", log.wstring(), L"--lettering", lettering.wstring(), L"--skip", skip.wstring()});
 #else
-    const bool started = spawn(exe, {"--gamedata", gamedata.string(), "--scale", scale_text, "--log", log.string(),
-                                     "--lettering", lettering.string(), "--skip", skip.string()});
+    std::vector<std::string> args{"--gamedata", gamedata.string(), "--scale",          scale_text, "--log",
+                                  log.string(), "--lettering",     lettering.string(), "--skip",   skip.string()};
+    // A macOS bundle keeps the model with the other resources, not beside the tool.
+    if (std::strcmp(PcPaths_ResourceDir(), PcPaths_BinDir()) != 0) {
+        args.push_back("--models");
+        args.push_back((fs::path(PcPaths_ResourceDir()) / "upscale-models").string());
+    }
+    const bool started = spawn(exe, args);
 #endif
     if (!started) {
         SH_LOG_WARN(GAME, "texture upscaling: %s did not start; the original textures stay", exe.string().c_str());

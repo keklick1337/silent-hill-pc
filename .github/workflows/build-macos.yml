@@ -1,7 +1,8 @@
 name: Build macOS
 
 # Release build on macOS for Apple silicon (arm64), unit tests without a disc
-# image, and a tar.gz package (tools/ci/package.sh: engine binaries, the
+# image, a disk image with "Silent Hill PC.app" (tools/ci/package_dmg.sh) and
+# the tar.gz package it is made from (tools/ci/package.sh: engine binaries, the
 # project's FFmpeg dylibs, MoltenVK, the repository's base gamedata/, licenses;
 # tools/ci/check_package.py checks the archive and starts the game from it).
 # SDL3 and libjpeg-turbo are linked statically, OpenAL and OpenGL are the
@@ -35,6 +36,8 @@ jobs:
       SDL_AUDIO_DRIVER: dummy
       # On macOS the game answers it with hidden Cocoa windows (src/engine/desktop/video_driver.h).
       SDL_VIDEODRIVER: offscreen
+      # Developer ID signing only when the repository has the certificate.
+      HAS_SIGNING: ${{ secrets.MACOS_CERTIFICATE_P12 != '' }}
       HOMEBREW_NO_AUTO_UPDATE: '1'
       HOMEBREW_NO_INSTALL_CLEANUP: '1'
     steps:
@@ -108,8 +111,54 @@ jobs:
       - name: Check the package
         run: python3 -I tools/ci/check_package.py check dist/*.tar.gz macos --run
 
+      # Optional Developer ID signing and notarization: with these repository
+      # secrets the app opens without a warning. Without them it is signed ad
+      # hoc and macOS asks once to allow it (README, First start).
+      - name: Import the signing certificate
+        if: env.HAS_SIGNING == 'true'
+        env:
+          MACOS_CERTIFICATE_P12: ${{ secrets.MACOS_CERTIFICATE_P12 }}
+          MACOS_CERTIFICATE_PASSWORD: ${{ secrets.MACOS_CERTIFICATE_PASSWORD }}
+        run: |
+          keychain="$RUNNER_TEMP/signing.keychain-db"
+          password="$(uuidgen)"
+          echo "$MACOS_CERTIFICATE_P12" | base64 --decode > "$RUNNER_TEMP/certificate.p12"
+          security create-keychain -p "$password" "$keychain"
+          security set-keychain-settings -lut 21600 "$keychain"
+          security unlock-keychain -p "$password" "$keychain"
+          security import "$RUNNER_TEMP/certificate.p12" -P "$MACOS_CERTIFICATE_PASSWORD" \
+            -A -t cert -f pkcs12 -k "$keychain"
+          security set-key-partition-list -S apple-tool:,apple: -k "$password" "$keychain"
+          security list-keychains -d user -s "$keychain" $(security list-keychains -d user | tr -d '"')
+          rm "$RUNNER_TEMP/certificate.p12"
+
+      # "Silent Hill PC.app" in a disk image, made from the checked package.
+      - name: Disk image
+        env:
+          SH_MACOS_SIGN_IDENTITY: ${{ secrets.MACOS_SIGN_IDENTITY }}
+          SH_NOTARY_APPLE_ID: ${{ secrets.MACOS_NOTARY_APPLE_ID }}
+          SH_NOTARY_TEAM_ID: ${{ secrets.MACOS_NOTARY_TEAM_ID }}
+          SH_NOTARY_PASSWORD: ${{ secrets.MACOS_NOTARY_PASSWORD }}
+        run: tools/ci/package_dmg.sh dist/*.tar.gz dist
+
+      # The app as a user starts it: from the mounted image (read only), its
+      # root in a fresh home's Application Support.
+      - name: Check the disk image
+        run: |
+          mnt="$RUNNER_TEMP/dmg"
+          mkdir -p "$mnt" "$RUNNER_TEMP/home"
+          hdiutil attach -nobrowse -readonly -mountpoint "$mnt" dist/*.dmg
+          app="$mnt/Silent Hill PC.app"
+          codesign --verify --strict --deep "$app"
+          HOME="$RUNNER_TEMP/home" "$app/Contents/MacOS/SilentHillPC" --version | tee "$RUNNER_TEMP/version.txt"
+          grep -q "Silent Hill PC" "$RUNNER_TEMP/version.txt"
+          test -f "$RUNNER_TEMP/home/Library/Application Support/Silent Hill PC/gamedata/game.json"
+          hdiutil detach "$mnt"
+
       - uses: actions/upload-artifact@v4
         with:
           name: SilentHillPC-macos-arm64
-          path: dist/*.tar.gz
+          path: |
+            dist/*.dmg
+            dist/*.tar.gz
           if-no-files-found: error

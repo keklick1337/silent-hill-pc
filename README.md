@@ -61,15 +61,23 @@ Get the latest build from the [Releases page](https://github.com/keklick1337/sil
 
 - Windows: `SilentHillPC-<version>-windows-x86_64.zip`
 - Linux: `SilentHillPC-<version>-linux-x86_64.tar.gz`
-- macOS (Apple silicon): `SilentHillPC-<version>-macos-arm64.tar.gz`
+- macOS (Apple silicon): `SilentHillPC-<version>-macos-arm64.dmg` (the same as a folder: `SilentHillPC-<version>-macos-arm64.tar.gz`)
 
  A package holds the engine, every library it needs, the base data and the licenses — and no game files.
 
 ## First start
 
+On Windows and Linux:
+
 1. Unpack it anywhere you can write to.
 2. Put your disc image (`.cue` and `.bin`) beside the executable or into a `data/` folder beside it — or pass its path with `--image`.
-3. Start `SilentHillPC.exe` (Windows) or `./SilentHillPC` (Linux, macOS). The macOS package is not notarized: once after unpacking, run `xattr -dr com.apple.quarantine <folder>` in the Terminal, or macOS refuses to open it.
+3. Start `SilentHillPC.exe` (Windows) or `./SilentHillPC` (Linux).
+
+On macOS:
+
+1. Open the `.dmg` and drag *Silent Hill PC* to *Applications*.
+2. Start it. The app is not notarized, so the first start is refused once: open *System Settings > Privacy & Security* and press *Open Anyway* (or, in the Terminal, `xattr -dr com.apple.quarantine "/Applications/Silent Hill PC.app"`).
+3. The import window asks for the disc image: press Browse or drop the `.cue` onto it. The game keeps its data, settings and saves in `~/Library/Application Support/Silent Hill PC/` (put mods into `mods/` there).
 
 The first start opens a quick setup in a window before anything else: the language, the renderer (OpenGL, close to the original and light enough for any machine, or Vulkan with HDR, volumetric fog, ray tracing and upscaling), a graphics preset and the display, each preselected from the detected graphics card. *Apply* writes them into `config.cfg`; everything else is in the in-game *Options*, where *Run Quick Setup* brings the screen back (so does `--setup`). Then the first start imports the disc image into `gamedata/` and shows a progress window; this takes from half a minute to a few minutes and happens once. After that the disc image is no longer read and the game starts at once. A newer release that needs a new import does it by itself from the same image. When no image is found, the window asks for it: press Browse, type the path or drop the file onto the window, then Import; the path is remembered in `config.cfg` (`import_image`).
 

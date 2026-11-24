@@ -38,6 +38,8 @@ jobs:
     uses: ./.github/workflows/build-macos.yml
     with:
       version: ${{ github.ref_name }}
+    # The optional Developer ID certificate and notarization login (build-macos.yml).
+    secrets: inherit
 
   mods:
     needs: version
@@ -65,3 +67,4 @@ jobs:
           files: |
             dist/*.tar.gz
             dist/*.zip
+            dist/*.dmg

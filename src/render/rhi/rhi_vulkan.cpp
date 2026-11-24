@@ -15,6 +15,10 @@
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_vulkan.h>
 
+#ifdef __APPLE__
+#include <mach-o/dyld.h>
+#endif
+
 #include <algorithm>
 #include <cmath>
 #include <cstdio>
@@ -2894,9 +2898,14 @@ bool loadVulkanLibrary() {
     // The package's own MoltenVK first, then a loader (it finds MoltenVK through its ICD file, and the validation
     // layer), then MoltenVK alone.
     std::vector<std::string> candidates;
-    if (const char* base = SDL_GetBasePath()) {
-        candidates.push_back(std::string(base) + "libvulkan.1.dylib");
-        candidates.push_back(std::string(base) + "libMoltenVK.dylib");
+    // Beside the executable: in an application bundle that is Contents/MacOS, which SDL_GetBasePath does not answer.
+    char exe[4096];
+    std::uint32_t size = sizeof(exe);
+    if (_NSGetExecutablePath(exe, &size) == 0) {
+        std::string dir(exe);
+        dir.erase(dir.find_last_of('/') + 1);
+        candidates.push_back(dir + "libvulkan.1.dylib");
+        candidates.push_back(dir + "libMoltenVK.dylib");
     }
     for (const char* name :
          {"libvulkan.1.dylib", "/usr/local/lib/libvulkan.1.dylib", "/opt/homebrew/lib/libvulkan.1.dylib",

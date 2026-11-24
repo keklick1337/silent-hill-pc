@@ -23,6 +23,7 @@
 #include "engine/app/command_script.h"
 #include "engine/app/control_scheme.h"
 #include "engine/app/dialog.h"
+#include "engine/app/app_bundle.h"
 #include "engine/app/first_run/first_run.h"
 #include "engine/app/quick_setup/hardware_probe.h"
 #include "engine/app/quick_setup/quick_setup.h"
@@ -736,6 +737,8 @@ int main(int argc, char* argv[]) {
     // The restart hook first, so it runs last of all at exit. The manifest root before anything logs: the log
     // file's name and the disc names come from gamedata/game.json.
     sh::app::remember_command_line(argc, argv);
+    // Before any path: started from a macOS bundle, the root moves to the user's Application Support.
+    sh::app::use_bundle_root();
     sh::mods::set_restart_handler(sh::app::restart);
     MapManifest_SetRoot(PcPaths_ExeDir());
     ShLog_Init();
