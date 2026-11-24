@@ -77,6 +77,22 @@ bool collect_casters(const SplitBatch& batch, float near_z, std::vector<float>* 
     return any_scene || !positions->empty();
 }
 
+ShadowSettings for_map_light(const ShadowSettings& base, const LightShadow& light) {
+    if (base.flashlight_active || !base.config_shadows) return base;
+    ShadowSettings s = base;
+    s.use_shadows = true;
+    s.per_pixel = true;
+    s.flashlight_active = true;
+    s.map_light = true;
+    s.light = {};
+    s.light.outerCos = light.cos_half;
+    s.light.range = light.range;
+    s.light.position = light.position;
+    s.light.direction = light.axis;
+    s.light.zNear = std::max(light.near_clip, s.light.zNear);
+    return s;
+}
+
 bool pass_active(const ShadowSettings& s) {
     return s.use_shadows && s.config_shadows && s.per_pixel && s.flashlight_active && s.allowed && !s.frozen;
 }

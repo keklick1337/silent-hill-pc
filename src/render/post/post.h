@@ -45,6 +45,7 @@ struct ShadowLightInput {
     std::array<float, 3> direction{0.f, 0.f, 1.f};
     bool fpsMode = false;
     float fpsDrop = 0.f;              // extra pull-back along -direction in FPS mode
+    float zNear = 20.f;               // casters closer to the light are left out (the hand that holds it)
 };
 
 struct ShadowLight {

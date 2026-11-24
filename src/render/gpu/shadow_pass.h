@@ -14,6 +14,7 @@
 #include <array>
 #include <cstdint>
 #include <functional>
+#include <optional>
 #include <span>
 #include <vector>
 
@@ -37,6 +38,17 @@ struct ShadowSettings {
     float fade_distance = 0.f;
     float near_z = 16.f;             // precise-vertex near plane: casters closer than this are dropped
     post::ShadowLightInput light;    // inputs of the light matrix
+    bool map_light = false;          // the map is a map light's (LightShadow), not the flashlight's
+};
+
+// A light of the map that takes the shadow map while the flashlight is off (lights.json "shadow_map"), view space.
+struct LightShadow {
+    std::array<float, 3> position{};
+    std::array<float, 3> axis{0.f, 0.f, 1.f};  // the map's forward axis
+    float cos_half = 0.f;                      // the cosine of the half angle the map must cover
+    float range = 1024.f;                      // the light is gone at this distance
+    float near_clip = 0.f;                     // casters closer to it are left out (the hand that holds it)
+    std::int32_t frame_light = -1;             // its index in scene::Frame::lights
 };
 
 // The settings as the render state holds them (render_state.h; shadow_state.cpp).
@@ -63,6 +75,8 @@ bool split_casts(const Split& split);
 bool collect_casters(const SplitBatch& batch, float near_z, std::vector<float>* positions,
                      std::vector<std::int32_t>* scene_items);
 
+// The settings with `light` taking the map: only while the flashlight is off, with the preset's shadows on.
+ShadowSettings for_map_light(const ShadowSettings& base, const LightShadow& light);
 // The pre-pass runs this frame.
 bool pass_active(const ShadowSettings& s);
 // The receivers sample a map (no `allowed`: a map built on the last gameplay frame stays right while paused).
@@ -92,8 +106,22 @@ public:
     ShadowPass(const ShadowPass&) = delete;
     ShadowPass& operator=(const ShadowPass&) = delete;
 
-    void set_settings(const ShadowSettings& settings) { settings_ = settings; }
+    void set_settings(const ShadowSettings& settings) {
+        base_ = settings;
+        settings_ = map_light_ ? shadow::for_map_light(base_, *map_light_) : base_;
+    }
+    // A map light that takes the map this frame while the flashlight does not (none: the flashlight's alone).
+    void set_map_light(const std::optional<LightShadow>& light) {
+        map_light_ = light;
+        set_settings(base_);
+    }
     const ShadowSettings& settings() const { return settings_; }
+    // The index in scene::Frame::lights of the map light the receivers shade through the map; -1: none.
+    std::int32_t shadowed_light() const {
+        return settings_.map_light && shadow::sampling_on(settings_, static_cast<bool>(depth_)) && map_light_
+                   ? map_light_->frame_light
+                   : -1;
+    }
     void set_scene_casters(SceneCasters casters) { scene_ = std::move(casters); }
 
     bool active() const;
@@ -114,7 +142,9 @@ private:
     void release_target();
 
     Renderer& owner_;
-    ShadowSettings settings_;
+    ShadowSettings base_;      // the flashlight's, from the render state
+    ShadowSettings settings_;  // in effect: base_, or the map light's
+    std::optional<LightShadow> map_light_;
     SceneCasters scene_;
     rhi::TextureH depth_, color_;
     int size_ = 0;       // allocated side

@@ -14,6 +14,7 @@
 #include <array>
 #include <cstdint>
 #include <memory>
+#include <optional>
 #include <span>
 #include <string>
 #include <vector>
@@ -30,6 +31,8 @@ struct RayScene;
 }  // namespace sh::rhi
 
 namespace sh::gpu {
+
+struct LightShadow;
 
 class Renderer;
 
@@ -161,6 +164,10 @@ public:
     // One layer of the shadow map: the depth of the solid texels, or (tint) what the blended ones let through.
     void draw_scene_casters(rhi::RenderPass& pass, std::int32_t item, const std::array<float, 16>& light_matrix,
                             float z_far, bool tint);
+
+    // The light of this frame that takes the flashlight's shadow map while the flashlight is off (lights.json
+    // "shadow_map"), where it is shaded without the ray tracer's own shadows.
+    std::optional<LightShadow> map_light_shadow();
 
     struct Stats {
         std::uint64_t splits = 0, draws = 0, scenes = 0, failures = 0;

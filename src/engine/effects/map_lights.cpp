@@ -109,8 +109,9 @@ std::vector<MapCeiling> ceilings_of(const json::Value& list) {
 MapLight light_of(const json::Value& v) {
     if (!v.is_object()) parse::fail(v, "a light is an object");
     parse::reject_unknown(
-        v, {"name", "description", "type", "position", "direction", "cone", "color", "intensity", "range", "radius",
-            "casts_shadows", "gi", "flags_set", "flags_clear", "when", "extra", "bone", "while_effect", "flicker"});
+        v, {"name",        "description", "type",   "position",      "direction",    "cone",   "color",
+            "intensity",   "range",       "radius", "casts_shadows", "shadow_map",   "gi",     "flags_set",
+            "flags_clear", "when",        "extra",  "bone",          "while_effect", "flicker"});
     MapLight l;
     const json::Value& name = parse::member(v, "name");
     if (!name.is_string() || name.string().empty()) parse::fail(name, "\"name\" is the light's name");
@@ -134,6 +135,7 @@ MapLight light_of(const json::Value& v) {
     l.range = number_or(v, "range", 6.0f, 0.1, 64.0);
     l.radius = number_or(v, "radius", 0.05f, 0.0, 2.0);
     l.casts_shadows = bool_or(v, "casts_shadows", true);
+    l.shadow_map = bool_or(v, "shadow_map", false);
     l.gi = bool_or(v, "gi", true);
     l.flags_set = names_of(v, "flags_set");
     l.flags_clear = names_of(v, "flags_clear");

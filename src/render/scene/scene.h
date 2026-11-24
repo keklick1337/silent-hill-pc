@@ -73,6 +73,10 @@ struct FrameLight {
     float radius = 8;     // the emitter's size: the softness of its ray-traced shadows
     float near_clip = 0;  // shadow rays stop this short of it (the hand that holds it)
     bool casts_shadows = true;
+    // Without ray tracing it may take the flashlight's shadow map while the flashlight is off (lights.json
+    // "shadow_map"); the map looks along shadow_axis (world, unit), a spot along its own axis.
+    bool shadow_map = false;
+    std::array<float, 3> shadow_axis{0, 1, 0};
     bool gi = true;  // it bounces (rt_gi)
     // A lamp of the extra_lights setting: drawn by every renderer, also where the map's other lights are off.
     bool extra = false;
@@ -205,6 +209,7 @@ struct LightBlock {
     std::array<float, 4> sun_map{};      // x: map side (texels), y: depth range (view units), z: flake opacity,
                                          // w: 1 the flakes also shade the flashlight
     std::array<float, 16> sun_matrix{};  // view space to the sun map's clip space (GL convention, rows as written)
+    std::array<float, 4> shadow{};       // x: 1 + the light shaded through the flashlight's shadow map, 0: none
     std::array<std::array<float, 4>, kSceneLights> pos{};     // xyz, w: range
     std::array<std::array<float, 4>, kSceneLights> dir{};     // a spot's axis (zero: point), w: outer cone cosine
     std::array<std::array<float, 4>, kSceneLights> color{};   // rgb, w: inner cone cosine
@@ -221,6 +226,9 @@ struct View {
     float pixel_h = 0;
     rhi::PrimFsUniforms fs;          // fog colour and strength, soft fog, filter, dither, flashlight
     rhi::FogRampUniforms fog;        // the fog ramp
+    // `fog`'s ramp as the fragment shader fetches it (PrimRenderer::fogRamp, uploaded with the same ramp). None: a
+    // black texel, which serves only a draw without fog (params[0] off).
+    rhi::TextureH fog_ramp;
     rhi::TextureH shadow_map;       // flashlight shadow depth (fs.prog[3] on)
     rhi::SamplerH shadow_sampler;   // the map's sampler; SDL3 GPU drops a binding without one
     rhi::TextureH shadow_tint;      // what translucent surfaces let through the same map; none: nothing is tinted

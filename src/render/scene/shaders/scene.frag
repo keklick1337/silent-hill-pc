@@ -97,6 +97,7 @@ SH_UBO(3) uniform SceneFrame {
     vec4 u_sunColor;   // rgb, w: angular radius (radians)
     vec4 u_sunMap;     // x: side (texels), y: depth range (view units), z: flake opacity, w: flakes shade the beam
     mat4 u_sunMatrix;  // view space to the sun map's clip space
+    vec4 u_lShadow;    // x: 1 + the map light shaded through the flashlight's shadow map (u_prog.w), 0: none
     vec4 u_lPos[32];    // xyz, w: range
     vec4 u_lDir[32];    // a spot's axis (zero: a point light), w: outer cone cosine
     vec4 u_lColor[32];  // rgb, w: inner cone cosine
@@ -105,12 +106,11 @@ SH_UBO(3) uniform SceneFrame {
 
 // The sun's shadow map (sun_shadows): window depth of the nearest caster towards the sun.
 SH_SAMPLER(7) uniform sampler2D s_sunShadow;
+// The fog ramp's bytes (PrimRenderer::fogRamp): a texel fetch, since indexing u_fogRamp per pixel is a slow path
+// on some GPUs. WorldFog keeps the ramp for the vertex stage, and GL links the block of both stages as one.
+SH_SAMPLER(8) uniform sampler2D s_fogRamp;
 
-float FogRampAt(int i) {
-    vec4 r = u_fogRamp[i / 4];
-    int c = i - (i / 4) * 4;
-    return (c == 0) ? r.x : ((c == 1) ? r.y : ((c == 2) ? r.z : r.w));
-}
+float FogRampAt(int i) { return floor(texelFetch(s_fogRamp, ivec2(i, 0), 0).r * 255.0 + 0.5); }
 
 float FogAmountAtZ(float z) {
     float fi = z * u_fogRampP.y;
@@ -301,10 +301,19 @@ float SunShadow(vec3 p, vec3 N, float nl, float rot) {
 // The map's lights and the sun on the surface without ray tracing (map_lights): the same unshadowed light as the
 // ray tracer's (colour, a spot's cone, the modern beam's windowed falloff, the fog of the way from the light; the sun
 // fades with the fog between the eye and the point), Lambert, times the caller's albedo. The sun takes its shadow
-// map and the flakes' term; the map lights are unshadowed.
+// map and the flakes' term; one map light may take the flashlight's shadow map while the flashlight is off (a held
+// flame, lights.json "shadow_map"); the others are unshadowed.
 vec3 MapLights(vec3 p, vec3 N) {
     vec3 sum = vec3(0.0);
     int count = int(u_lInfo.x + 0.5);
+    // Before the loop: the filter's derivatives need every pixel of the quad to take it.
+    int shadowed = int(u_lShadow.x + 0.5) - 1;
+    vec3 held = vec3(1.0);
+    if (shadowed >= 0 && u_prog.w > 0.5) {
+        vec3 d = u_lPos[shadowed].xyz - p;
+        float dist = length(d);
+        if (dist < u_lPos[shadowed].w) held = FlashlightShadow(p, d / max(dist, 1e-4), dist);
+    }
     for (int i = 0; i < count; ++i) {
         vec3 d = u_lPos[i].xyz - p;
         float dist = length(d);
@@ -313,7 +322,7 @@ vec3 MapLights(vec3 p, vec3 N) {
         if (dist >= u_lPos[i].w || nl <= 0.0) continue;
         float k = ModernFalloff(dist, u_lPos[i].w);
         if (dot(u_lDir[i].xyz, u_lDir[i].xyz) > 0.5) k *= smoothstep(u_lDir[i].w, u_lColor[i].w, dot(-l, u_lDir[i].xyz));
-        sum += u_lColor[i].rgb * (k * nl * (1.0 - FogAlong(dist)));
+        sum += u_lColor[i].rgb * (k * nl * (1.0 - FogAlong(dist))) * (i == shadowed ? held : vec3(1.0));
     }
     if (u_lInfo.y > 0.5) {
         vec3 l = -normalize(u_sunDir.xyz);

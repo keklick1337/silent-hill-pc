@@ -33,7 +33,7 @@ SH_TEST(map_lights_keys) {
         "lights": [
             {"name": "Lamp", "position": [1, -2, 3], "color": [1, 0.5, 0.25], "intensity": 2, "range": 4},
             {"name": "Match", "bone": "RightHand", "position": [0, 0, 0.1], "while_effect": "HandFlame",
-             "flicker": 0.5, "casts_shadows": false},
+             "flicker": 0.5, "casts_shadows": false, "shadow_map": true},
             {"name": "Beam", "type": "spot", "position": [0, 0, 0], "direction": [0, 2, 0], "cone": [20, 40]}
         ],
         "sun": {"direction": [1, 1, 0], "intensity": 0.5},
@@ -45,6 +45,7 @@ SH_TEST(map_lights_keys) {
     SH_CHECK(m.lights.size() == 3);
     SH_CHECK(m.lights[0].position[1] == -2.0f && m.lights[0].range == 4.0f && m.lights[0].bone < 0);
     SH_CHECK(m.lights[1].bone >= 0 && m.lights[1].while_effect == "HandFlame" && !m.lights[1].casts_shadows);
+    SH_CHECK(m.lights[1].shadow_map && !m.lights[0].shadow_map);
     SH_CHECK(m.lights[2].spot && m.lights[2].direction[1] == 1.0f && m.lights[2].cone_outer == 40.0f);
     SH_CHECK(m.sun.has_value() && m.sun->intensity == 0.5f && m.sun->sky_intensity == 0.2f);
     SH_CHECK(m.sun && m.sun->direction[0] > 0.70f && m.sun->direction[0] < 0.71f);

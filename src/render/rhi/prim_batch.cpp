@@ -2,6 +2,7 @@
 
 #include "render/rhi/shaders/embedded.h"
 
+#include <algorithm>
 #include <cstddef>
 #include <cstring>
 #include <vector>
@@ -27,7 +28,7 @@ constexpr VertexAttribute kAttributes[] = {
 // two blocks of a program. The GL backend binds it at the fragment slot; SPIR-V keeps both slots.
 constexpr std::string_view kVsBlocks[] = {"VsFrame", "WorldFog"};
 constexpr std::string_view kFsBlocks[] = {"FsFrame", "WorldFog"};
-constexpr std::string_view kFsSamplers[] = {"s_vram", "s_rgba", "s_shadow"};
+constexpr std::string_view kFsSamplers[] = {"s_vram", "s_rgba", "s_shadow", "s_fogRamp"};
 
 // AddQuarter reads the hardware's B + F/4 through a constant of 0.25. The other blended modes report the same
 // constant so that switching between blended modes never changes the blend constants (the frame's other GL
@@ -132,6 +133,7 @@ PrimRenderer::~PrimRenderer() {
     device_.destroy(sampler_);
     device_.destroy(externalSampler_);
     device_.destroy(vram_);
+    device_.destroy(fogRamp_);
 }
 
 Result<std::unique_ptr<PrimRenderer>> PrimRenderer::create(Device& device, TextureFormat colorFormat,
@@ -142,6 +144,9 @@ Result<std::unique_ptr<PrimRenderer>> PrimRenderer::create(Device& device, Textu
     auto vram = device.createTexture({TextureFormat::RG8, kVramWidth, kVramHeight, kUsageSampled, "prim_vram"});
     if (!vram) return R::fail(vram.error());
     self->vram_ = vram.value();
+    auto fogRamp = device.createTexture({TextureFormat::R8, kFogRampEntries, 1, kUsageSampled, "fog_ramp"});
+    if (!fogRamp) return R::fail(fogRamp.error());
+    self->fogRamp_ = fogRamp.value();
 
     // VRAM holds palette indices: hardware filtering would blend indices, so it is always nearest and the
     // shader filters after the CLUT lookup.
@@ -190,6 +195,16 @@ Result<void> PrimRenderer::uploadVertices(CommandList& cmd, std::span<const Prim
     return Result<void>::ok();
 }
 
+void PrimRenderer::uploadFogRamp(CommandList& cmd, const FogRampUniforms& fog) {
+    std::array<std::uint8_t, kFogRampEntries> bytes{};
+    for (std::size_t i = 0; i < bytes.size(); ++i)
+        bytes[i] = static_cast<std::uint8_t>(std::clamp(fog.ramp[i], 0.f, 255.f));
+    if (fogRampUploaded_ && bytes == fogRampBytes_) return;
+    cmd.uploadTexture(fogRamp_, {0, 0, static_cast<std::int32_t>(kFogRampEntries), 1}, std::as_bytes(std::span(bytes)));
+    fogRampBytes_ = bytes;
+    fogRampUploaded_ = true;
+}
+
 Result<PipelineH> PrimRenderer::pipeline(const PrimPipelineKey& key) {
     const std::uint32_t packed = key.pack();
     if (auto it = pipelines_.find(packed); it != pipelines_.end()) return Result<PipelineH>::ok(it->second);
@@ -216,6 +231,7 @@ void PrimRenderer::beginDraws(RenderPass& pass, const PrimVsUniforms& vs, const 
     pass.bindSampler(ShaderStage::Fragment, kPrimSamplerVram, vram(), vramSampler());
     pass.bindSampler(ShaderStage::Fragment, kPrimSamplerRgba, vram(), vramSampler());
     pass.bindSampler(ShaderStage::Fragment, kPrimSamplerShadow, vram(), vramSampler());
+    pass.bindSampler(ShaderStage::Fragment, kPrimSamplerFogRamp, fogRamp_, sampler_);
     pass.pushUniforms(ShaderStage::Vertex, 0, std::as_bytes(std::span(&vs, 1)));
     vsUniforms_ = vs;
     haveVs_ = true;

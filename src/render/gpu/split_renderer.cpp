@@ -96,12 +96,14 @@ std::array<float, 3> to_view(const scene::Camera& c, const std::array<float, 3>&
 }
 
 // The frame's map lights and sun in view space (rt_lights): only lights that can reach a point the fog leaves
-// visible, the nearest first, at most kMaxRayLights. extra_only: just the lamps of extra_lights, without the sun (the
-// map's other lights are off).
-void describe_lights(const scene::Frame& frame, float fog_far, rhi::RayTracer::View* rv, bool extra_only = false) {
+// visible, the nearest first, at most kMaxRayLights. extra_only: just the lamps of extra_lights and the light that
+// takes the flashlight's shadow map (frame light `shadowed`), without the sun (the map's other lights are off).
+void describe_lights(const scene::Frame& frame, float fog_far, rhi::RayTracer::View* rv, bool extra_only = false,
+                     std::int32_t shadowed = -1) {
     rv->mapLights.clear();
-    for (const scene::FrameLight& l : frame.lights) {
-        if (extra_only && !l.extra) continue;
+    for (std::size_t i = 0; i < frame.lights.size(); ++i) {
+        const scene::FrameLight& l = frame.lights[i];
+        if (extra_only && !l.extra && static_cast<std::int32_t>(i) != shadowed) continue;
         rhi::RayTracer::View::Light out;
         const std::array<float, 3> p = to_view(frame.camera, l.position, true);
         const float dist = std::sqrt(p[0] * p[0] + p[1] * p[1] + p[2] * p[2]);
@@ -143,6 +145,10 @@ void describe_lights(const scene::Frame& frame, float fog_far, rhi::RayTracer::V
     }
 }
 
+// A point light's shadow map spans this cone around its axis (a cosine; 70 degrees): one perspective map cannot
+// take a whole sphere, and a held flame's shadows that matter (the body, the ground and walls behind it) lie in it.
+constexpr float kPointLightShadowCos = 0.342f;
+
 // How much of a light a flake holds back (particle_shadows): snow and ash are thin, so their shadows stay faint.
 constexpr float kFlakeOpacity = 0.55f;
 // Without the flashlight the flakes nearest this view point cast (about where the camera looks at Harry).
@@ -154,17 +160,24 @@ constexpr float kFlakeAnchorZ = 768.0f;
 // The lamps of extra_lights need none of the native Vulkan passes: they shade on every backend, also where
 // map_lights is off or unavailable (atmosphere: whether the native passes run).
 void describe_scene_lights(const scene::Frame& frame, float fog_far, bool traced, bool atmosphere,
-                           const SunShadowPass& sun, scene::View* view) {
+                           const SunShadowPass& sun, std::int32_t shadowed, scene::View* view) {
     const render::AtmosphereSettings& s = render::atmosphere();
     scene::LightBlock& b = view->lights;
     b = {};
     const bool all = atmosphere && s.map_lights != 0;
     if ((all || render::graphics().extra_lights != 0) && !traced) {
         rhi::RayTracer::View lights;
-        describe_lights(frame, fog_far, &lights, !all);
+        describe_lights(frame, fog_far, &lights, !all, shadowed);
+        // The same transform gives the same numbers: the block's entry of the light the shadow map belongs to.
+        std::array<float, 3> shadowed_at{};
+        if (shadowed >= 0)
+            shadowed_at = to_view(frame.camera, frame.lights[static_cast<std::size_t>(shadowed)].position, true);
         std::size_t n = 0;
         for (const rhi::RayTracer::View::Light& l : lights.mapLights) {
             if (n >= scene::kSceneLights) break;
+            if (shadowed >= 0 && b.shadow[0] == 0.0f && l.position[0] == shadowed_at[0] &&
+                l.position[1] == shadowed_at[1] && l.position[2] == shadowed_at[2])
+                b.shadow[0] = static_cast<float>(n + 1);
             b.pos[n] = l.position;
             b.dir[n] = l.direction;
             b.color[n] = l.color;
@@ -468,9 +481,11 @@ void SplitRenderer::draw_scene(rhi::CommandList& cmd, const Split& split) {
     view.pixel_h = p.target.viewport.h;
     view.fs = d.fs;
     view.fog = d.fog;
+    view.fog_ramp = owner_.prims().fogRamp();
     view.fs.modes[0] = 0.0f;
     view.fs.rgbaFb[3] = 0.0f;  // the scene has its own cutout; foliage_edge is a PS1-prim input
-    if (d.shadow) {
+    // The flashlight's map, or a map light's (it is off then): the scene shader shades that light through it.
+    if (d.shadow || owner_.shadow().shadowed_light() >= 0) {
         owner_.shadow().shader_inputs(&view.fs);
         view.shadow_map = owner_.shadow().map();
         view.shadow_sampler = owner_.shadow().sampler();
@@ -506,7 +521,7 @@ void SplitRenderer::draw_scene(rhi::CommandList& cmd, const Split& split) {
         const render::GraphicsSettings& g = render::graphics();
         const bool traced = g.ray_tracing != 0 && g.rt_lights != 0 && view.rt_gi;
         describe_scene_lights(frame, fog_opaque_distance(view), traced, owner_.atmosphere().available(),
-                              owner_.sun_shadow(), &view);
+                              owner_.sun_shadow(), traced ? -1 : owner_.shadow().shadowed_light(), &view);
     }
     auto r = sr->draw(*pass_->pass, frame, view, split.scene_item);
     if (split.scene_item < 0 && !p.target.offscreen && p.target.color == owner_.targets().draw_color())
@@ -588,6 +603,30 @@ bool SplitRenderer::prepare_scene(rhi::CommandList& cmd) {
     return true;
 }
 
+std::optional<LightShadow> SplitRenderer::map_light_shadow() {
+    const render::GraphicsSettings& g = render::graphics();
+    if (g.ray_tracing != 0 && g.rt_lights != 0 && !rt_failed_) return std::nullopt;
+    // Only where the light is shaded at all: with map_lights, or with the extra lamps where those cannot run.
+    if (!(owner_.atmosphere().available() && render::atmosphere().map_lights != 0) && g.extra_lights == 0)
+        return std::nullopt;
+    const scene::Frame& frame = scene::current_frame();
+    if (!frame.world) return std::nullopt;
+    for (std::size_t i = 0; i < frame.lights.size(); ++i) {
+        const scene::FrameLight& l = frame.lights[i];
+        if (!l.shadow_map || l.range <= 0.0f) continue;
+        const bool spot = l.direction[0] != 0.0f || l.direction[1] != 0.0f || l.direction[2] != 0.0f;
+        LightShadow s;
+        s.position = to_view(frame.camera, l.position, true);
+        s.axis = to_view(frame.camera, l.shadow_axis, false);
+        s.cos_half = spot ? l.cos_outer : kPointLightShadowCos;
+        s.range = l.range;
+        s.near_clip = l.near_clip;
+        s.frame_light = static_cast<std::int32_t>(i);
+        return s;
+    }
+    return std::nullopt;
+}
+
 void SplitRenderer::draw_scene_casters(rhi::RenderPass& pass, std::int32_t item,
                                        const std::array<float, 16>& light_matrix, float z_far, bool tint) {
     scene::Frame& frame = scene::current_frame();
@@ -606,6 +645,7 @@ void SplitRenderer::draw(rhi::CommandList& cmd, SplitBatch& batch) {
     const auto& ramp = shaderstate::fogRamp();
     std::memcpy(shade_.fog.params.data(), ramp.params(), sizeof(float) * shade_.fog.params.size());
     std::memcpy(shade_.fog.ramp.data(), ramp.ramp(), sizeof(float) * shade_.fog.ramp.size());
+    owner_.prims().uploadFogRamp(cmd, shade_.fog);
 
     if (uploaded_ != &batch || uploaded_count_ != batch.vertices.size()) upload(cmd, batch);
     const bool have_vertices = uploaded_ == &batch || batch.vertices.empty();

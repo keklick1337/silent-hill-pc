@@ -79,10 +79,12 @@ struct PrimVsUniforms {
 };
 static_assert(sizeof(PrimVsUniforms) == 96);
 
+constexpr std::uint32_t kFogRampEntries = 128;
+
 // std140 WorldFog: the world fog ramp (render::set_world_fog), the same block in both stages.
 struct FogRampUniforms {
     std::array<float, 4> params{0.f, 0.f, 0.f, 0.f};  // fog on, 128 / 2^depthShift, intensity (Q12), cull distance
-    std::array<float, 128> ramp{};                     // 0..255 per entry
+    std::array<float, kFogRampEntries> ramp{};        // 0..255 per entry
 };
 static_assert(sizeof(FogRampUniforms) == 528);
 
@@ -106,7 +108,12 @@ struct PrimFsUniforms {
 static_assert(sizeof(PrimFsUniforms) == 272);
 
 // Fragment sampler slots of prim_batch.frag.
-enum PrimSampler : std::uint32_t { kPrimSamplerVram = 0, kPrimSamplerRgba = 1, kPrimSamplerShadow = 2 };
+enum PrimSampler : std::uint32_t {
+    kPrimSamplerVram = 0,
+    kPrimSamplerRgba = 1,
+    kPrimSamplerShadow = 2,
+    kPrimSamplerFogRamp = 3,
+};
 
 // Column-major GL ortho with Z in [-1, 1].
 std::array<float, 16> orthoProjection(float left, float right, float bottom, float top, float znear, float zfar);
@@ -135,6 +142,11 @@ public:
     PrimRenderer& operator=(const PrimRenderer&) = delete;
 
     Result<void> uploadVertices(CommandList& cmd, std::span<const PrimVertex> vertices);
+    // The ramp of `fog` into fogRamp(), only when its bytes changed. Outside a render pass.
+    void uploadFogRamp(CommandList& cmd, const FogRampUniforms& fog);
+    // The fog ramp as a kFogRampEntries x 1 R8 texture: the fragment shaders fetch it instead of indexing the WorldFog
+    // block per pixel, which is a slow path on some GPUs (Intel).
+    TextureH fogRamp() const { return fogRamp_; }
 
     Result<PipelineH> pipeline(const PrimPipelineKey& key);
 
@@ -175,6 +187,9 @@ private:
     std::uint32_t maxVertices_ = 0;
     std::unordered_map<std::uint32_t, PipelineH> pipelines_;
     TextureH externalVram_;
+    TextureH fogRamp_;
+    std::array<std::uint8_t, kFogRampEntries> fogRampBytes_{};
+    bool fogRampUploaded_ = false;
     PrimFsUniforms fsUniforms_{};
     PrimVsUniforms vsUniforms_{};
     FogRampUniforms fogUniforms_{};

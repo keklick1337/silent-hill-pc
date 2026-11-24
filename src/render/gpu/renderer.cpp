@@ -128,6 +128,7 @@ void Renderer::draw(SplitBatch& batch) {
     }
     {
         SH_PERF_SCOPE("render_shadow_pass", "world_list_draw");
+        shadow_->set_map_light(splits_->map_light_shadow());
         shadow_->build(cmd, batch);
         sun_shadow_->build(cmd, batch);
     }

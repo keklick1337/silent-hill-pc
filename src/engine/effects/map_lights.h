@@ -32,6 +32,9 @@ struct MapLight {
     float range = 6.0f;    // metres: the light is gone here
     float radius = 0.05f;  // metres: the emitter's size (shadow softness)
     bool casts_shadows = true;
+    // Without ray tracing its shadows come from the flashlight's shadow map while the flashlight is off (one light
+    // at a time; the shadows setting): a held flame, whose shadow is the one the eye looks for.
+    bool shadow_map = false;
     bool gi = true;
     std::vector<std::string> flags_set;    // every one set (event flag names; "when": "flag:<name>")
     std::vector<std::string> flags_clear;  // every one clear ("when": "!flag:<name>")

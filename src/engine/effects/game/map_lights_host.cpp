@@ -36,6 +36,11 @@ constexpr float kUnitsPerMetre = 256.0f;
 // from everything (the flashlight's shadow rays stop short of its lens the same way).
 constexpr float kHeldNearClip = 0.2f * kUnitsPerMetre;
 
+// The shadow map of a held light (lights.json "shadow_map") looks from the flame towards the body of the one who
+// holds it, tipped this far below the horizontal: his shadow falls behind him on the ground and up the walls, and
+// the wide frustum (the renderer's) still takes both.
+constexpr float kHeldShadowTilt = 30.0f * 3.14159265f / 180.0f;
+
 // A fire whose effect drew no particle this frame keeps its last light this many frames: the effects draw on the
 // frames of a game update, and the frames presented between two updates show the same fire.
 constexpr int kFireHoldFrames = 4;
@@ -171,6 +176,19 @@ const fx::MapLights& lights_of(int map) {
     return l.lights;
 }
 
+// The axis of a held light's shadow map: from the flame through the vertical axis of Harry's body, tipped down.
+// Straight down when the flame is right above that axis.
+std::array<float, 3> held_shadow_axis(const std::array<float, 3>& flame) {
+    const sh::entities::Vec3 at = sh::game_state::chara_position(0);
+    // Q12 metres to world units.
+    const float dx = static_cast<float>(at.x) / 4096.0f * kUnitsPerMetre - flame[0];
+    const float dz = static_cast<float>(at.z) / 4096.0f * kUnitsPerMetre - flame[2];
+    const float h = std::sqrt(dx * dx + dz * dz);
+    if (h < 1.0f) return {0.0f, 1.0f, 0.0f};
+    const float c = std::cos(kHeldShadowTilt), s = std::sin(kHeldShadowTilt);
+    return {dx / h * c, s, dz / h * c};
+}
+
 // A point of a bone of Harry (offset in metres in the bone's space) in world units.
 std::array<float, 3> on_bone(int bone, const std::array<float, 3>& offset, std::array<float, 3>* axis) {
     auto& bones = sh::game::session().system.characters.player_bones;
@@ -232,6 +250,11 @@ void describe_map_lights() {
         out.range = l.range * kUnitsPerMetre;
         out.radius = l.radius * kUnitsPerMetre;
         out.casts_shadows = l.casts_shadows;
+        out.shadow_map = l.shadow_map;
+        if (l.spot)
+            out.shadow_axis = axis;
+        else if (l.bone >= 0)
+            out.shadow_axis = held_shadow_axis(out.position);
         out.gi = l.gi;
         out.extra = l.extra;
         f.lights.push_back(out);

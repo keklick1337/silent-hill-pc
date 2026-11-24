@@ -195,6 +195,29 @@ SH_TEST(gpu_shadow_gates) {
     SH_CHECK(!shadow::pass_active(s));
 }
 
+SH_TEST(gpu_shadow_map_light_takes_the_map) {
+    gpu::ShadowSettings off = all_on();
+    off.use_shadows = false;
+    off.per_pixel = false;
+    off.flashlight_active = false;
+    gpu::LightShadow l;
+    l.position = {10.f, -300.f, 600.f};
+    l.axis = {0.f, 1.f, 0.f};
+    l.cos_half = 0.342f;
+    l.range = 1152.f;
+    l.near_clip = 51.f;
+    const gpu::ShadowSettings s = shadow::for_map_light(off, l);
+    SH_CHECK(s.map_light && shadow::pass_active(s) && shadow::sampling_on(s, true));
+    SH_CHECK(s.light.position == l.position && s.light.direction == l.axis && s.light.zNear == 51.f);
+    // The flashlight keeps its own map; the shadows setting off leaves it off.
+    const gpu::ShadowSettings lit = all_on();
+    SH_CHECK(!shadow::for_map_light(lit, l).map_light);
+    off.config_shadows = false;
+    SH_CHECK(!shadow::for_map_light(off, l).map_light && !shadow::pass_active(shadow::for_map_light(off, l)));
+    // The near plane leaves the hand out of the map.
+    SH_CHECK(sh::post::buildShadowLight(s.light).zNear == 51.f);
+}
+
 SH_TEST(gpu_shadow_matrix_and_inputs) {
     gpu::ShadowSettings s = all_on();
     s.light.sizeScale = 1.f;

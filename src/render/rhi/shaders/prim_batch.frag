@@ -40,6 +40,9 @@ layout(location = 0) out vec4 fragColor;
 SH_SAMPLER(0) uniform sampler2D s_vram;    // 1024x512 RG8: low byte, high byte of each 16-bit video-memory word
 SH_SAMPLER(1) uniform sampler2D s_rgba;    // u_prog.x == 1: the override texture (its own filtering)
 SH_SAMPLER(2) uniform sampler2D s_shadow;  // flashlight shadow depth map
+// The fog ramp's bytes (PrimRenderer::fogRamp): a texel fetch, since indexing u_fogRamp per pixel is a slow path
+// on some GPUs. WorldFog keeps the ramp for the vertex stage, and GL links the block of both stages as one.
+SH_SAMPLER(3) uniform sampler2D s_fogRamp;
 
 SH_UBO(0) uniform FsFrame {
     vec4 u_fog;      // rgb: fog colour, a: fog strength
@@ -250,11 +253,7 @@ vec4 DecalSample(vec2 uvn) {
     return mix(mix(t00, t10, f.x), mix(t01, t11, f.x), f.y);
 }
 
-float FogRampAt(int i) {
-    vec4 r = u_fogRamp[i / 4];
-    int c = i - (i / 4) * 4;
-    return (c == 0) ? r.x : ((c == 1) ? r.y : ((c == 2) ? r.z : r.w));
-}
+float FogRampAt(int i) { return floor(texelFetch(s_fogRamp, ivec2(i, 0), 0).r * 255.0 + 0.5); }
 
 float FogAmountAtZ(float z) {
     float fi = z * u_fogRampP.y;

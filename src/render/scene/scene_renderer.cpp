@@ -87,7 +87,7 @@ struct FrameBlock {
     WaterBlock water;
     LightBlock lights;
 };
-static_assert(sizeof(FrameBlock) == 224 + 16 * (8 + 3 * kSceneLights + kSceneFlakes));
+static_assert(sizeof(FrameBlock) == 224 + 16 * (9 + 3 * kSceneLights + kSceneFlakes));
 
 // The level of the surface's quality table that the settings ask for.
 const WaterQuality& water_quality() {
@@ -96,8 +96,8 @@ const WaterQuality& water_quality() {
 
 constexpr std::string_view kVsBlocks[] = {"SceneVs", "WorldFog"};
 constexpr std::string_view kFsBlocks[] = {"FsFrame", "WorldFog", "SceneMaterial", "SceneFrame"};
-constexpr std::string_view kFsSamplers[] = {"s_tex",      "s_shadow",    "s_shadowTint", "s_reflect",
-                                            "s_rtShadow", "s_rtReflect", "s_rtGi",       "s_sunShadow"};
+constexpr std::string_view kFsSamplers[] = {"s_tex",       "s_shadow", "s_shadowTint", "s_reflect", "s_rtShadow",
+                                            "s_rtReflect", "s_rtGi",   "s_sunShadow",  "s_fogRamp"};
 constexpr float kNearPlane = 8.0f;  // view units: geometry nearer than ~3 cm is clipped
 // kWorldDepthBias (scene.h) stands in for the PS1 path's world margin (sh::render::precise().world_far_bias), which is
 // 0 for the PS1 prims while the scene draws the map. The cells take it along their normal (scene.frag), so along a
@@ -1249,6 +1249,7 @@ Result<void> SceneRenderer::draw(RenderPass& pass, const Frame& frame, const Vie
     if (viewer && (vo.flashlight_off || full_bright)) fs.flMode[0] = 0.0f;
     pass.pushUniforms(ShaderStage::Fragment, 0, std::as_bytes(std::span(&fs, 1)));
     pass.pushUniforms(ShaderStage::Fragment, 1, std::as_bytes(std::span(&fog_ramp, 1)));
+    pass.bindSampler(ShaderStage::Fragment, 8, view.fog_ramp ? view.fog_ramp : im.black, im.nearest);
     // The water's block and mirrored picture, for the cells' water material.
     const std::string& water_material = water_surface().material;
     FrameBlock frame_block;

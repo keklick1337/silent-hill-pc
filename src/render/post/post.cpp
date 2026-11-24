@@ -73,7 +73,7 @@ ShadowLight buildShadowLight(const ShadowLightInput& in) {
     // A caster outside the lit cone shadows nothing inside it: the map spans the cone and a margin for the filter
     // kernels, no more, so its texels are not spent on the dark.
     const float fov = std::clamp(std::acos(outer) * 2.f * 1.06f, 0.2f, 2.9f);
-    const float zn = 20.f;
+    const float zn = std::max(in.zNear, 1.f);
     const float zf = std::max(in.range * 1.3f, zn + 1.f);
 
     const V3 dir = normalized(in.direction);

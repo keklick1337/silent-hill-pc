@@ -6,7 +6,7 @@
   "lights": [
     {
       "name": "Lighter",
-      "description": "The match flame in Harry's right hand: warm, small, flickering with the flame's own brightness; it casts the alley's shadows and lights the walls around him.",
+      "description": "The match flame in Harry's right hand: warm, small, flickering with the flame's own brightness; it casts the alley's shadows and lights the walls around him; without ray tracing Harry's own shadow comes from the shadow map.",
       "position": [0.0, -0.03, 0.13],
       "bone": "RightHand",
       "while_effect": "HandFlame",
@@ -16,6 +16,7 @@
       "range": 4.5,
       "radius": 0.02,
       "casts_shadows": true,
+      "shadow_map": true,
       "gi": true
     }
   ],
