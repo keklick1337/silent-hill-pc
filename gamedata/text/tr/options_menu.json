@@ -124,6 +124,8 @@
     "ui.options.keybinds.help": "Klavye, fare ve oyun kolu düğmelerini değiştirir.",
     "ui.options.language": "Dil",
     "ui.options.language.help": "Metinlerin ve menülerin dili.",
+    "ui.options.skip_intros": "Hızlı Başlangıç",
+    "ui.options.skip_intros.help": "Uyarıyı, logoları ve açılış videosunu atlar: oyun ana menüden başlar.",
     "ui.options.lighting": "Aydınlatma",
     "ui.options.lighting.help": "Fener stili, gölgeleri ve ışını; Harry'nin üzerindeki ışık.",
     "ui.options.lighting_style": "Aydınlatma",

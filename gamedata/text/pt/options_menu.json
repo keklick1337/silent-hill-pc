@@ -124,6 +124,8 @@
     "ui.options.keybinds.help": "Altera teclado, mouse e botões do controle.",
     "ui.options.language": "Idioma",
     "ui.options.language.help": "Idioma dos textos e dos menus.",
+    "ui.options.skip_intros": "Início rápido",
+    "ui.options.skip_intros.help": "Pula o aviso, os logotipos e o vídeo de abertura: o jogo começa no menu principal.",
     "ui.options.lighting": "Iluminação",
     "ui.options.lighting.help": "Estilo da lanterna, suas sombras e a luz sobre Harry.",
     "ui.options.lighting_style": "Iluminação",

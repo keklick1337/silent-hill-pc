@@ -124,6 +124,8 @@
     "ui.options.keybinds.help": "Tastatur, Maus und Gamepad neu belegen.",
     "ui.options.language": "Sprache",
     "ui.options.language.help": "Sprache der Texte und Menüs.",
+    "ui.options.skip_intros": "Schnellstart",
+    "ui.options.skip_intros.help": "Überspringt Warnhinweis, Logos und Intro-Film: das Spiel beginnt im Hauptmenü.",
     "ui.options.lighting": "Beleuchtung",
     "ui.options.lighting.help": "Stil der Taschenlampe, ihre Schatten und das Licht auf Harry.",
     "ui.options.lighting_style": "Beleuchtung",

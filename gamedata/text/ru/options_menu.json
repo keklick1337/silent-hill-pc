@@ -124,6 +124,8 @@
     "ui.options.keybinds.help": "Изменить клавиши, мышь и кнопки геймпада.",
     "ui.options.language": "Язык",
     "ui.options.language.help": "Язык текста и меню.",
+    "ui.options.skip_intros": "Быстрый старт",
+    "ui.options.skip_intros.help": "Без предупреждения, логотипов и вступительного ролика: сразу главное меню.",
     "ui.options.lighting": "Освещение",
     "ui.options.lighting.help": "Стиль фонарика, его тени и луч; свет на Гарри.",
     "ui.options.lighting_style": "Освещение",

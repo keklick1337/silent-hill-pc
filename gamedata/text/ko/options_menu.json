@@ -124,6 +124,8 @@
     "ui.options.keybinds.help": "키보드, 마우스, 패드 버튼을 변경합니다.",
     "ui.options.language": "언어",
     "ui.options.language.help": "글과 메뉴의 언어.",
+    "ui.options.skip_intros": "빠른 시작",
+    "ui.options.skip_intros.help": "경고 화면, 로고, 오프닝 영상을 건너뛰고 메인 메뉴에서 시작합니다.",
     "ui.options.lighting": "조명",
     "ui.options.lighting.help": "손전등 방식과 그림자, 빛줄기, 해리를 비추는 빛.",
     "ui.options.lighting_style": "조명",

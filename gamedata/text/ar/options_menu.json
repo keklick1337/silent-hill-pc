@@ -124,6 +124,8 @@
     "ui.options.keybinds.help": "تغيير أزرار لوحة المفاتيح والفأرة وذراع التحكم.",
     "ui.options.language": "اللغة",
     "ui.options.language.help": "لغة النصوص والقوائم.",
+    "ui.options.skip_intros": "بدء سريع",
+    "ui.options.skip_intros.help": "يتخطى التحذير والشعارات والفيلم الافتتاحي: تبدأ اللعبة من القائمة الرئيسية.",
     "ui.options.lighting": "الإضاءة",
     "ui.options.lighting.help": "نمط المصباح وظلاله وحزمته؛ والضوء المسلط على هاري.",
     "ui.options.lighting_style": "الإضاءة",

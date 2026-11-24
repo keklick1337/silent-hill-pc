@@ -677,6 +677,17 @@ void register_interface(sh::menu::Registry& reg)
     reg.native_visible("setting.language", []() { return sh::i18n::languages().size() > 1; });
     reg.native_enabled("setting.language", []() { return sh::i18n::language_switch_allowed(); });
 
+    // On is skip_intros 1, the main menu at once. 2 (a new game at once, as -skiptogame) stays a config.cfg value
+    // for testing: the row shows it as on and turns it off.
+    sh::menu::NativeSetting quick_start;
+    quick_start.step = [](int) {
+        g_PcConfig.skipIntros = g_PcConfig.skipIntros != 0 ? 0 : 1;
+        save_int("skip_intros", g_PcConfig.skipIntros);
+    };
+    quick_start.text = []() { return on_off(g_PcConfig.skipIntros != 0); };
+    quick_start.texts = on_off_labels();
+    reg.native_setting("setting.skip_intros", std::move(quick_start));
+
     sh::menu::NativeSetting debug;
     debug.step = [](int) {
         g_PcConfig.debugOptions = g_PcConfig.debugOptions != 0 ? 0 : 1;

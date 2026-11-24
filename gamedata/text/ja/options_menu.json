@@ -124,6 +124,8 @@
     "ui.options.keybinds.help": "キーボード、マウス、パッドのボタンを変更します。",
     "ui.options.language": "言語",
     "ui.options.language.help": "テキストとメニューの言語。",
+    "ui.options.skip_intros": "クイックスタート",
+    "ui.options.skip_intros.help": "警告、ロゴ、オープニングムービーを飛ばし、メインメニューから始めます。",
     "ui.options.lighting": "照明",
     "ui.options.lighting.help": "懐中電灯の種類、影、光の広がり、ハリーを照らす光。",
     "ui.options.lighting_style": "照明",

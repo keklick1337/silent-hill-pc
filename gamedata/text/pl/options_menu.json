@@ -124,6 +124,8 @@
     "ui.options.keybinds.help": "Zmień klawisze, mysz i przyciski pada.",
     "ui.options.language": "Język",
     "ui.options.language.help": "Język tekstów i menu.",
+    "ui.options.skip_intros": "Szybki start",
+    "ui.options.skip_intros.help": "Pomija ostrzeżenie, logotypy i film wprowadzający: gra zaczyna się od menu głównego.",
     "ui.options.lighting": "Oświetlenie",
     "ui.options.lighting.help": "Styl latarki, jej cienie i światło na Harrym.",
     "ui.options.lighting_style": "Oświetlenie",

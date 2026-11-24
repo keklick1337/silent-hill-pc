@@ -124,6 +124,8 @@
     "ui.options.keybinds.help": "Cambia tasti di tastiera, mouse e controller.",
     "ui.options.language": "Lingua",
     "ui.options.language.help": "Lingua dei testi e dei menu.",
+    "ui.options.skip_intros": "Avvio rapido",
+    "ui.options.skip_intros.help": "Salta l'avviso, i loghi e il filmato iniziale: il gioco parte dal menu principale.",
     "ui.options.lighting": "Illuminazione",
     "ui.options.lighting.help": "Stile della torcia, le sue ombre e la luce su Harry.",
     "ui.options.lighting_style": "Illuminazione",

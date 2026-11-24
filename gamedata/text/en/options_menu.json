@@ -124,6 +124,8 @@
     "ui.options.keybinds.help": "Change keyboard, mouse and pad buttons.",
     "ui.options.language": "Language",
     "ui.options.language.help": "Language of the text and the menus.",
+    "ui.options.skip_intros": "Quick Start",
+    "ui.options.skip_intros.help": "Skips the warning, the logos and the opening movie: starts at the main menu.",
     "ui.options.lighting": "Lighting",
     "ui.options.lighting.help": "Flashlight style, its shadows and beam; the light on Harry.",
     "ui.options.lighting_style": "Lighting",

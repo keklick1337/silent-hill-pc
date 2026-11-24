@@ -124,6 +124,8 @@
     "ui.options.keybinds.help": "Cambia teclas, botones del ratón y del mando.",
     "ui.options.language": "Idioma",
     "ui.options.language.help": "Idioma de los textos y los menús.",
+    "ui.options.skip_intros": "Inicio rápido",
+    "ui.options.skip_intros.help": "Omite el aviso, los logotipos y el vídeo inicial: empieza en el menú principal.",
     "ui.options.lighting": "Iluminación",
     "ui.options.lighting.help": "Estilo de la linterna, sus sombras y la luz sobre Harry.",
     "ui.options.lighting_style": "Iluminación",

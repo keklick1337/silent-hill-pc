@@ -124,6 +124,8 @@
     "ui.options.keybinds.help": "更改键盘、鼠标和手柄的按键。",
     "ui.options.language": "语言",
     "ui.options.language.help": "文本和菜单的语言。",
+    "ui.options.skip_intros": "快速启动",
+    "ui.options.skip_intros.help": "跳过警告、标志和开场动画，直接进入主菜单。",
     "ui.options.lighting": "光照",
     "ui.options.lighting.help": "手电筒的样式、阴影和光束；哈利身上的补光。",
     "ui.options.lighting_style": "光照",

@@ -124,6 +124,8 @@
     "ui.options.keybinds.help": "Touches du clavier, de la souris et manette.",
     "ui.options.language": "Langue",
     "ui.options.language.help": "Langue des textes et des menus.",
+    "ui.options.skip_intros": "Démarrage rapide",
+    "ui.options.skip_intros.help": "Passe l'avertissement, les logos et l'intro : démarre au menu principal.",
     "ui.options.lighting": "Éclairage",
     "ui.options.lighting.help": "Style de la lampe, ses ombres et la lumière sur Harry.",
     "ui.options.lighting_style": "Éclairage",

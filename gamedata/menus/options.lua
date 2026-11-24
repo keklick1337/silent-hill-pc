@@ -278,6 +278,7 @@ sh.menu.define{
     title = "ui.options.interface",
     rows = {
         setting("language"),
+        setting("skip_intros"),
         setting("low_health_glow"),
         setting("text_size"),
         setting("debug_options"),
