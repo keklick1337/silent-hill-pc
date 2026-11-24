@@ -211,9 +211,13 @@ cp "$BUILD/gamecontrollerdb.txt" "$STAGE/"
 cp "$ROOT/assets/config.cfg" "$STAGE/config.cfg"
 
 # Base game data: exactly the tracked files of gamedata/.
+echo "package: base data"
 if [[ "$PLATFORM" == macos ]]; then
-    # The BSD cp has no --parents.
-    git -C "$ROOT" ls-files -z -- gamedata | (cd "$ROOT" && tar --null -T - -cf - | tar -xf - -C "$STAGE")
+    # The BSD cp has no --parents; file by file (a tar pipe failed on the GitHub runner with no word from its reader).
+    while IFS= read -r -d '' file; do
+        mkdir -p "$STAGE/$(dirname "$file")"
+        cp -p "$ROOT/$file" "$STAGE/$file"
+    done < <(git -C "$ROOT" ls-files -z -- gamedata)
 else
     git -C "$ROOT" ls-files -z -- gamedata | (cd "$ROOT" && xargs -0 cp --parents -t "$STAGE")
 fi
@@ -261,6 +265,7 @@ cp "$ROOT/third_party/volk/LICENSE.md" "$STAGE/licenses/LICENSE-volk.txt"
 cp "$ROOT/third_party/vma/LICENSE.txt" "$STAGE/licenses/LICENSE-VulkanMemoryAllocator.txt"
 cp "$ROOT/third_party/vulkan-headers/LICENSES/Apache-2.0.txt" "$STAGE/licenses/LICENSE-Vulkan-Headers-Apache-2.0.txt"
 
+echo "package: archive"
 cd "$OUT"
 if [[ "$PLATFORM" == windows ]]; then
     ARCHIVE="$NAME.zip"
