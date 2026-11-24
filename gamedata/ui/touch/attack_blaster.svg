@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- Attack with a ray gun. -->
+  <polygon points="10,23 42,21 52,27 42,33 29,33 27,46 18,46 16,33 10,31" fill="#fff"/>
+  <circle cx="54" cy="27" r="3.5" fill="#fff"/>
+  <path d="M58 20 L61 17" stroke="#fff" stroke-width="2.5" fill="none"/>
+  <path d="M59 27 H63" stroke="#fff" stroke-width="2.5" fill="none"/>
+  <path d="M58 34 L61 37" stroke="#fff" stroke-width="2.5" fill="none"/>
+</svg>

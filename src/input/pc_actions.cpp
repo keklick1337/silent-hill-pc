@@ -46,6 +46,12 @@ std::uint16_t s_tapLatch[kActionCount];
 std::uint16_t s_tapBits = 0;
 bool s_kbHeld[kActionCount];
 bool s_mouseHeld[kActionCount];
+// The touch screen's controls count as keys: their own latch, so a key and a finger on one action do not fight.
+std::uint16_t s_touchLatch[kActionCount];
+bool s_touchHeld[kActionCount];
+unsigned int s_touchActions = 0;
+int s_suspended = 0;  // PcActions_SetSuspended
+static_assert(kActionCount <= 32, "touch actions are one bit each");
 
 // Back and Pause give the same pad bit in gameplay; the pause menu needs to know which one
 // paused. SDL ticks of the last Back press that became the pause bit, 0 after a Pause press.
@@ -281,6 +287,10 @@ int PcActions_Save(const char* key, int scheme) {
 
 void PcActions_SetScheme(int scheme) { s_scheme = scheme != 0 ? 1 : 0; }
 
+void PcActions_SetTouchActions(unsigned int held) { s_touchActions = held; }
+
+void PcActions_SetSuspended(int devices) { s_suspended = devices; }
+
 unsigned short PcActions_PadWord(void) {
     int nk = 0;
     const Uint8* ks = (const Uint8*)SDL_GetKeyboardState(&nk);
@@ -307,6 +317,24 @@ unsigned short PcActions_PadWord(void) {
                 kb |= ks[src.scancode] != 0;
             }
         }
+        if (s_suspended & 1) kb = false;
+        if (s_suspended & 2) mouse = false;
+        const bool touch = (s_touchActions >> i) & 1u;
+        if (touch && !s_touchHeld[i]) {
+            if (!queried) {
+                cfg = query(&ctx);
+                queried = true;
+            }
+            s_touchLatch[i] = pad_bits(a, ctx, cfg);
+            if (a == Action::Back && ctx == Context::Gameplay && (s_touchLatch[i] & cfg.pause) != 0) {
+                s_backPauseTicks = SDL_GetTicks();
+                if (s_backPauseTicks == 0) s_backPauseTicks = 1;
+            }
+        }
+        s_touchHeld[i] = touch;
+        if (!touch) s_touchLatch[i] = 0;
+        bits |= s_touchLatch[i];
+        solid |= s_touchLatch[i];
         if ((kb && !s_kbHeld[i]) || (mouse && !s_mouseHeld[i])) {
             if (!queried) {
                 cfg = query(&ctx);
@@ -365,7 +393,7 @@ int PcActions_TakePauseFromBack(void) {
     }
     const int back = static_cast<int>(Action::Back);
     // Still held, or a tap released before the game read the pause press.
-    return ((s_kbLatch[back] | s_mouseLatch[back]) != 0 || SDL_GetTicks() - at < kBackPauseWindowMs) ? 1 : 0;
+    return ((s_kbLatch[back] | s_mouseLatch[back] | s_touchLatch[back]) != 0 || SDL_GetTicks() - at < kBackPauseWindowMs) ? 1 : 0;
 }
 
 unsigned int PcActions_MouseBits(void) {

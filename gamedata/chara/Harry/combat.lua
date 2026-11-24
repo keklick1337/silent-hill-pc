@@ -1864,6 +1864,8 @@ local function combat_state()
     u = h.upper_body
     if RAISE_FROM[u] or u == U_AIM then
         if downed_enemy_ahead() then
+            -- A touch screen shows its attack button here even with the weapon down.
+            sh.input.touch_prompt("attack", "kick")
             if ctl("attack") ~= 0 then
                 harry_state_set(STATE_STOMP_ENEMY)
                 return

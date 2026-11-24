@@ -276,4 +276,57 @@ TriggerResult EventTriggers::update(const TriggerFrame& frame, std::span<const E
     return out;
 }
 
+int EventTriggers::button_event_in_reach(const TriggerFrame& frame, std::span<const EventTrigger> events,
+                                         const EventHost& host) const {
+    if (frame.buttons_disabled || frame.player_busy) {
+        return -1;
+    }
+    EventTriggers probe = *this;  // facing_point refreshes its cached probe
+    const std::size_t count = events.size() < static_cast<std::size_t>(kMaxEvents) ? events.size() : kMaxEvents;
+    for (std::size_t i = 0; i < count; ++i) {
+        const EventTrigger& ev = events[i];
+        if (ev.activation != Activation::Button || ev.shape == TriggerShape::Always) {
+            continue;
+        }
+        if (ev.required_flag != 0 && !host.flag(ev.required_flag)) {
+            continue;
+        }
+        if (ev.blocking_flag != 0 && host.flag(ev.blocking_flag) &&
+            (!rules_.soft_blocking || !rules_.soft_blocking(ev.blocking_flag) ||
+             ev.state == static_cast<std::uint8_t>(GameState::EventSetFlag))) {
+            continue;
+        }
+        bool inside = false;
+        switch (ev.shape) {
+            case TriggerShape::Box: {
+                const TriggerPoint p = host.point(ev.point);
+                inside = abs32(frame.player_x - p.x) <= p.param0 * kQuarterMetre &&
+                         abs32(frame.player_z - p.z) <= p.param1 * kQuarterMetre;
+                break;
+            }
+            case TriggerShape::FacingPoint:
+                inside = probe.facing_point(frame, host.point(ev.point));
+                break;
+            case TriggerShape::FacingSegment:
+                inside = facing_segment(frame, host.point(ev.point));
+                break;
+            case TriggerShape::OrientedBox:
+                inside = oriented_box(frame, host.point(ev.point));
+                break;
+            default:
+                inside = true;
+                break;
+        }
+        if (!inside) {
+            continue;
+        }
+        if (frame.dark_without_light && ev.state != static_cast<std::uint8_t>(GameState::LoadMap) &&
+            ev.state != static_cast<std::uint8_t>(GameState::LoadRoom) && ev.param > 1) {
+            continue;
+        }
+        return static_cast<int>(i);
+    }
+    return -1;
+}
+
 }  // namespace sh::gameflow

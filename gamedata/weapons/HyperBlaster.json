@@ -1,5 +1,6 @@
 {
   "class": "gun",
+  "touch_icon": "attack_blaster",
   "item": "HyperBlaster",
   "clip": null,
   "ammo": null,

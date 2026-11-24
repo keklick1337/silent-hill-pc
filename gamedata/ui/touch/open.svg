@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- Open a door, go through. -->
+  <path d="M19 54 V10 H45 V54" stroke="#fff" stroke-width="4" fill="none"/>
+  <path d="M12 54 H52" stroke="#fff" stroke-width="4" fill="none"/>
+  <circle cx="38" cy="33" r="3" fill="#fff"/>
+</svg>

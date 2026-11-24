@@ -1,5 +1,6 @@
 {
   "class": "melee",
+  "touch_icon": "attack_blunt",
   "item": "SteelPipe",
   "clip": null,
   "ammo": null,

@@ -1,5 +1,6 @@
 {
   "class": "melee",
+  "touch_icon": "attack_chainsaw",
   "gas": true,
   "item": "Chainsaw",
   "clip": null,

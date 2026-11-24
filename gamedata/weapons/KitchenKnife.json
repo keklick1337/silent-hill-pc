@@ -1,5 +1,6 @@
 {
   "class": "melee",
+  "touch_icon": "attack_blade",
   "item": "KitchenKnife",
   "clip": null,
   "ammo": null,

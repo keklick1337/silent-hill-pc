@@ -246,6 +246,9 @@ struct WeaponDef {
     // speed of an aimed turn, the default follow-up and aim hold keyframes) a mod's weapon borrows; empty: the
     // steel pipe for melee, the handgun for a gun.
     std::string like;
+    // "touch_icon": the picture of the touch screen's attack button, a file of gamedata/ui/touch/ without ".svg"
+    // ("attack_pistol", "attack_blade", ...); empty: the plain attack picture of its class.
+    std::string touch_icon;
     // Run-time number (the original's equipped weapon id); -1: the combat code has no slot.
     int number = -1;
 

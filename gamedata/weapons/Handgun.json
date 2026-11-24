@@ -1,5 +1,6 @@
 {
   "class": "gun",
+  "touch_icon": "attack_pistol",
   "item": "Handgun",
   "clip": 15,
   "ammo": "HandgunBullets",

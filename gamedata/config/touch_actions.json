@@ -1,0 +1,36 @@
+{
+  "format": "sh-touch-actions",
+  "version": 1,
+  "description": "The picture of the touch screen's action button for the map event in reach of the player. states: the in-game state an event runs (config names of sh::game_state, as in main_frame.json) -> act, take, read, open, use or check. handlers: rules over the name of the map handler an EventCallback event runs (maps/<map>/handlers.json), '*' for any run of letters; the first rule that matches wins over the state. An event no rule names shows the plain action button. A mod changes it with a file of the same path in its own folder.",
+  "states": {
+    "LoadOverlay": "open",
+    "LoadRoom": "open",
+    "ReadMessage": "check",
+    "SaveMenu0": "use",
+    "SaveMenu1": "use",
+    "EventCallback": "check"
+  },
+  "handlers": [
+    {"match": "*ItemTake", "kind": "take"},
+    {"match": "*Take", "kind": "take"},
+    {"match": "*Door*", "kind": "open"},
+    {"match": "*Read", "kind": "read"},
+    {"match": "*Newspaper*", "kind": "read"},
+    {"match": "*Memo*", "kind": "read"},
+    {"match": "*Use", "kind": "use"},
+    {"match": "*Insert", "kind": "use"},
+    {"match": "*Puzzle", "kind": "use"},
+    {"match": "*Keypad", "kind": "use"},
+    {"match": "*Note", "kind": "read"},
+    {"match": "*Sketchbook", "kind": "read"},
+    {"match": "*Hatch*", "kind": "open"},
+    {"match": "*CrawlUnder*", "kind": "open"},
+    {"match": "*Push*", "kind": "use"},
+    {"match": "*CabinetPush", "kind": "use"},
+    {"match": "*Interact", "kind": "use"},
+    {"match": "*FuseBox", "kind": "use"},
+    {"match": "*Inspect", "kind": "check"},
+    {"match": "*Nop", "kind": "act"},
+    {"match": "*EmptyFunction", "kind": "act"}
+  ]
+}

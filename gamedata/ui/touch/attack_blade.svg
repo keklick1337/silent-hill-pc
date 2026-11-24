@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- Attack with a blade (a knife, a sword). -->
+  <polygon points="25,37 51,10 54,13 31,43" fill="#fff"/>
+  <path d="M25 41 L12 54" stroke="#fff" stroke-width="7" fill="none"/>
+  <path d="M20 35 L31 46" stroke="#fff" stroke-width="3.5" fill="none"/>
+</svg>

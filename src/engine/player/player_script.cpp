@@ -5,6 +5,7 @@
 
 #include "engine/game_state/session.h"
 #include "engine/input/input_primitives.h"
+#include "engine/input/touch_prompts.h"
 #include "engine/log/sh_log.h"
 #include "engine/player/player.h"
 
@@ -25,7 +26,7 @@ constexpr const char* kNames[] = {
     "entity.clip_link_set", "input.control",         "input.move_stick",         "input.set_control",
     "input.controls_clear", "input.pad_mask",        "input.pad_direction",      "input.pad_button",
     "input.stick_zone",   "input.tick30",            "input.player_flag",        "input.set_player_flag",
-    "input.hyper_blaster_mode",
+    "input.hyper_blaster_mode", "input.touch_prompt",
 };
 
 constexpr int kAnswerMax = 8;
@@ -276,6 +277,11 @@ int input_call(std::string_view fn, const Args& a, long long* out, char* err, in
     if (fn == "hyper_blaster_mode") {
         out[0] = s_host->hyper_blaster_mode();
         return 1;
+    }
+    if (fn == "touch_prompt") {
+        // touch_prompt(control[, icon]): only the touch screen's controls look at it (engine/input/touch_prompts.h).
+        sh::input::note_touch_prompt(a.name(0), a.name(1));
+        return 0;
     }
     if (fn == "controls_clear") {
         // No control is pressed for the rest of the tick (the aim lock takes Harry over).

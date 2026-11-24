@@ -16,6 +16,7 @@
 #include "engine/game_state/game_state_world.h"
 #include "engine/game_state/session.h"
 #include "engine/gameflow/arrival.h"
+#include "engine/gameflow/game/action_target.h"
 #include "engine/gameflow/collision_zones.h"
 #include "engine/gameflow/event_triggers.h"
 #include "engine/gameflow/flow_data.h"
@@ -24,6 +25,7 @@
 #include "engine/ids/game_numbers.h"
 #include "engine/log/sh_log.h"
 #include "engine/player/player.h"
+#include "engine/script/sh_script.h"
 #include "engine/world/runtime_pickups.h"
 
 namespace {
@@ -198,6 +200,28 @@ const gf::CollisionZones& zones() {
 }
 
 }  // namespace
+
+sh::gameflow::game::ActionTarget sh::gameflow::game::action_target() {
+    ActionTarget target;
+    if (sh::devtools::tool_mode().hold_events || !link::map_events_present()) {
+        return target;
+    }
+    const auto& list = convert_events();
+    const gf::TriggerFrame frame = make_frame(false, list.size());
+    GameEventHost host;
+    const int index = triggers().button_event_in_reach(frame, std::span<const gf::EventTrigger>(list), host);
+    if (index < 0) {
+        return target;
+    }
+    const gf::EventTrigger& ev = list[static_cast<std::size_t>(index)];
+    target.found = true;
+    target.state = ev.state;
+    target.param = ev.param;
+    if (ev.state == static_cast<std::uint8_t>(gf::GameState::EventCallback)) {
+        target.handler = ShScript_MapHandlerName(ev.param);
+    }
+    return target;
+}
 
 extern "C" void Event_Update(unsigned int disableButtonEvents) {
     // The modding editor holds the map's events: the frame reports "no event", as one where no trigger fired. The

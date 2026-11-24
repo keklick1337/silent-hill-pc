@@ -1,5 +1,6 @@
 {
   "class": "gun",
+  "touch_icon": "attack_shotgun",
   "item": "Shotgun",
   "clip": 6,
   "ammo": "ShotgunShells",

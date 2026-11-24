@@ -6,10 +6,12 @@
 #include "media/fmv/fmv_renderer.h"
 
 #include "engine/log/sh_log.h"
+#include "input/touch/touch_controls.h"
 #include "render/gpu/device_host.h"
 #include "render/gpu/frame_driver.h"
 #include "render/gpu/renderer.h"
 #include "render/gpu/targets.h"
+#include "render/overlay/overlay.h"
 
 #include <cstdlib>
 #include <memory>
@@ -56,6 +58,8 @@ void DrawOnRenderer(gpu::Renderer& r, const std::uint8_t* pixels, int width, int
         if (p.errorLogs++ < 4) SH_WARN("[FMV] frame: %s", up.error().c_str());
         return;
     }
+    // A clear the scene target still owes would land on the movie frame later.
+    r.targets().flush_clear(cmd);
     rhi::RenderPassDesc rp;
     rp.color = {target, rhi::LoadOp::Clear, rhi::StoreOp::Store, {0.f, 0.f, 0.f, 1.f}};
     rp.name = "fmv";
@@ -66,6 +70,10 @@ void DrawOnRenderer(gpu::Renderer& r, const std::uint8_t* pixels, int width, int
         // The movie frame covers the whole picture: it is the newest image, not the multisampled world.
         r.targets().wrote_resolved();
     }
+    // The touch screen's Skip button over the movie (nothing is queued without a touch screen), drawn on the window
+    // at its own resolution when the frame presents.
+    gpu::begin_window_overlay();
+    sh::input::touch::draw_over_movie();
 }
 
 }  // namespace

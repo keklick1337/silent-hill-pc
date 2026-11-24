@@ -134,6 +134,18 @@ void poll();
 using KeyboardActionSource = std::uint16_t (*)();
 void set_keyboard_action_source(KeyboardActionSource source);
 
+// The touch screen (input/touch/touch_controls.h), asked once per pad update before the keyboard: its stick drives
+// port 0 in analog mode while `active`, and its skip button counts for skip_held().
+struct TouchStick
+{
+    bool active = false;
+    std::uint8_t x = 128, y = 128;
+};
+using TouchSource = TouchStick (*)();
+void set_touch_source(TouchSource source);
+using TouchSkip = bool (*)();
+void set_touch_skip(TouchSkip skip);
+
 // Physical controller queries, read straight from SDL rather than the merged word, so a keyboard key
 // on the same pad button cannot trigger a controller-only action.
 bool skip_held();  // the skip of blocking loops (FMV): Cross binds or Start

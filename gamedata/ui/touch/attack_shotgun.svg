@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- Attack with a shotgun. -->
+  <polygon points="4,25 60,25 60,30 26,30 21,33 14,45 6,45 11,33 4,32" fill="#fff"/>
+  <rect x="34" y="31" width="14" height="5" fill="#fff"/>
+</svg>

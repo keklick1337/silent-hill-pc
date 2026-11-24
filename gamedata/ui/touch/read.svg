@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- Read a note. -->
+  <path d="M17 10 H38 L47 19 V54 H17 Z" stroke="#fff" stroke-width="4" fill="none"/>
+  <path d="M38 10 V19 H47" stroke="#fff" stroke-width="3" fill="none"/>
+  <path d="M24 29 H40" stroke="#fff" stroke-width="3" fill="none"/>
+  <path d="M24 37 H40" stroke="#fff" stroke-width="3" fill="none"/>
+  <path d="M24 45 H34" stroke="#fff" stroke-width="3" fill="none"/>
+</svg>

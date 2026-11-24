@@ -930,6 +930,11 @@ local function grabbed(state)
     h.heading_offset = heading
     overlay_start(status)
 
+    -- A touch screen shows its struggle button while Harry can mash free (it has no buttons to mash otherwise).
+    if c.health > 0 then
+        sh.input.touch_prompt("struggle", "struggle")
+    end
+
     -- Each press counts the same at any frame rate (a press is one 30 fps tick of the mash meter).
     if c.health > 0 and (sh.input.control("has_move") ~= 0 or sh.input.control("has_action") ~= 0) then
         h.grab_release_timer = h.grab_release_timer + 136

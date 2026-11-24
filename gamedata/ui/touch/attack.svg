@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- Attack without a weapon of its own picture. -->
+  <path d="M32 14 V24 M32 40 V50 M14 32 H24 M40 32 H50 M19 19 L26 26 M38 38 L45 45 M45 19 L38 26 M26 38 L19 45" stroke="#fff" stroke-width="4" fill="none"/>
+  <circle cx="32" cy="32" r="4" fill="#fff"/>
+</svg>

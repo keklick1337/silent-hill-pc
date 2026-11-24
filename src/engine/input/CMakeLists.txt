@@ -7,7 +7,9 @@ add_library(sh_input STATIC
     input_actions.cpp
     input_primitives.cpp
     frame_edge.cpp
-    controls_ref.cpp)
+    controls_ref.cpp
+    skip_watch.cpp
+    touch_prompts.cpp)
 
 target_compile_features(sh_input PRIVATE cxx_std_20)
 target_include_directories(sh_input PUBLIC ${PROJECT_SOURCE_DIR}/src)

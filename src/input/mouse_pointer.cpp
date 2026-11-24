@@ -252,7 +252,8 @@ void MousePointer::draw() {
     }
     // After controller input only the picture hides; hover and clicks stay live, and any use of the mouse brings
     // it back before they could matter.
-    const bool pad_in_use = last_device() == LastDevice::Pad;
+    // A touch screen has no pointer to show: the finger is where it points.
+    const bool pad_in_use = last_device() == LastDevice::Pad || Sh_IsMobile() != 0;
     auto& overlay = sh::overlay::overlay();
     if (!wanted || !enabled() || !in_picture_ || pad_in_use || !overlay.frame().valid()) {
         return;

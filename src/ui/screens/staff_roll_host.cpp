@@ -10,6 +10,7 @@
 #include <string>
 #include <variant>
 
+#include "engine/input/skip_watch.h"
 #include "engine/app/loader/game_files.h"
 #include "engine/app/pc_paths.h"
 #include "engine/audio/sound_registry.h"
@@ -120,6 +121,7 @@ public:
 
     bool skip_pressed() override {
         const sh::game::GameBlock& g = sh::game::session().game;
+        sh::input::note_skip_asked();
         return (g.pads[0].clicked & g.settings.binds.skip) != 0;
     }
 

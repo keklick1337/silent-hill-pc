@@ -12,6 +12,7 @@
 #include "engine/items/quick_actions.h"
 #include "input/pad.h"
 #include "input/camera_style.h"
+#include "input/touch/touch_controls.h"
 
 extern "C" {
 extern const unsigned char* g_sdlKeyboardState;
@@ -154,12 +155,9 @@ void Pc_ReloadRequestSet(int onOff) { sh::items::quick_actions().set_reload_requ
 
 // Off, the reload button is the only way to reload; a touchscreen has none, so it keeps the dry-fire reload.
 int Pc_AutoReloadEnabled(void) {
-#if defined(__ANDROID__) || defined(SH_IOS) || defined(__EMSCRIPTEN__)
-    extern int Pc_Touch_Active(void);
     if (Pc_Touch_Active()) {
         return 1;
     }
-#endif
     return g_PcConfig.autoReload != 0;
 }
 

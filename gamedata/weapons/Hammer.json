@@ -1,5 +1,6 @@
 {
   "class": "melee",
+  "touch_icon": "attack_blunt",
   "item": "Hammer",
   "clip": null,
   "ammo": null,

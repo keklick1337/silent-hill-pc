@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- Struggle: tap it (or flick the stick) again and again to break free of a grab. -->
+  <path d="M26 32 H9" stroke="#fff" stroke-width="5" fill="none"/>
+  <path d="M17 23 L8 32 L17 41" stroke="#fff" stroke-width="5" fill="none"/>
+  <path d="M38 32 H55" stroke="#fff" stroke-width="5" fill="none"/>
+  <path d="M47 23 L56 32 L47 41" stroke="#fff" stroke-width="5" fill="none"/>
+  <path d="M24 13 L28 20" stroke="#fff" stroke-width="3.5" fill="none"/>
+  <path d="M32 10 V19" stroke="#fff" stroke-width="3.5" fill="none"/>
+  <path d="M40 13 L36 20" stroke="#fff" stroke-width="3.5" fill="none"/>
+  <path d="M24 51 L28 44" stroke="#fff" stroke-width="3.5" fill="none"/>
+  <path d="M32 54 V45" stroke="#fff" stroke-width="3.5" fill="none"/>
+  <path d="M40 51 L36 44" stroke="#fff" stroke-width="3.5" fill="none"/>
+</svg>

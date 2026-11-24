@@ -548,6 +548,9 @@ void merge_weapon(const Value& entry, WeaponDef& weapon, bool& legacy) {
     if (const Value* like = entry.find("like")) {
         weapon.like = like->is_string() ? like->string() : std::string();
     }
+    if (const Value* icon = entry.find("touch_icon")) {
+        weapon.touch_icon = icon->is_string() ? icon->string() : std::string();
+    }
     const Value* attacks = entry.find("attacks");
     if (attacks && !attacks->is_null()) {
         if (!attacks->is_array()) {

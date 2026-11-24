@@ -52,6 +52,8 @@ public:
     // --- the picture of the pointer ---
     // A screen that wants the pointer drawn asks every frame it should show.
     void show();
+    // A screen asked lately, or a puzzle's cursor is up: the screen follows the pointer (the touch screen's taps).
+    bool requested() const { return show_presents_ > 0 || puzzle_active(); }
     // Last thing of the frame's 2D: draws the arrow if a screen asked for it.
     void draw();
 

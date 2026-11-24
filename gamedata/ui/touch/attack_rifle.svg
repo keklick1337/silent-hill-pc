@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- Attack with a hunting rifle. -->
+  <polygon points="3,28 61,28 61,31 28,31 23,35 12,44 4,44 10,34 3,33" fill="#fff"/>
+  <rect x="24" y="19" width="18" height="5" fill="#fff"/>
+  <path d="M28 24 V28" stroke="#fff" stroke-width="2.5" fill="none"/>
+  <path d="M38 24 V28" stroke="#fff" stroke-width="2.5" fill="none"/>
+</svg>

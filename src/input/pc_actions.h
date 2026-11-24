@@ -42,6 +42,14 @@ void        PcActions_Project(void);
 /* Which scheme the keyboard drives: 0 classic, 1 alternate cameras. */
 void PcActions_SetScheme(int scheme);
 
+/* Actions held by the on-screen controls of a touch screen (bit n = sh::input::Action n): one more device beside
+ * the keyboard and the mouse, latched per press the same way (input/touch/touch_controls.h). */
+void PcActions_SetTouchActions(unsigned int held);
+
+/* Devices kept out of the pad word: bit 0 the keyboard (the touch layout editor owns Back), bit 1 the mouse (a
+ * desktop testing the touch controls, where the mouse is a finger). */
+void PcActions_SetSuspended(int devices);
+
 /* Installed as the pad source: the keyboard/mouse pad word, active-low. */
 unsigned short PcActions_PadWord(void);
 /* PS1 bits currently held by mouse buttons or the wheel (active-high). Menus

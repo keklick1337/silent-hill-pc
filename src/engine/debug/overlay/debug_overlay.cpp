@@ -22,6 +22,7 @@
 #include "input/object_pick.h"
 #include "input/pad.h"
 #include "input/pc_quick_actions.h"
+#include "input/touch/touch_controls.h"
 #include "platform/sh_platform.h"
 #include "render/gpu/render_queries.h"
 #include "render/gpu/render_state.h"
@@ -296,6 +297,7 @@ void DebugOverlay::draw() {
     sh::freecam::draw_controls_panel();
     sh::hud::draw_fps_counter();
     if (sh::devtools::tool_mode().draw) sh::devtools::tool_mode().draw();
+    sh::input::touch::draw();
     sh::input::mouse_pointer().draw();
     ConsoleHost_Render();
 

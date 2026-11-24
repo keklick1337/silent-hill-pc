@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- Map: the paper map. -->
+  <path d="M11 18 L24 13 L40 19 L53 14 V46 L40 51 L24 45 L11 50 Z" stroke="#fff" stroke-width="3.5" fill="none"/>
+  <path d="M24 13 V45" stroke="#fff" stroke-width="3" fill="none"/>
+  <path d="M40 19 V51" stroke="#fff" stroke-width="3" fill="none"/>
+</svg>

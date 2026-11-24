@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- Back: what Esc does on this screen. -->
+  <path d="M46 32 H19" stroke="#fff" stroke-width="5" fill="none"/>
+  <path d="M31 19 L18 32 L31 45" stroke="#fff" stroke-width="5" fill="none"/>
+</svg>

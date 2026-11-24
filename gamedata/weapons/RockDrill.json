@@ -1,5 +1,6 @@
 {
   "class": "melee",
+  "touch_icon": "attack_drill",
   "gas": true,
   "item": "RockDrill",
   "clip": null,

@@ -1,5 +1,6 @@
 {
   "class": "melee",
+  "touch_icon": "attack_axe",
   "item": "Axe",
   "clip": null,
   "ammo": null,

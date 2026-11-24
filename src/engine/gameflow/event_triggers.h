@@ -144,6 +144,12 @@ public:
 
     const std::array<ItemSlot, kItemSlots>& item_slots() const { return slots_; }
 
+    // The button event the action button would start in this frame's place, or -1: the gates, the shape and the
+    // dark rule as update() reads them, for a hint of what the button would do (the touch screen's action button).
+    // Changes nothing, the cached facing probe included; `frame.action_pressed` is not read.
+    int button_event_in_reach(const TriggerFrame& frame, std::span<const EventTrigger> events,
+                              const EventHost& host) const;
+
     // Number of item events that found no free slot (the original wrote past its array).
     int slot_overflows() const { return slot_overflows_; }
 

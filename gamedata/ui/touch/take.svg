@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- Take an item. -->
+  <path d="M32 10 V36" stroke="#fff" stroke-width="5" fill="none"/>
+  <path d="M21 26 L32 37 L43 26" stroke="#fff" stroke-width="5" fill="none"/>
+  <path d="M13 38 V50 H51 V38" stroke="#fff" stroke-width="4" fill="none"/>
+</svg>

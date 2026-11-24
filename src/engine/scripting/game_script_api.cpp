@@ -7,6 +7,7 @@
 // sh::loader::DiscFiles). Registered first (order 0) through ShScript_RegisterGameBinder; the game's
 // other bridges and the event binds register after it.
 
+#include "engine/input/skip_watch.h"
 #include "engine/loader/active_map.h"
 #include "engine/runtime/world_object_binds.h"
 #include "engine/script/sh_script.h"
@@ -254,6 +255,9 @@ const std::uint16_t* bind_of(const char* action) {
 // mode: 0 held, 1 newly pressed, 2 released, 3 pulsed (auto-repeat).
 int input_action(const char* action, int mode) {
     const std::uint16_t* bits = action != nullptr ? bind_of(action) : nullptr;
+    if (bits != nullptr && std::strcmp(action, "skip") == 0) {
+        sh::input::note_skip_asked();
+    }
     if (bits == nullptr) {
         return 0;
     }

@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- Run: a tap turns running on and the next turns it off (with the d-pad); lit while it is on. -->
+  <circle cx="39" cy="11" r="5.5" fill="#fff"/>
+  <path d="M36 20 L29 36" stroke="#fff" stroke-width="5" fill="none"/>
+  <path d="M47 30 L41 23 L34 21 L25 26 L20 33" stroke="#fff" stroke-width="4.5" fill="none"/>
+  <path d="M29 36 L39 42 L37 55" stroke="#fff" stroke-width="5" fill="none"/>
+  <path d="M29 36 L23 46 L12 48" stroke="#fff" stroke-width="5" fill="none"/>
+  <path d="M6 22 H16" stroke="#fff" stroke-width="3.5" fill="none"/>
+  <path d="M4 30 H13" stroke="#fff" stroke-width="3.5" fill="none"/>
+</svg>

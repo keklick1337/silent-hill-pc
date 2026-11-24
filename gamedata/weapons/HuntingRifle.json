@@ -1,5 +1,6 @@
 {
   "class": "gun",
+  "touch_icon": "attack_rifle",
   "item": "HuntingRifle",
   "clip": 6,
   "ammo": "RifleShells",

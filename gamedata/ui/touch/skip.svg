@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- Skip: where the original lets the player skip. -->
+  <path d="M14 19 L27 32 L14 45" stroke="#fff" stroke-width="5" fill="none"/>
+  <path d="M31 19 L44 32 L31 45" stroke="#fff" stroke-width="5" fill="none"/>
+  <path d="M50 19 V45" stroke="#fff" stroke-width="5" fill="none"/>
+</svg>
