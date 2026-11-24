@@ -11,7 +11,7 @@ Window compute_window(const Metrics& m, int row_count, int top) {
     top = std::clamp(top, 0, std::max(0, row_count - visible));
     const int last = std::min(row_count, top + visible);
     for (int i = top; i < last; ++i) {
-        w.slots.push_back({i, m.rows_y + (i - top) * m.pitch});
+        w.slots.push_back({i, m.rows_y + (i - top) * m.pitch, m.pitch});
     }
     w.arrow_up = top > 0;
     w.arrow_down = last < row_count;
@@ -28,6 +28,46 @@ int row_at_point(const Metrics& m, int row_count, int top, int x, int y) {
     if (slot >= visible) return -1;
     const int row = top + slot;
     return row < row_count ? row : -1;
+}
+
+int last_top(const Metrics& m, const std::vector<int>& heights) {
+    const int window = std::max(1, m.visible) * m.pitch;
+    int top = static_cast<int>(heights.size()) - 1;
+    if (top <= 0) return 0;
+    int sum = heights[static_cast<std::size_t>(top)];
+    while (top > 0 && sum + heights[static_cast<std::size_t>(top - 1)] <= window) {
+        sum += heights[static_cast<std::size_t>(--top)];
+    }
+    return top;
+}
+
+Window compute_window(const Metrics& m, const std::vector<int>& heights, int top) {
+    Window w;
+    const int count = static_cast<int>(heights.size());
+    const int window = std::max(1, m.visible) * m.pitch;
+    top = std::clamp(top, 0, last_top(m, heights));
+    int y = 0;
+    int last = top;
+    for (; last < count; ++last) {
+        const int h = heights[static_cast<std::size_t>(last)];
+        // A row taller than the whole window still shows when it is the first.
+        if (y + h > window && last > top) break;
+        w.slots.push_back({last, m.rows_y + y, h});
+        y += h;
+    }
+    w.arrow_up = top > 0;
+    w.arrow_down = last < count;
+    w.up_y = m.rows_y - 6;
+    w.down_y = m.rows_y + window + 4;
+    return w;
+}
+
+int row_at_point(const Metrics& m, const std::vector<int>& heights, int top, int x, int y) {
+    if (x < m.left_x || x >= m.right_x || y < m.rows_y) return -1;
+    for (const Slot& s : compute_window(m, heights, top).slots) {
+        if (y >= s.y && y < s.y + s.h) return s.row;
+    }
+    return -1;
 }
 
 Columns split_columns(const Metrics& m, int label_w, int value_w, bool arrows) {
@@ -135,6 +175,7 @@ int value_width(const ColumnInput& in, const ColumnRow& r, int s) {
 
 bool row_fits(const ColumnInput& in, const ColumnRow& r, int s) {
     const int avail = in.right - in.label_x;
+    if (r.yields) return in.gap + value_width(in, r, s) <= avail;
     if (!valued(r)) return scaled_up(r.label, s) <= avail;
     return scaled_up(r.label, s) + in.gap + value_width(in, r, s) <= avail;
 }
@@ -169,16 +210,18 @@ Column column_at(const ColumnInput& in, int s, const Use& use) {
     int labels = in.label_x + in.gap;
     int values = 0;
     bool any = false;
+    bool yielding = false;
     for (const ColumnRow& r : in.rows) {
         if (!valued(r) || !use(r)) continue;
         any = true;
-        labels = std::max(labels, in.label_x + scaled_up(r.label, s) + in.gap);
+        yielding = yielding || r.yields;
+        if (!r.yields) labels = std::max(labels, in.label_x + scaled_up(r.label, s) + in.gap);
         values = std::max(values, value_width(in, r, s));
     }
     if (!any) return {in.right, true};
     const int lowest = in.label_x + in.gap;
     if (labels + values <= in.right) {
-        int x = std::max(labels, in.min_value_x);
+        int x = std::max(labels, yielding ? in.right - values : in.min_value_x);
         if (x + values > in.right) x = in.right - values;
         return {std::clamp(x, lowest, std::max(lowest, in.right)), true};
     }
@@ -188,6 +231,7 @@ Column column_at(const ColumnInput& in, int s, const Use& use) {
 
 // Whether a row with a value is whole at size `s` with its value at `x`.
 bool whole_at(const ColumnInput& in, const ColumnRow& r, int s, int x) {
+    if (r.yields) return x + value_width(in, r, s) <= in.right;
     return in.label_x + scaled_up(r.label, s) + in.gap <= x && x + value_width(in, r, s) <= in.right;
 }
 

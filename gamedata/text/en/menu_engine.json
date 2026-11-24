@@ -4,6 +4,8 @@
   "lang": "en",
   "strings": {
     "ui.bind.debug_options": "Debug Options",
+    "ui.menu.advanced": "Advanced",
+    "ui.menu.advanced.help": "More settings: the ones most players never change.",
     "ui.menu.off": "Off",
     "ui.menu.on": "On",
     "ui.pause.debug_options": "DEBUG OPTIONS"

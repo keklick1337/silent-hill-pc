@@ -3,14 +3,20 @@
 #include "ui/menu/menu_view.h"
 
 #include <algorithm>
+#include <chrono>
+#include <cmath>
 #include <cstdio>
 #include <cstring>
 
 #include "engine/config/pc_config.h"
 #include "engine/log/sh_log.h"
+#include "engine/menu/text_fit.h"
 #include "engine/game_state/game_state.h"
 #include "i18n/localization.h"
 #include "ui/menu/nm_draw.h"
+#include "input/mouse_pointer.h"
+#include "input/touch/touch_controls.h"
+#include "platform/sh_platform.h"
 #include "render/gpu/render_queries.h"
 #include "render/gpu/render_state.h"
 
@@ -41,6 +47,13 @@ constexpr std::size_t kLiteralBytes = 255;
 int row_scale() { return PcConfig_RenderHeight() < 480 ? kScaleFull : 3072; }
 
 int help_scale() { return row_scale() == kScaleFull ? kScaleFull : 2560; }
+
+// A note is small wherever the window has the lines for it: menu text is drawn at the window's resolution, so a
+// low render scale (a phone's) must not blow the notes up to the rows' size.
+int note_scale() {
+    const int window = sh::render::published().window_height;
+    return (window > 0 ? window : PcConfig_RenderHeight()) >= 480 ? 2560 : kScaleFull;
+}
 
 int scaled(int v, int scale) { return (v * scale) >> 12; }
 
@@ -135,6 +148,10 @@ public:
         nm::bar(x, y, notches, static_cast<int>(std::clamp(fraction, 0.0, 1.0) * 4096.0 + 0.5));
     }
     void veil() override { nm::dim_background(); }
+    void press_band(int x0, int x1, int y_top, int y_bottom) override { nm::press_band(x0, x1, y_top, y_bottom); }
+    void scroll_bar(int x, int y0, int y1, int first, int shown, int total) override {
+        nm::scroll_bar(x, y0, y1, first, shown, total);
+    }
 
     Metrics metrics() override {
         Metrics m;
@@ -157,6 +174,7 @@ private:
     int scale_of(TextSize s) const {
         if (s == TextSize::Full) return kScaleFull;
         if (s == TextSize::Fit) return fit_scale_;
+        if (s == TextSize::Small) return note_scale();
         return s == TextSize::Help ? help_scale() : row_scale();
     }
 
@@ -170,6 +188,9 @@ private:
         }
     }
 };
+
+// A note (RowDef::small) drawn in its own smaller line.
+bool is_note(const RowView& r) { return r.def != nullptr && r.def->small && r.def->kind == RowKind::Info; }
 
 Tone tone_of(const RowView& r) {
     if (!r.enabled) return Tone::Dim;
@@ -202,6 +223,14 @@ constexpr int kAnswerDy = 24;
 constexpr int kAnswerCx[2] = {120, 200};
 constexpr int kAnswerH = 16;
 constexpr const char* kAnswerKeys[2] = {"ui.pause.yes", "ui.pause.no"};
+// The touch screen's taller rows (MenuView::touch_rows).
+constexpr int kTouchOptionsPitch = 24;
+constexpr int kTouchPauseHeaderY = 40;
+constexpr int kTouchPauseRowsY = 70;
+constexpr int kTouchPausePitch = 26;
+constexpr int kGlyphHeight = 14;  // a row's text from its y down
+constexpr int kNoteGap = 2;        // a note line's pitch past its glyphs
+constexpr int kTouchNotePitch = 14;
 
 }  // namespace
 
@@ -241,11 +270,22 @@ Metrics MenuView::metrics() const {
         m.gap = 12;
         m.help_y = 200;
         m.help_bottom = 220;
+        if (touch_rows()) {
+            // A finger needs rows about 44 dp tall: 6 rows of 24 lines on the 240-line screen.
+            m.pitch = kTouchOptionsPitch;
+            m.visible = 6;
+        }
     } else if (style_ == Style::Pause) {
         m.header_y = kPauseHeaderY;
         m.rows_y = kPauseRowsY;
         m.left_x = 60;
         m.right_x = 260;
+        if (touch_rows()) {
+            m.header_y = kTouchPauseHeaderY;
+            m.rows_y = kTouchPauseRowsY;
+            m.pitch = kTouchPausePitch;
+            m.visible = 6;
+        }
         return m;
     }
     if (help_lines_ > 0) m.visible = place_help(m, help_lines_, help_pitch()).visible;
@@ -305,7 +345,18 @@ void MenuView::fit(Controller& c) {
         }
         help_lines_ = std::max(help_lines_, static_cast<int>(help_lines(c.help()).size()));
     }
-    c.set_visible_rows(metrics().visible);
+    const Metrics m = metrics();
+    c.set_visible_rows(m.visible);
+    if (row_heights_apply()) {
+        c.set_row_heights(m.pitch, [this, m](const RowView& r) { return row_height(r, m); });
+    } else {
+        c.set_row_heights(m.pitch, nullptr);
+    }
+    if (touch_rows() && c.is_open()) {
+        follow_finger(c);
+    } else {
+        shift_ = 0;
+    }
 }
 
 void MenuView::draw_marked(int cx, int y, Tone tone, const Label& label, bool selected, TextSize size) {
@@ -343,15 +394,224 @@ int MenuView::hover_answer(const Controller& c, int mouse_x, int mouse_y) const 
     return -1;
 }
 
+double MenuView::bar_share(int hover_row, int mouse_x, int mouse_y) const {
+    for (const BarPlace& b : bars_) {
+        // A finger is wide: a little room either side of the bar still sets its end.
+        if (b.slot != hover_row || mouse_y < b.y - 4 || mouse_y > b.y + 18 || mouse_x < b.x0 - 12 || mouse_x > b.x1 + 12)
+            continue;
+        return std::clamp(static_cast<double>(mouse_x - b.x0) / static_cast<double>(b.x1 - b.x0), 0.0, 1.0);
+    }
+    return -1.0;
+}
+
 int MenuView::hover_row(const Controller& c, int mouse_x, int mouse_y) const {
-    const Metrics m = metrics();
+    Metrics m = metrics();
+    // +3: the same lead-in above the glyph that the pause rows use. A finger's taller rows are centred on the text,
+    // reach across the whole screen and move with the part-row the finger scrolled.
+    int lead = 3;
+    if (touch_rows()) {
+        lead = m.pitch / 2 - kGlyphHeight / 2 + shift_;
+        m.left_x = span_.left;
+        m.right_x = span_.right;
+    }
+    const int visible = std::max(1, m.visible);
+    // row_at_point counts from the list's start; the controller counts from its own top.
     if (c.dropdown_open()) {
         const DropdownView d = c.dropdown();
-        const int top = keep_visible(d.top, d.selected, static_cast<int>(d.items.size()), m.visible);
-        // +3: the same lead-in above the glyph that the pause rows use.
-        return row_at_point(m, static_cast<int>(d.items.size()), top, mouse_x, mouse_y + 3);
+        const int count = static_cast<int>(d.items.size());
+        const int top = touch_rows() ? d.top : keep_visible(d.top, d.selected, count, visible);
+        const int row = row_at_point(m, count, top, mouse_x, mouse_y + lead);
+        return row < 0 || row < d.top ? -1 : row - d.top;
     }
-    return row_at_point(m, static_cast<int>(c.rows().size()), c.scroll_top(), mouse_x, mouse_y + 3);
+    const std::vector<RowView> rows = c.rows();
+    const std::vector<int> heights = row_heights(rows, metrics());
+    const int count = static_cast<int>(rows.size());
+    if (!heights.empty()) {
+        const int top = std::clamp(c.scroll_top(), 0, last_top(m, heights));
+        const int row = row_at_point(m, heights, top, mouse_x, mouse_y + lead);
+        return row < 0 ? -1 : row - top;
+    }
+    const int top = std::clamp(c.scroll_top(), 0, std::max(0, count - visible));
+    const int row = row_at_point(m, count, top, mouse_x, mouse_y + lead);
+    return row < 0 ? -1 : row - top;
+}
+
+void MenuView::pointer_input(const Controller& c, bool pointer, int x, int y, MenuInput& mi) const {
+    if (pointer) {
+        mi.hover_row = hover_row(c, x, y);
+        mi.hover_answer = hover_answer(c, x, y);
+    }
+    if (!touch_rows()) return;
+    mi.touch = true;
+    // A finger points only where it taps: a drag scrolls the list and leaves the cursor where it is.
+    mi.pointer_moved = false;
+    if (!pointer || c.dropdown_open() || c.confirm_open()) return;
+    const sh::input::touch::ListFinger finger = sh::input::touch::list_finger();
+    if (finger.dragging) {
+        // Sideways from a bar: the bar follows the finger, whatever its height on the row.
+        if (!finger.horizontal || press_bar_slot_ < 0) return;
+        for (const BarPlace& b : bars_) {
+            if (b.slot != press_bar_slot_ || b.x1 <= b.x0) continue;
+            mi.hover_row = press_bar_slot_;
+            mi.pointer_moved = true;  // the bar's row becomes the selected one
+            mi.bar_at = std::clamp(static_cast<double>(x - b.x0) / static_cast<double>(b.x1 - b.x0), 0.0, 1.0);
+        }
+        return;
+    }
+    if (mi.click && mi.hover_row >= 0) mi.bar_at = bar_share(mi.hover_row, x, y);
+}
+
+void MenuView::follow_finger(Controller& c) {
+    const Metrics m = metrics();
+    const bool list = c.dropdown_open();
+    const int count = list ? static_cast<int>(c.dropdown().items.size()) : static_cast<int>(c.rows().size());
+    const int visible = std::max(1, m.visible);
+    const double pitch = std::max(1, m.pitch);
+    // Rows of their own heights: the list's offset is in lines, each row starts at the sum of the rows above it.
+    const std::vector<int> heights = list ? std::vector<int>{} : row_heights(c.rows(), m);
+    std::vector<double> tops;
+    int max_top = std::max(0, count - visible);
+    double range = max_top * pitch;
+    if (!heights.empty()) {
+        double y = 0.0;
+        for (const int h : heights) {
+            tops.push_back(y);
+            y += h;
+        }
+        max_top = last_top(m, heights);
+        range = std::max(0.0, y - visible * pitch);
+    }
+    const auto top_y = [&](int top) {
+        return tops.empty() ? top * pitch : tops[static_cast<std::size_t>(std::clamp(top, 0, count - 1))];
+    };
+    const double now =
+        std::chrono::duration<double>(std::chrono::steady_clock::now().time_since_epoch()).count();
+    const double dt = scroll_clock_ < 0.0 ? 0.0 : std::clamp(now - scroll_clock_, 0.0, 0.1);
+    scroll_clock_ = now;
+
+    // Another page or the list of a row's values starts where the controller has it.
+    const std::string key = std::to_string(c.depth()) + "|" + c.title() + (list ? "|values" : "");
+    if (key != scroll_list_) {
+        scroll_list_ = key;
+        scroll_ = TouchScroll{};
+        scroll_.set_range(range, pitch);
+        scroll_.jump(top_y(c.scroll_top()));
+        press_bar_slot_ = -1;
+    }
+    scroll_.set_range(range, pitch);
+    scroll_.set_stops(tops);
+    sh::input::touch::claim_list_drag(scroll_.flinging());
+
+    const sh::input::touch::ListFinger finger = sh::input::touch::list_finger();
+    int px = 0, py = 0;
+    const bool at = nm::pointer_position(&px, &py);
+    if (finger.down && !finger_down_) {
+        scroll_.touch();
+        press_bar_slot_ = -1;
+        if (at && !list && !c.confirm_open()) {
+            const int row = hover_row(c, px, py);
+            if (row >= 0 && bar_share(row, px, py) >= 0.0) press_bar_slot_ = row;
+        }
+    }
+    finger_down_ = finger.down;
+    const bool bar_drag = finger.horizontal && press_bar_slot_ >= 0;
+    if (finger.dragging && !bar_drag && at && !c.confirm_open()) {
+        if (scroll_.held()) {
+            scroll_.drag(py, now);
+        } else {
+            scroll_.grab(py, now);
+        }
+    } else if (scroll_.held()) {
+        scroll_.release(now);
+    }
+    // At rest the list is where the controller keeps it (the keys move it with the cursor).
+    if (!scroll_.held() && !scroll_.moving()) {
+        const double want = std::min(top_y(c.scroll_top()), range);
+        if (std::fabs(scroll_.offset() - want) > 0.5) scroll_.jump(want);
+    }
+    scroll_.update(dt);
+    if (scroll_.held() || scroll_.moving()) {
+        int top = 0;
+        if (tops.empty()) {
+            top = static_cast<int>(std::floor(scroll_.offset() / pitch));
+        } else {
+            while (top + 1 < count && tops[static_cast<std::size_t>(top + 1)] <= scroll_.offset()) ++top;
+        }
+        c.set_scroll_top(std::clamp(top, 0, max_top));
+    }
+    shift_ = static_cast<int>(std::lround(scroll_.offset() - top_y(c.scroll_top())));
+}
+
+Window MenuView::list_window(const Metrics& m, int count, int top, const std::vector<int>& heights) const {
+    if (!heights.empty()) {
+        Window w = compute_window(m, heights, top);
+        if (!touch_rows() || shift_ == 0) return w;
+        top = std::clamp(top, 0, last_top(m, heights));
+        const int window = std::max(1, m.visible) * m.pitch;
+        const int slack = m.pitch / 3;
+        int y = m.rows_y - shift_;
+        if (top > 0) y -= heights[static_cast<std::size_t>(top - 1)];
+        w.slots.clear();
+        for (int i = std::max(0, top - 1); i < count; ++i) {
+            const int h = heights[static_cast<std::size_t>(i)];
+            if (y > m.rows_y + window + slack) break;
+            if (y >= m.rows_y - slack && y + h <= m.rows_y + window + slack) w.slots.push_back({i, y, h});
+            y += h;
+        }
+        return w;
+    }
+    Window w = compute_window(m, count, top);
+    if (!touch_rows() || shift_ == 0) return w;
+    const int visible = std::max(1, m.visible);
+    top = std::clamp(top, 0, std::max(0, count - visible));
+    // A row may stand a third of a row out of the window, no more: it would run into the heading or the help.
+    const int slack = m.pitch / 3;
+    const int first_y = m.rows_y - slack;
+    const int last_y = m.rows_y + (visible - 1) * m.pitch + slack;
+    w.slots.clear();
+    for (int i = std::max(0, top - 1); i <= std::min(count - 1, top + visible); ++i) {
+        const int y = m.rows_y + (i - top) * m.pitch - shift_;
+        if (y >= first_y && y <= last_y) w.slots.push_back({i, y, m.pitch});
+    }
+    return w;
+}
+
+bool MenuView::touch_rows() const { return Sh_IsMobile() != 0 && (style_ == Style::Options || style_ == Style::Pause); }
+
+void MenuView::draw_touch_aids(const Window& w, int count, int top, const Metrics& m,
+                               const std::vector<int>& heights) {
+    if (!touch_rows()) return;
+    const int lead = m.pitch / 2 - kGlyphHeight / 2;
+    // Under the finger that rests on the list: the row it will choose when it lifts.
+    int px = 0, py = 0;
+    if (sh::input::touch::pointer_pressed() && nm::pointer_position(&px, &py)) {
+        for (const Slot& s : w.slots) {
+            if (py + lead < s.y || py + lead >= s.y + s.h) continue;
+            canvas_->press_band(span_.left, span_.right, s.y - lead, s.y - lead + s.h);
+            break;
+        }
+    }
+    // Where a long list is: shown all the time the page does not fit (a finger drag scrolls it).
+    const int visible = std::max(1, m.visible);
+    const int x = std::min(span_.right - 6, options_right() + 8);
+    const int y0 = m.rows_y - lead;
+    if (!heights.empty()) {
+        // In lines: the rows above the window, the window, all the rows.
+        int total = 0;
+        int above = 0;
+        for (int i = 0; i < count; ++i) {
+            if (i < top) above += heights[static_cast<std::size_t>(i)];
+            total += heights[static_cast<std::size_t>(i)];
+        }
+        const int window = visible * m.pitch;
+        if (total > window) {
+            canvas_->scroll_bar(x, y0, y0 + window, std::clamp(above, 0, total - window), window, total);
+        }
+        return;
+    }
+    if (count > visible) {
+        canvas_->scroll_bar(x, y0, y0 + visible * m.pitch, std::clamp(top, 0, count - visible), visible, count);
+    }
 }
 
 void MenuView::draw(const Controller& c) {
@@ -390,9 +650,15 @@ void MenuView::draw(const Controller& c) {
 
 void MenuView::draw_rows(const Controller& c, const Metrics& m) {
     const std::vector<RowView> rows = c.rows();
-    const Window w = compute_window(m, static_cast<int>(rows.size()), c.scroll_top());
+    const std::vector<int> heights = row_heights(rows, m);
+    const Window w = list_window(m, static_cast<int>(rows.size()), c.scroll_top(), heights);
+    draw_touch_aids(w, static_cast<int>(rows.size()), c.scroll_top(), m, heights);
     for (const Slot& s : w.slots) {
         const RowView& r = rows[static_cast<std::size_t>(s.row)];
+        if (!heights.empty() && is_note(r)) {
+            draw_note(r, s, m);
+            continue;
+        }
         draw_row(r, s.y, s.row == c.selection(), m);
     }
     const int cx = m.centre_x;
@@ -402,7 +668,7 @@ void MenuView::draw_rows(const Controller& c, const Metrics& m) {
 
 void MenuView::draw_row(const RowView& r, int y, bool selected, const Metrics& m) {
     const Tone tone = tone_of(r);
-    const Label label = canvas_->localize(r.def != nullptr ? r.def->label : std::string());
+    const Label label = r.def != nullptr ? row_label(*r.def) : canvas_->localize(std::string());
     if (style_ == Style::Pause) {
         draw_marked(m.centre_x, y, tone, label, selected, TextSize::Row);
         return;
@@ -422,7 +688,10 @@ void MenuView::draw_row(const RowView& r, int y, bool selected, const Metrics& m
     const int text_max = std::max(0, cols.label_max - open_w - close_w);
 
     canvas_->text(m.left_x, y, TextSize::Row, tone, open);
-    const int drawn = canvas_->fitted(m.left_x + open_w, y, TextSize::Row, tone, label, text_max, selected);
+    const Cut cut = r.def != nullptr ? cut_of(*r.def) : Cut::Pan;
+    const int drawn = cut == Cut::Pan || cut == Cut::Wrap
+                          ? canvas_->fitted(m.left_x + open_w, y, TextSize::Row, tone, label, text_max, selected)
+                          : draw_cut(m.left_x + open_w, y, TextSize::Row, tone, label, text_max, cut);
     if (close_w > 0) canvas_->text(m.left_x + open_w + drawn, y, TextSize::Row, tone, close);
 
     if (value_w > 0) {
@@ -439,8 +708,9 @@ void MenuView::draw_row(const RowView& r, int y, bool selected, const Metrics& m
 void MenuView::draw_dropdown(const Controller& c, const Metrics& m) {
     const DropdownView d = c.dropdown();
     const int count = static_cast<int>(d.items.size());
-    const int top = keep_visible(d.top, d.selected, count, m.visible);
-    const Window w = compute_window(m, count, top);
+    const int top = touch_rows() ? d.top : keep_visible(d.top, d.selected, count, m.visible);
+    const Window w = list_window(m, count, top);
+    draw_touch_aids(w, count, top, m);
     const int width = m.right_x - m.left_x;
     for (const Slot& s : w.slots) {
         const bool sel = s.row == d.selected;
@@ -484,18 +754,23 @@ Label MenuView::value_label(const RowView& r) {
 }
 
 void MenuView::draw_options(const Controller& c, const Metrics& m) {
-    canvas_->centred(m.centre_x, m.header_y, TextSize::Full, Tone::Normal, canvas_->localize(c.title()));
-
     if (c.dropdown_open()) {
         const DropdownView d = c.dropdown();
+        // The list of a row's values is headed by the row; the value the row has is drawn in gold.
+        canvas_->centred(m.centre_x, m.header_y, TextSize::Full, Tone::Normal,
+                         canvas_->localize(d.label.empty() ? c.title() : d.label));
         const int count = static_cast<int>(d.items.size());
-        const int top = keep_visible(d.top, d.selected, count, m.visible);
-        const Window w = compute_window(m, count, top);
+        const int top = touch_rows() ? d.top : keep_visible(d.top, d.selected, count, m.visible);
+        const Window w = list_window(m, count, top);
+        draw_touch_aids(w, count, top, m);
         for (const Slot& s : w.slots) {
             const bool sel = s.row == d.selected;
-            const Label label = canvas_->localize(d.items[static_cast<std::size_t>(s.row)].label);
+            const std::string& text = d.items[static_cast<std::size_t>(s.row)].label;
+            const RowView entry{nullptr, text, looks_like_key(text)};
+            const Label label = value_label(entry);
             canvas_->bullet(options_bullet_x(), s.y, sel);
-            const int drawn = canvas_->fitted(options_label_x(), s.y, TextSize::Full, Tone::Normal, label,
+            const int drawn = canvas_->fitted(options_label_x(), s.y, TextSize::Full,
+                                              s.row == d.current ? Tone::Group : Tone::Normal, label,
                                               options_right() - options_label_x(), true);
             if (sel) canvas_->highlight(options_bullet_x() - 1, options_label_x() + drawn + 2, s.y + 14);
         }
@@ -503,6 +778,7 @@ void MenuView::draw_options(const Controller& c, const Metrics& m) {
         if (w.arrow_down) canvas_->scroll_arrow(m.centre_x, w.down_y, false, true);
         return;
     }
+    canvas_->centred(m.centre_x, m.header_y, TextSize::Full, Tone::Normal, canvas_->localize(c.title()));
 
     const std::vector<RowView> rows = c.rows();
     // One value column and one text size for the whole page (not per window), so neither jumps while
@@ -526,9 +802,11 @@ void MenuView::draw_options(const Controller& c, const Metrics& m) {
     in.rows.reserve(rows.size());
     for (const RowView& r : rows) {
         ColumnRow cr;
-        // A group caption spans the page and takes no part in the columns.
-        if (r.def != nullptr && r.def->kind != RowKind::Header) {
-            cr.label = canvas_->text_width(canvas_->localize(r.def->label), TextSize::Full);
+        // A group caption and a note span the page and take no part in the columns.
+        if (r.def != nullptr && r.def->kind != RowKind::Header && !is_note(r)) {
+            cr.label = canvas_->text_width(row_label(*r.def), TextSize::Full);
+            const Cut cut = cut_of(*r.def);
+            cr.yields = cut == Cut::End || cut == Cut::Middle || cut == Cut::Path;
             const Label value = value_label(r);
             int& seen = value_widths_[r.def->id.empty() ? r.def->label : r.def->id];
             seen = std::max(seen, value.text.empty() ? 0 : canvas_->text_width(value, TextSize::Full));
@@ -547,12 +825,20 @@ void MenuView::draw_options(const Controller& c, const Metrics& m) {
     page_scale_ = layout.scale;
     report_layout(c, rows, in, layout);
 
-    const Window w = compute_window(m, static_cast<int>(rows.size()), c.scroll_top());
+    const std::vector<int> heights = row_heights(rows, m);
+    const Window w = list_window(m, static_cast<int>(rows.size()), c.scroll_top(), heights);
+    draw_touch_aids(w, static_cast<int>(rows.size()), c.scroll_top(), m, heights);
+    bars_.clear();
     for (const Slot& s : w.slots) {
         const auto i = static_cast<std::size_t>(s.row);
+        if (!heights.empty() && is_note(rows[i])) {
+            draw_note(rows[i], s, m);
+            continue;
+        }
         const RowPlace place = place_row(in, layout, in.rows[i]);
         canvas_->set_fit_scale(place.scale);
         draw_options_row(rows[i], s.y, s.row == c.selection(), place);
+        if (rows[i].fraction >= 0.0) bars_.push_back({s.row - c.scroll_top(), place.value_x, place.value_x + kOptBarWidth, s.y});
     }
     canvas_->set_fit_scale(kScaleFull);
     if (w.arrow_up) canvas_->scroll_arrow(m.centre_x, w.up_y, true, true);
@@ -617,7 +903,7 @@ void MenuView::report_layout(const Controller& c, const std::vector<RowView>& ro
 void MenuView::draw_options_row(const RowView& r, int y, bool selected, const RowPlace& place) {
     const Tone tone = tone_of(r);
     const bool info = r.def != nullptr && r.def->kind == RowKind::Info;
-    const Label label = canvas_->localize(r.def != nullptr ? r.def->label : std::string());
+    const Label label = r.def != nullptr ? row_label(*r.def) : canvas_->localize(std::string());
     if (r.def != nullptr && r.def->kind == RowKind::Header) {
         // A group caption starts where the bullets do, so it reads as the title of the rows under it.
         canvas_->fitted(options_bullet_x(), y, TextSize::Fit, tone, label,
@@ -631,11 +917,13 @@ void MenuView::draw_options_row(const RowView& r, int y, bool selected, const Ro
     const int bullet_x = options_bullet_x();
     const int label_x = options_label_x();
     if (!info) canvas_->bullet(bullet_x, y, selected && r.enabled);
-    // Text that still does not fit pans on every row, selected or not, so nothing is ever cut.
+    // Text that still does not fit pans on every row, selected or not, so nothing is ever cut (unless the row says
+    // how to cut it: RowDef::cut).
     const int right = options_right();
     const int value_x = place.value_x;
     const int label_max = has_value ? place.label_max : right - label_x;
-    const int drawn = canvas_->fitted(label_x, y, TextSize::Fit, tone, label, std::max(0, label_max), true);
+    const Cut cut = r.def != nullptr ? cut_of(*r.def) : Cut::Pan;
+    const int drawn = draw_cut(label_x, y, TextSize::Fit, tone, label, std::max(0, label_max), cut);
 
     int value_end = value_x;
     if (bar) {
@@ -652,6 +940,122 @@ void MenuView::draw_options_row(const RowView& r, int y, bool selected, const Ro
     if (!selected) return;
     if (!info) canvas_->highlight(bullet_x - 1, label_x + drawn + 2, y + 14);
     if (has_value && r.has_arrows && r.enabled) canvas_->value_arrows(value_x, value_end, y);
+}
+
+// ---- Rows of their own heights: notes ------------------------------------------------------
+
+int MenuView::small_pitch(const Metrics& m) const {
+    const int glyphs = scaled(kGlyphHeight, note_scale());
+    const int pitch = touch_rows() ? std::max(kTouchNotePitch, glyphs + 2 * kNoteGap) : glyphs + kNoteGap;
+    return std::clamp(pitch, 1, std::max(1, m.pitch));
+}
+
+int MenuView::note_x(const Metrics& m) const {
+    if (style_ == Style::Options) return options_label_x();
+    return m.left_x + canvas_->text_width(Label{"_", true}, TextSize::Row);
+}
+
+int MenuView::note_width(const Metrics& m) const {
+    return std::max(0, (style_ == Style::Options ? options_right() : m.right_x) - note_x(m));
+}
+
+std::vector<int> MenuView::row_heights(const std::vector<RowView>& rows, const Metrics& m) const {
+    if (!row_heights_apply() || std::none_of(rows.begin(), rows.end(), is_note)) return {};
+    std::vector<int> out;
+    out.reserve(rows.size());
+    for (const RowView& r : rows) out.push_back(row_height(r, m));
+    return out;
+}
+
+int MenuView::row_height(const RowView& r, const Metrics& m) const {
+    if (!row_heights_apply() || !is_note(r)) return m.pitch;
+    const int pitch = small_pitch(m);
+    int lines = 1;
+    if (cut_of(*r.def) == Cut::Wrap) lines = std::max<int>(1, static_cast<int>(note_lines(r, note_width(m)).size()));
+    // A note longer than the whole window shows what the window holds.
+    const int window = std::max(1, m.visible) * m.pitch;
+    return std::max(pitch, std::min(window / pitch, lines) * pitch);
+}
+
+Label MenuView::row_label(const RowDef& d) const {
+    std::string raw = d.label;
+    if (cut_of(d) == Cut::Path && !looks_like_key(raw)) raw = std::string(last_path_component(raw));
+    const Label label = canvas_->localize(raw);
+    if (d.args.empty()) return label;
+    Label out = canvas_->as_drawn(label);
+    for (const auto& [name, value] : d.args) {
+        const std::string mark = "{" + name + "}";
+        const std::string text = canvas_->literal(value).text;
+        std::size_t at = out.text.find(mark);
+        while (at != std::string::npos) {
+            out.text.replace(at, mark.size(), text);
+            at = out.text.find(mark, at + text.size());
+        }
+    }
+    out.verbatim = true;
+    return out;
+}
+
+Label MenuView::note_text(const RowView& r) const {
+    std::string text = r.def->label.empty() ? std::string() : canvas_->as_drawn(row_label(*r.def)).text;
+    if (!r.value.empty()) {
+        Label value;
+        if (r.value_is_key || (r.value.starts_with("ui.") && looks_like_key(r.value))) {
+            value = canvas_->as_drawn(canvas_->localize(r.value));
+        } else {
+            value = canvas_->literal(cut_of(*r.def) == Cut::Path ? std::string(last_path_component(r.value)) : r.value);
+        }
+        if (!text.empty() && !value.text.empty()) text += '_';
+        text += value.text;
+    }
+    return Label{std::move(text), true};
+}
+
+std::vector<std::string> MenuView::note_lines(const RowView& r, int width) const {
+    const Label text = note_text(r);
+    if (cut_of(*r.def) != Cut::Wrap) return {text.text};
+    return wrap_words(text.text, width, [this](std::string_view piece) {
+        return canvas_->text_width(Label{std::string(piece), true}, TextSize::Small);
+    });
+}
+
+void MenuView::draw_note(const RowView& r, const Slot& s, const Metrics& m) {
+    const int pitch = small_pitch(m);
+    const int glyphs = scaled(kGlyphHeight, note_scale());
+    // A finger's rows centre their text in the row; the note keeps to the top of its own lines the same way.
+    const int band_top = touch_rows() ? s.y - (m.pitch / 2 - kGlyphHeight / 2) : s.y;
+    const int y = band_top + std::max(0, (pitch - glyphs) / 2);
+    const Tone tone = r.enabled ? Tone::Info : Tone::Dim;
+    const int x = note_x(m);
+    const int width = note_width(m);
+    const Cut cut = cut_of(*r.def);
+    if (cut == Cut::Wrap) {
+        const std::vector<std::string> lines = note_lines(r, width);
+        const int shown = std::max(1, s.h / pitch);
+        for (int i = 0; i < std::min(shown, static_cast<int>(lines.size())); ++i) {
+            draw_cut(x, y + i * pitch, TextSize::Small, tone, Label{lines[static_cast<std::size_t>(i)], true}, width,
+                     Cut::End);
+        }
+        return;
+    }
+    draw_cut(x, y, TextSize::Small, tone, note_text(r), width, cut == Cut::Path ? Cut::End : cut);
+}
+
+int MenuView::draw_cut(int x, int y, TextSize size, Tone tone, const Label& s, int max_w, Cut cut) {
+    if (cut == Cut::Pan || cut == Cut::Wrap) return canvas_->fitted(x, y, size, tone, s, max_w, true);
+    if (cut != Cut::Middle) return canvas_->fitted(x, y, size, tone, s, max_w, false);
+    const Label drawn = canvas_->as_drawn(s);
+    const int w = canvas_->text_width(drawn, size);
+    if (w <= max_w) {
+        canvas_->text(x, y, size, tone, drawn);
+        return w;
+    }
+    const FittedText fit = fit_middle_ellipsis(drawn.text, max_w, [this, size](const char* t) {
+        return canvas_->text_width(Label{t, true}, size);
+    });
+    const Label out{fit.text, true};
+    canvas_->text(x, y, size, tone, out);
+    return std::min(max_w, canvas_->text_width(out, size));
 }
 
 }  // namespace sh::menu

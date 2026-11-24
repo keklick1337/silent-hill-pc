@@ -28,6 +28,7 @@
 #include "engine/text/game_text.h"
 #include "i18n/localization.h"
 #include "input/mouse_pointer.h"
+#include "platform/sh_platform.h"
 #include "render/draw2d/draw2d.h"
 #include "ui/menu/pc_debug_menu.h"
 #include "ui/menu/nm_draw.h"
@@ -357,6 +358,7 @@ public:
 
     void draw_background() override { title_background_draw(); }
     void show_cursor() override { sh::input::mouse_pointer().show(); }
+    bool touch_screen() const override { return Sh_IsMobile() != 0; }
     void leave_title_screen() override { title_screen_leave(); }
     bool text_translated(const char* text) const override { return sh::i18n::menu_text(text) != text; }
     int text_width(const char* text) const override { return sh::i18n::text_width(sh::i18n::menu_text(text)); }

@@ -35,6 +35,8 @@ struct Input {
     bool pointer_moved = false, click = false, right_click = false;
 };
 Input read_input();
+// The pointer alone, as read_input() gives it (false while the cursor is not in use).
+bool pointer_position(int* x, int* y);
 
 // `s` goes through the menu localization; text_verbatim draws it as it is (measure that with
 // sh::i18n::text_width).
@@ -66,6 +68,10 @@ void value_arrows(int x_left, int x_right, int y);
 // An arrow above or below a list that scrolls; y is its vertical centre.
 void scroll_arrow(int cx, int y, bool up, bool enabled);
 void rule(int x0, int x1, int y);
+// A touch screen's aids: the band of the row a finger presses, and the bar beside a
+// list that scrolls (x is its left edge; the thumb is rows first .. first + shown of total).
+void press_band(int x0, int x1, int y_top, int y_bottom);
+void scroll_bar(int x, int y0, int y1, int first, int shown, int total);
 // The options screen's volume bar: `notches` notches from x, the first `fill` (0..4096 of the whole bar) lit; y is
 // the y of the label beside it.
 void bar(int x, int y, int notches, int fill);

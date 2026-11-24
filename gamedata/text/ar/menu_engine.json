@@ -4,6 +4,8 @@
   "lang": "ar",
   "strings": {
     "ui.bind.debug_options": "خيارات التصحيح",
+    "ui.menu.advanced": "متقدم",
+    "ui.menu.advanced.help": "إعدادات أخرى نادرًا ما يغيرها اللاعبون.",
     "ui.menu.off": "مطفأ",
     "ui.menu.on": "مفعل",
     "ui.pause.debug_options": "خيارات التصحيح"

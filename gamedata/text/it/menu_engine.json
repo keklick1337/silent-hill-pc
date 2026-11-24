@@ -4,6 +4,8 @@
   "lang": "it",
   "strings": {
     "ui.bind.debug_options": "Opzioni di debug",
+    "ui.menu.advanced": "Avanzate",
+    "ui.menu.advanced.help": "Altre impostazioni, che quasi nessuno cambia.",
     "ui.menu.off": "No",
     "ui.menu.on": "Sì",
     "ui.pause.debug_options": "OPZIONI DI DEBUG"

@@ -63,6 +63,22 @@ struct VisibleIf {
 // numeric string counts), booleans by truth, strings exactly.
 bool visible_if_holds(const VisibleIf& cond, const std::optional<Value>& actual);
 
+// The `visible_if` key that is 1 on a phone or tablet (a config reader answers it); `mobile = true / false` on a row.
+inline constexpr std::string_view kMobileKey = "mobile";
+// A page's rows marked `advanced` show on a phone or tablet on the page "<page id>.advanced" instead, opened by a row
+// the registry adds to the page (text keys kAdvancedLabel and kAdvancedLabel + ".help"); elsewhere they stay in place.
+inline constexpr std::string_view kAdvancedSuffix = ".advanced";
+inline constexpr std::string_view kAdvancedLabel = "ui.menu.advanced";
+
+// How a row's text that is too long for its room is shown.
+enum class Cut {
+    Pan,     // scrolls to its end and back (the default of a full row)
+    End,     // ends in "..." (the default of a `small` row)
+    Middle,  // keeps its start and its end with "..." between (a path)
+    Path,    // only the last component of a path, then as End
+    Wrap,    // a `small` row: breaks into as many lines as it needs (other rows: as Pan)
+};
+
 struct RowDef {
     RowKind kind = RowKind::Action;
     std::string id;       // unique in its menu; optional
@@ -92,19 +108,32 @@ struct RowDef {
     std::function<std::vector<std::string>()> texts;  // Setting: every text it can show (sizes the value column)
     std::function<bool()> visible;              // hidden while it returns false
     std::vector<VisibleIf> visible_if;          // hidden unless every condition holds (and `visible`)
+    bool advanced = false;                      // on a phone or tablet: on the page's Advanced page (kAdvancedSuffix)
     std::function<bool()> enabled;              // drawn dimmed and refused while it returns false
     bool close_on_activate = false;             // an Action that also closes the whole menu stack
     std::string confirm;                        // Action: text key / literal of a Yes/No question asked first (default No)
     // A mod setting key (sh.config, `mymod.speed`): Registry::resolve binds get / set and the range
     // or choices the row leaves out through the registry's config binder.
     std::string config;
+    // Info: a note under the row before it, in smaller dimmer text with a tighter pitch, left-aligned with the labels;
+    // its label and value read as one line. Other kinds ignore it.
+    bool small = false;
+    std::optional<Cut> cut;  // unset: Pan, or End on a `small` row
+    // Data text put for "{name}" into the label's text (after it is translated), so a translation orders its parts.
+    std::vector<std::pair<std::string, std::string>> args;
 };
+
+// The row's Cut, its default filled in.
+Cut cut_of(const RowDef& r);
 
 struct MenuDef {
     std::string id;     // "debug", "options.graphics", "mymod:cheats"
     std::string title;  // text key or literal
     std::vector<RowDef> rows;
     std::function<void()> on_open;  // called each time the menu becomes the current one
+    // Called every frame while the menu is the current one, before input: a page waiting for something the engine
+    // delivers later (a file the system's dialog picked) looks here and may define itself again.
+    std::function<void()> on_update;
     // Asked when the player backs out of this menu: a non-empty text key / literal is a Yes/No question put first
     // (default No). Yes or No calls `on_leave(yes)`, then the menu is left; cancel stays in the menu.
     std::function<std::string()> leave_confirm;
@@ -129,9 +158,11 @@ struct NativeSetting {
 
 class Registry {
 public:
-    // A later define() of the same id replaces the earlier one (a mod overrides the base menu).
+    // A later define() of the same id replaces the earlier one (a mod overrides the base menu). Rows marked
+    // `advanced` also go to the page's Advanced page (kAdvancedSuffix), shown there on a phone or tablet only.
     void define(MenuDef def);
-    // Appends rows to an existing menu (a mod extending the base menu); false when it does not exist.
+    // Appends rows to an existing menu (a mod extending the base menu), `advanced` ones as define() places them;
+    // false when the menu does not exist.
     bool append_rows(std::string_view menu_id, std::vector<RowDef> rows);
     // Defines `page` and links it from `parent` with a submenu row (label = the page's title unless
     // `link` has its own). The row goes before the parent's rows with id "tail" / "tail.*" (Reset
@@ -150,6 +181,11 @@ public:
     // Bumped by every define / append_rows / clear: an open Controller copies its rows again when it changes,
     // so a menu that defines itself again from its own callbacks (the Mods screen) shows the new rows.
     std::uint64_t generation() const { return generation_; }
+    // Asks the open controller to bring the row `row_id` of `menu_id` to the window's top (the selection goes to the
+    // first row at or after it that can be selected), as soon as that menu is the current one. The latest ask wins.
+    void focus(std::string menu_id, std::string row_id);
+    // The ask of focus() for `menu_id`, taken (nullopt when there is none).
+    std::optional<std::string> take_focus(std::string_view menu_id);
 
     void native_value(std::string name, NativeValue v);
     void native_action(std::string name, std::function<void()> fn);
@@ -179,9 +215,14 @@ public:
     bool resolve(RowDef& row) const;
 
 private:
+    // Copies `rows` marked advanced (and every header, which hides itself while its group is empty there) onto the
+    // Advanced page of `page`, hides the originals on a phone or tablet and links the page from `page` there.
+    void place_advanced(MenuDef& page, const std::vector<RowDef>& rows);
+
     std::map<std::string, MenuDef, std::less<>> menus_;
     std::list<std::map<std::string, MenuDef, std::less<>>> retired_;  // the menus of earlier clear()s
     std::uint64_t generation_ = 0;
+    std::optional<std::pair<std::string, std::string>> focus_;  // menu id, row id
     std::map<std::string, std::vector<RowDef>, std::less<>> page_links_;  // add_page links by parent id
     std::map<std::string, NativeValue, std::less<>> values_;
     std::map<std::string, std::function<void()>, std::less<>> actions_;
@@ -209,6 +250,11 @@ struct MenuInput {
     bool click = false;       // left click (activates the hovered row)
     bool right_click = false;  // = cancel
     int hover_answer = -1;     // while a confirm question is up: 0 = Yes, 1 = No under the pointer, -1 none
+    // The pointer is a finger (a touch screen): a tap on a row of values (a toggle's On / Off too) opens the list
+    // of them to pick from, a tap beside an open list closes it, a tap on a bar's row beside the bar only selects.
+    bool touch = false;
+    // The pointer presses the selected row's bar at this share of its length (0..1); < 0: not on a bar.
+    double bar_at = -1.0;
 };
 
 enum class Event {
@@ -237,6 +283,8 @@ struct DropdownView {
     std::vector<Choice> items;
     int selected = 0;
     int top = 0;
+    std::string label;  // the row's label (what the list picks)
+    int current = -1;   // the entry the row had when the list opened, -1 none
 };
 
 class Controller {
@@ -256,11 +304,17 @@ public:
 
     // How many rows the view can show at once; the controller keeps the selection inside the window.
     void set_visible_rows(int n);
+    // Rows of a height of their own: a full row is `pitch` tall and the window set_visible_rows(n) * pitch; a `small`
+    // row is as tall as `small_height` says (in the same units). Without it every row is one row of the window.
+    void set_row_heights(int pitch, std::function<int(const RowView&)> small_height);
     const MenuDef* current() const;
     const std::string& title() const;
     std::vector<RowView> rows() const;  // the visible rows (hidden ones are skipped)
     int selection() const;              // index into rows()
-    int scroll_top() const;
+    int scroll_top() const;             // the first row shown (of the open list while dropdown_open())
+    // A touch screen's list follows the finger, not the cursor: the view sets the first row shown, and the
+    // selection may leave the window until a key moves it (the page, or the open list of values).
+    void set_scroll_top(int top);
     std::string help() const;           // help key of the selected row
     bool dropdown_open() const { return dropdown_.has_value(); }
     DropdownView dropdown() const;      // only while dropdown_open()
@@ -281,12 +335,19 @@ private:
         std::string id;                // to find the def again (a clear() frees the old one)
         int sel = 0;               // index into the visible rows
         int top = 0;
+        bool free_scroll = false;  // a finger scrolled the page: the top no longer follows the selection
     };
     struct Dropdown {
         std::vector<Choice> items;
         int sel = 0;
         int top = 0;
         std::size_t row = 0;  // index into Frame::rows
+        int current = -1;     // the row's value when the list opened
+        // How a pick reaches the row: its `set` with the entry's value, a toggle's bool ("0" / "1"), or a setting's
+        // steps until the row shows the entry (a setting has no setter, only steps and texts).
+        enum class Pick { Set, Toggle, Step };
+        Pick pick = Pick::Set;
+        bool free_scroll = false;  // a finger scrolled the list: the top no longer follows the cursor
     };
 
     struct Confirm {
@@ -308,6 +369,13 @@ private:
     void clamp(Frame& f) const;
     Event step_row(Frame& f, std::size_t row_index, int dir, bool big);
     Event activate_row(Frame& f, std::size_t row_index);
+    Event open_picker(Frame& f, std::size_t row_index);  // the touch screen's list of a row's values
+    Event set_bar(Frame& f, std::size_t row_index, double at);
+    RowView view_of(const RowDef& r) const;
+    // The heights of the visible rows `vis` of `f`; empty when every row is one row of the window.
+    std::vector<int> heights(const Frame& f, const std::vector<std::size_t>& vis) const;
+    int window_height() const { return visible_rows_ * row_pitch_; }
+    void apply_focus(Frame& f);
     Event update_dropdown(const MenuInput& in);
     void highlight_dropdown();  // on_highlight with the entry under the cursor
     void end_dropdown();        // closes the list; on_highlight("")
@@ -318,6 +386,9 @@ private:
     std::optional<Dropdown> dropdown_;
     std::optional<Confirm> confirm_;
     int visible_rows_ = 8;
+    int row_pitch_ = 1;
+    std::function<int(const RowView&)> small_height_;
+    bool touch_ = false;  // MenuInput::touch of the update running
     std::string last_row_id_;
 };
 

@@ -12,13 +12,15 @@
 
 #include "engine/menu/menu_layout.h"
 #include "engine/menu/menu_model.h"
+#include "engine/menu/touch_scroll.h"
 
 namespace sh::menu {
 
 enum class Tone { Normal, Dim, Info, Header, Group };
 // Full: the glyphs' own size, whatever the screen mode does to rows. Fit: the size set_fit_scale picked
-// for the page's rows (the Options look shrinks a page a little so its labels and values stay whole).
-enum class TextSize { Row, Help, Full, Fit };
+// for the page's rows (the Options look shrinks a page a little so its labels and values stay whole). Small: a note
+// row's (RowDef::small), about two thirds of a row.
+enum class TextSize { Row, Help, Full, Fit, Small };
 // List: a compact list (rows left, value column right). Pause: the pause menu's look (rows centred under a
 // blinking header, no value column, no help line). Options: the game's own Options screen (heading at the
 // top, a bullet per row, the gliding gold underline, values in a column, volume-style bars for sliders).
@@ -59,6 +61,11 @@ public:
     virtual void bar(int /*x*/, int /*y*/, int /*notches*/, double /*fraction*/) {}
     // A darkening veil under the menu (the menu is drawn over the running game).
     virtual void veil() {}
+    // A touch screen: the faint band of the row a finger presses, x0..x1 by y_top..y_bottom.
+    virtual void press_band(int /*x0*/, int /*x1*/, int /*y_top*/, int /*y_bottom*/) {}
+    // A touch screen: the bar beside a list that scrolls, x by y0..y1; the thumb is the shown share of the rows
+    // (`first` and `shown` in rows of `total`).
+    virtual void scroll_bar(int /*x*/, int /*y0*/, int /*y1*/, int /*first*/, int /*shown*/, int /*total*/) {}
     // Geometry for the current screen mode (row pitch and window follow the text scale).
     virtual Metrics metrics() = 0;
 };
@@ -76,7 +83,8 @@ class MenuView {
 public:
     explicit MenuView(MenuCanvas& canvas) : canvas_(&canvas) {}
 
-    // Sets the controller's window to what the canvas can show; call before update and draw.
+    // Sets the controller's window to what the canvas can show, and on a touch screen moves the list with the finger
+    // (the controller's top follows); call once a frame, before update and draw.
     void fit(Controller& c);
     // The visible-row index under the pointer (mouse in the canvas' space), or -1.
     int hover_row(const Controller& c, int mouse_x, int mouse_y) const;
@@ -89,6 +97,11 @@ public:
     void set_veil(bool v) { veil_ = v; }
     // Which Yes / No answer of the confirm question is under the pointer (0 Yes, 1 No), or -1.
     int hover_answer(const Controller& c, int mouse_x, int mouse_y) const;
+    // Where the pointer is along the bar of visible row `hover_row` (0..1, Options look, last draw); < 0 off it.
+    double bar_share(int hover_row, int mouse_x, int mouse_y) const;
+    // The pointer's part of `mi` (the hover row and answer; on a touch screen the finger's taps, its bar presses
+    // and drags, and no hover while it only moves), from the pointer as nm::read_input gives it.
+    void pointer_input(const Controller& c, bool pointer, int x, int y, MenuInput& mi) const;
 
 private:
     Metrics metrics() const;
@@ -110,6 +123,31 @@ private:
     std::vector<std::string> help_lines(const std::string& help);
     int help_pitch() const;
     void draw_help(const std::vector<std::string>& lines, const Metrics& m);
+    // A touch screen's rows: taller, tapped anywhere across the screen, a pressed band and a scroll bar.
+    bool touch_rows() const;
+    void follow_finger(Controller& c);
+    // The rows of a list drawn from `top`, moved up by the finger's part-row offset: a row half out of the window
+    // is left out.
+    Window list_window(const Metrics& m, int count, int top, const std::vector<int>& heights = {}) const;
+    void draw_touch_aids(const Window& w, int count, int top, const Metrics& m, const std::vector<int>& heights = {});
+
+    // Rows of their own heights (RowDef::small notes, in the List and Options looks).
+    bool row_heights_apply() const { return style_ == Style::List || style_ == Style::Options; }
+    int small_pitch(const Metrics& m) const;
+    // The heights of `rows`; empty when every row is one pitch tall (no note on the page).
+    std::vector<int> row_heights(const std::vector<RowView>& rows, const Metrics& m) const;
+    int row_height(const RowView& r, const Metrics& m) const;
+    // Where a note's text starts and how wide it may be.
+    int note_x(const Metrics& m) const;
+    int note_width(const Metrics& m) const;
+    // The label of a row as drawn: translated, its RowDef::args put in, a path's last component for Cut::Path.
+    Label row_label(const RowDef& d) const;
+    // A note's label and value as one line, drawn as it is.
+    Label note_text(const RowView& r) const;
+    std::vector<std::string> note_lines(const RowView& r, int width) const;
+    void draw_note(const RowView& r, const Slot& s, const Metrics& m);
+    // Draws `s` inside max_w the way `cut` says; returns the width drawn.
+    int draw_cut(int x, int y, TextSize size, Tone tone, const Label& s, int max_w, Cut cut);
 
     static constexpr int kMenuWidth = 320;  // the menu space's width at 4:3
 
@@ -124,6 +162,20 @@ private:
     std::map<std::string, int> value_widths_;
     int page_scale_ = 4096;  // Q12: the page's text size so far this visit (it only shrinks while the page is open)
     std::map<std::string, std::string> reported_;  // page -> the layout fault last logged for it
+    struct BarPlace {
+        int slot = 0;  // visible-row index (as hover_row counts)
+        int x0 = 0, x1 = 0, y = 0;
+    };
+    std::vector<BarPlace> bars_;  // the bars of the last draw
+
+    // The touch screen's list (follow_finger): which list it is, its scroll, the part of a row it shows past the
+    // controller's top (menu lines), the clock of the last frame, and where the finger landed.
+    TouchScroll scroll_;
+    std::string scroll_list_;
+    int shift_ = 0;
+    double scroll_clock_ = -1.0;
+    bool finger_down_ = false;
+    int press_bar_slot_ = -1;  // the finger landed on this visible row's bar: a sideways drag sets it
 };
 
 // Whether `s` is a text key (dotted lower-case identifier like ui.menu.on) rather than a literal.

@@ -132,4 +132,40 @@ FittedText fit_with_ellipsis(std::string_view text, int max_width, const TextMea
     return {std::move(out), true};
 }
 
+FittedText fit_middle_ellipsis(std::string_view text, int max_width, const TextMeasure& measure) {
+    const std::string whole(text);
+    if (whole.size() <= kFitLineBytes && measure(whole.c_str()) <= max_width) {
+        return {whole, false};
+    }
+    const int room = max_width - measure(kEllipsis);
+    // Half of the room for the start, the rest of it for the end; both whole characters, no space at the cut.
+    std::size_t head = 0;
+    for (std::size_t bytes = 0; bytes <= whole.size() && bytes <= kFitLineBytes / 2; bytes++) {
+        if (bytes < whole.size() && continuation_byte(whole[bytes])) continue;
+        if (measure(whole.substr(0, bytes).c_str()) > room / 2) break;
+        head = bytes;
+    }
+    const int head_w = measure(whole.substr(0, head).c_str());
+    std::size_t tail = whole.size();
+    for (std::size_t from = whole.size(); from > head; from--) {
+        const std::size_t at = from - 1;
+        if (continuation_byte(whole[at])) continue;
+        if (whole.size() - at > kFitLineBytes / 2 || head_w + measure(whole.substr(at).c_str()) > room) break;
+        tail = at;
+    }
+    while (head > 0 && whole[head - 1] == '_') head--;
+    while (tail < whole.size() && whole[tail] == '_') tail++;
+    std::string out = whole.substr(0, head);
+    out += kEllipsis;
+    out += whole.substr(tail);
+    return {std::move(out), true};
+}
+
+std::string_view last_path_component(std::string_view path) {
+    while (path.size() > 1 && (path.back() == '/' || path.back() == '\\')) path.remove_suffix(1);
+    const std::size_t cut = path.find_last_of("/\\");
+    if (cut == std::string_view::npos || cut + 1 >= path.size()) return path;
+    return path.substr(cut + 1);
+}
+
 }  // namespace sh::menu

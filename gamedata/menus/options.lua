@@ -2,7 +2,10 @@
 -- game state draws this menu in the original options look (gamedata/menu/options.json, "tree").
 -- Natives: setting.<config key>, the grouped rows, game.<name> (the original options' rows) and options.*
 -- in src/ui/menu/options_binds.cpp.
--- Texts: gamedata/text/<lang>/options_menu.json. Every setting appears on exactly one page.
+-- Texts: gamedata/text/<lang>/options_menu.json. Every setting appears on exactly one page (a phone or tablet shows
+-- a few on another page: the rows marked `mobile = true` stand in for those marked `mobile = false`).
+-- A phone or tablet shows the settings most players change; every other row is marked `advanced` and shows there on
+-- the page's Advanced page, which the engine links at the page's end (docs/modding/scripting.md).
 -- A mod adds a page with sh.menu.add_page{ parent = "options", ... }: it is linked
 -- from Mod Options (mods.lua), a root row that shows once a mod has a page;
 -- rows whose id starts with "tail." stay last.
@@ -48,6 +51,24 @@ local function only(row, ...)
     return row
 end
 
+-- Only on a desktop, only on a phone or tablet, and on a phone or tablet on the page's Advanced page.
+local function desktop(row)
+    row.mobile = false
+    return row
+end
+
+local function phone(row)
+    row.mobile = true
+    return row
+end
+
+local function advanced(row)
+    row.advanced = true
+    return row
+end
+
+-- A phone or tablet draws at the size of its screen: it has no window, resolution or aspect to choose (the render
+-- scale on the Graphics page is its size control), so it has no Display page; its other rows are on Graphics there.
 sh.menu.define{
     id = "options.display",
     title = "ui.options.display",
@@ -89,7 +110,7 @@ sh.menu.define{
     title = "ui.options.graphics",
     rows = {
         -- The renderer is chosen at start: a change waits for a restart, offered by the row below it.
-        setting("renderer"),
+        advanced(setting("renderer")),
         {
             kind = "action",
             id = "restart",
@@ -101,66 +122,74 @@ sh.menu.define{
         setting("graphics_preset"),
 
         header("display"),
-        vulkan(setting("present_mode")),
-        vulkan(setting("frames_in_flight")),
-        vulkan(setting("present_wait")),
+        -- A phone presents with the display's own rhythm (FIFO at the rate fps_cap asks of the display).
+        desktop(vulkan(setting("present_mode"))),
+        advanced(vulkan(setting("frames_in_flight"))),
+        advanced(vulkan(setting("present_wait"))),
         -- HDR10 output shows while the HDR frame (Effects) is in effect, its levels while the output is.
-        vulkan(setting("hdr_output")),
-        vulkan(setting("hdr_paper_white")),
-        vulkan(setting("hdr_peak")),
-        setting("load_screen_trail"),
+        advanced(vulkan(setting("hdr_output"))),
+        advanced(vulkan(setting("hdr_paper_white"))),
+        advanced(vulkan(setting("hdr_peak"))),
+        -- The Display page's rows a phone or tablet has (it has no Display page).
+        advanced(phone(setting("widescreen_mode"))),
+        advanced(phone(action("brightness", "options.brightness"))),
+        advanced(setting("load_screen_trail")),
 
         header("image_quality"),
         setting("render_scale"),
-        vulkan(setting("upscaler")),
-        vulkan(setting("upscale_quality")),
-        vulkan(setting("upscale_sharpness")),
-        setting("texture_filter"),
+        phone(setting("fps_cap")),
+        advanced(vulkan(setting("upscaler"))),
+        advanced(vulkan(setting("upscale_quality"))),
+        advanced(vulkan(setting("upscale_sharpness"))),
+        advanced(setting("texture_filter")),
         -- The native Vulkan backend has no multisampled targets; TAA is its anti-aliasing.
-        only(setting("msaa"), { key = "renderer", none = { "vulkan" } }),
-        setting("use_pgxp"),
+        advanced(only(setting("msaa"), { key = "renderer", none = { "vulkan" } })),
+        advanced(setting("use_pgxp")),
 
         header("lighting"),
-        {
+        phone(setting("flashlight_style")),
+        advanced({
             kind = "submenu",
             id = "flashlight_lighting",
             label = "ui.options.flashlight_lighting",
             help = "ui.options.flashlight_lighting.help",
             submenu = "options.lighting",
-        },
+        }),
         only(setting("shadow_quality"), per_pixel_beam),
-        only(setting("shadow_filter"), per_pixel_beam),
+        advanced(only(setting("shadow_filter"), per_pixel_beam)),
         vulkan(setting("map_lights")),
         vulkan(setting("sun_shadows")),
-        vulkan(setting("particle_shadows")),
+        advanced(vulkan(setting("particle_shadows"))),
         setting("extra_lights"),
 
-        -- KHR ray tracing; the effects show while the master row is on.
+        -- KHR ray tracing; the effects show while the master row is on. A phone or tablet has none: the trace alone
+        -- took 38 ms a frame on a 2024 flagship (render_preset.cpp switches the keys off there).
         header("ray_tracing"),
-        vulkan(setting("ray_tracing")),
-        vulkan(setting("rt_shadows"), { key = "ray_tracing" }),
-        vulkan(setting("rt_reflections"), { key = "ray_tracing" }),
-        vulkan(setting("rt_gi"), { key = "ray_tracing" }),
-        vulkan(setting("rt_lights"), { key = "ray_tracing" }),
+        desktop(vulkan(setting("ray_tracing"))),
+        desktop(vulkan(setting("rt_shadows"), { key = "ray_tracing" })),
+        desktop(vulkan(setting("rt_reflections"), { key = "ray_tracing" })),
+        desktop(vulkan(setting("rt_gi"), { key = "ray_tracing" })),
+        desktop(vulkan(setting("rt_lights"), { key = "ray_tracing" })),
 
+        -- The AI upscalers are a desktop's: a phone or tablet has neither (src/engine/app/texture_upscale.cpp).
         header("models_textures"),
-        vulkan(setting("model_upscaling")),
-        setting("texture_upscale"),
+        desktop(vulkan(setting("model_upscaling"))),
+        desktop(setting("texture_upscale")),
 
         header("effects"),
         -- The rows after the HDR frame show while it is in effect.
-        vulkan(setting("hdr_frame")),
-        vulkan(setting("hdr_tonemap")),
-        vulkan(setting("bloom")),
-        vulkan(setting("ambient_occlusion")),
-        vulkan(setting("ao_strength")),
-        vulkan(setting("volumetric_fog")),
-        vulkan(setting("fog_scatter")),
-        vulkan(setting("god_rays")),
+        advanced(vulkan(setting("hdr_frame"))),
+        advanced(vulkan(setting("hdr_tonemap"))),
+        advanced(vulkan(setting("bloom"))),
+        advanced(vulkan(setting("ambient_occlusion"))),
+        advanced(vulkan(setting("ao_strength"))),
+        advanced(vulkan(setting("volumetric_fog"))),
+        advanced(vulkan(setting("fog_scatter"))),
+        advanced(vulkan(setting("god_rays"))),
         setting("fog_strength"),
-        setting("post_process"),
-        setting("bullet_decals"),
-        setting("persistent_remains"),
+        advanced(setting("post_process")),
+        advanced(setting("bullet_decals")),
+        advanced(setting("persistent_remains")),
     },
     -- Leaving after a change of the renderer offers the restart, as the Mods screen does; a choice that was
     -- already pending when the page opened is not asked about again.
@@ -180,12 +209,12 @@ sh.menu.define{
 }
 
 -- Classic is the original look, Modern the soft one the default preset ships. The beam's shadow rows are on the
--- Graphics page (Lighting and shadows).
+-- Graphics page (Lighting and shadows), and so is the Flashlight row on a phone or tablet.
 sh.menu.define{
     id = "options.lighting",
     title = "ui.options.lighting",
     rows = {
-        setting("flashlight_style"),
+        desktop(setting("flashlight_style")),
         setting("flashlight_intensity"),
         setting("flashlight_size"),
         setting("lighting_style"),
@@ -200,27 +229,73 @@ sh.menu.define{
         setting("effects_volume"),
         game("voice_volume"),
         setting("fmv_volume"),
-        setting("audio_output"),
-        setting("cutscene_line_gap_ms"),
+        advanced(setting("audio_output")),
+        advanced(setting("cutscene_line_gap_ms")),
     },
 }
+
+-- The on-screen controls of a touch screen (src/ui/menu/options_touch.cpp): a page of their own on a desktop with a
+-- touch screen, the first rows of Controls on a phone or tablet.
+local function touch_rows()
+    return {
+        action("touch_edit_layout", "options.touch_edit_layout"),
+        setting("touch_controls"),
+        -- The stick or a d-pad of four arrows with a run toggle; a phone's choice (a desktop tests with the mouse).
+        phone(setting("touch_movement")),
+        setting("touch_action_button"),
+        setting("touch_aim_toggle"),
+        only(setting("touch_stick_run"), { key = "touch_movement", is = "stick" }),
+        setting("touch_opacity"),
+        setting("touch_scale"),
+        {
+            kind = "action",
+            id = "touch_reset_layout",
+            label = "ui.options.touch_reset_layout",
+            help = "ui.options.touch_reset_layout.help",
+            native = "options.touch_reset_layout",
+            confirm = "ui.options.touch_reset_layout.confirm",
+        },
+    }
+end
+
+sh.menu.define{
+    id = "options.touch",
+    title = "ui.options.touch",
+    rows = touch_rows(),
+}
+
+local controls_rows = {}
+for _, row in ipairs(touch_rows()) do
+    -- Resetting the layout is rarely wanted, so it waits on the Advanced page.
+    if row.id == "touch_reset_layout" then
+        advanced(row)
+    end
+    controls_rows[#controls_rows + 1] = phone(row)
+end
+for _, row in ipairs{
+    desktop(only(page("touch"), { key = "touch_device" })),
+    -- Keys and pad buttons: a phone or tablet plays with the touch controls above.
+    desktop(action("keybinds", "options.edit_keybinds")),
+    desktop(action("controls_reference", "options.controls_reference")),
+    game("vibration"),
+    -- A phone's own vibrator plays the rumble while no pad with motors is in use (src/input/phone_rumble.h).
+    phone(setting("phone_vibration")),
+    advanced(setting("control_2d")),
+    desktop(setting("mouse_sensitivity")),
+    advanced(setting("controller_sensitivity")),
+    desktop(setting("invert_mouse_y")),
+    advanced(setting("invert_controller_y")),
+    advanced(setting("aim_assist")),
+    advanced(setting("disable_dpad_movement")),
+    advanced(setting("quick_weapon_switch")),
+} do
+    controls_rows[#controls_rows + 1] = row
+end
 
 sh.menu.define{
     id = "options.controls",
     title = "ui.options.controls",
-    rows = {
-        action("keybinds", "options.edit_keybinds"),
-        action("controls_reference", "options.controls_reference"),
-        game("vibration"),
-        setting("control_2d"),
-        setting("mouse_sensitivity"),
-        setting("controller_sensitivity"),
-        setting("invert_mouse_y"),
-        setting("invert_controller_y"),
-        setting("aim_assist"),
-        setting("disable_dpad_movement"),
-        setting("quick_weapon_switch"),
-    },
+    rows = controls_rows,
 }
 
 -- The original's extra options are the last rows; View Mode and Bullet Adjust show once unlocked.
@@ -229,10 +304,10 @@ sh.menu.define{
     title = "ui.options.gameplay",
     rows = {
         game("auto_load"),
-        setting("auto_reload"),
-        setting("aim_resume_after_inventory"),
-        setting("quick_save_instant"),
-        setting("quick_save_keys"),
+        advanced(setting("auto_reload")),
+        advanced(setting("aim_resume_after_inventory")),
+        desktop(setting("quick_save_instant")),
+        desktop(setting("quick_save_keys")),
         game("weapon_control"),
         game("blood_color"),
         game("view_control"),
@@ -279,10 +354,11 @@ sh.menu.define{
     rows = {
         setting("language"),
         setting("skip_intros"),
-        setting("low_health_glow"),
+        advanced(setting("low_health_glow")),
         setting("text_size"),
+        setting("fps_overlay"),
         setting("debug_options"),
-        setting("modding_tools"),
+        advanced(setting("modding_tools")),
     },
 }
 
@@ -291,22 +367,22 @@ sh.menu.define{
     title = "ui.options.title",
     rows = {
         action("exit", "options.exit"),
-        page("display"),
+        desktop(page("display")),
         page("graphics"),
         page("audio"),
         page("controls"),
-        page("camera"),
+        advanced(page("camera")),
         page("gameplay"),
         page("interface"),
-        -- The quick setup of the first start: the game restarts into it.
-        {
+        -- The quick setup of the first start: the game restarts into it (a desktop's questions; a phone has none).
+        desktop({
             kind = "action",
             id = "quick_setup",
             label = "ui.options.quick_setup",
             help = "ui.options.quick_setup.help",
             native = "options.quick_setup",
             confirm = "ui.options.quick_setup.confirm",
-        },
+        }),
         {
             kind = "action",
             id = "tail.reset_defaults",

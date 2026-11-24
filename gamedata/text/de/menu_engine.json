@@ -4,6 +4,8 @@
   "lang": "de",
   "strings": {
     "ui.bind.debug_options": "Debug-Optionen",
+    "ui.menu.advanced": "Erweitert",
+    "ui.menu.advanced.help": "Weitere Einstellungen, die die meisten nie ändern.",
     "ui.menu.off": "Aus",
     "ui.menu.on": "Ein",
     "ui.pause.debug_options": "DEBUG-OPTIONEN"

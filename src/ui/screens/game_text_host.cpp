@@ -181,6 +181,9 @@ public:
         sc::submit_2d_packet(sc::Table2d::Menu, layer, command, menu_packet(command));
     }
     void reset_texture_page(std::int32_t layer) override { Gfx_Primitive2dTextureSet(0, 0, layer, 2); }
+    void texture_page_blend(std::int32_t layer, std::int32_t abr) override {
+        Gfx_Primitive2dTextureSet(0, 0, layer, abr);
+    }
     void link_scene(std::int32_t layer, std::uint32_t item) override {
         sc::link_scene_2d(sc::Table2d::Menu, layer, item);
     }

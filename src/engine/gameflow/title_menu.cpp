@@ -1,5 +1,7 @@
 #include "engine/gameflow/title_menu.h"
 
+#include <algorithm>
+
 #include "formats/common/json.h"
 
 namespace sh::gameflow {
@@ -104,6 +106,8 @@ Result<TitleMenuData> TitleMenuData::parse(std::string_view json_text) {
         TitleLayout& y = out.layout;
         if (!l->is_object() || !number(*l, "column_x", 0, 640, y.column_x, error) ||
             !number(*l, "row_pitch", 1, 100, y.row_pitch, error) ||
+            (l->find("touch_row_pitch") != nullptr &&
+             !number(*l, "touch_row_pitch", 1, 100, y.touch_row_pitch, error)) ||
             !number(*l, "last_row_y", -512, 512, y.last_row_y, error) ||
             !number(*l, "hover_lead", 0, 100, y.hover_lead, error) ||
             !number(*l, "difficulty_y", -512, 512, y.difficulty_y, error) ||
@@ -199,7 +203,24 @@ int TitleMenu::visible_rows(int* order) const {
 int TitleMenu::row_y(int k) const {
     int order[kMaxEntries];
     const int n = visible_rows(order);
-    return data_.layout.last_row_y - (n - 1 - k) * data_.layout.row_pitch;
+    return data_.layout.last_row_y - (n - 1 - k) * pitch();
+}
+
+int TitleMenu::pitch() const {
+    return touch_ && data_.layout.touch_row_pitch > 0 ? data_.layout.touch_row_pitch : data_.layout.row_pitch;
+}
+
+// The pointer's band of a row starts this far above its text; a touch row's band is centred on it.
+int TitleMenu::lead() const {
+    return touch_ && data_.layout.touch_row_pitch > 0 ? std::max(data_.layout.hover_lead, (pitch() - 14) / 2)
+                                                      : data_.layout.hover_lead;
+}
+
+// The taller touch rows of the difficulty list end no lower than the menu's last row.
+int TitleMenu::difficulty_top(const TitleHost& host) const {
+    const int rows = host.difficulty_count();
+    if (!touch_ || rows <= 0) return data_.layout.difficulty_y;
+    return std::min(data_.layout.difficulty_y, data_.layout.last_row_y - (rows - 1) * pitch());
 }
 
 int TitleMenu::confirm_y() const {
@@ -217,6 +238,7 @@ int TitleMenu::half_width(const TitleHost& host, const char* label) const {
 }
 
 void TitleMenu::frame(TitleHost& host) {
+    touch_ = host.touch_screen();
     if (data_.entries.empty()) {
         return;  // no menu data (the bridge logged why)
     }
@@ -405,8 +427,8 @@ void TitleMenu::main_frame(TitleHost& host, bool demo) {
 }
 
 int TitleMenu::confirm_hover(const TitleHost& host, const TitleMouse& m) const {
-    const int pitch = data_.layout.row_pitch;
-    const int top = confirm_y() + pitch - data_.layout.hover_lead;
+    const int pitch = this->pitch();
+    const int top = confirm_y() + pitch - lead();
     if (!m.in_view || m.y < top || m.y >= top + pitch) {
         return -1;
     }
@@ -464,9 +486,9 @@ void TitleMenu::mouse_rows(TitleHost& host) {
     }
     int order[kMaxEntries];
     const int n = visible_rows(order);
-    const int pitch = data_.layout.row_pitch;
+    const int pitch = this->pitch();
     for (int k = 0; k < n; ++k) {
-        const int top = row_y(k) - data_.layout.hover_lead;
+        const int top = row_y(k) - lead();
         if (m.y < top || m.y >= top + pitch) {
             continue;
         }
@@ -526,9 +548,9 @@ void TitleMenu::difficulty_frame(TitleHost& host, bool demo) {
     const int rows = host.difficulty_count();
     const TitleMouse m = host.mouse();
     if (m.in_view) {
-        const int pitch = data_.layout.row_pitch;
+        const int pitch = this->pitch();
         for (int i = 0; i < rows; ++i) {
-            const int top = data_.layout.difficulty_y + i * pitch - data_.layout.hover_lead;
+            const int top = difficulty_top(host) + i * pitch - lead();
             if (m.y < top || m.y >= top + pitch) {
                 continue;
             }
@@ -631,6 +653,7 @@ void TitleMenu::idle_timer(TitleHost& host, bool demo) {
 }
 
 void TitleMenu::draw(TitleHost& host) {
+    touch_ = host.touch_screen();
     if (!host.in_title()) {
         host.leave_title_screen();
         return;
@@ -682,7 +705,7 @@ void TitleMenu::draw_confirm(TitleHost& host) const {
         const bool sel = i == 0 ? confirm_yes_ : !confirm_yes_;
         const char* label = data_.confirm.answers[i].c_str();
         const int cx = data_.layout.column_x + (i == 0 ? -data_.confirm.answer_spread : data_.confirm.answer_spread);
-        host.text_position(cx - half_width(host, label), y + data_.layout.row_pitch);
+        host.text_position(cx - half_width(host, label), y + pitch());
         host.text(sel ? "[" : "_");
         host.text(label);
         if (sel) {
@@ -700,7 +723,7 @@ void TitleMenu::draw_difficulty(TitleHost& host) const {
             // Centre the label itself; the "[" / "_" marker hangs to its left.
             off = (host.text_width(label) >> 1) + host.text_width("[");
         }
-        host.text_position(data_.layout.column_x - off, data_.layout.difficulty_y + i * data_.layout.row_pitch);
+        host.text_position(data_.layout.column_x - off, difficulty_top(host) + i * pitch());
         host.text_white();
         const bool sel = i == difficulty_;
         host.text(sel ? "[" : "_");

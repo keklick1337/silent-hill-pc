@@ -535,8 +535,8 @@ SettingLabel label_of(const Value& v, LabelTable fallback) {
 }
 
 SettingRow row_of(const Value& r) {
-    reject_unknown(r, {"label", "kind", "setting", "values", "labels", "min", "max", "step", "realtime",
-                       "keep_on_reset"});
+    reject_unknown(r, {"label", "kind", "setting", "values", "labels", "mobile_values", "min", "max", "step",
+                       "realtime", "keep_on_reset"});
     SettingRow row;
     row.label = string_of(r, "label");
     const std::string kind = string_of(r, "kind");
@@ -552,6 +552,14 @@ SettingRow row_of(const Value& r) {
                     fail(at(l, "a label is a string"));
                 }
                 row.labels.push_back(l.string());
+            }
+        }
+        if (const Value* mobile = r.find("mobile_values")) {
+            row.mobile_values = ints_of(*mobile);
+            for (const std::int32_t v : row.mobile_values) {
+                if (std::find(row.values.begin(), row.values.end(), v) == row.values.end()) {
+                    fail(at(*mobile, "\"mobile_values\" are some of \"values\""));
+                }
             }
         }
     } else if (kind == "slider") {
@@ -671,6 +679,22 @@ QuickSetting quick_of(const std::string& name, const Value& q) {
 }
 
 }  // namespace
+
+void keep_mobile_values(SettingsData& data) {
+    for (SettingRow& row : data.rows) {
+        if (row.mobile_values.empty()) continue;
+        std::vector<std::int32_t> values;
+        std::vector<std::string> labels;
+        for (std::size_t i = 0; i < row.values.size(); ++i) {
+            if (std::find(row.mobile_values.begin(), row.mobile_values.end(), row.values[i]) == row.mobile_values.end())
+                continue;
+            values.push_back(row.values[i]);
+            if (i < row.labels.size()) labels.push_back(row.labels[i]);
+        }
+        row.values = std::move(values);
+        row.labels = std::move(labels);
+    }
+}
 
 Result<SettingsData> parse_settings(std::string_view json_text) try {
     const Result<Value> doc = json::parse(json_text);

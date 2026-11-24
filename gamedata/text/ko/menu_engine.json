@@ -4,6 +4,8 @@
   "lang": "ko",
   "strings": {
     "ui.bind.debug_options": "디버그 옵션",
+    "ui.menu.advanced": "고급",
+    "ui.menu.advanced.help": "그 밖의 설정: 대부분 바꿀 필요가 없는 항목.",
     "ui.menu.off": "끔",
     "ui.menu.on": "켬",
     "ui.pause.debug_options": "디버그 옵션"

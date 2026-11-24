@@ -37,6 +37,7 @@ struct SettingRow {
     std::string setting;  // the config key ("resolution" for the window size)
     std::vector<std::int32_t> values;
     std::vector<std::string> labels;  // parallel to values; empty: the number is shown
+    std::vector<std::int32_t> mobile_values;  // choice: the values a phone or tablet offers (empty: all of them)
     float min = 0.0f;
     float max = 0.0f;
     float step = 0.0f;
@@ -154,6 +155,8 @@ private:
 };
 
 Result<SettingsData> parse_settings(std::string_view json_text);
+// A phone's or tablet's rows: each choice with mobile_values keeps only those values (and their labels).
+void keep_mobile_values(SettingsData& data);
 // menu/settings.json: the gamedata directory's with every active mod's patch, in load order.
 Result<SettingsData> load_settings(const std::filesystem::path& gamedata_dir, const std::filesystem::path& mods_dir,
                                    std::string* source = nullptr);

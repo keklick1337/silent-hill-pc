@@ -5,6 +5,7 @@
 add_library(sh_menu STATIC
     menu_layout.cpp
     menu_model.cpp
+    touch_scroll.cpp
     menu_registry.cpp
     text_fit.cpp)
 

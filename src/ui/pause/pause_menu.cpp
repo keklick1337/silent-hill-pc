@@ -215,10 +215,7 @@ sh::menu::MenuInput PauseMenu::read_input(bool first_frame) {
     mi.pointer_moved = in.pointer_moved;
     mi.click = in.click;
     mi.right_click = in.right_click;
-    if (in.pointer) {
-        mi.hover_row = view().hover_row(controller(), in.pointer_x, in.pointer_y);
-        mi.hover_answer = view().hover_answer(controller(), in.pointer_x, in.pointer_y);
-    }
+    view().pointer_input(controller(), in.pointer, in.pointer_x, in.pointer_y, mi);
 
     // A Pause bind that is not also a confirm button closes the menu as Cancel does; where it shares Start with
     // Enter it confirms the row instead.

@@ -11,7 +11,8 @@ sh.menu.define{
         { id = "debug",    label = "ui.pause.debug_options", native = "pause.debug" },
         { id = "save",     label = "ui.pause.save",          native = "pause.save" },
         { id = "load",     label = "ui.pause.load",          native = "pause.load" },
-        { id = "controls", label = "ui.pause.controls",      native = "pause.controls" },
+        -- The reference shows keys and pad buttons: a phone or tablet plays with its on-screen controls.
+        { id = "controls", label = "ui.pause.controls",      native = "pause.controls", mobile = false },
         { id = "option",   label = "ui.pause.option",        native = "pause.option" },
         { id = "exit",     label = "ui.pause.exit",          native = "pause.exit",
           confirm = "ui.pause.return_to_title" },

@@ -4,6 +4,8 @@
   "lang": "tr",
   "strings": {
     "ui.bind.debug_options": "Hata ayıklama",
+    "ui.menu.advanced": "Gelişmiş",
+    "ui.menu.advanced.help": "Diğer ayarlar: çoğu oyuncunun değiştirmediği ayarlar.",
     "ui.menu.off": "Kapalı",
     "ui.menu.on": "Açık",
     "ui.pause.debug_options": "HATA AYIKLAMA"

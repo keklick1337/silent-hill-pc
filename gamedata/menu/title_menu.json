@@ -1,5 +1,5 @@
 {
-  "description": "The title menu. entries: in drawing order; kind = load | continue | new_game | options | exit (load and continue show when saves exist, continue also with an autosave, the others always); label = menu text key; offset_x = hand-measured half width of the untranslated label (absent = measured); sound = played when picked (sounds/sounds.json name); next = the game state the menu hands off to; next_alt = for continue the state when an autosave exists, for new_game the state when the opening movie is skipped. idle_frames / intro_every / idle_state: what happens when the title is left idle. A mod replaces the whole file with its own copy at the same path.",
+  "description": "The title menu. entries: in drawing order; kind = load | continue | new_game | options | exit (load and continue show when saves exist, continue also with an autosave, the others always); label = menu text key; offset_x = hand-measured half width of the untranslated label (absent = measured); sound = played when picked (sounds/sounds.json name); next = the game state the menu hands off to; next_alt = for continue the state when an autosave exists, for new_game the state when the opening movie is skipped. layout.touch_row_pitch: the row pitch on a touch screen (taller rows to tap; the difficulty list then ends no lower than last_row_y). idle_frames / intro_every / idle_state: what happens when the title is left idle. A mod replaces the whole file with its own copy at the same path.",
   "entries": [
     { "kind": "load",         "label": "LOAD",         "offset_x": 29, "sound": "menu_start_game", "next": "LoadSavegameScreen" },
     { "kind": "continue",     "label": "CONTINUE",     "offset_x": 50, "sound": "menu_start_game", "next": "AutoLoadSavegame", "next_alt": "MainLoadScreen" },
@@ -10,6 +10,7 @@
   "layout": {
     "column_x": 158,
     "row_pitch": 20,
+    "touch_row_pitch": 38,
     "last_row_y": 264,
     "hover_lead": 3,
     "difficulty_y": 204,

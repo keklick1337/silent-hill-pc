@@ -4,6 +4,8 @@
   "lang": "fr",
   "strings": {
     "ui.bind.debug_options": "Options de débogage",
+    "ui.menu.advanced": "Avancé",
+    "ui.menu.advanced.help": "Autres réglages, que la plupart ne changent jamais.",
     "ui.menu.off": "Non",
     "ui.menu.on": "Oui",
     "ui.pause.debug_options": "OPTIONS DE DÉBOGAGE"

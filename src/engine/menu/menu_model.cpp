@@ -53,6 +53,11 @@ std::string format_number(double v, bool integer) {
     return s;
 }
 
+Cut cut_of(const RowDef& r) {
+    if (r.cut) return *r.cut;
+    return r.small ? Cut::End : Cut::Pan;
+}
+
 // ---- Registry ----------------------------------------------------------------------------
 
 namespace {
@@ -74,11 +79,56 @@ void place_link(std::vector<RowDef>& rows, const RowDef& link) {
     insert_before_tail(rows, std::move(one));
 }
 
+VisibleIf on_mobile(bool mobile) {
+    VisibleIf c;
+    c.key = std::string(kMobileKey);
+    (mobile ? c.any : c.none).push_back(Value{1.0});
+    return c;
+}
+
 }  // namespace
+
+void Registry::place_advanced(MenuDef& page, const std::vector<RowDef>& rows) {
+    if (std::none_of(rows.begin(), rows.end(), [](const RowDef& r) { return r.advanced; })) return;
+    const std::string adv_id = page.id + std::string(kAdvancedSuffix);
+    MenuDef& adv = menus_[adv_id];
+    if (adv.id.empty()) {
+        adv.id = adv_id;
+        adv.title = std::string(kAdvancedLabel);
+    }
+    for (const RowDef& r : rows) {
+        if (!r.advanced && r.kind != RowKind::Header) continue;
+        RowDef copy = r;
+        copy.advanced = false;
+        adv.rows.push_back(std::move(copy));
+    }
+    for (RowDef& r : page.rows)
+        if (r.advanced) {
+            r.visible_if.push_back(on_mobile(false));
+            r.advanced = false;
+        }
+    // A caption without text before the row closes the group above it, so its header does not stay for this row.
+    RowDef gap;
+    gap.kind = RowKind::Header;
+    gap.id = adv_id + ".group";
+    gap.visible_if.push_back(on_mobile(true));
+    RowDef link;
+    link.kind = RowKind::Submenu;
+    link.id = adv_id;
+    link.label = std::string(kAdvancedLabel);
+    link.help = std::string(kAdvancedLabel) + ".help";
+    link.submenu = adv_id;
+    link.visible_if.push_back(on_mobile(true));
+    std::erase_if(page.rows, [&](const RowDef& r) { return r.id == gap.id || r.id == link.id; });
+    insert_before_tail(page.rows, {std::move(gap), std::move(link)});
+}
 
 void Registry::define(MenuDef def) {
     const std::string id = def.id;
+    // Emptied, not erased: an open menu may still point at it.
+    if (const auto adv = menus_.find(id + std::string(kAdvancedSuffix)); adv != menus_.end()) adv->second.rows.clear();
     MenuDef& stored = menus_[id] = std::move(def);
+    place_advanced(stored, stored.rows);
     // Pages added to this menu stay linked whatever order the files define them in (mods.lua runs
     // before options.lua) and when a later file redefines the menu.
     if (const auto links = page_links_.find(id); links != page_links_.end()) {
@@ -90,7 +140,9 @@ void Registry::define(MenuDef def) {
 bool Registry::append_rows(std::string_view menu_id, std::vector<RowDef> rows) {
     const auto it = menus_.find(menu_id);
     if (it == menus_.end()) return false;
+    std::vector<RowDef> added = rows;
     insert_before_tail(it->second.rows, std::move(rows));
+    place_advanced(it->second, added);
     ++generation_;
     return true;
 }
@@ -147,6 +199,17 @@ std::vector<std::string> Registry::ids() const {
     std::vector<std::string> out;
     for (const auto& [k, v] : menus_) out.push_back(k);
     return out;
+}
+
+void Registry::focus(std::string menu_id, std::string row_id) {
+    focus_ = std::make_pair(std::move(menu_id), std::move(row_id));
+}
+
+std::optional<std::string> Registry::take_focus(std::string_view menu_id) {
+    if (!focus_ || focus_->first != menu_id) return std::nullopt;
+    std::string row = std::move(focus_->second);
+    focus_.reset();
+    return row;
 }
 
 void Registry::clear() {
@@ -395,6 +458,49 @@ void Controller::set_visible_rows(int n) {
     for (Frame& f : stack_) clamp(f);
 }
 
+void Controller::set_row_heights(int pitch, std::function<int(const RowView&)> small_height) {
+    row_pitch_ = small_height ? std::max(1, pitch) : 1;
+    small_height_ = std::move(small_height);
+    for (Frame& f : stack_) clamp(f);
+}
+
+std::vector<int> Controller::heights(const Frame& f, const std::vector<std::size_t>& vis) const {
+    if (!small_height_) return {};
+    std::vector<int> out;
+    bool varied = false;
+    out.reserve(vis.size());
+    for (const std::size_t i : vis) {
+        const RowDef& r = f.rows[i];
+        if (r.small && r.kind == RowKind::Info) {
+            out.push_back(std::max(1, small_height_(view_of(r))));
+            varied = true;
+        } else {
+            out.push_back(row_pitch_);
+        }
+    }
+    if (!varied) out.clear();
+    return out;
+}
+
+void Controller::apply_focus(Frame& f) {
+    const std::optional<std::string> row = registry_->take_focus(f.id);
+    if (!row) return;
+    const auto vis = visible_indices(f);
+    for (std::size_t i = 0; i < vis.size(); ++i) {
+        if (f.rows[vis[i]].id != *row) continue;
+        for (std::size_t j = i; j < vis.size(); ++j) {
+            if (selectable(f.rows[vis[j]])) {
+                f.sel = static_cast<int>(j);
+                break;
+            }
+        }
+        f.top = static_cast<int>(i);
+        f.free_scroll = true;
+        clamp(f);
+        return;
+    }
+}
+
 std::vector<std::size_t> Controller::visible_indices(const Frame& f) const {
     std::vector<std::size_t> out;
     for (std::size_t i = 0; i < f.rows.size(); ++i) {
@@ -428,15 +534,67 @@ void Controller::clamp(Frame& f) const {
         return;
     }
     f.sel = std::clamp(f.sel, 0, n - 1);
-    // The caption of the selected row's group scrolls into view with it.
+    const std::vector<int> h = heights(f, vis);
+    if (h.empty()) {
+        if (f.free_scroll) {
+            f.top = std::clamp(f.top, 0, std::max(0, n - visible_rows_));
+            return;
+        }
+        // The caption of the selected row's group scrolls into view with it.
+        const bool headed = f.sel > 0 && f.rows[vis[static_cast<std::size_t>(f.sel - 1)]].kind == RowKind::Header;
+        if (f.sel - (headed ? 1 : 0) < f.top) f.top = f.sel - (headed ? 1 : 0);
+        if (f.sel >= f.top + visible_rows_) f.top = f.sel - visible_rows_ + 1;
+        f.top = std::clamp(f.top, 0, std::max(0, n - visible_rows_));
+        return;
+    }
+    const int window = window_height();
+    // The first row of a window that ends with row `last`: rows first..last fit (at least `last` itself).
+    const auto first_showing = [&](int last) {
+        int first = last;
+        int sum = h[static_cast<std::size_t>(last)];
+        while (first > 0 && sum + h[static_cast<std::size_t>(first - 1)] <= window) {
+            sum += h[static_cast<std::size_t>(--first)];
+        }
+        return first;
+    };
+    const int max_top = first_showing(n - 1);
+    if (f.free_scroll) {
+        f.top = std::clamp(f.top, 0, max_top);
+        return;
+    }
     const bool headed = f.sel > 0 && f.rows[vis[static_cast<std::size_t>(f.sel - 1)]].kind == RowKind::Header;
     if (f.sel - (headed ? 1 : 0) < f.top) f.top = f.sel - (headed ? 1 : 0);
-    if (f.sel >= f.top + visible_rows_) f.top = f.sel - visible_rows_ + 1;
-    f.top = std::clamp(f.top, 0, std::max(0, n - visible_rows_));
+    // The notes under the selected row come into view with it while they fit.
+    int last = f.sel;
+    while (last + 1 < n && f.rows[vis[static_cast<std::size_t>(last + 1)]].small &&
+           f.rows[vis[static_cast<std::size_t>(last + 1)]].kind == RowKind::Info && first_showing(last + 1) <= f.sel) {
+        ++last;
+    }
+    int sum = 0;
+    for (int i = std::max(0, f.top); i <= last; ++i) sum += h[static_cast<std::size_t>(i)];
+    if (sum > window) f.top = std::min(f.sel, first_showing(last));
+    f.top = std::clamp(f.top, 0, max_top);
 }
 
 int Controller::selection() const { return stack_.empty() ? 0 : stack_.back().sel; }
-int Controller::scroll_top() const { return stack_.empty() ? 0 : stack_.back().top; }
+int Controller::scroll_top() const {
+    if (dropdown_) return dropdown_->top;
+    return stack_.empty() ? 0 : stack_.back().top;
+}
+
+void Controller::set_scroll_top(int top) {
+    if (dropdown_) {
+        const int n = static_cast<int>(dropdown_->items.size());
+        dropdown_->top = std::clamp(top, 0, std::max(0, n - visible_rows_));
+        dropdown_->free_scroll = true;
+        return;
+    }
+    if (stack_.empty()) return;
+    Frame& f = stack_.back();
+    f.top = top;
+    f.free_scroll = true;
+    clamp(f);
+}
 
 std::string Controller::value_text(const RowDef& r, bool& is_key) const {
     is_key = false;
@@ -479,31 +637,35 @@ std::vector<RowView> Controller::rows() const {
     const Frame& f = stack_.back();
     const auto vis = visible_indices(f);
     for (std::size_t i = 0; i < vis.size(); ++i) {
-        const RowDef& r = f.rows[vis[i]];
-        RowView v;
-        v.def = &r;
-        v.value = value_text(r, v.value_is_key);
-        v.enabled = row_enabled(r);
+        RowView v = view_of(f.rows[vis[i]]);
         v.selected = static_cast<int>(i) == f.sel;
-        if (r.kind == RowKind::Slider && r.percent && r.get && r.max > r.min) {
-            v.fraction = std::clamp((as_double(r.get()) - r.min) / (r.max - r.min), 0.0, 1.0);
-        } else if (r.kind == RowKind::Setting && r.fraction) {
-            const double f = r.fraction();
-            if (f >= 0.0) v.fraction = std::min(f, 1.0);
-        }
-        if (r.kind == RowKind::Toggle) {
-            v.texts = {"ui.menu.on", "ui.menu.off"};
-        } else if (r.kind == RowKind::Choice) {
-            for (const Choice& c : row_choices(r)) v.texts.push_back(c.label);
-        } else if (r.kind == RowKind::Setting && r.texts) {
-            v.texts = r.texts();
-        }
-        v.has_arrows = v.enabled && (r.kind == RowKind::Toggle || r.kind == RowKind::Slider ||
-                                     r.kind == RowKind::Number || r.kind == RowKind::Choice ||
-                                     r.kind == RowKind::Setting);
         out.push_back(std::move(v));
     }
     return out;
+}
+
+RowView Controller::view_of(const RowDef& r) const {
+    RowView v;
+    v.def = &r;
+    v.value = value_text(r, v.value_is_key);
+    v.enabled = row_enabled(r);
+    if (r.kind == RowKind::Slider && r.percent && r.get && r.max > r.min) {
+        v.fraction = std::clamp((as_double(r.get()) - r.min) / (r.max - r.min), 0.0, 1.0);
+    } else if (r.kind == RowKind::Setting && r.fraction) {
+        const double f = r.fraction();
+        if (f >= 0.0) v.fraction = std::min(f, 1.0);
+    }
+    if (r.kind == RowKind::Toggle) {
+        v.texts = {"ui.menu.on", "ui.menu.off"};
+    } else if (r.kind == RowKind::Choice) {
+        for (const Choice& c : row_choices(r)) v.texts.push_back(c.label);
+    } else if (r.kind == RowKind::Setting && r.texts) {
+        v.texts = r.texts();
+    }
+    v.has_arrows = v.enabled && (r.kind == RowKind::Toggle || r.kind == RowKind::Slider ||
+                                 r.kind == RowKind::Number || r.kind == RowKind::Choice ||
+                                 r.kind == RowKind::Setting);
+    return v;
 }
 
 std::string Controller::help() const {
@@ -524,6 +686,8 @@ DropdownView Controller::dropdown() const {
         v.items = dropdown_->items;
         v.selected = dropdown_->sel;
         v.top = dropdown_->top;
+        v.current = dropdown_->current;
+        if (!stack_.empty() && dropdown_->row < stack_.back().rows.size()) v.label = stack_.back().rows[dropdown_->row].label;
     }
     return v;
 }
@@ -680,13 +844,89 @@ Event Controller::activate_row(Frame& f, std::size_t ri) {
             highlight_dropdown();
             return Event::Entered;
         }
-        case RowKind::Toggle:
         case RowKind::Choice:
         case RowKind::Setting:
+        case RowKind::Toggle:
+            if (touch_) {
+                // A finger sets a bar where it presses it; a tap beside the bar only selects the row.
+                if (r.kind == RowKind::Setting && r.fraction && r.fraction() >= 0.0) return Event::None;
+                const Event e = open_picker(f, ri);
+                if (e != Event::None) return e;
+            }
             return step_row(f, ri, +1, false);
         default:
             return Event::None;
     }
+}
+
+Event Controller::open_picker(Frame& f, std::size_t ri) {
+    const RowDef& r = f.rows[ri];
+    Dropdown d;
+    d.row = ri;
+    std::string current;
+    if (r.kind == RowKind::Toggle) {
+        if (!r.get || !r.set) return Event::None;
+        d.items = {Choice{"0", "ui.menu.off"}, Choice{"1", "ui.menu.on"}};
+        current = as_bool(r.get()) ? "1" : "0";
+        d.pick = Dropdown::Pick::Toggle;
+    } else if (r.kind == RowKind::Choice) {
+        d.items = row_choices(r);
+        if (r.get) current = as_string(r.get());
+    } else {
+        // A bar is set by its position; a setting's texts are the values it can show.
+        if (r.fraction && r.fraction() >= 0.0) return Event::None;
+        if (!r.texts) return Event::None;
+        bool key = false;
+        current = value_text(r, key);
+        for (const std::string& t : r.texts()) {
+            // Custom is what a row reads when no value of its own matches: nothing to pick.
+            bool seen = t.empty() || t.ends_with(".value.custom");
+            for (const Choice& c : d.items) seen = seen || c.value == t;
+            if (!seen) d.items.push_back(Choice{t, t});
+        }
+        d.pick = Dropdown::Pick::Step;
+    }
+    // Every row of values opens the list, two values (On / Off) too: a tap never changes a setting unasked.
+    if (d.items.size() < 2) return Event::None;
+    for (std::size_t i = 0; i < d.items.size(); ++i) {
+        if (d.items[i].value == current) d.sel = d.current = static_cast<int>(i);
+    }
+    d.top = std::max(0, d.sel - visible_rows_ / 2);
+    d.top = std::min(d.top, std::max(0, static_cast<int>(d.items.size()) - visible_rows_));
+    dropdown_ = std::move(d);
+    return Event::Entered;
+}
+
+Event Controller::set_bar(Frame& f, std::size_t ri, double at) {
+    RowDef& r = f.rows[ri];
+    if (!row_enabled(r)) return Event::Refused;
+    at = std::clamp(at, 0.0, 1.0);
+    if (r.kind == RowKind::Slider && r.get && r.set && r.max > r.min) {
+        const double grid = r.step > 0 ? r.step : 1.0;
+        double v = std::round((r.min + at * (r.max - r.min)) / grid) * grid;
+        v = std::clamp(v, r.min, r.max);
+        if (std::fabs(v - as_double(r.get())) < grid * 0.5) return Event::None;
+        if (r.integer) r.set(Value{static_cast<std::int64_t>(std::llround(v))});
+        else r.set(Value{v});
+        return Event::Changed;
+    }
+    if (r.kind != RowKind::Setting || !r.fraction || r.fraction() < 0.0) return Event::None;
+    // A native bar knows only its steps: step towards the point until the next step would pass it.
+    bool changed = false;
+    for (int i = 0; i < 64; ++i) {
+        const double now = r.fraction();
+        const int dir = at > now ? +1 : -1;
+        step_row(f, ri, dir, false);
+        const double next = r.fraction();
+        if (next == now) break;
+        changed = true;
+        if ((dir > 0 && next >= at) || (dir < 0 && next <= at)) {
+            // Past the point: keep whichever of the two is nearer.
+            if (std::fabs(now - at) < std::fabs(next - at)) step_row(f, ri, -dir, false);
+            break;
+        }
+    }
+    return changed ? Event::Changed : Event::None;
 }
 
 Event Controller::update_dropdown(const MenuInput& in) {
@@ -702,7 +942,7 @@ Event Controller::update_dropdown(const MenuInput& in) {
         if (d.sel >= d.top + visible_rows_) d.top = d.sel - visible_rows_ + 1;
         return moved;
     };
-    if (in.cancel || in.right_click) {
+    if (in.cancel || in.right_click || (in.touch && in.click && in.hover_row < 0)) {
         end_dropdown();
         return Event::Back;
     }
@@ -725,8 +965,25 @@ Event Controller::update_dropdown(const MenuInput& in) {
         const bool close_all = r.close_on_activate;
         last_row_id_ = r.id;
         const auto highlight = r.on_highlight;
+        const Dropdown::Pick pick = d.pick;
+        const std::size_t row = d.row;
         dropdown_.reset();
         if (highlight) highlight(std::string());
+        if (pick == Dropdown::Pick::Toggle) {
+            if (r.set && (r.get ? as_bool(r.get()) : false) != (picked == "1")) r.set(Value{picked == "1"});
+            return Event::Changed;
+        }
+        if (pick == Dropdown::Pick::Step) {
+            // Step on until the row shows the picked value; one that cannot be reached (Custom) leaves it where
+            // it was once the steps come round.
+            bool key = false;
+            const std::string start = value_text(r, key);
+            for (int i = 0; i < 64 && value_text(r, key) != picked; ++i) {
+                step_row(f, row, +1, false);
+                if (value_text(r, key) == start) break;
+            }
+            return Event::Changed;
+        }
         if (r.set) r.set(Value{picked});
         if (close_all) {
             close();
@@ -751,10 +1008,20 @@ void Controller::refresh() {
         for (RowDef& r : f.rows) registry_->resolve(r);
         clamp(f);
     }
+    if (!stack_.empty()) apply_focus(stack_.back());
 }
 
 Event Controller::update(const MenuInput& in) {
+    touch_ = in.touch;
     refresh();
+    if (!stack_.empty() && !dropdown_ && !confirm_) {
+        // A copy: the callback may define the menu again, which replaces the stored def.
+        if (const MenuDef* def = registry_->find(stack_.back().id); def != nullptr && def->on_update) {
+            const std::function<void()> fn = def->on_update;
+            fn();
+            refresh();
+        }
+    }
     const Event e = update_frame(in);
     refresh();
     return e;
@@ -799,6 +1066,8 @@ Event Controller::update_frame(const MenuInput& in) {
         return moved;
     };
 
+    // The keys and the wheel move the cursor, and the page follows it again.
+    if (in.up || in.down || in.wheel != 0 || in.page_up || in.page_down) f.free_scroll = false;
     bool moved = false;
     if (in.up) moved |= move_to(f.sel - 1, -1);
     if (in.down) moved |= move_to(f.sel + 1, +1);
@@ -832,6 +1101,7 @@ Event Controller::update_frame(const MenuInput& in) {
         const Event e = step_row(f, vis[f.sel], dir, false);
         if (e != Event::None) return e;
     }
+    if (in.bar_at >= 0.0) return set_bar(f, vis[f.sel], in.bar_at);
     const bool click = in.click && in.hover_row >= 0 && f.top + in.hover_row < n;
     if (in.confirm || click) {
         const Event e = activate_row(f, vis[f.sel]);

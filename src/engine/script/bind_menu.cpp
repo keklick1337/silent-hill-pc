@@ -257,10 +257,11 @@ Fn field_fn(lua_State* L, int t, const char* key, bool& wrong) {
     return f;
 }
 
-// on_open, leave_confirm and on_leave of the menu table at `t`; false when one is not a function.
+// on_open, on_update, leave_confirm and on_leave of the menu table at `t`; false when one is not a function.
 bool menu_hooks(lua_State* L, int t, MenuDef& def) {
     bool wrong = false;
     if (Fn f = field_fn(L, t, "on_open", wrong)) def.on_open = on_open_fn(f);
+    if (Fn f = field_fn(L, t, "on_update", wrong)) def.on_update = action_fn(f);
     if (Fn f = field_fn(L, t, "leave_confirm", wrong)) def.leave_confirm = text_fn(f);
     if (Fn f = field_fn(L, t, "on_leave", wrong)) {
         def.on_leave = [set = value_setter(f)](bool yes) { set(Value{yes}); };
@@ -406,12 +407,64 @@ bool parse_row(lua_State* L, int t, RowDef& row, std::string& err) {
         lua_pop(L, 1);
         (key[0] == 'v' ? row.visible : row.enabled) = std::move(fn);
     }
+    // small = true: a note under the row before it; cut: how a long text is shortened; args: data for "{name}".
+    lua_getfield(L, t, "small");
+    row.small = lua_toboolean(L, -1) != 0;
+    lua_pop(L, 1);
+    if (std::string cut; field_text(L, t, "cut", cut)) {
+        static const struct {
+            const char* name;
+            sh::menu::Cut cut;
+        } cuts[] = {{"pan", sh::menu::Cut::Pan},
+                    {"end", sh::menu::Cut::End},
+                    {"middle", sh::menu::Cut::Middle},
+                    {"path", sh::menu::Cut::Path},
+                    {"wrap", sh::menu::Cut::Wrap}};
+        for (const auto& c : cuts) {
+            if (cut == c.name) row.cut = c.cut;
+        }
+        if (!row.cut) {
+            err = "row '" + row.id + "': cut must be \"pan\", \"end\", \"middle\", \"path\" or \"wrap\"";
+            return false;
+        }
+    }
+    lua_getfield(L, t, "args");
+    if (lua_type(L, -1) == LUA_TTABLE) {
+        const int args = lua_absindex(L, -1);
+        lua_pushnil(L);
+        while (lua_next(L, args) != 0) {
+            std::string value;
+            if (lua_type(L, -2) == LUA_TSTRING && scalar_text(L, -1, value)) {
+                row.args.emplace_back(lua_tostring(L, -2), std::move(value));
+            } else {
+                wrong = true;
+            }
+            lua_pop(L, 1);
+        }
+        // Table order is not defined: sorted, so a text with two marks of one name is put in the same way each time.
+        std::sort(row.args.begin(), row.args.end());
+    } else if (lua_type(L, -1) != LUA_TNIL) {
+        wrong = true;
+    }
+    lua_pop(L, 1);
     if (wrong) {
         err = "row '" + row.id + "': a field has the wrong type";
         return false;
     }
     lua_getfield(L, t, "visible_if");
     const bool cond_ok = parse_visible_if(L, -1, row.visible_if);
+    lua_pop(L, 1);
+    // mobile = true: only on a phone or tablet; false: never there. advanced = true: there on the page's Advanced page.
+    lua_getfield(L, t, "mobile");
+    if (lua_type(L, -1) == LUA_TBOOLEAN) {
+        sh::menu::VisibleIf c;
+        c.key = std::string(sh::menu::kMobileKey);
+        (lua_toboolean(L, -1) ? c.any : c.none).push_back(Value{1.0});
+        row.visible_if.push_back(std::move(c));
+    }
+    lua_pop(L, 1);
+    lua_getfield(L, t, "advanced");
+    row.advanced = lua_toboolean(L, -1) != 0;
     lua_pop(L, 1);
     if (!cond_ok) {
         err = "row '" + row.id + "': visible_if needs { key = \"...\", any = {...} / none = {...} / is = v }";
@@ -468,7 +521,7 @@ int l_define(lua_State* L) {
             lua_pop(L, 1);
         }
         if (err.empty() && !menu_hooks(L, 1, def)) {
-            err = "sh.menu.define: on_open, leave_confirm and on_leave must be functions";
+            err = "sh.menu.define: on_open, on_update, leave_confirm and on_leave must be functions";
         }
         if (err.empty()) {
             state_of(L)->registry->define(std::move(def));
@@ -525,7 +578,7 @@ int l_add_page(lua_State* L) {
             lua_pop(L, 1);
         }
         if (err.empty() && !menu_hooks(L, 1, page)) {
-            err = "sh.menu.add_page: on_open, leave_confirm and on_leave must be functions";
+            err = "sh.menu.add_page: on_open, on_update, leave_confirm and on_leave must be functions";
         }
         // Options' root is the game's: a page a mod adds there is listed under Mod Options instead. Pages named
         // "options.<...>" are the game's own (Mods, Mod Options).
@@ -567,6 +620,17 @@ int l_run(lua_State* L) {
     const char* name = lua_tostring(L, 1);
     lua_pushboolean(L, name != nullptr && state_of(L)->registry->run_action(name) ? 1 : 0);
     return 1;
+}
+
+// The open menu `id` brings its row `row` to the window's top as soon as it is the current menu.
+int l_focus(lua_State* L) {
+    const char* id = lua_tostring(L, 1);
+    const char* row = lua_tostring(L, 2);
+    if (id == nullptr || row == nullptr) {
+        return raise(L, "sh.menu.focus(menu_id, row_id) expects two strings");
+    }
+    state_of(L)->registry->focus(id, row);
+    return 0;
 }
 
 int l_value(lua_State* L) {
@@ -656,6 +720,7 @@ void open_sandbox(lua_State* L) {
                                         {"open", l_open},     {"close", l_close},             {"is_open", l_is_open},
                                         {"after_load", l_after_load}, {"page_count", l_page_count},
                                         {"native_visible", l_native_visible}, {"run", l_run},
+                                        {"focus", l_focus},
                                         {nullptr, nullptr}};
     lua_newtable(L);  // sh
     lua_pushcfunction(L, l_log);

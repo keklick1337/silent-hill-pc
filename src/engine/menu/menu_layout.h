@@ -29,6 +29,7 @@ struct Metrics {
 struct Slot {
     int row = 0;  // index into the controller's visible rows
     int y = 0;
+    int h = 0;  // the row's height (the pitch, unless the rows have heights of their own)
 };
 
 struct Window {
@@ -44,6 +45,13 @@ Window compute_window(const Metrics& m, int row_count, int top);
 
 // The row index under (x, y), or -1: rows span left_x .. right_x and y .. y + pitch.
 int row_at_point(const Metrics& m, int row_count, int top, int x, int y);
+
+// The same for rows of their own heights (`heights[i]` lines, each > 0) in a window of visible * pitch lines: the
+// window holds the rows from `top` that fit whole. With every height the pitch both are the functions above.
+// The first row of a window that ends with the last row (the largest top worth scrolling to).
+int last_top(const Metrics& m, const std::vector<int>& heights);
+Window compute_window(const Metrics& m, const std::vector<int>& heights, int top);
+int row_at_point(const Metrics& m, const std::vector<int>& heights, int top, int x, int y);
 
 struct Columns {
     int label_max = 0;  // width the label may take
@@ -89,6 +97,9 @@ struct ColumnRow {
     int label = 0;     // label width
     int value = 0;     // value text width (beside the bar on a bar row); 0 with no bar: a row without a value
     bool bar = false;
+    // The label gives way (it ends in "..." where it meets the column) and takes no part in sizing the page; a page
+    // with such rows puts its column as far right as the values let it, so their labels get the room.
+    bool yields = false;
 };
 struct ColumnInput {
     int label_x = 0;       // where labels start

@@ -4,6 +4,8 @@
   "lang": "es",
   "strings": {
     "ui.bind.debug_options": "Opciones de depuración",
+    "ui.menu.advanced": "Avanzado",
+    "ui.menu.advanced.help": "Más ajustes: los que casi nadie cambia.",
     "ui.menu.off": "No",
     "ui.menu.on": "Sí",
     "ui.pause.debug_options": "OPCIONES DE DEPURACIÓN"

@@ -24,6 +24,13 @@ struct FittedText {
 // "...", which is put in place of the rest. A character is never split and the cut never ends in a space.
 FittedText fit_with_ellipsis(std::string_view text, int max_width, const TextMeasure& measure);
 
+// The same with "..." in the middle: as much of the start as of the end is kept (a path keeps its file name).
+FittedText fit_middle_ellipsis(std::string_view text, int max_width, const TextMeasure& measure);
+
+// The last component of a path ('/' or '\\' separated; trailing separators left out); the text itself when it has
+// none.
+std::string_view last_path_component(std::string_view path);
+
 // Text that is data (a file name, a key's name, a name out of a mod) in the game font's spelling: a space becomes
 // '_' (a run of them one), an ASCII character whose byte means something else to the game font ('_' its space,
 // '[' a quote, ...) becomes its fullwidth form, control characters go. A character past ASCII stays when

@@ -101,7 +101,7 @@ sh::menu::MenuInput build_input() {
     mi.pointer_moved = in.pointer_moved != 0;
     mi.click = in.click != 0;
     mi.right_click = in.right_click != 0;
-    if (in.pointer) mi.hover_row = view().hover_row(controller(), in.pointer_x, in.pointer_y);
+    view().pointer_input(controller(), in.pointer, in.pointer_x, in.pointer_y, mi);
 
     // A Pause bind that is not also a confirm button closes the menu like Cancel (as in the pause menu).
     std::uint16_t binds[gs::kPadBindCount] = {};

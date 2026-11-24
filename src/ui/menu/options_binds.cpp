@@ -8,6 +8,7 @@
 #include "ui/menu/options_binds.h"
 #include "ui/menu/options_atmosphere.h"
 #include "ui/menu/options_temporal.h"
+#include "ui/menu/options_touch.h"
 #include "ui/menu/options_hdr.h"
 #include "ui/menu/options_ray_tracing.h"
 
@@ -27,6 +28,7 @@
 #include "engine/log/sh_log.h"
 #include "engine/menu/menu_model.h"
 #include "engine/mods/mods_admin.h"
+#include "engine/platform/display_rate.h"
 #include "engine/screens/settings_presets.h"
 #include "i18n/localization.h"
 #include "input/camera_style.h"
@@ -39,6 +41,7 @@
 #include "render/gpu/renderer.h"
 #include "render/post/hdr.h"
 #include "render/post/temporal.h"
+#include "platform/sh_platform.h"
 
 extern "C" {
 const char* PcOpt_SettingText(const char* key);
@@ -305,6 +308,11 @@ void apply_preset(int preset, bool keep_resolution)
 {
     s_PcConfig target = g_PcConfig;
     RenderPreset_Apply(preset, &target);
+    // The look first, the preset's own keys over it: mobile keeps deband off under the Modern lighting, and a
+    // preset the row could not read back afterwards could not be picked from the list either.
+    const int style = pr::style_for_preset(preset);
+    apply_table(pr::flashlight_style(style), true);
+    apply_table(pr::lighting_style(style), true);
     for (std::string_view key : pr::preset_keys()) {
         if (key == "dithering" || key == "texture_filter" || (keep_resolution && key == "native_resolution")) {
             continue;
@@ -318,9 +326,6 @@ void apply_preset(int preset, bool keep_resolution)
         // The Texture Filtering row's combined value: 1 = dither, n + 1 = filter n.
         sh::ui::pc_settings::set_int("texture_filter", target.dithering ? 1 : (target.textureFilter == 0 ? 0 : target.textureFilter + 1));
     }
-    const int style = pr::style_for_preset(preset);
-    apply_table(pr::flashlight_style(style), true);
-    apply_table(pr::lighting_style(style), true);
     g_PcConfig.graphicsPreset = preset;
     PcConfig_SaveKeyValue("graphics_preset", RenderPreset_Name(preset));
 
@@ -350,8 +355,18 @@ std::string preset_label(int preset)
         case pr::kUltraUpscaled: return value_label("ultra_upscaled");
         case pr::kUltraRtx: return value_label("ultra_rtx");
         case pr::kUltraRtxUpscaled: return value_label("ultra_rtx_upscaled");
+        case pr::kMobile: return value_label("mobile");
         default: return value_label("custom");
     }
+}
+
+// The presets the row offers. The Ultra RTX ones need a GPU that traces rays; mobile is a phone's or tablet's. A
+// phone has neither the AI-upscaled presets nor the ray-traced ones (RenderPreset_PlatformLimits): there they would
+// read as plain ultra anyway.
+bool preset_offered(int p)
+{
+    if (Sh_IsMobile() != 0) return !pr::preset_upscales(p) && !pr::preset_traces_rays(p);
+    return p != pr::kMobile && !(pr::preset_traces_rays(p) && !Pc_OptionsRayTracing_Available());
 }
 
 std::string shadow_label(int level)
@@ -379,17 +394,21 @@ void register_setting(sh::menu::Registry& reg, const std::string& key)
 void register_grouped(sh::menu::Registry& reg)
 {
     sh::menu::NativeSetting preset;
-    // The Ultra RTX presets are offered only where rays can be traced; a config that names one elsewhere still
-    // shows it.
+    // The step and the touch screen's list of values (texts) offer the same presets.
     preset.step = [](int dir) {
         int next = pr::step_choice(detect_preset(), pr::kPresetCount, dir);
-        while (pr::preset_traces_rays(next) && !Pc_OptionsRayTracing_Available())
+        for (int tries = 0; tries < pr::kPresetCount && !preset_offered(next); ++tries)
             next = pr::step_choice(next, pr::kPresetCount, dir);
         apply_preset(next, false);
     };
     preset.text = []() { return preset_label(detect_preset()); };
-    preset.texts = value_labels(
-        {"original", "enhanced", "high", "ultra", "ultra_upscaled", "ultra_rtx", "ultra_rtx_upscaled", "custom"});
+    preset.texts = []() {
+        std::vector<std::string> out;
+        for (int p = 0; p < pr::kPresetCount; ++p)
+            if (preset_offered(p)) out.push_back(preset_label(p));
+        out.push_back(value_label("custom"));
+        return out;
+    };
     // What a preset could not switch on here, or that its texture upscaling is still running. The "+AI"
     // captions have no room for an "experimental" tag in the value column, so the help line carries it.
     preset.help = []() -> std::string {
@@ -397,7 +416,7 @@ void register_grouped(sh::menu::Registry& reg)
         if (pr::preset_upscales(p))
             return *sh::app::texture_upscale_status() != '\0' ? "ui.options.graphics_preset.upscaling"
                                                               : "ui.options.graphics_preset.experimental";
-        if (p < pr::kHigh) return "";
+        if (p < pr::kHigh || p == pr::kMobile) return "";
         sh::gpu::Renderer* r = sh::gpu::renderer();
         if (r == nullptr || r->host().backend() != sh::gpu::BackendKind::Vulkan)
             return "ui.options.graphics_preset.vulkan_only";
@@ -504,7 +523,12 @@ std::optional<sh::gpu::BackendKind> g_renderer_choice;
 
 sh::gpu::BackendKind running_backend() {
     if (sh::gpu::Renderer* r = sh::gpu::renderer(); r != nullptr) return r->host().backend();
-    return sh::gpu::backend_from_name(g_PcConfig.renderer).value_or(sh::gpu::BackendKind::Gl);
+#ifdef __ANDROID__
+    constexpr sh::gpu::BackendKind kFallback = sh::gpu::BackendKind::Vulkan;
+#else
+    constexpr sh::gpu::BackendKind kFallback = sh::gpu::BackendKind::Gl;
+#endif
+    return sh::gpu::backend_from_name(g_PcConfig.renderer).value_or(kFallback);
 }
 
 sh::gpu::BackendKind chosen_backend() { return g_renderer_choice.value_or(running_backend()); }
@@ -521,8 +545,14 @@ std::string backend_label(sh::gpu::BackendKind b) {
 }
 
 // The order the row steps through: OpenGL, the native Vulkan backend, Vulkan through SDL3 GPU.
+#ifdef __ANDROID__
+// Android has no desktop OpenGL: the native Vulkan renderer, or SDL GPU (over Vulkan itself) to compare with.
+constexpr std::array<sh::gpu::BackendKind, 2> kBackendOrder = {sh::gpu::BackendKind::Vulkan,
+                                                               sh::gpu::BackendKind::SdlGpu};
+#else
 constexpr std::array<sh::gpu::BackendKind, 3> kBackendOrder = {
     sh::gpu::BackendKind::Gl, sh::gpu::BackendKind::Vulkan, sh::gpu::BackendKind::SdlGpu};
+#endif
 
 // Model upscaling (RENDER.md section 7.10): Off / Tessellation / Mesh shaders on the native Vulkan renderer. A mode
 // the device cannot draw is skipped by the row and named in its help; under another renderer the row is locked.
@@ -651,6 +681,27 @@ void register_interface(sh::menu::Registry& reg)
     };
     widescreen.texts = value_labels({"pillarbox", "hor_plus", "stretch"});
     reg.native_setting("setting.widescreen_mode", std::move(widescreen));
+
+    // A phone's caps are the rates its display can be asked for (display_rate.h); Off would only heat it up.
+    if (Sh_IsMobile() != 0) {
+        sh::menu::NativeSetting cap;
+        cap.step = [](int dir) {
+            const std::vector<int> caps = sh::platform::phone_frame_caps();
+            int at = 0;
+            for (int i = 0; i < static_cast<int>(caps.size()); i++) {
+                if (caps[static_cast<std::size_t>(i)] <= g_PcConfig.fpsCap) at = i;
+            }
+            at = pr::step_choice(at, static_cast<int>(caps.size()), dir);
+            sh::ui::pc_settings::set_int("fps_cap", caps[static_cast<std::size_t>(at)]);
+        };
+        cap.text = []() { return std::to_string(g_PcConfig.fpsCap); };
+        cap.texts = []() {
+            std::vector<std::string> texts;
+            for (int c : sh::platform::phone_frame_caps()) texts.push_back(std::to_string(c));
+            return texts;
+        };
+        reg.native_setting("setting.fps_cap", std::move(cap));
+    }
 
     // The languages are the ones found in the text directories (gamedata/text and the mods' text/), each under
     // its own name. They switch only where the original options allow it: the title screen.
@@ -799,6 +850,16 @@ void register_camera(sh::menu::Registry& reg)
         // The renderer the row has chosen, so its rows come and go before the restart that brings it.
         if (key == "renderer") return sh::menu::Value{std::string(sh::gpu::backend_name(chosen_backend()))};
         if (key == "ray_tracing") return sh::menu::Value{static_cast<double>(g_PcConfig.rayTracing)};
+        // A phone or tablet: no window, resolution or aspect of its own to choose.
+        if (key == "mobile") return sh::menu::Value{static_cast<double>(Sh_IsMobile())};
+        // The touch controls' page shows where they can be used.
+        if (key == "touch_device") {
+            return sh::menu::Value{Sh_IsMobile() != 0 || g_PcConfig.touchControls == 1 ? 1.0 : 0.0};
+        }
+        // The stick's own rows show only while the stick moves Harry.
+        if (key == "touch_movement") {
+            return sh::menu::Value{std::string(g_PcConfig.touchMovement != 0 ? "dpad" : "stick")};
+        }
         double v = 0.0;
         if (sh::ui::pc_settings::known(std::string(key), v)) return sh::menu::Value{v};
         return std::nullopt;
@@ -837,6 +898,7 @@ extern "C" void Pc_OptionsBinds_Register(void)
     sh::ui::register_hdr_options(reg);
     sh::ui::register_atmosphere_rows(reg);
     sh::ui::register_temporal_rows(reg);
+    sh::ui::register_touch_rows(reg);
     register_texture_upscale(reg);
 
     reg.native_action("options.reset_defaults", []() {

@@ -1,5 +1,5 @@
 {
-  "description": "The engine's settings as the Options menu (gamedata/menus/options.lua, natives setting.<config key>) steps and shows them. Settings are config.cfg keys; the game stores, applies and saves them. rows: the settings with listed values - choice (one of values; labels parallel, else the number), slider (min..max by step), resolution (one of resolutions; the menu offers those of the shape its Aspect Ratio row picks from aspects, [width, height] ratios, plus the display mode), map (the New Game start map). label starts the console line that reports a change ('_' is a space). realtime false: takes effect on the next start (restart_notice is printed). keep_on_reset: Reset to Defaults leaves the setting alone (it prints reset_done). default_map: shown while no start map is set. quick: the settings described by their kind of value, by config key, with their label tables and formats (toggle, cycle, float, offset, volume). Every key is checked: an unknown key is an error.",
+  "description": "The engine's settings as the Options menu (gamedata/menus/options.lua, natives setting.<config key>) steps and shows them. Settings are config.cfg keys; the game stores, applies and saves them. rows: the settings with listed values - choice (one of values; labels parallel, else the number), slider (min..max by step), resolution (one of resolutions; the menu offers those of the shape its Aspect Ratio row picks from aspects, [width, height] ratios, plus the display mode), map (the New Game start map). label starts the console line that reports a change ('_' is a space). realtime false: takes effect on the next start (restart_notice is printed). keep_on_reset: Reset to Defaults leaves the setting alone (it prints reset_done). mobile_values: the values of a choice a phone or tablet offers (the anisotropic filters are too slow there). default_map: shown while no start map is set. quick: the settings described by their kind of value, by config key, with their label tables and formats (toggle, cycle, float, offset, volume). Every key is checked: an unknown key is an error.",
   "reset_done": "Settings reset to defaults (resolution and window mode kept).",
   "restart_notice": "This setting will take effect the next time the game is started.",
   "default_map": "map0_s00",
@@ -43,7 +43,8 @@
       "kind": "choice",
       "setting": "texture_filter",
       "values": [0, 1, 2, 3, 4, 5, 6, 7],
-      "labels": ["Off", "Dither", "Bilinear", "Trilinear", "Aniso_2x", "Aniso_4x", "Aniso_8x", "Aniso_16x"]
+      "labels": ["Off", "Dither", "Bilinear", "Trilinear", "Aniso_2x", "Aniso_4x", "Aniso_8x", "Aniso_16x"],
+      "mobile_values": [0, 1, 2, 3]
     },
     {
       "label": "PGXP",

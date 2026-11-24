@@ -31,6 +31,7 @@
 #include "engine/text/game_text.h"
 #include "i18n/localization.h"
 #include "input/mouse_pointer.h"
+#include "platform/sh_platform.h"
 #include "render/gpu/render_state.h"
 #include "ui/menu/menu_view.h"
 #include "ui/menu/nm_draw.h"
@@ -126,6 +127,7 @@ sc::SettingsModel* settings_model()
     if (!s_settings_data) {
         return nullptr;
     }
+    if (Sh_IsMobile() != 0) sc::keep_mobile_values(*s_settings_data);
     s_settings.emplace(*s_settings_data);
     return &*s_settings;
 }
@@ -288,10 +290,7 @@ sh::menu::MenuInput tree_input()
     mi.pointer_moved = in.pointer_moved != 0;
     mi.click = in.click != 0;
     mi.right_click = in.right_click != 0;
-    if (in.pointer) {
-        mi.hover_row = tree_view().hover_row(tree(), in.pointer_x, in.pointer_y);
-        mi.hover_answer = tree_view().hover_answer(tree(), in.pointer_x, in.pointer_y);
-    }
+    tree_view().pointer_input(tree(), in.pointer, in.pointer_x, in.pointer_y, mi);
     return mi;
 }
 

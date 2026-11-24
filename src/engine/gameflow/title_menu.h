@@ -34,6 +34,7 @@ struct TitleEntry {
 struct TitleLayout {
     int column_x = 158;         // centre of the menu column
     int row_pitch = 20;
+    int touch_row_pitch = 0;    // a touch screen's rows (taller to tap; still bottom-aligned); 0 = row_pitch
     int last_row_y = 264;       // rows are bottom-aligned: the last visible row is drawn here
     int hover_lead = 3;         // the mouse row starts this many pixels above the glyph top
     int difficulty_y = 204;     // first difficulty row
@@ -147,6 +148,8 @@ public:
     // Drawing (the game's text cursor: position, colour, then strings).
     virtual void draw_background() = 0;
     virtual void show_cursor() = 0;
+    // The screen is played by touch (a phone or tablet): the rows take the layout's touch_row_pitch.
+    virtual bool touch_screen() const { return false; }
     virtual void leave_title_screen() = 0;
     virtual bool text_translated(const char* text) const = 0;
     virtual int text_width(const char* text) const = 0;  // width of the translated text
@@ -203,8 +206,12 @@ private:
     void draw_confirm(TitleHost& host) const;
     void draw_difficulty(TitleHost& host) const;
     int half_width(const TitleHost& host, const char* label) const;
+    int pitch() const;
+    int lead() const;
+    int difficulty_top(const TitleHost& host) const;
 
     TitleMenuData data_;
+    bool touch_ = false;  // TitleHost::touch_screen of the frame
     State state_ = State::Start;
     int selected_ = 2;
     std::uint32_t visible_ = 0;

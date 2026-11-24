@@ -2,6 +2,8 @@
 #pragma GCC diagnostic ignored "-Wmissing-field-initializers"
 // The generic menu model: row kinds, navigation, native binding, dropdowns, submenus, visibility.
 
+#include <algorithm>
+#include <functional>
 #include <string>
 #include <vector>
 
@@ -414,6 +416,50 @@ SH_TEST(menu_visible_if_rows_follow_the_value) {
     SH_CHECK(ids() == "style size other ");
 }
 
+// Rows marked advanced stay in place on a desktop; on a phone or tablet they go to the page's Advanced page, which
+// a row the registry adds at the page's end (before the tail rows) opens.
+SH_TEST(menu_advanced_rows_move_to_their_page_on_a_phone) {
+    Registry reg;
+    double mobile = 0.0;
+    reg.config_reader("config", [&](std::string_view key) -> std::optional<Value> {
+        if (key == kMobileKey) return Value{mobile};
+        return std::nullopt;
+    });
+    reg.native_action("act", [] {});
+    MenuDef page;
+    page.id = "opts";
+    page.rows.push_back(RowDef{.kind = RowKind::Header, .id = "g1"});
+    page.rows.push_back(RowDef{.kind = RowKind::Action, .id = "a", .native = "act"});
+    page.rows.push_back(RowDef{.kind = RowKind::Action, .id = "b", .native = "act", .advanced = true});
+    page.rows.push_back(RowDef{.kind = RowKind::Header, .id = "g2"});
+    page.rows.push_back(RowDef{.kind = RowKind::Action, .id = "c", .native = "act", .advanced = true});
+    page.rows.push_back(RowDef{.kind = RowKind::Action, .id = "tail.reset", .native = "act"});
+    reg.define(page);
+    reg.append_rows("opts", {RowDef{.kind = RowKind::Action, .id = "d", .native = "act", .advanced = true}});
+
+    Controller c(reg);
+    const auto ids = [&] {
+        std::string s;
+        for (const RowView& r : c.rows()) s += r.def->id + " ";
+        return s;
+    };
+    SH_CHECK(c.open("opts"));
+    SH_CHECK(ids() == "g1 a b g2 c d tail.reset ");
+    mobile = 1.0;
+    SH_CHECK(ids() == "g1 a opts.advanced.group opts.advanced tail.reset ");
+    const MenuDef* adv = reg.find("opts.advanced");
+    SH_CHECK(adv != nullptr && adv->title == kAdvancedLabel);
+    SH_CHECK(c.open("opts.advanced"));
+    SH_CHECK(ids() == "g1 b g2 c d ");
+    // Defined again without advanced rows: the page has no Advanced row and its old page is empty.
+    page.rows[2].advanced = false;
+    page.rows[4].advanced = false;
+    reg.define(page);
+    SH_CHECK(c.open("opts"));
+    SH_CHECK(ids() == "g1 a b g2 c tail.reset ");
+    SH_CHECK(reg.find("opts.advanced") != nullptr && reg.find("opts.advanced")->rows.empty());
+}
+
 SH_TEST(menu_enter_opens_a_page_over_the_current_menu) {
     Fixture f;
     Controller c(f.reg);
@@ -437,4 +483,159 @@ SH_TEST(menu_registry_checks_visible_and_runs_actions_by_name) {
     SH_CHECK(reg.run_action("restart"));
     SH_CHECK(fired == 1);
     SH_CHECK(!reg.run_action("missing"));
+}
+
+SH_TEST(menu_touch_picks_from_a_list_and_sets_bars) {
+    Fixture f;
+    Controller c(f.reg);
+    c.open("root");
+    // The choice row: on a touch screen a confirm opens the list of its values instead of stepping.
+    for (int i = 0; i < 3; ++i) c.update(press_down());
+    SH_CHECK(c.rows()[c.selection()].def->id == "mode");
+    MenuInput tap = press_confirm();
+    tap.touch = true;
+    SH_CHECK(c.update(tap) == Event::Entered && c.dropdown_open() && f.mode == "a");
+    SH_CHECK(c.dropdown().items.size() == 3 && c.dropdown().selected == 0);
+    MenuInput pick;
+    pick.touch = true;
+    pick.click = true;
+    pick.hover_row = 2;
+    SH_CHECK(c.update(pick) == Event::Changed && f.mode == "c" && !c.dropdown_open());
+    // A tap beside an open list closes it unchanged.
+    c.update(tap);
+    MenuInput beside;
+    beside.touch = true;
+    beside.click = true;
+    SH_CHECK(c.update(beside) == Event::Back && !c.dropdown_open() && f.mode == "c");
+    // A desktop's confirm still steps.
+    c.update(press_confirm());
+    SH_CHECK(f.mode == "a" && !c.dropdown_open());
+    // The slider is set where the finger presses its bar.
+    c.update(MenuInput{.up = true});
+    c.update(MenuInput{.up = true});
+    SH_CHECK(c.rows()[c.selection()].def->id == "vol");
+    MenuInput bar;
+    bar.touch = true;
+    bar.bar_at = 0.3;
+    SH_CHECK(c.update(bar) == Event::Changed && f.vol > 0.29 && f.vol < 0.31);
+}
+
+SH_TEST(menu_touch_picker_for_every_row_of_values) {
+    Fixture f;
+    // A setting with texts: two values (on / off) and a bar.
+    bool lights = false;
+    f.reg.native_setting("lights", {[&](int) { lights = !lights; }, [&] { return std::string(lights ? "On" : "Off"); },
+                                    nullptr, [] { return std::vector<std::string>{"Off", "On"}; }});
+    double level = 0.5;
+    f.reg.native_setting("level", {[&](int d) { level = std::clamp(level + d * 0.25, 0.0, 1.0); },
+                                   [&] { return std::to_string(level); }, [&] { return level; },
+                                   [] { return std::vector<std::string>{"0", "1"}; }});
+    MenuDef page;
+    page.id = "page";
+    page.title = "Page";
+    page.rows.push_back(RowDef{.kind = RowKind::Toggle, .id = "god", .label = "God", .native = "god"});
+    page.rows.push_back(RowDef{.kind = RowKind::Setting, .id = "lights", .label = "Lights", .native = "lights"});
+    page.rows.push_back(RowDef{.kind = RowKind::Choice, .id = "two", .label = "Two", .native = "mode",
+                               .choices = {{"a", "ui.m.a"}, {"b", "ui.m.b"}}});
+    page.rows.push_back(RowDef{.kind = RowKind::Setting, .id = "level", .label = "Level", .native = "level"});
+    page.rows.push_back(RowDef{.kind = RowKind::Setting, .id = "opt", .label = "Opt", .native = "opt"});
+    f.reg.define(page);
+    Controller c(f.reg);
+    c.open("page");
+    const auto tap_row = [&](int row) {
+        MenuInput in;
+        in.touch = true;
+        in.click = true;
+        in.hover_row = row;
+        return c.update(in);
+    };
+    // The toggle: a tap opens Off / On with Off marked; picking On sets it, picking the value it has changes nothing.
+    SH_CHECK(tap_row(0) == Event::Entered && c.dropdown_open());
+    SH_CHECK(c.dropdown().items.size() == 2 && c.dropdown().current == 0 && c.dropdown().label == "God");
+    SH_CHECK(tap_row(1) == Event::Changed && f.god && !c.dropdown_open());
+    SH_CHECK(tap_row(0) == Event::Entered && c.dropdown().current == 1);
+    SH_CHECK(tap_row(1) == Event::Changed && f.god);
+    // A setting of two texts opens them too (Map Lights), and the pick steps it until it shows the entry.
+    SH_CHECK(tap_row(1) == Event::Entered && c.dropdown().items.size() == 2 && c.dropdown().current == 0);
+    SH_CHECK(tap_row(1) == Event::Changed && lights);
+    SH_CHECK(tap_row(1) == Event::Entered);
+    SH_CHECK(tap_row(1) == Event::Changed && lights);  // On again: no step
+    // A choice of two values.
+    SH_CHECK(tap_row(2) == Event::Entered && c.dropdown().items.size() == 2);
+    SH_CHECK(tap_row(1) == Event::Changed && f.mode == "b");
+    // A bar's row: a tap beside the bar only selects it; a tap on the bar sets it.
+    SH_CHECK(tap_row(3) == Event::Moved && !c.dropdown_open() && level == 0.5);
+    MenuInput bar;
+    bar.touch = true;
+    bar.click = true;
+    bar.hover_row = 3;
+    bar.bar_at = 1.0;
+    SH_CHECK(c.update(bar) == Event::Changed && level == 1.0);
+    // A setting without a list of texts steps on a tap.
+    SH_CHECK(tap_row(4) == Event::Changed && f.setting == 1 && !c.dropdown_open());
+}
+
+SH_TEST(menu_touch_scroll_top_leaves_the_cursor) {
+    Fixture f;
+    MenuDef page;
+    page.id = "long";
+    page.title = "Long";
+    for (int i = 0; i < 20; ++i)
+        page.rows.push_back(RowDef{.kind = RowKind::Action, .id = "r" + std::to_string(i), .label = "R", .native = "fire"});
+    f.reg.define(page);
+    Controller c(f.reg);
+    c.open("long");
+    c.set_visible_rows(5);
+    // The finger scrolled: the top moves, the cursor stays on row 0 out of the window.
+    c.set_scroll_top(10);
+    SH_CHECK(c.scroll_top() == 10 && c.selection() == 0);
+    c.update(MenuInput{});
+    SH_CHECK(c.scroll_top() == 10);
+    // A tap on the third row shown picks row 12 (the hover row counts from the top).
+    MenuInput tap;
+    tap.touch = true;
+    tap.click = true;
+    tap.hover_row = 2;
+    SH_CHECK(c.update(tap) == Event::Activated && c.selection() == 12 && f.fired == 1 && c.scroll_top() == 10);
+    // Past the end it is clamped; a key brings the window back to the cursor.
+    c.set_scroll_top(99);
+    SH_CHECK(c.scroll_top() == 15);
+    c.update(MenuInput{.up = true});
+    SH_CHECK(c.selection() == 11 && c.scroll_top() == 11);
+}
+
+// on_update runs every frame while its menu is on top, and a define from inside it shows at once.
+SH_TEST(menu_on_update_runs_while_current_and_may_redefine) {
+    Registry reg;
+    int calls = 0;
+    std::function<void()> define_page;
+    define_page = [&] {
+        MenuDef page;
+        page.id = "page";
+        page.title = "Page";
+        page.rows.push_back(RowDef{.kind = RowKind::Info, .id = "n", .label = "n" + std::to_string(calls)});
+        page.rows.push_back(RowDef{.kind = RowKind::Submenu, .id = "go", .label = "Go", .submenu = "other"});
+        page.on_update = [&] {
+            ++calls;
+            define_page();
+        };
+        reg.define(std::move(page));
+    };
+    define_page();
+    MenuDef other;
+    other.id = "other";
+    other.rows.push_back(RowDef{.kind = RowKind::Action, .id = "x", .label = "X"});
+    reg.define(std::move(other));
+
+    Controller c(reg);
+    SH_CHECK(c.open("page"));
+    c.update(MenuInput{});
+    SH_CHECK(calls == 1);
+    SH_CHECK(c.rows()[0].def->label == "n1");
+    MenuInput confirm;
+    confirm.confirm = true;
+    c.update(confirm);  // on_update first, then the confirm enters "other"
+    SH_CHECK(calls == 2 && c.current()->id == "other");
+    c.update(MenuInput{});
+    SH_CHECK(calls == 2);  // not on top
 }

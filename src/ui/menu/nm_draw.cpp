@@ -43,6 +43,7 @@ constexpr int kGold = 0;
 constexpr int kWhite = 7;
 
 constexpr int kScreenWidth = 320;
+constexpr int kBlendAdd = 1;  // the page's blend: back + front
 
 bool mirrored() { return sh::i18n::right_to_left(); }
 
@@ -287,6 +288,42 @@ void scroll_arrow(int cx, int y, bool up, bool enabled) {
 
 void snap_highlight() { s_glide.snap = 1; }
 
+namespace {
+
+// A flat grey box: opaque, or added to what is under it (a lighter band). The shade layer's own page subtracts
+// (it darkens under the underline), so an added box sets its page itself, drawn just before it.
+void box(int x0, int y0, int x1, int y1, std::uint8_t grey, bool lighten) {
+    d2::Polygon poly;
+    poly.count = 4;
+    poly.shade.translucent = lighten;
+    poly.color[0] = poly.color[1] = poly.color[2] = poly.color[3] = {grey, grey, grey};
+    quad(poly.xy, x0, y0, x1, y1);
+    nm_draw_host().submit(kLayerShade, poly);
+    if (lighten) {
+        nm_draw_host().texture_page_blend(kLayerShade, kBlendAdd);
+    } else {
+        nm_draw_host().reset_texture_page(kLayerShade);
+    }
+}
+
+}  // namespace
+
+// Faint: the row stays readable and the gold underline stays the selection's mark.
+void press_band(int x0, int x1, int y_top, int y_bottom) { box(x0, y_top, x1, y_bottom, 22, true); }
+
+void scroll_bar(int x, int y0, int y1, int first, int shown, int total) {
+    if (total <= 0 || y1 <= y0) return;
+    constexpr int kWidth = 3;
+    const int span = y1 - y0;
+    const int thumb = std::max(8, span * std::min(shown, total) / total);
+    const int travel = span - thumb;
+    const int rest = std::max(1, total - shown);
+    const int at = y0 + travel * std::clamp(first, 0, rest) / rest;
+    // A layer draws what was submitted last first: the thumb goes in before the track it lies on.
+    box(x, at, x + kWidth, at + thumb, 170, false);
+    box(x, y0, x + kWidth, y1, 48, false);
+}
+
 void highlight(int x0, int x1, int yBottom) {
     sh::ui::NmDrawHost& host = nm_draw_host();
     const std::int32_t tick = host.tick();
@@ -450,6 +487,16 @@ void link_scene_item(int item) {
     }
 }
 
+bool pointer_position(int* x, int* y) {
+    int mx = 0;
+    int my = 0;
+    if (!sh::input::mouse_pointer().menu_position(&mx, &my)) return false;
+    *x = mirrored() ? kScreenWidth - mx : mx;
+    // UiPos reports the 448-line authoring space (-112..336) on the title.
+    *y = nm_draw_host().interlaced() ? (my + 112) / 2 : my;
+    return true;
+}
+
 Input read_input() {
     int mx = 0;
     int my = 0;
@@ -471,10 +518,7 @@ Input read_input() {
 
     if (mouse_ok) {
         in.wheel = sh::input::mouse_pointer().wheel_notches();
-        in.pointer = true;
-        in.pointer_x = mirrored() ? kScreenWidth - mx : mx;
-        // UiPos reports the 448-line authoring space (-112..336) on the title.
-        in.pointer_y = nm_draw_host().interlaced() ? (my + 112) / 2 : my;
+        in.pointer = pointer_position(&in.pointer_x, &in.pointer_y);
     }
     in.pointer_moved = sh::input::mouse_pointer().moved() != 0;
     in.click = sh::input::mouse_pointer().left_clicked() != 0;

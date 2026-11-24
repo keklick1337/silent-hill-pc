@@ -37,6 +37,9 @@ public:
     virtual void submit(std::int32_t layer, const draw2d::Command& command) = 0;
     // The default texture page for the layer's untextured translucent commands.
     virtual void reset_texture_page(std::int32_t layer) = 0;
+    // The page for the layer's untextured translucent commands with blend `abr` (0 average, 1 add, 2 subtract,
+    // 3 add a quarter), for the commands submitted before it.
+    virtual void texture_page_blend(std::int32_t layer, std::int32_t abr) = 0;
     // A 3D preview item drawn between two layers.
     virtual void link_scene(std::int32_t layer, std::uint32_t item) = 0;
 

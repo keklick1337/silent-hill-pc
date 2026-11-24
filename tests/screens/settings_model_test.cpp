@@ -100,6 +100,23 @@ SH_TEST(settings_data_rejects_what_it_does_not_know) {
     SH_CHECK(!sc::parse_settings("{\"heading\": \"x\"}"));
 }
 
+SH_TEST(settings_mobile_values) {
+    // A phone keeps the texture filters up to trilinear; a list naming a value it does not have is refused.
+    sc::SettingsData l = shipped();
+    sc::keep_mobile_values(l);
+    sc::SettingsModel model(l);
+    const sc::SettingRow* filter = model.find("texture_filter");
+    SH_CHECK(filter != nullptr);
+    if (filter != nullptr) {
+        SH_CHECK((filter->values == std::vector<std::int32_t>{0, 1, 2, 3}));
+        SH_CHECK(filter->labels.size() == 4 && filter->labels[3] == "Trilinear");
+    }
+    const std::string head = "{\"reset_done\": \"a\", \"restart_notice\": \"b\", \"default_map\": \"m\", "
+                             "\"resolutions\": [[640, 480]], \"quick\": {}, \"rows\": ";
+    SH_CHECK(!sc::parse_settings(head + "[{\"label\": \"C\", \"kind\": \"choice\", \"setting\": \"c\", "
+                                        "\"values\": [0, 1], \"mobile_values\": [2]}]}"));
+}
+
 SH_TEST(settings_reset_leaves_the_kept_rows_and_the_ranges) {
     const sc::SettingsData l = shipped();
     const sc::SettingsModel model(l);
