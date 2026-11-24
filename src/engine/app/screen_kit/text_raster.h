@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
-// Text for the quick setup, which runs before the game font exists (it comes from the disc import): lines drawn
+// Text for the screens shown before the game font exists (the quick setup and the disc import): lines drawn
 // from the TrueType fonts of gamedata/font and, for the characters those lack (CJK, Arabic), the system's fonts,
 // chosen by the same catalogue the game's fallback text uses (i18n/core/font_catalog.h). Arabic letters take their
 // joined forms and right-to-left text its visual order (i18n/core/text_prepare.h).
@@ -17,7 +17,7 @@
 #include <string_view>
 #include <vector>
 
-namespace sh::quick_setup {
+namespace sh::screen_kit {
 
 // One line as coverage (0..255), rows top down.
 struct TextBitmap {
@@ -43,7 +43,4 @@ private:
     std::map<std::string, std::unique_ptr<sh::i18n::OutlineFont>> fonts_;
 };
 
-// UTF-8 to code points; a broken sequence gives U+FFFD.
-std::u32string decode_utf8(std::string_view text);
-
-}  // namespace sh::quick_setup
+}  // namespace sh::screen_kit

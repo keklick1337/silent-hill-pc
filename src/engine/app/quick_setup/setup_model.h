@@ -4,6 +4,8 @@
 // the config.cfg lines the choices become.
 #pragma once
 
+#include "engine/app/screen_kit/script.h"
+
 #include <cstdint>
 #include <optional>
 #include <span>
@@ -111,13 +113,8 @@ bool should_show(const StartState& state);
 std::string initial_language(std::string_view config_language, std::string_view locale,
                              std::span<const std::string> known_codes);
 
-// A test script (--setup-script <file>): one command per line, the verb and the rest of the line as its argument;
-// blank lines and lines starting with '#' are left out. The verbs are the screen's (setup_screen.cpp).
-struct ScriptCommand {
-    std::string verb;
-    std::string arg;
-    bool operator==(const ScriptCommand&) const = default;
-};
-std::vector<ScriptCommand> parse_script(std::string_view text);
+// A test script (--setup-script <file>); the verbs are the screen's (setup_screen.cpp).
+using sh::screen_kit::parse_script;
+using sh::screen_kit::ScriptCommand;
 
 }  // namespace sh::quick_setup

@@ -28,6 +28,7 @@ struct CommandLine {
     bool skip_to_game = false;                // -skiptogame
     bool setup = false;                       // --setup
     std::optional<std::string> setup_script;  // --setup-script <file>
+    std::optional<std::string> import_script;  // --import-script <file>
 };
 
 // Arguments the game does not know are ignored, and so is an option whose value is missing. The first request for

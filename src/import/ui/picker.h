@@ -19,7 +19,7 @@ public:
     void set_text(std::string text);  // typing: keeps the error until the next check
     void choose(std::string path);    // a file from the dialog or a drop: fills the field and checks it at once
     bool submit();                    // Import: true and ImportRequested when the image passes the check
-    void dialog_failed(const std::string& reason);
+    void dialog_failed(const std::string& reason, bool touch = false);  // touch: no path to type or drop
     void fail(std::string error);     // the import did not succeed: back to Picking with its reason
     void quit();
 

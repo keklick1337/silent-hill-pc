@@ -5,7 +5,7 @@
   "strings": {
     "ui.import.title": "Первый запуск: импорт игры",
     "ui.import.intro_need_image": "Данные игры ещё не импортированы. Нужен образ диска Silent Hill (NTSC USA 1.1, SLUS-007.07). Он будет разобран один раз в каталог {0}, после этого образ не нужен.",
-    "ui.import.intro_formats": "Подходит .cue, .bin (MODE2/2352) или .iso, сохранённый как raw (2352 байта на сектор).",
+    "ui.import.intro_formats": "Подходит .cue, .bin (MODE2/2352), .iso, сохранённый как raw (2352 байта на сектор), или .zip с ними.",
     "ui.import.path_label": "Путь к образу",
     "ui.import.setting_overwrite": "Заменить существующие данные игры ({0})",
     "ui.import.setting_verify": "Проверить результат после импорта ({0})",
@@ -55,12 +55,22 @@
     "ui.import.err_already_running": "Импорт уже идёт.",
     "ui.import.settings_dialog_title": "Silent Hill - настройки",
     "ui.import.no_image_dialog_title": "Silent Hill - нет образа диска",
-    "ui.import.no_image_body": "При первом запуске игра импортирует данные из образа диска, но образ не найден.\n\nПоложите образ (.cue и .bin, MODE2/2352) рядом с игрой:\n  {0}\nили в\n  {1}\nили запустите игру с --image <путь>, или задайте {3} = <путь> в\n  {2}\n\nПоддерживается: Silent Hill NTSC USA 1.1 (SLUS-007.07).",
+    "ui.import.no_image_body": "При первом запуске игра импортирует данные из образа диска, но образ не найден.\n\nПоложите образ (.cue и .bin, MODE2/2352, или .zip с ними) рядом с игрой:\n  {0}\nили в\n  {1}\nили запустите игру с --image <путь>, или задайте {3} = <путь> в\n  {2}\n\nПоддерживается: Silent Hill NTSC USA 1.1 (SLUS-007.07).",
     "ui.import.import_dialog_title": "Silent Hill - импорт",
     "ui.import.picker_title": "Выберите образ диска Silent Hill (NTSC USA v1.1)",
-    "ui.import.picker_hint": "Выберите файл .cue, .bin, .iso или .img кнопкой «Обзор», введите путь ниже или перетащите файл в это окно.",
+    "ui.import.picker_hint": "Выберите файл .cue, .bin, .iso, .img или .zip кнопкой «Обзор», введите путь ниже или перетащите файл в это окно.",
     "ui.import.action_browse": "Обзор...",
     "ui.import.picker_filter": "Образы дисков",
-    "ui.import.err_no_file_dialog": "Окно выбора файла недоступно ({0}). Введите путь или перетащите файл в это окно."
+    "ui.import.err_no_file_dialog": "Окно выбора файла недоступно ({0}). Введите путь или перетащите файл в это окно.",
+    "ui.import.err_zip_unreadable": "Не удаётся прочитать архив {0}: это не .zip-файл, или он повреждён.",
+    "ui.import.err_zip_no_image": "В архиве {0} нет образа диска. Упакуйте в .zip файлы .cue и .bin (MODE2/2352) или один .bin либо raw .iso.",
+    "ui.import.picker_hint_touch": "Выберите файл диска (.zip, .bin или .cue) кнопкой «Обзор».",
+    "ui.import.err_no_file_dialog_touch": "Окно выбора файла недоступно ({0}).",
+    "ui.import.stage_prepare": "Подготовка первого запуска",
+    "ui.import.prepare_tables": "Создание игровых таблиц и карт...",
+    "ui.import.prepare_areas": "Сборка областей карт...",
+    "ui.import.prepare_textures": "Подготовка текстур...",
+    "ui.import.prepare_materials": "Составление списка материалов...",
+    "ui.import.prepare_starting": "Запуск игры..."
   }
 }

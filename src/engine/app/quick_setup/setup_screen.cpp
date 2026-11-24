@@ -6,13 +6,11 @@
 #include "engine/app/quick_setup/hardware_probe.h"
 #include "engine/app/quick_setup/quick_setup.h"
 #include "engine/app/quick_setup/setup_text.h"
-#include "engine/app/quick_setup/text_raster.h"
 
+#include "engine/app/screen_kit/painter.h"
 #include "engine/desktop/video_driver.h"
 #include "engine/desktop/window_icon.h"
-#include "formats/common/json.h"
 #include "i18n/core/language_set.h"
-#include "i18n/core/unicode.h"
 
 #include <SDL3/SDL.h>
 
@@ -45,66 +43,13 @@ constexpr float kBackX = 170.0f;
 constexpr float kNextX = 470.0f;
 constexpr float kButtonHalf = 80.0f;
 
-struct Rgb {
-    std::uint8_t r = 0, g = 0, b = 0;
-};
-
-// The widget colours of gamedata/menu/menu_style.json; these values stand in when the file cannot be read.
-struct Style {
-    std::array<Rgb, 2> underline{{{176, 176, 176}, {160, 128, 64}}};
-    std::array<Rgb, 3> bullet_front{{{160, 128, 64}, {255, 255, 255}, {255, 255, 255}}};
-    std::array<Rgb, 3> bullet_front_inactive{{{80, 64, 32}, {160, 160, 160}, {160, 160, 160}}};
-    std::array<Rgb, 3> bullet_border{{{255, 255, 255}, {160, 128, 64}, {64, 64, 64}}};
-    std::array<Rgb, 3> bullet_border_inactive{{{128, 128, 128}, {40, 32, 16}, {16, 16, 16}}};
-    Rgb arrow{0, 240, 240};
-    Rgb vignette_edge{96, 96, 96};
-};
-
-bool read_rgb(const sh::json::Value* v, Rgb& out) {
-    if (v == nullptr || !v->is_array() || v->array().size() != 3) return false;
-    int c[3];
-    for (int i = 0; i < 3; ++i) {
-        const sh::json::Value& n = v->array()[static_cast<std::size_t>(i)];
-        if (!n.is_number()) return false;
-        c[i] = std::clamp(static_cast<int>(n.number()), 0, 255);
-    }
-    out = {static_cast<std::uint8_t>(c[0]), static_cast<std::uint8_t>(c[1]), static_cast<std::uint8_t>(c[2])};
-    return true;
-}
-
-template <std::size_t N>
-void read_rgbs(const sh::json::Value* v, std::array<Rgb, N>& out) {
-    if (v == nullptr || !v->is_array() || v->array().size() != N) return;
-    std::array<Rgb, N> got;
-    for (std::size_t i = 0; i < N; ++i)
-        if (!read_rgb(&v->array()[i], got[i])) return;
-    out = got;
-}
-
-Style load_style(const fs::path& file) {
-    Style s;
-    std::ifstream in(file, std::ios::binary);
-    if (!in) return s;
-    const std::string text((std::istreambuf_iterator<char>(in)), std::istreambuf_iterator<char>());
-    const auto doc = sh::json::parse(text);
-    if (!doc) return s;
-    const sh::json::Value& root = doc.value();
-    if (const auto* u = root.find("underline")) read_rgbs(u->find("colors"), s.underline);
-    if (const auto* b = root.find("bullet")) {
-        read_rgbs(b->find("front"), s.bullet_front);
-        read_rgbs(b->find("front_inactive"), s.bullet_front_inactive);
-        read_rgbs(b->find("border"), s.bullet_border);
-        read_rgbs(b->find("border_inactive"), s.bullet_border_inactive);
-    }
-    if (const auto* a = root.find("arrow")) read_rgb(a->find("solid"), s.arrow);
-    if (const auto* v = root.find("vignette")) read_rgb(v->find("edge_color"), s.vignette_edge);
-    return s;
-}
+using sh::screen_kit::Align;
+using sh::screen_kit::Rect;
+using sh::screen_kit::Rgb;
+using sh::screen_kit::TextFace;
 
 enum class Step { Language, Renderer, Preset, Display };
 constexpr int kStepCount = 4;
-
-enum class Align { Left, Center, Right };
 
 struct Row {
     std::string label;
@@ -112,20 +57,8 @@ struct Row {
     std::string note;    // right column: "recommended" or why the row cannot be chosen
     bool note_gold = false;
     bool enabled = true;
-    // The label's own language (the language list names each language in itself).
-    std::vector<std::string> families;
-    bool rtl = false;
-};
-
-struct Texture {
-    SDL_Texture* texture = nullptr;
-    int width = 0;
-    int height = 0;
-};
-
-struct Rect {
-    float x0 = 0, y0 = 0, x1 = 0, y1 = 0;
-    bool contains(float x, float y) const { return x >= x0 && x < x1 && y >= y0 && y < y1; }
+    // The label's own language (the language list names each language in itself); no families: the interface's.
+    TextFace face;
 };
 
 class Screen {
@@ -153,30 +86,14 @@ private:
     void next(bool& done, Outcome& outcome);
     void pointer(float x, float y, bool click, bool& done, Outcome& outcome);
 
-    // Canvas to pixels.
-    float sx(float x) const { return ox_ + (rtl_ ? kCanvasW - x : x) * scale_; }
-    float sy(float y) const { return oy_ + y * scale_; }
-    Align flip(Align a) const {
-        if (!rtl_ || a == Align::Center) return a;
-        return a == Align::Left ? Align::Right : Align::Left;
-    }
     // The pixel box of a canvas box (mirrored in a right-to-left language).
-    Rect box(float x0, float y0, float x1, float y1) const {
-        const float a = sx(x0), b = sx(x1);
-        return {std::min(a, b), sy(y0), std::max(a, b), sy(y1)};
-    }
-
-    const Texture& text(const std::string& s, float size, const std::vector<std::string>& families, bool rtl);
-    // Draws a line centred on canvas y; returns its width in canvas units. `max_w` shrinks a line too wide for it.
+    Rect box(float x0, float y0, float x1, float y1) const { return paint_.box(x0, y0, x1, y1); }
+    // A line in the row's own language when it has one.
     float draw_text(const std::string& s, float x, float y, float size, Rgb color, Align align, float max_w = 0,
-                    const Row* own = nullptr, bool shadow = true, std::uint8_t alpha = 255);
-    std::vector<std::string> wrap(const std::string& s, float size, float max_w);
-    void clear_text();
-
-    void fill_gradient(Rect r, Rgb top, std::uint8_t top_a, Rgb bottom, std::uint8_t bottom_a, bool horizontal);
-    void draw_bullet(float x, float y, bool active);
-    void draw_arrow(float x, float y, bool right, float size);
-    void draw_underline(float x0, float x1, float y);
+                    const Row* own = nullptr, bool shadow = true) {
+        const bool own_face = own != nullptr && !own->face.families.empty();
+        return paint_.draw_text(s, x, y, size, color, align, max_w, own_face ? &own->face : nullptr, shadow);
+    }
 
     int row_count() const { return static_cast<int>(rows_.size()); }
     int focus_back() const { return row_count(); }
@@ -187,23 +104,19 @@ private:
 
     const Request& request_;
     Hardware hw_;
-    Style style_;
     Strings strings_;
-    TextRaster raster_;
+    sh::screen_kit::Painter paint_;
     std::vector<sh::i18n::Language> languages_;
 
     SDL_Window* window_ = nullptr;
     SDL_Renderer* renderer_ = nullptr;
     std::vector<SDL_Gamepad*> pads_;
-    std::unordered_map<std::string, Texture> textures_;
-    float scale_ = 1.0f, ox_ = 0.0f, oy_ = 0.0f;
     int pixel_w_ = 0, pixel_h_ = 0;
 
     Step step_ = Step::Language;
     std::vector<Row> rows_;
     int focus_ = 0;
     bool rtl_ = false;
-    std::vector<std::string> families_;  // the interface language's fonts
 
     std::size_t language_ = 0;
     Renderer renderer_choice_ = Renderer::Gl;
@@ -223,8 +136,7 @@ constexpr std::array<const char*, 3> kModeKeys = {"ui.setup.window_mode.windowed
                                                   "ui.setup.window_mode.fullscreen"};
 
 Screen::Screen(const Request& request, Hardware hw)
-    : request_(request), hw_(std::move(hw)), raster_(request.base_data / "font") {
-    style_ = load_style(request.base_data / "menu" / "menu_style.json");
+    : request_(request), hw_(std::move(hw)), paint_(request.base_data) {
     std::vector<std::string> warnings;
     const std::vector<fs::path> dirs{request.base_data / "text"};
     languages_ = sh::i18n::discover_languages(dirs, warnings);
@@ -266,7 +178,7 @@ Screen::Screen(const Request& request, Hardware hw)
 }
 
 Screen::~Screen() {
-    clear_text();
+    paint_.attach(nullptr);
     for (SDL_Gamepad* pad : pads_) SDL_CloseGamepad(pad);
     if (renderer_) SDL_DestroyRenderer(renderer_);
     if (window_) SDL_DestroyWindow(window_);
@@ -307,15 +219,10 @@ bool Screen::open_window() {
     if (renderer_ == nullptr) return false;
     SDL_SetRenderVSync(renderer_, 1);
     SDL_SetRenderDrawBlendMode(renderer_, SDL_BLENDMODE_BLEND);
+    paint_.attach(renderer_);
     // Text input would hand the keys to an input method of the system.
     SDL_StopTextInput(window_);
     return true;
-}
-
-void Screen::clear_text() {
-    for (auto& [key, t] : textures_)
-        if (t.texture) SDL_DestroyTexture(t.texture);
-    textures_.clear();
 }
 
 void Screen::set_language(std::size_t index) {
@@ -323,10 +230,10 @@ void Screen::set_language(std::size_t index) {
     const sh::i18n::Language& lang = languages_[index];
     strings_.load(request_.base_data / "text", lang.code);
     rtl_ = lang.direction == sh::i18n::Direction::Rtl;
-    families_ = {"Barlow Semi Condensed"};
-    families_.insert(families_.end(), lang.fonts.begin(), lang.fonts.end());
+    paint_.set_face(sh::screen_kit::face_for(lang.fonts, rtl_));
+    paint_.set_view(paint_.view(), rtl_);
     if (window_) SDL_SetWindowTitle(window_, ("Silent Hill - " + strings_.get("ui.setup.title")).c_str());
-    clear_text();
+    paint_.clear_text();
 }
 
 std::string vram_text(std::uint64_t bytes) {
@@ -345,9 +252,7 @@ void Screen::build_rows() {
             for (const auto& l : languages_) {
                 Row row;
                 row.label = l.name.empty() ? l.code : l.name;
-                row.families = {"Barlow Semi Condensed"};
-                row.families.insert(row.families.end(), l.fonts.begin(), l.fonts.end());
-                row.rtl = l.direction == sh::i18n::Direction::Rtl;
+                row.face = sh::screen_kit::face_for(l.fonts, l.direction == sh::i18n::Direction::Rtl);
                 rows_.push_back(std::move(row));
             }
             break;
@@ -421,202 +326,27 @@ float Screen::row_pitch() const {
     return std::min(two_lines ? 40.0f : 26.0f, (kListBottom - kListTop) / n);
 }
 
-const Texture& Screen::text(const std::string& s, float size, const std::vector<std::string>& families, bool rtl) {
-    const float px = std::max(6.0f, std::round(size * scale_));
-    std::string key = s;
-    key += '\x1f';
-    key += std::to_string(static_cast<int>(px));
-    key += rtl ? 'r' : 'l';
-    for (const auto& f : families) key += '\x1f' + f;
-    auto it = textures_.find(key);
-    if (it != textures_.end()) return it->second;
-    Texture t;
-    const TextBitmap bitmap = raster_.render(s, px, families, rtl);
-    if (SDL_Surface* surface = SDL_CreateSurface(bitmap.width, bitmap.height, SDL_PIXELFORMAT_RGBA32)) {
-        for (int y = 0; y < bitmap.height; ++y) {
-            auto* row = static_cast<std::uint8_t*>(surface->pixels) + static_cast<std::size_t>(y) * surface->pitch;
-            for (int x = 0; x < bitmap.width; ++x) {
-                std::uint8_t* p = row + static_cast<std::size_t>(x) * 4;
-                p[0] = p[1] = p[2] = 255;
-                p[3] = bitmap.alpha[static_cast<std::size_t>(y) * static_cast<std::size_t>(bitmap.width) +
-                                    static_cast<std::size_t>(x)];
-            }
-        }
-        t.texture = SDL_CreateTextureFromSurface(renderer_, surface);
-        SDL_DestroySurface(surface);
-        if (t.texture) {
-            SDL_SetTextureBlendMode(t.texture, SDL_BLENDMODE_BLEND);
-            SDL_SetTextureScaleMode(t.texture, SDL_SCALEMODE_LINEAR);
-        }
-        t.width = bitmap.width;
-        t.height = bitmap.height;
-    }
-    return textures_.emplace(std::move(key), t).first->second;
-}
-
-float Screen::draw_text(const std::string& s, float x, float y, float size, Rgb color, Align align, float max_w,
-                        const Row* own, bool shadow, std::uint8_t alpha) {
-    if (s.empty()) return 0.0f;
-    const bool own_language = own != nullptr && !own->families.empty();
-    const std::vector<std::string>& families = own_language ? own->families : families_;
-    const bool rtl = own_language ? own->rtl : rtl_;
-    const Texture* t = &text(s, size, families, rtl);
-    float w = static_cast<float>(t->width);
-    if (max_w > 0.0f && w > max_w * scale_) {
-        // Too wide for its place: drawn smaller rather than cut.
-        const float smaller = std::max(size * 0.6f, size * max_w * scale_ / w);
-        t = &text(s, smaller, families, rtl);
-        w = static_cast<float>(t->width);
-    }
-    if (t->texture == nullptr) return 0.0f;
-    const float h = static_cast<float>(t->height);
-    float left = sx(x);
-    switch (flip(align)) {
-        case Align::Left:
-            break;
-        case Align::Center:
-            left -= w * 0.5f;
-            break;
-        case Align::Right:
-            left -= w;
-            break;
-    }
-    SDL_FRect dst{std::round(left), std::round(sy(y) - h * 0.5f), w, h};
-    if (shadow) {
-        const float d = std::max(1.0f, std::round(scale_));
-        SDL_FRect sh_dst{dst.x + d, dst.y + d, w, h};
-        SDL_SetTextureColorMod(t->texture, 0, 0, 0);
-        SDL_SetTextureAlphaMod(t->texture, static_cast<std::uint8_t>(alpha * 3 / 4));
-        SDL_RenderTexture(renderer_, t->texture, nullptr, &sh_dst);
-    }
-    SDL_SetTextureColorMod(t->texture, color.r, color.g, color.b);
-    SDL_SetTextureAlphaMod(t->texture, alpha);
-    SDL_RenderTexture(renderer_, t->texture, nullptr, &dst);
-    return w / scale_;
-}
-
-std::vector<std::string> Screen::wrap(const std::string& s, float size, float max_w) {
-    // Words, and single characters of the scripts written without spaces.
-    std::vector<std::string> tokens;
-    std::string current;
-    for (std::size_t i = 0; i < s.size();) {
-        const unsigned char c = static_cast<unsigned char>(s[i]);
-        const std::size_t n = c < 0x80 ? 1 : (c >> 5) == 6 ? 2 : (c >> 4) == 14 ? 3 : 4;
-        const std::string ch = s.substr(i, n);
-        const std::u32string cp = decode_utf8(ch);
-        i += n;
-        if (ch == " ") {
-            current += ch;
-            tokens.push_back(std::move(current));
-            current.clear();
-        } else if (!cp.empty() && sh::i18n::breaks_anywhere(cp[0])) {
-            if (!current.empty()) tokens.push_back(std::move(current));
-            current = ch;
-            tokens.push_back(std::move(current));
-            current.clear();
-        } else {
-            current += ch;
-        }
-    }
-    if (!current.empty()) tokens.push_back(std::move(current));
-    std::vector<std::string> lines;
-    std::string line;
-    for (const std::string& token : tokens) {
-        const std::string candidate = line + token;
-        std::string trimmed = candidate;
-        while (!trimmed.empty() && trimmed.back() == ' ') trimmed.pop_back();
-        // A closing mark or full stop of CJK text never starts a line: it stays with the one before.
-        const std::u32string first = decode_utf8(token.substr(0, 4));
-        const bool sticks = !first.empty() && sh::i18n::no_line_start(first[0]);
-        if (!line.empty() && !sticks &&
-            static_cast<float>(text(trimmed, size, families_, rtl_).width) > max_w * scale_) {
-            while (!line.empty() && line.back() == ' ') line.pop_back();
-            lines.push_back(line);
-            line = token;
-        } else {
-            line = candidate;
-        }
-    }
-    while (!line.empty() && line.back() == ' ') line.pop_back();
-    if (!line.empty()) lines.push_back(line);
-    return lines;
-}
-
-void Screen::fill_gradient(Rect r, Rgb a, std::uint8_t a_alpha, Rgb b, std::uint8_t b_alpha, bool horizontal) {
-    const SDL_FColor ca{a.r / 255.0f, a.g / 255.0f, a.b / 255.0f, a_alpha / 255.0f};
-    const SDL_FColor cb{b.r / 255.0f, b.g / 255.0f, b.b / 255.0f, b_alpha / 255.0f};
-    SDL_Vertex v[4];
-    v[0] = {{r.x0, r.y0}, ca, {0, 0}};
-    v[1] = {{r.x1, r.y0}, horizontal ? cb : ca, {0, 0}};
-    v[2] = {{r.x0, r.y1}, horizontal ? ca : cb, {0, 0}};
-    v[3] = {{r.x1, r.y1}, cb, {0, 0}};
-    const int idx[6] = {0, 1, 2, 1, 3, 2};
-    SDL_RenderGeometry(renderer_, nullptr, v, 4, idx, 6);
-}
-
-SDL_FColor fcolor(Rgb c) { return {c.r / 255.0f, c.g / 255.0f, c.b / 255.0f, 1.0f}; }
-
-void Screen::draw_bullet(float x, float y, bool active) {
-    // The menus' bullet: a square split along a diagonal, the border a size larger behind the face.
-    const auto& border = active ? style_.bullet_border : style_.bullet_border_inactive;
-    const auto& front = active ? style_.bullet_front : style_.bullet_front_inactive;
-    const auto quad = [&](float half, const std::array<Rgb, 3>& c) {
-        const float cx = sx(x), cy = sy(y), h = half * scale_;
-        SDL_Vertex v[4];
-        v[0] = {{cx - h, cy - h}, fcolor(c[0]), {0, 0}};
-        v[1] = {{cx + h, cy - h}, fcolor(c[1]), {0, 0}};
-        v[2] = {{cx - h, cy + h}, fcolor(c[1]), {0, 0}};
-        v[3] = {{cx + h, cy + h}, fcolor(c[2]), {0, 0}};
-        const int idx[6] = {0, 1, 2, 1, 3, 2};
-        SDL_RenderGeometry(renderer_, nullptr, v, 4, idx, 6);
-    };
-    quad(4.0f, border);
-    quad(2.8f, front);
-}
-
-void Screen::draw_arrow(float x, float y, bool right, float size) {
-    if (rtl_) right = !right;
-    const float cx = sx(x), cy = sy(y), h = size * scale_;
-    const float dir = right ? 1.0f : -1.0f;
-    const SDL_FColor c = fcolor(style_.arrow);
-    SDL_Vertex v[3];
-    v[0] = {{cx + dir * h, cy}, c, {0, 0}};
-    v[1] = {{cx - dir * h * 0.6f, cy - h}, c, {0, 0}};
-    v[2] = {{cx - dir * h * 0.6f, cy + h}, c, {0, 0}};
-    SDL_RenderGeometry(renderer_, nullptr, v, 3, nullptr, 0);
-}
-
-void Screen::draw_underline(float x0, float x1, float y) {
-    // The selected row's band and the two-colour underline of the original options.
-    fill_gradient(box(x0 - 6.0f, y - 10.0f, x1, y + 1.0f), {0, 0, 0}, 0, style_.vignette_edge, 110, false);
-    Rect line = box(x0 - 6.0f, y, x1, y + 1.4f);
-    if (rtl_) {
-        fill_gradient(line, style_.underline[1], 255, style_.underline[0], 255, true);
-    } else {
-        fill_gradient(line, style_.underline[0], 255, style_.underline[1], 255, true);
-    }
-}
-
 void Screen::draw() {
     int w = 0, h = 0;
     SDL_GetRenderOutputSize(renderer_, &w, &h);
     if (w != pixel_w_ || h != pixel_h_) {
         pixel_w_ = w;
         pixel_h_ = h;
-        scale_ = std::min(static_cast<float>(w) / kCanvasW, static_cast<float>(h) / kCanvasH);
-        ox_ = (static_cast<float>(w) - kCanvasW * scale_) * 0.5f;
-        oy_ = (static_cast<float>(h) - kCanvasH * scale_) * 0.5f;
-        clear_text();
+        // The 640x480 canvas letterboxed in the window.
+        sh::screen_kit::View view;
+        view.scale = std::min(static_cast<float>(w) / kCanvasW, static_cast<float>(h) / kCanvasH);
+        view.origin_x = (static_cast<float>(w) - kCanvasW * view.scale) * 0.5f;
+        view.origin_y = (static_cast<float>(h) - kCanvasH * view.scale) * 0.5f;
+        view.width = kCanvasW;
+        view.height = kCanvasH;
+        paint_.set_view(view, rtl_);
     }
     SDL_SetRenderDrawColor(renderer_, 0, 0, 0, 255);
     SDL_RenderClear(renderer_);
-    // The dark bands at the top and the bottom of the menus.
-    const float band = static_cast<float>(h) * 0.14f;
-    fill_gradient({0, 0, static_cast<float>(w), band}, style_.vignette_edge, 140, {0, 0, 0}, 0, false);
-    fill_gradient({0, static_cast<float>(h) - band, static_cast<float>(w), static_cast<float>(h)}, {0, 0, 0}, 0,
-                  style_.vignette_edge, 140, false);
+    paint_.edge_bands(w, h);
 
-    const Rgb white{232, 232, 232}, gold{200, 168, 96}, grey{150, 150, 150}, dark{90, 90, 90};
+    namespace colors = sh::screen_kit::colors;
+    const Rgb white = colors::kWhite, gold = colors::kGold, grey = colors::kGrey, dark = colors::kDark;
     draw_text(strings_.get("ui.setup.title"), kCanvasW / 2, 30, 26, white, Align::Center, 560);
     static constexpr std::array<const char*, kStepCount> kStepKeys = {"ui.setup.language", "ui.setup.renderer",
                                                                       "ui.setup.preset", "ui.setup.display"};
@@ -655,10 +385,10 @@ void Screen::draw() {
         const float size = std::min(17.0f, pitch * (two ? 0.42f : 0.62f));
         const bool is_chosen = i == chosen;
         const Rgb color = !row.enabled ? dark : (is_chosen || step_ == Step::Display) ? white : grey;
-        if (step_ != Step::Display) draw_bullet(kBulletX, label_y, is_chosen && row.enabled);
+        if (step_ != Step::Display) paint_.bullet(kBulletX, label_y, is_chosen && row.enabled);
         const float label_w =
             draw_text(row.label, kLabelX, label_y, size, color, Align::Left, step_ == Step::Display ? 220 : 300, &row);
-        if (i == focus_) draw_underline(kLabelX, kLabelX + std::max(label_w, 120.0f) + 6.0f, label_y + size * 0.62f);
+        if (i == focus_) paint_.underline(kLabelX, kLabelX + std::max(label_w, 120.0f) + 6.0f, label_y + size * 0.62f);
         if (two)
             draw_text(row.detail, kLabelX, y + pitch * 0.24f, std::min(11.0f, pitch * 0.3f),
                       row.enabled ? Rgb{170, 170, 170} : dark, Align::Left, kRightX - kLabelX);
@@ -671,15 +401,16 @@ void Screen::draw() {
                              (resolutions_[resolution_] == desktop_ ? "  " + strings_.get("ui.setup.desktop_mark") : "")
                        : strings_.get(kModeKeys[static_cast<std::size_t>(window_mode_)]);
             draw_text(value, kValueX, y, size, i == focus_ ? white : grey, Align::Center, kValueHalf * 2 - 24);
-            draw_arrow(kValueX - kValueHalf, y, false, 5);
-            draw_arrow(kValueX + kValueHalf, y, true, 5);
+            paint_.arrow(kValueX - kValueHalf, y, false, 5);
+            paint_.arrow(kValueX + kValueHalf, y, true, 5);
         }
     }
 
     // The step's help, wrapped over the width.
     static constexpr std::array<const char*, kStepCount> kHelpKeys = {
         "ui.setup.language.help", "ui.setup.renderer.help", "ui.setup.preset.help", "ui.setup.display.help"};
-    const std::vector<std::string> help = wrap(strings_.get(kHelpKeys[static_cast<std::size_t>(step)]), 12, 540);
+    const std::vector<std::string> help =
+        paint_.wrap(strings_.get(kHelpKeys[static_cast<std::size_t>(step)]), 12, 540);
     float hy = 392.0f - static_cast<float>(std::max<std::size_t>(help.size(), 1) - 1) * 7.0f;
     for (const std::string& line : help) {
         draw_text(line, kCanvasW / 2, hy, 12, {190, 190, 190}, Align::Center, 560);
@@ -695,8 +426,8 @@ void Screen::draw() {
         const float bw =
             draw_text(b == 0 ? back : next, x, kButtonY, 17, focused ? white : grey, Align::Center, kButtonHalf * 2);
         if (focused) {
-            draw_underline(x - bw * 0.5f - 4.0f, x + bw * 0.5f + 4.0f, kButtonY + 11.0f);
-            draw_arrow(x - bw * 0.5f - 16.0f, kButtonY, true, 4);
+            paint_.underline(x - bw * 0.5f - 4.0f, x + bw * 0.5f + 4.0f, kButtonY + 11.0f);
+            paint_.arrow(x - bw * 0.5f - 16.0f, kButtonY, true, 4);
         }
     }
     draw_text(strings_.get("ui.setup.hint"), kCanvasW / 2, 468, 10, {120, 120, 120}, Align::Center, 600, nullptr,

@@ -78,6 +78,7 @@ struct ViewModel {
     int percent = 0;
     std::optional<double> eta_seconds;
     std::string eta_text;  // localised, always set while has_progress
+    bool indeterminate = false;  // a step of unknown length runs: the bar moves to show the work goes on
 
     // Shown while the path is asked; the same values go into the Request.
     ImportSettings settings;

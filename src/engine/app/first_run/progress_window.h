@@ -3,18 +3,29 @@
 #include "import/ui/controller.h"
 #include "import/ui/picker.h"
 
+#include <filesystem>
+#include <memory>
 #include <string>
-
-struct SDL_Window;
-struct SDL_Renderer;
 
 namespace sh::first_run {
 
-// A small SDL window that draws the import ViewModel: stage marks, a progress bar and the percentage; the text (stage,
-// ETA) goes to the window title. Before an import it can show the disc image picker (ImGui, the console's font).
+struct WindowOptions {
+    std::filesystem::path base_data;      // the gamedata/ beside the executable: font/, menu/, text/
+    std::filesystem::path icons;          // the window icon's folder
+    std::filesystem::path controller_db;  // gamecontrollerdb.txt
+    std::string language;                 // the code of the interface language ("ru"); English when empty
+    // --import-script: the screen is driven by these commands instead of a player, and may then run on SDL's
+    // offscreen video driver (tests and screenshots).
+    std::filesystem::path script;
+};
+
+// The window of the first-run import: the disc image picker (the path field, Browse, a dropped file) and then the
+// progress of the import (stages, bar, percentage, time left), drawn in the look of the quick setup and the game's
+// menus (screen_kit) for any window size, a phone's screen included. Mouse, keyboard, game controllers and touch
+// drive it; a right-to-left language mirrors it.
 class ProgressWindow {
 public:
-    ProgressWindow() = default;
+    explicit ProgressWindow(WindowOptions options);
     ~ProgressWindow();
     ProgressWindow(const ProgressWindow&) = delete;
     ProgressWindow& operator=(const ProgressWindow&) = delete;
@@ -23,11 +34,13 @@ public:
     bool open();
 
     void draw(const sh::import::ui::ViewModel& view);
+    // What is imported (the image's file name), shown under the progress screen's title.
+    void set_subject(std::string subject);
 
-    // Pumps the window events. True once the window was closed or Esc was pressed.
+    // Pumps the window events. True once the window was closed, Esc or Back was pressed or Cancel was chosen.
     bool stop_requested();
 
-    // True when someone can answer the picker: a real display (not the offscreen or dummy driver).
+    // True when someone can answer the picker: a real display (not the offscreen or dummy driver), or a script.
     bool can_pick() const;
 
     // Runs the picker screen until the user asks for the import or quits (picker.state() says which).
@@ -37,19 +50,8 @@ public:
     void close();
 
 private:
-    static bool interactive();
-    bool create(int width, int height);
-    void destroy_window();
-    bool init_imgui();
-    void render_imgui();
-
-    SDL_Window* window_ = nullptr;
-    SDL_Renderer* renderer_ = nullptr;
-    bool video_ = false;
-    bool stop_ = false;
-    std::string title_;
-    bool imgui_ = false;
-    bool font_loaded_ = false;
+    class Screen;
+    std::unique_ptr<Screen> screen_;
 };
 
 }  // namespace sh::first_run

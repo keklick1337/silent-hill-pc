@@ -2,6 +2,7 @@
 #include "engine/app/first_run/first_run.h"
 #include "engine/app/first_run/gamedata_entries.h"
 
+#include "engine/app/first_run/picked_document.h"
 #include "engine/app/first_run/progress_window.h"
 #include "formats/convert/level/map_unified_files.h"
 #include "formats/convert/filetable/file_table.h"
@@ -36,7 +37,9 @@
 #include <optional>
 #include <string>
 #include <string_view>
+#include <functional>
 #include <system_error>
+#include <thread>
 #include <vector>
 
 #ifdef _WIN32
@@ -145,9 +148,9 @@ bool is_disc_image(const fs::path& p) {
     return has_ext(p, ".bin") || has_ext(p, ".cue") || has_ext(p, ".iso") || has_ext(p, ".img");
 }
 
-// Images in one directory: .cue first (it names its .bin), then .bin, then .iso; by name inside a group.
+// Images in one directory: .cue first (it names its .bin), then .bin, then .iso, then .zip; by name inside a group.
 std::vector<fs::path> images_in(const fs::path& dir) {
-    std::vector<fs::path> groups[3];
+    std::vector<fs::path> groups[4];
     std::error_code ec;
     for (fs::directory_iterator it(dir, ec), end; !ec && it != end; it.increment(ec)) {
         std::error_code fec;
@@ -161,6 +164,8 @@ std::vector<fs::path> images_in(const fs::path& dir) {
             groups[1].push_back(p);
         } else if (has_ext(p, ".iso")) {
             groups[2].push_back(p);
+        } else if (has_ext(p, ".zip")) {
+            groups[3].push_back(p);
         }
     }
     std::vector<fs::path> all;
@@ -402,6 +407,62 @@ Outcome drive(ui::Controller& controller, sh::first_run::ProgressWindow* window)
     }
 }
 
+// A step the first start derives from the import, with its share of the time those steps took on a desktop (the
+// bar's progress) and the line the window shows while it runs.
+struct PrepareStep {
+    ui::Str text;
+    double weight;
+    std::function<void()> run;
+};
+
+// Runs the steps after the import. With a window they run on a thread of their own while the window keeps drawing a
+// stage of its own (a phone would otherwise take the app for hung); the time of each step goes to stderr.
+void run_prepare(const std::vector<PrepareStep>& steps, sh::first_run::ProgressWindow* window, ui::Lang lang,
+                 const std::string& title) {
+    std::atomic<std::size_t> at{0};
+    const auto work = [&] {
+        for (const PrepareStep& step : steps) {
+            const auto from = std::chrono::steady_clock::now();
+            step.run();
+            const double took = std::chrono::duration<double>(std::chrono::steady_clock::now() - from).count();
+            const std::string name(ui::text(ui::Lang::En, step.text));
+            std::fprintf(stderr, "first run: prepare: %s in %.2f s\n", name.c_str(), took);
+            at.fetch_add(1);
+        }
+    };
+    if (window == nullptr) {
+        work();
+        return;
+    }
+    double total = 0.0;
+    for (const PrepareStep& step : steps) total += step.weight;
+    std::thread worker(work);
+    std::uint64_t revision = 0;
+    for (;;) {
+        // The events are taken so the window stays alive; the steps cannot be cancelled half-way.
+        (void)window->stop_requested();
+        const std::size_t done = at.load();
+        ui::ViewModel v;
+        v.revision = ++revision;
+        v.phase = ui::Phase::Importing;
+        v.title = title;
+        v.has_progress = true;
+        v.stage = "prepare";
+        v.stage_text = ui::format(lang, ui::Str::StagePrepare);
+        double reached = 0.0;
+        for (std::size_t i = 0; i < done && i < steps.size(); ++i) reached += steps[i].weight;
+        v.fraction = total > 0.0 ? reached / total : 1.0;
+        v.percent = static_cast<int>(v.fraction * 100.0);
+        v.indeterminate = done < steps.size();
+        v.eta_text = ui::format(lang, done < steps.size() ? steps[done].text : ui::Str::PrepareStarting);
+        v.actions.push_back({ui::ActionId::Cancel, ui::format(lang, ui::Str::ActionCancel), false});
+        window->draw(v);
+        if (done >= steps.size()) break;
+        std::this_thread::sleep_for(std::chrono::milliseconds(33));
+    }
+    worker.join();
+}
+
 struct ImportContext {
     ui::Lang lang;
     fs::path exe_dir;
@@ -514,6 +575,9 @@ int import_from(const ImportContext& context, ui::ImageCheck image, sh::first_ru
     const std::string image_text = u8(image.path);
     std::fprintf(stderr, "first run: importing %s into %s\n", image_text.c_str(), u8(gamedata).c_str());
     std::fflush(stderr);
+    if (window) {
+        window->set_subject(u8(image.path.filename()));
+    }
 
     ui::Controller::Options copts;
     copts.gamedata_dir = gamedata;
@@ -550,8 +614,8 @@ int import_from(const ImportContext& context, ui::ImageCheck image, sh::first_ru
         std::signal(SIGINT, old_int);
         std::signal(SIGTERM, old_term);
     }
-    if (window && !(offer_picker && outcome.phase == ui::Phase::Failed)) {
-        // Only a failure goes back to the picker; the steps after the import run without a window.
+    // Only a failure goes back to the picker; a finished import keeps the window for the steps after it.
+    if (window && outcome.phase != ui::Phase::Done && !(offer_picker && outcome.phase == ui::Phase::Failed)) {
         window->close();
     }
     const double seconds = std::chrono::duration<double>(std::chrono::steady_clock::now() - started).count();
@@ -595,19 +659,18 @@ int import_from(const ImportContext& context, ui::ImageCheck image, sh::first_ru
         // previous import's derivatives (map files, maps/areas/*.glb) still in it, so they are rewritten here:
         // keeping them would hide every converter change a newer importer version brings.
         const bool rewrite = true;
-        {
+        std::vector<PrepareStep> steps;
+        steps.push_back({ui::Str::PrepareTables, 0.02, [&] {
             // The same step as sh-import: gamedata/tables/ from the disc files in raw/ (the game requires them).
             const sh::import_tool::TablesReport tables = sh::import_tool::generate_tables(gamedata, rewrite);
             for (const std::string& w : tables.warnings) {
                 std::fprintf(stderr, "first run: tables: %s\n", w.c_str());
             }
             std::fprintf(stderr, "first run: tables: %s\n", sh::import_tool::format_tables_line(tables).c_str());
-        }
-        if (const sh::Result<bool> ft = sh::convert::filetable::write_from_raw(gamedata, rewrite); !ft) {
-            // The same step as sh-import. Not fatal here: the game reports a missing table itself.
-            std::fprintf(stderr, "first run: file table: %s\n", ft.error().c_str());
-        }
-        {
+            if (const sh::Result<bool> ft = sh::convert::filetable::write_from_raw(gamedata, rewrite); !ft) {
+                // The same step as sh-import. Not fatal here: the game reports a missing table itself.
+                std::fprintf(stderr, "first run: file table: %s\n", ft.error().c_str());
+            }
             // The same step as sh-import: gamedata/maps/ from the map overlays in raw/.
             // The shipped handler tables come back first: map.json joins them with the disc data.
             if (!legacy_dir.empty()) {
@@ -619,30 +682,36 @@ int import_from(const ImportContext& context, ui::ImageCheck image, sh::first_ru
                 std::fprintf(stderr, "first run: maps: %s\n", w.c_str());
             }
             std::fprintf(stderr, "first run: maps: %s\n", sh::convert::mapdata::format_report_line(maps).c_str());
-        }
+        }});
         if (options.is_enabled(sh::import_tool::Category::Levels)) {
-            // The same step as sh-import: gamedata/maps/areas/, one .glb per area.
-            const sh::convert::level::UnifiedReport areas =
-                sh::convert::level::generate_unified_maps(gamedata, rewrite, options.threads);
-            for (const std::string& w : areas.warnings) {
-                std::fprintf(stderr, "first run: map areas: %s\n", w.c_str());
-            }
-            std::fprintf(stderr, "first run: map areas: %s\n", sh::convert::level::format_unified_line(areas).c_str());
+            steps.push_back({ui::Str::PrepareAreas, 0.08, [&] {
+                // The same step as sh-import: gamedata/maps/areas/, one .glb per area.
+                const sh::convert::level::UnifiedReport areas =
+                    sh::convert::level::generate_unified_maps(gamedata, rewrite, options.threads);
+                for (const std::string& w : areas.warnings) {
+                    std::fprintf(stderr, "first run: map areas: %s\n", w.c_str());
+                }
+                std::fprintf(stderr, "first run: map areas: %s\n",
+                             sh::convert::level::format_unified_line(areas).c_str());
+            }});
         }
         if (options.is_enabled(sh::import_tool::Category::Textures)) {
-            // The same step as sh-import: true-colour textures in the CLUT rows the geometry draws (importer 3);
-            // rewrites the glbs above, so it runs after the map areas and before the manifest.
-            const auto baked = sh::convert::materials::bake_textures(gamedata, options.threads);
-            if (baked) {
-                for (const std::string& w : baked.value().warnings) {
-                    std::fprintf(stderr, "first run: textures: %s\n", w.c_str());
+            steps.push_back({ui::Str::PrepareTextures, 0.66, [&] {
+                // The same step as sh-import: true-colour textures in the CLUT rows the geometry draws (importer
+                // 3); rewrites the glbs above, so it runs after the map areas and before the manifest.
+                const auto baked = sh::convert::materials::bake_textures(gamedata, options.threads);
+                if (baked) {
+                    for (const std::string& w : baked.value().warnings) {
+                        std::fprintf(stderr, "first run: textures: %s\n", w.c_str());
+                    }
+                    std::fprintf(stderr, "first run: %s\n",
+                                 sh::convert::materials::format_bake_line(baked.value()).c_str());
+                } else {
+                    std::fprintf(stderr, "first run: textures: %s\n", baked.error().c_str());
                 }
-                std::fprintf(stderr, "first run: %s\n", sh::convert::materials::format_bake_line(baked.value()).c_str());
-            } else {
-                std::fprintf(stderr, "first run: textures: %s\n", baked.error().c_str());
-            }
+            }});
         }
-        {
+        steps.push_back({ui::Str::PrepareMaterials, 0.24, [&] {
             // convert/materials.json: which texture PNGs each model/level uses (texture-variant
             // task, PLAN 6.0) — the modder's map of replaceable textures.
             const auto materials = sh::convert::materials::write_manifest(gamedata);
@@ -660,6 +729,11 @@ int import_from(const ImportContext& context, ui::ImageCheck image, sh::first_ru
             } else {
                 std::fprintf(stderr, "first run: surface materials: %s\n", surfaces.error().c_str());
             }
+        }});
+        run_prepare(steps, window, lang, outcome.title);
+        if (window) {
+            // The game opens its own window next.
+            window->close();
         }
         std::snprintf(result.disc_image, sizeof result.disc_image, "%s", u8(image.bin).c_str());
         std::fprintf(stderr, "first run: imported into %s in %.1f s\n", u8(gamedata).c_str(), seconds);
@@ -769,7 +843,15 @@ int run(const PcFirstRunArgs& args, PcFirstRunResult& result) {
     }
 
     // Without a usable image a window asks for one; without a display the reason goes to stderr as before.
-    sh::first_run::ProgressWindow window;
+    sh::first_run::WindowOptions window_options;
+    window_options.base_data = exe_dir / "gamedata";
+    window_options.icons = exe_dir / "assets" / "icon";
+    window_options.controller_db = exe_dir / "gamecontrollerdb.txt";
+    window_options.language = lang == ui::Lang::En ? std::string("en") : ui::language_code(locale);
+    if (args.import_script && args.import_script[0]) {
+        window_options.script = from_u8(args.import_script);
+    }
+    sh::first_run::ProgressWindow window(std::move(window_options));
     const bool windowed = window.open();
     const bool can_pick = windowed && window.can_pick();
     ImageChoice choice = choose_image(image_arg, config_image, search_dirs, lang);
@@ -801,9 +883,11 @@ int run(const PcFirstRunArgs& args, PcFirstRunResult& result) {
         }
         std::string failure;
         const int code = import_from(context, *image, windowed ? &window : nullptr, can_pick, failure, result);
-        if (code == 0 && picked) {
+        if (code == 0 && picked && !sh::first_run::is_picked_document(u8(image->path))) {
             remember_image(config_path, image->path);
         }
+        // A copy of a document the dialog gave is needed by this import only; another pick makes a new one.
+        sh::first_run::forget_picked_documents();
         if (code != 1 || failure.empty()) {
             return code;
         }

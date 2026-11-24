@@ -37,9 +37,9 @@ bool ImagePicker::submit() {
     return true;
 }
 
-void ImagePicker::dialog_failed(const std::string& reason) {
+void ImagePicker::dialog_failed(const std::string& reason, bool touch) {
     if (state_ == State::Picking) {
-        error_ = format(lang_, Str::ErrNoFileDialog, {reason});
+        error_ = format(lang_, touch ? Str::ErrNoFileDialogTouch : Str::ErrNoFileDialog, {reason});
     }
 }
 

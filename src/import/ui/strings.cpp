@@ -25,7 +25,8 @@ constexpr std::array<Entry, static_cast<std::size_t>(Str::Count_)> kTable = {{
     {"ui.import.intro_need_image",
      "The game data has not been imported yet. A Silent Hill disc image (NTSC USA 1.1, SLUS-007.07) is "
      "required. It is unpacked once into {0}; after that the image is not needed."},
-    {"ui.import.intro_formats", "Accepted: .cue, .bin (MODE2/2352) or an .iso saved as raw (2352 bytes per sector)."},
+    {"ui.import.intro_formats",
+     "Accepted: .cue, .bin (MODE2/2352), an .iso saved as raw (2352 bytes per sector), or a .zip holding them."},
     {"ui.import.path_label", "Image path"},
     {"ui.import.setting_overwrite", "Replace existing game data ({0})"},
     {"ui.import.setting_verify", "Verify the result after the import ({0})"},
@@ -83,16 +84,28 @@ constexpr std::array<Entry, static_cast<std::size_t>(Str::Count_)> kTable = {{
     {"ui.import.no_image_dialog_title", "Silent Hill - no disc image"},
     {"ui.import.no_image_body",
      "The first start imports the game from your disc image, and none was found.\n\nPut the image (.cue "
-     "and .bin, MODE2/2352) next to the game:\n  {0}\nor into\n  {1}\nor start the game with --image "
-     "<path>, or set {3} = <path> in\n  {2}\n\nSupported: Silent Hill NTSC USA 1.1 (SLUS-007.07)."},
+     "and .bin, MODE2/2352, or a .zip of them) next to the game:\n  {0}\nor into\n  {1}\nor start the game "
+     "with --image <path>, or set {3} = <path> in\n  {2}\n\nSupported: Silent Hill NTSC USA 1.1 (SLUS-007.07)."},
     {"ui.import.import_dialog_title", "Silent Hill - import"},
     {"ui.import.picker_title", "Select your Silent Hill (NTSC USA v1.1) disc image"},
     {"ui.import.picker_hint",
-     "Choose the .cue, .bin, .iso or .img file with Browse, type its path below, or drop the file onto this window."},
+     "Choose the .cue, .bin, .iso, .img or .zip file with Browse, type its path below, or drop the file onto this "
+     "window."},
     {"ui.import.action_browse", "Browse..."},
     {"ui.import.picker_filter", "Disc images"},
     {"ui.import.err_no_file_dialog",
      "The file dialog is not available ({0}). Type the path or drop the file onto this window."},
+    {"ui.import.err_zip_unreadable", "Cannot read the archive {0}: it is not a .zip file, or it is damaged."},
+    {"ui.import.err_zip_no_image",
+     "The archive {0} holds no disc image. Zip the .cue and .bin (MODE2/2352), or a .bin or raw .iso alone."},
+    {"ui.import.picker_hint_touch", "Choose the .zip, .bin or .cue file of your disc with Browse."},
+    {"ui.import.err_no_file_dialog_touch", "The file dialog is not available ({0})."},
+    {"ui.import.stage_prepare", "Preparing the first start"},
+    {"ui.import.prepare_tables", "Building the game tables and maps..."},
+    {"ui.import.prepare_areas", "Assembling the map areas..."},
+    {"ui.import.prepare_textures", "Preparing the textures..."},
+    {"ui.import.prepare_materials", "Listing the materials..."},
+    {"ui.import.prepare_starting", "Starting the game..."},
 }};
 
 // The Local text, by Str; empty where the translation has no string.

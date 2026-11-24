@@ -79,6 +79,20 @@ enum class Str {
     ActionBrowse,
     PickerFilter,
     ErrNoFileDialog,   // {0} = reason from the system
+    ErrZipUnreadable,  // {0} = path
+    ErrZipNoImage,     // {0} = path
+
+    // A phone: Browse is the only way to a file (no path to type, nothing to drop).
+    PickerHintTouch,
+    ErrNoFileDialogTouch,  // {0} = reason from the system
+
+    // After the import: what the first start derives from it, a stage of the progress screen of its own.
+    StagePrepare,
+    PrepareTables,
+    PrepareAreas,
+    PrepareTextures,
+    PrepareMaterials,
+    PrepareStarting,
 
     Count_
 };

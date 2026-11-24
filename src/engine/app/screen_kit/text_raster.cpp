@@ -1,38 +1,13 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
-#include "engine/app/quick_setup/text_raster.h"
+#include "engine/app/screen_kit/text_raster.h"
 
 #include "i18n/core/text_prepare.h"
+#include "i18n/core/unicode.h"
 
 #include <algorithm>
 #include <cmath>
 
-namespace sh::quick_setup {
-
-std::u32string decode_utf8(std::string_view text) {
-    std::u32string out;
-    for (std::size_t i = 0; i < text.size();) {
-        const unsigned char c = static_cast<unsigned char>(text[i]);
-        int extra = c < 0x80 ? 0 : (c >> 5) == 6 ? 1 : (c >> 4) == 14 ? 2 : (c >> 3) == 30 ? 3 : -1;
-        if (extra < 0 || (extra > 0 && i + static_cast<std::size_t>(extra) >= text.size())) {
-            out.push_back(U'�');
-            ++i;
-            continue;
-        }
-        char32_t cp = extra == 0 ? c : c & (0x3F >> extra);
-        bool ok = true;
-        for (int k = 1; k <= extra; ++k) {
-            const unsigned char n = static_cast<unsigned char>(text[i + static_cast<std::size_t>(k)]);
-            if ((n & 0xC0) != 0x80) {
-                ok = false;
-                break;
-            }
-            cp = (cp << 6) | (n & 0x3F);
-        }
-        out.push_back(ok ? cp : U'�');
-        i += ok ? static_cast<std::size_t>(extra) + 1 : 1;
-    }
-    return out;
-}
+namespace sh::screen_kit {
 
 TextRaster::TextRaster(const std::filesystem::path& gamedata_fonts) {
     catalog_.add_directory(gamedata_fonts, sh::i18n::FontTier::GameData);
@@ -50,7 +25,7 @@ TextBitmap TextRaster::render(std::string_view utf8, float px, std::span<const s
     options.dialect = sh::i18n::TextDialect::Plain;
     options.base = rtl ? sh::i18n::Direction::Rtl : sh::i18n::Direction::Ltr;
     const sh::i18n::PreparedText prepared = sh::i18n::prepare_text(utf8, options);
-    const std::u32string text = decode_utf8(prepared.changed ? std::string_view(prepared.text) : utf8);
+    const std::u32string text = sh::i18n::to_utf32(prepared.changed ? std::string_view(prepared.text) : utf8);
 
     // The system's fonts are walked only once a character needs them: Latin and Cyrillic never do.
     if (!system_added_) {
@@ -123,4 +98,4 @@ TextBitmap TextRaster::render(std::string_view utf8, float px, std::span<const s
     return out;
 }
 
-}  // namespace sh::quick_setup
+}  // namespace sh::screen_kit

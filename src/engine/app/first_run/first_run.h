@@ -20,6 +20,7 @@ typedef struct PcFirstRunArgs
     const char* image_arg;    /* --image on the command line, or NULL */
     int         reimport;     /* --reimport */
     const char* language;     /* config.cfg's language (a text directory's code), "auto" or NULL: the locale's */
+    const char* import_script; /* --import-script: drives the import screen (tests and screenshots), or NULL */
 } PcFirstRunArgs;
 
 typedef struct PcFirstRunResult

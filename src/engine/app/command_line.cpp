@@ -33,6 +33,8 @@ CommandLine parse_command_line(int argc, const char* const* argv) {
             line.setup = true;
         } else if (arg == "--setup-script") {
             value_into(line.setup_script);
+        } else if (arg == "--import-script") {
+            value_into(line.import_script);
         } else if (arg == "-skiptogame") {
             line.skip_to_game = true;
         } else if (arg == "--install-desktop") {
@@ -54,7 +56,7 @@ const char* usage_text() {
     return "Usage: SilentHillPC [options]\n"
            "Options:\n"
            "  -data <path>         Game data directory (default: gamedata next to the executable)\n"
-           "  --image <path>       Disc image (.cue/.bin) to import on the first start\n"
+           "  --image <path>       Disc image (.cue/.bin/.zip) to import on the first start\n"
            "  --reimport           Import the disc image again, replacing the game data\n"
            "  --quit-after-import  Import the disc image if the game data needs it, then exit without\n"
            "                       starting the game (exit code 0: the game data is ready, 1: no image or\n"
@@ -63,6 +65,8 @@ const char* usage_text() {
            "                       the game, as on the first start\n"
            "  --setup-script <file> Tests: show the quick setup and drive it from the commands of a file\n"
            "                       also on the offscreen video driver\n"
+           "  --import-script <file> Tests: drive the disc import screen from the commands of a file, also\n"
+           "                       on the offscreen video driver\n"
            "  -skiptogame          Start on the map the config names, past the title\n"
            "  -renderer <name>     Use this renderer instead of the config's (gl, vulkan, sdlgpu)\n"
            "  -consolecmd <file>   Run the console commands of a file once the game is up\n"
