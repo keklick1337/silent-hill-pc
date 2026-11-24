@@ -21,7 +21,8 @@ inline constexpr const char* kSupportedImageSha256 = "cf975c962d8ecd7b57ed43127f
 inline constexpr const char* kSupportedExeSha256 = "e73859ccd2e8000d259c6fe640bb8a6d55fed6044f67fbf071e3d86c0f202398";
 inline constexpr const char* kGameId = "SLUS-007.07";
 
-// Opens .cue, .bin (MODE2/2352) or a raw .iso (2352 bytes per sector). Refuses a 2048-byte .iso and single files
+// Opens .cue, .bin (MODE2/2352), a raw .iso (2352 bytes per sector) or a .zip holding one of them (read in place,
+// disc::open_zip_image). Refuses a 2048-byte .iso and single files
 // with a message that says what is needed instead. A raw .iso is opened through `alias`, a link to it that ends in
 // ".bin" (sh_disc recognises the container by extension); the caller removes `alias` afterwards.
 Result<std::shared_ptr<const disc::Image>> open_image(const std::filesystem::path& input,

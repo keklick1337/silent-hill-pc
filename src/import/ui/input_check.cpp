@@ -1,5 +1,8 @@
 #include "import/ui/input_check.h"
 
+#include "formats/disc/disc_image.h"
+#include "formats/disc/zip_archive.h"
+
 #include <algorithm>
 #include <array>
 #include <cctype>
@@ -69,6 +72,22 @@ std::optional<std::string> cue_file_name(std::istream& in) {
     return std::nullopt;
 }
 
+// From the size and the first bytes of the sectors.
+void classify(ImageCheck& check, const std::array<unsigned char, 12>& head, std::size_t got) {
+    const bool sync = got == head.size() && head == kSync;
+
+    // A size that fits both 2048 and 2352 is decided by the sync pattern alone.
+    if (sync) {
+        check.problem = check.size % kRawSector == 0 ? Problem::None : Problem::BadSectorSize;
+    } else if (check.size % kCookedSector == 0) {
+        check.problem = Problem::CookedIso;
+    } else if (check.size % kXaSector == 0) {
+        check.problem = Problem::BadSectorSize;
+    } else {
+        check.problem = Problem::NotRawImage;
+    }
+}
+
 // `bin` must exist: the caller has checked that.
 void check_sectors(ImageCheck& check) {
     std::error_code ec;
@@ -97,18 +116,40 @@ void check_sectors(ImageCheck& check) {
         in.read(reinterpret_cast<char*>(head.data()), static_cast<std::streamsize>(head.size()));
         got = static_cast<std::size_t>(in.gcount());
     }
-    const bool sync = got == head.size() && head == kSync;
+    classify(check, head, got);
+}
 
-    // A size that fits both 2048 and 2352 is decided by the sync pattern alone.
-    if (sync) {
-        check.problem = check.size % kRawSector == 0 ? Problem::None : Problem::BadSectorSize;
-    } else if (check.size % kCookedSector == 0) {
-        check.problem = Problem::CookedIso;
-    } else if (check.size % kXaSector == 0) {
-        check.problem = Problem::BadSectorSize;
-    } else {
-        check.problem = Problem::NotRawImage;
+void check_zip(ImageCheck& check) {
+    disc::ZipImage zipped = disc::open_zip_image(check.path);
+    switch (zipped.status) {
+        case disc::ZipImage::Status::Ok:
+            break;
+        case disc::ZipImage::Status::NotZip:
+            check.problem = Problem::ZipUnreadable;
+            return;
+        case disc::ZipImage::Status::NoImage:
+            check.problem = Problem::ZipNoImage;
+            return;
+        case disc::ZipImage::Status::CueNoFile:
+            check.problem = Problem::CueNoFile;
+            return;
+        case disc::ZipImage::Status::CueTargetMissing:
+            check.problem = Problem::CueTargetMissing;
+            check.detail = zipped.cue_target;
+            return;
     }
+    check.member = zipped.member;
+    check.size = zipped.size;
+    if (check.size == 0) {
+        check.problem = Problem::EmptyFile;
+        return;
+    }
+    std::array<unsigned char, 12> head{};
+    if (!zipped.source->read_at(0, head.data(), std::min<std::uint64_t>(head.size(), check.size))) {
+        check.problem = Problem::Unreadable;
+        return;
+    }
+    classify(check, head, static_cast<std::size_t>(std::min<std::uint64_t>(head.size(), check.size)));
 }
 
 }  // namespace
@@ -160,6 +201,10 @@ ImageCheck check_image(std::string_view text) {
     }
 
     check.bin = check.path;
+    if (disc::is_zip_path(check.path)) {
+        check_zip(check);
+        return check;
+    }
     if (lower(check.path.extension().string()) == ".cue") {
         std::ifstream in(check.path, std::ios::binary);
         if (!in) {
@@ -207,6 +252,10 @@ std::string describe(Lang lang, const ImageCheck& check) {
         return format(lang, Str::ErrBadSectorSize, {std::to_string(check.size)});
     case Problem::NotRawImage:
         return format(lang, Str::ErrNotRaw);
+    case Problem::ZipUnreadable:
+        return format(lang, Str::ErrZipUnreadable, {path});
+    case Problem::ZipNoImage:
+        return format(lang, Str::ErrZipNoImage, {path});
     }
     return {};
 }

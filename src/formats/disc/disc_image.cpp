@@ -1,7 +1,9 @@
 #include "formats/disc/disc_image.h"
 
 #include "formats/common/byte_source.h"
+#include "formats/disc/zip_archive.h"
 
+#include <algorithm>
 #include <array>
 #include <cctype>
 #include <cstddef>
@@ -11,6 +13,7 @@
 #include <limits>
 #include <memory>
 #include <optional>
+#include <sstream>
 #include <string>
 #include <string_view>
 #include <utility>
@@ -65,13 +68,9 @@ std::vector<std::string> cue_words(std::string_view line) {
     return words;
 }
 
-// The .bin named by the first track of the sheet. Only a MODE2/2352 track that starts at the first
+// The file named by the first track of the sheet. Only a MODE2/2352 track that starts at the first
 // byte of the file is accepted: any other start would shift every LBA.
-std::optional<std::filesystem::path> parse_cue(const std::filesystem::path& cue_path) {
-    std::ifstream in(cue_path, std::ios::binary);
-    if (!in) {
-        return std::nullopt;
-    }
+std::optional<std::string> parse_cue(std::istream& in) {
     std::optional<std::string> file_name;
     bool track_seen = false;
     std::string line;
@@ -102,10 +101,58 @@ std::optional<std::filesystem::path> parse_cue(const std::filesystem::path& cue_
             if (words[2] != "00:00:00") {
                 return std::nullopt;
             }
-            return cue_path.parent_path() / *file_name;
+            return file_name;
         }
     }
     return std::nullopt;
+}
+
+std::optional<std::filesystem::path> parse_cue(const std::filesystem::path& cue_path) {
+    std::ifstream in(cue_path, std::ios::binary);
+    if (!in) {
+        return std::nullopt;
+    }
+    const std::optional<std::string> name = parse_cue(in);
+    if (!name) {
+        return std::nullopt;
+    }
+    return cue_path.parent_path() / *name;
+}
+
+std::string extension_of(const std::string& member) {
+    const std::size_t slash = member.find_last_of('/');
+    const std::size_t dot = member.find_last_of('.');
+    if (dot == std::string::npos || (slash != std::string::npos && dot < slash)) {
+        return {};
+    }
+    return upper(member.substr(dot));
+}
+
+std::string base_name(const std::string& member) {
+    const std::size_t slash = member.find_last_of('/');
+    return slash == std::string::npos ? member : member.substr(slash + 1);
+}
+
+// The member a cue sheet's FILE line names: beside the sheet first, then the only member of that name anywhere.
+std::optional<std::size_t> cue_target(const ZipArchive& zip, const std::string& cue, std::string file) {
+    std::replace(file.begin(), file.end(), '\\', '/');
+    const std::size_t slash = cue.find_last_of('/');
+    const std::string dir = slash == std::string::npos ? std::string() : cue.substr(0, slash + 1);
+    if (auto found = zip.find(dir + file)) {
+        return found;
+    }
+    std::optional<std::size_t> only;
+    const std::string wanted = upper(base_name(file));
+    const auto& members = zip.members();
+    for (std::size_t i = 0; i < members.size(); ++i) {
+        if (!members[i].directory && upper(base_name(members[i].name)) == wanted) {
+            if (only) {
+                return std::nullopt;
+            }
+            only = i;
+        }
+    }
+    return only;
 }
 
 }  // namespace
@@ -125,11 +172,16 @@ std::unique_ptr<Image> Image::open(const std::filesystem::path& path) {
             return nullptr;
         }
         bin = *from_cue;
+    } else if (ext == ".ZIP") {
+        ZipImage zipped = open_zip_image(path);
+        return zipped.ok() ? open(std::move(zipped.source)) : nullptr;
     } else {
         return nullptr;
     }
+    return open(open_file_source(bin));
+}
 
-    std::unique_ptr<ByteSource> source = open_file_source(bin);
+std::unique_ptr<Image> Image::open(std::unique_ptr<ByteSource> source) {
     if (!source) {
         return nullptr;
     }
@@ -145,6 +197,70 @@ std::unique_ptr<Image> Image::open(const std::filesystem::path& path) {
     impl->sync_ok = source->read_at(0, sync.data(), sync.size()) && sync == kSync;
     impl->source = std::move(source);
     return std::unique_ptr<Image>(new Image(std::move(impl)));
+}
+
+ZipImage open_zip_image(const std::filesystem::path& zip_path) {
+    ZipImage result;
+    const std::unique_ptr<ZipArchive> zip = ZipArchive::open(zip_path);
+    if (!zip) {
+        return result;
+    }
+    const auto& members = zip->members();
+    std::vector<std::size_t> by_name(members.size());
+    for (std::size_t i = 0; i < by_name.size(); ++i) {
+        by_name[i] = i;
+    }
+    std::sort(by_name.begin(), by_name.end(),
+              [&](std::size_t a, std::size_t b) { return members[a].name < members[b].name; });
+
+    const auto take = [&](std::size_t index, std::string cue) {
+        std::unique_ptr<ByteSource> source = zip->open_member(index);
+        if (!source) {
+            return false;
+        }
+        result.status = ZipImage::Status::Ok;
+        result.cue = std::move(cue);
+        result.member = members[index].name;
+        result.size = members[index].size;
+        result.source = std::move(source);
+        return true;
+    };
+
+    // A cue sheet is text of a few hundred bytes; anything far larger is not one.
+    constexpr std::uint64_t kMaxCueBytes = 1u << 16;
+    ZipImage::Status cue_problem = ZipImage::Status::NoImage;
+    for (const std::size_t i : by_name) {
+        if (members[i].directory || extension_of(members[i].name) != ".CUE") {
+            continue;
+        }
+        std::string text(static_cast<std::size_t>(std::min(members[i].size, kMaxCueBytes)), '\0');
+        const std::unique_ptr<ByteSource> sheet = zip->open_member(i);
+        if (!sheet || members[i].size > kMaxCueBytes || !sheet->read_at(0, text.data(), text.size())) {
+            cue_problem = ZipImage::Status::CueNoFile;
+            continue;
+        }
+        std::istringstream in(text);
+        const std::optional<std::string> file = parse_cue(in);
+        if (!file) {
+            cue_problem = ZipImage::Status::CueNoFile;
+            continue;
+        }
+        const std::optional<std::size_t> target = cue_target(*zip, members[i].name, *file);
+        if (target && take(*target, members[i].name)) {
+            return result;
+        }
+        cue_problem = ZipImage::Status::CueTargetMissing;
+        result.cue_target = *file;
+    }
+    for (const char* ext : {".BIN", ".ISO", ".IMG"}) {
+        for (const std::size_t i : by_name) {
+            if (members[i].readable && extension_of(members[i].name) == ext && take(i, {})) {
+                return result;
+            }
+        }
+    }
+    result.status = cue_problem;
+    return result;
 }
 
 std::uint32_t Image::sector_count() const {

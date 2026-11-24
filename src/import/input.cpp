@@ -2,6 +2,8 @@
 
 #include "import/sha256.h"
 
+#include "formats/disc/zip_archive.h"
+
 #include <algorithm>
 #include <array>
 #include <cctype>
@@ -64,6 +66,49 @@ std::string refusal_single_file() {
            "movies. Give the .cue or .bin dump of the disc (MODE2/2352).";
 }
 
+// The image inside a .zip, read in place: the same checks as for a loose .bin, from the member's first bytes.
+Result<std::shared_ptr<const disc::Image>> open_zipped(const fs::path& input) {
+    using R = Result<std::shared_ptr<const disc::Image>>;
+    disc::ZipImage zipped = disc::open_zip_image(input);
+    switch (zipped.status) {
+        case disc::ZipImage::Status::Ok:
+            break;
+        case disc::ZipImage::Status::NotZip:
+            return R::fail(input.string() + ": cannot read the archive (not a .zip file, or damaged)");
+        case disc::ZipImage::Status::NoImage:
+            return R::fail(input.string() +
+                           ": the archive holds no disc image. Zip the .cue and .bin dump (MODE2/2352), "
+                           "or a .bin / raw .iso alone");
+        case disc::ZipImage::Status::CueNoFile:
+            return R::fail(input.string() +
+                           ": the .cue in the archive has no FILE ... BINARY line with a TRACK "
+                           "MODE2/2352, and there is no .bin beside it");
+        case disc::ZipImage::Status::CueTargetMissing:
+            return R::fail(input.string() + ": the .cue in the archive names " + zipped.cue_target +
+                           ", which the archive does not hold");
+    }
+    const std::string where = input.string() + " (" + zipped.member + ")";
+    std::array<std::uint8_t, 12> head{};
+    if (zipped.size == 0 || !zipped.source->read_at(0, head.data(), head.size())) {
+        return R::fail(where + " is empty or cannot be read");
+    }
+    if (std::memcmp(head.data(), "PS-X EXE", 8) == 0) {
+        return R::fail(where + ": " + refusal_single_file());
+    }
+    if (zipped.size % kRawSectorBytes != 0) {
+        return R::fail(where + ": the size is not a multiple of 2352, so this is not a raw MODE2/2352 image" +
+                       (zipped.size % kCookedSectorBytes == 0 ? ". " + refusal_cooked_iso() : std::string()));
+    }
+    std::shared_ptr<const disc::Image> image(disc::Image::open(std::move(zipped.source)));
+    if (!image) {
+        return R::fail("cannot open the image " + where);
+    }
+    if (!image->sync_ok()) {
+        return R::fail(where + " does not start with the CD sync pattern, so it is not a raw MODE2/2352 image");
+    }
+    return R::ok(std::move(image));
+}
+
 }  // namespace
 
 Result<std::shared_ptr<const disc::Image>> open_image(const fs::path& input, const fs::path& alias) {
@@ -74,6 +119,9 @@ Result<std::shared_ptr<const disc::Image>> open_image(const fs::path& input, con
     }
 
     const std::string ext = lower_extension(input);
+    if (ext == ".zip") {
+        return open_zipped(input);
+    }
     if (ext == ".cue") {
         std::shared_ptr<const disc::Image> image(disc::Image::open(input));
         if (!image) {
@@ -93,8 +141,9 @@ Result<std::shared_ptr<const disc::Image>> open_image(const fs::path& input, con
         if (has_cd001_at(head, kDescriptorSector * kCookedSectorBytes + 1)) {
             return R::fail(input.string() + ": " + refusal_cooked_iso());
         }
-        return R::fail(input.string() + ": unsupported input. Give a .cue sheet, a .bin dump (MODE2/2352) or a raw .iso "
-                                        "(2352 bytes per sector); single game files are not enough");
+        return R::fail(input.string() +
+                       ": unsupported input. Give a .cue sheet, a .bin dump (MODE2/2352), a raw .iso "
+                       "(2352 bytes per sector) or a .zip of them; single game files are not enough");
     }
     if (head.file_size == 0) {
         return R::fail(input.string() + " is empty");

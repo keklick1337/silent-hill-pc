@@ -325,7 +325,7 @@ std::string usage() {
            "Imports a Silent Hill (NTSC USA 1.1) disc image into a gamedata directory: raw/ (the files as on the\n"
            "disc), index.tsv, version.cfg and convert/ (PNG, glTF, WAV, JSON).\n"
            "\n"
-           "  <image>             .cue, .bin (MODE2/2352) or a raw .iso (2352 bytes per sector)\n"
+           "  <image>             .cue, .bin (MODE2/2352), a raw .iso (2352 bytes per sector) or a .zip of them\n"
            "  --out DIR           result directory (gamedata_dir), default \"gamedata\"\n"
            "  --overwrite         replace an existing DIR (import_overwrite)\n"
            "  --no-verify         skip the CRC32 and round-trip checks (import_verify = 0)\n"

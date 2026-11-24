@@ -21,14 +21,17 @@ enum class Problem {
     CookedIso,         // 2048 bytes per sector
     BadSectorSize,     // raw sync present but the size is not a multiple of 2352, or 2336-byte sectors
     NotRawImage,       // no CD sync pattern at the start
+    ZipUnreadable,     // a .zip that cannot be read as an archive
+    ZipNoImage,        // a .zip without a .cue, .bin, .iso or .img inside
 };
 
 struct ImageCheck {
     Problem problem = Problem::None;
     std::filesystem::path path;  // normalised input, what the importer should be given
-    std::filesystem::path bin;   // the file with the sectors: `path` itself or the target of the .cue
-    std::uint64_t size = 0;      // size of `bin`
+    std::filesystem::path bin;   // the file with the sectors: `path` itself, the target of the .cue, or the .zip
+    std::uint64_t size = 0;      // size of the sectors (of the member inside a .zip)
     std::string detail;          // file name from the .cue for CueTargetMissing
+    std::string member;          // inside a .zip: the member with the sectors
 
     bool ok() const { return problem == Problem::None; }
 };
@@ -38,7 +41,8 @@ struct ImageCheck {
 std::filesystem::path normalize_path_text(std::string_view text);
 
 // Decides from the file size and the first 12 bytes (CD sync pattern), never reads the whole image.
-// A .cue is followed to the file named by its first FILE line, which is then checked the same way.
+// A .cue is followed to the file named by its first FILE line, which is then checked the same way. A .zip is opened
+// and the image inside it (disc::open_zip_image) is checked the same way.
 ImageCheck check_image(std::string_view text);
 
 // Localised explanation of a failed check; empty for Problem::None.
