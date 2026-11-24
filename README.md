@@ -51,7 +51,7 @@ In development. The goal is the original game "about 1:1" — controls, camera, 
 ## System requirements
 
 - A disc image of **Silent Hill, NTSC USA, version 1.1 (`SLUS-007.07`)** that you made from your own disc: `.bin` + `.cue`, a `.bin` alone, or a raw `.iso` — in every case with full 2352-byte sectors. An ordinary 2048-byte `.iso` does not work: it has lost the audio and video streams.
-- Windows 10 or 11 (64-bit), 64-bit Linux with glibc 2.39 or newer (the release is built on Ubuntu 24.04; on an older system, build from source), or macOS 13.3 or newer on Apple silicon (on an Intel Mac, build from source).
+- Windows 10 or 11 (64-bit), 64-bit Linux with glibc 2.39 or newer (the release is built on Ubuntu 24.04; on an older system, build from source), or macOS 13.3 or newer (Apple silicon or Intel).
 - A GPU with OpenGL 3.3, or Vulkan for `renderer = vulkan` (on macOS through the bundled MoltenVK; it has no ray tracing, so the RTX presets run without their ray-traced effects). Without a usable GPU driver the game still runs, slowly, rendering on the CPU through Mesa llvmpipe (Linux: the system's Mesa; Windows: the `software_gl/` folder of the package) at the lightest graphics (`software_gl` in `config.cfg`).
 - About 2 GB of free disk space for the imported data (and up to 2 GB more for the optional AI texture upscaling cache).
 
@@ -61,7 +61,7 @@ Get the latest build from the [Releases page](https://github.com/keklick1337/sil
 
 - Windows: `SilentHillPC-<version>-windows-x86_64.zip`
 - Linux: `SilentHillPC-<version>-linux-x86_64.tar.gz`
-- macOS (Apple silicon): `SilentHillPC-<version>-macos-arm64.dmg` (the same as a folder: `SilentHillPC-<version>-macos-arm64.tar.gz`)
+- macOS: `SilentHillPC-<version>-macos-arm64.dmg` for Apple silicon (M1 and newer), `SilentHillPC-<version>-macos-x86_64.dmg` for Intel Macs (the same as a folder: `.tar.gz` of the same name)
 
  A package holds the engine, every library it needs, the base data and the licenses — and no game files.
 

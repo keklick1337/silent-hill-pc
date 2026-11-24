@@ -1,6 +1,7 @@
 name: Build macOS
 
-# Release build on macOS for Apple silicon (arm64), unit tests without a disc
+# Release build on macOS for Apple silicon (arm64) and Intel (x86_64, built
+# natively on an Intel runner), unit tests without a disc
 # image, a disk image with "Silent Hill PC.app" (tools/ci/package_dmg.sh) and
 # the tar.gz package it is made from (tools/ci/package.sh: engine binaries, the
 # project's FFmpeg dylibs, MoltenVK, the repository's base gamedata/, licenses;
@@ -28,7 +29,16 @@ concurrency:
 
 jobs:
   macos:
-    runs-on: macos-15
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: arm64
+            runner: macos-15
+          - arch: x86_64
+            runner: macos-15-intel
+    name: macos (${{ matrix.arch }})
+    runs-on: ${{ matrix.runner }}
     env:
       # The oldest macOS the package runs on; the dependencies are built for the same one.
       MACOSX_DEPLOYMENT_TARGET: '13.3'
@@ -70,8 +80,8 @@ jobs:
         id: deps
         uses: actions/cache@v4
         with:
-          path: third_party/deps/darwin-arm64
-          key: macos-deps-arm64-${{ env.MACOSX_DEPLOYMENT_TARGET }}-${{ hashFiles('tools/win-deps/fetch.sh', 'tools/macos-deps/build.sh', 'tools/ffmpeg/build.sh', 'tools/ncnn/build.sh') }}
+          path: third_party/deps/darwin-${{ matrix.arch }}
+          key: macos-deps-${{ matrix.arch }}-${{ env.MACOSX_DEPLOYMENT_TARGET }}-${{ hashFiles('tools/win-deps/fetch.sh', 'tools/macos-deps/build.sh', 'tools/ffmpeg/build.sh', 'tools/ncnn/build.sh') }}
 
       # libjpeg-turbo (static), the project's own LGPL FFmpeg for mod mp4 movies
       # (dylibs beside the exe), MoltenVK (the pinned Khronos release) and ncnn
@@ -157,7 +167,7 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
-          name: SilentHillPC-macos-arm64
+          name: SilentHillPC-macos-${{ matrix.arch }}
           path: |
             dist/*.dmg
             dist/*.tar.gz
