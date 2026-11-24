@@ -59,6 +59,12 @@ struct VulkanCaps {
     bool validation = false;             // the validation layer is on
 };
 
+// Loads the Vulkan library into SDL before a window with SDL_WINDOW_VULKAN is made. Only macOS needs it: MoltenVK or
+// the Vulkan loader lives beside the exe, in the Vulkan SDK or in Homebrew, and the plain dlopen of SDL and volk
+// looks in none of the last two (/opt/homebrew/lib). True when a library is loaded; elsewhere true without doing
+// anything (SDL and volk find the system's loader themselves). SDL_Init(SDL_INIT_VIDEO) must have run.
+bool loadVulkanLibrary();
+
 // SDL_Init(SDL_INIT_VIDEO) must have run. Fails (to the next backend) when no device has what the backend needs.
 Result<std::unique_ptr<Device>> createVulkanDevice(const VulkanDeviceDesc& desc);
 

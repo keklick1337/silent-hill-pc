@@ -5,6 +5,13 @@
 #include <cmath>
 #include <cstdio>
 
+#ifdef __APPLE__
+#include <cerrno>
+#include <cstdlib>
+#include <string>
+#include <xlocale.h>
+#endif
+
 namespace sh::json {
 
 const Value* Value::find(std::string_view key) const {
@@ -31,6 +38,30 @@ const char* Value::type_name(Type type) {
     }
     return "?";
 }
+
+namespace {
+
+// A number of the grammar the parser has checked, as a double: the nearest one, whatever the C locale. A value out
+// of range leaves `out` as it was, as from_chars does.
+bool parse_real(const char* first, const char* last, double& out) {
+#ifdef __APPLE__
+    // Apple's libc++ has from_chars for floating point only from macOS 26. strtod_l in the C locale rounds to
+    // nearest the same way.
+    static const locale_t c_locale = newlocale(LC_ALL_MASK, "C", nullptr);
+    const std::string text(first, last);
+    char* end = nullptr;
+    errno = 0;
+    const double value = strtod_l(text.c_str(), &end, c_locale);
+    if (end != text.c_str() + text.size()) return false;
+    if (errno != ERANGE) out = value;
+    return true;
+#else
+    const auto [ptr, ec] = std::from_chars(first, last, out);
+    return ptr == last && (ec == std::errc() || ec == std::errc::result_out_of_range);
+#endif
+}
+
+}  // namespace
 
 class Parser {
 public:
@@ -334,8 +365,7 @@ private:
         }
         // from_chars does not depend on the C locale, unlike strtod.
         double d = 0;
-        const auto [ptr, ec] = std::from_chars(first, last, d);
-        if (ptr != last || (ec != std::errc() && ec != std::errc::result_out_of_range)) {
+        if (!parse_real(first, last, d)) {
             return fail("bad number");
         }
         out.type_ = Value::Type::Real;

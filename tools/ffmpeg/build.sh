@@ -4,7 +4,7 @@
 # tools/win-deps/fetch.sh (FFmpeg, pinned tag + commit) into
 # third_party/deps/src/FFmpeg; nothing is installed into the system.
 #
-#   native (default)  third_party/deps/<os>-<cpu>/  (e.g. linux-x86_64): lib*.so.N
+#   native (default)  third_party/deps/<os>-<cpu>/  (e.g. linux-x86_64): lib*.so.N; macOS: lib*.N.dylib
 #   --mingw           third_party/deps/x86_64-w64-mingw32/ (or SH_WIN_DEPS_PREFIX): *-N.dll
 #
 # Only what a mod movie needs is enabled: the mov/mp4 demuxer, H.264/HEVC/AAC
@@ -45,6 +45,8 @@ else
     # a dollar sign does not survive configure, make and the shell on the command line.
     ORIGIN_FLAGS="$BUILD_DIR/origin.ldflags"
     TARGET_FLAGS=("--extra-ldsoflags=-Wl,@$ORIGIN_FLAGS")
+    # macOS has no run path $ORIGIN: there each library names itself, and so the others, by @loader_path.
+    [[ "$(uname -s)" == Darwin ]] && TARGET_FLAGS=("--install-name-dir=@loader_path")
 fi
 
 [[ $CLEAN -eq 1 ]] && rm -rf "$BUILD_DIR"
@@ -67,7 +69,7 @@ CONFIG_FLAGS=(
 )
 
 mkdir -p "$BUILD_DIR" "$PREFIX"
-[[ $MINGW -eq 1 ]] || printf '%s\n' '-rpath=$ORIGIN' >"$ORIGIN_FLAGS"
+[[ $MINGW -eq 1 || "$(uname -s)" == Darwin ]] || printf '%s\n' '-rpath=$ORIGIN' >"$ORIGIN_FLAGS"
 echo "ffmpeg: configure ($BUILD_DIR)"
 (cd "$BUILD_DIR" && "$SRC_DIR/FFmpeg/configure" "${CONFIG_FLAGS[@]}" "${TARGET_FLAGS[@]}") \
     >"$BUILD_DIR/configure.log" 2>&1 || { tail -n 40 "$BUILD_DIR/configure.log"; exit 1; }

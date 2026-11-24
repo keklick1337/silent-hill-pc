@@ -39,6 +39,7 @@
 #include "engine/crash/crash_handler.h"
 #include "engine/debug/overlay/debug_overlay.h"
 #include "engine/desktop/desktop_entry.h"
+#include "engine/desktop/video_driver.h"
 #include "engine/desktop/window_icon.h"
 #include "engine/game_state/game_state_app.h"
 #include "engine/ids/game_numbers.h"
@@ -768,6 +769,7 @@ int main(int argc, char* argv[]) {
     }
     // Before any window: the window class and the Wayland app id the desktop entry is matched by.
     sh::desktop::set_app_identity(std::string(sh::version::kText).c_str());
+    sh::desktop::prepare_video_driver();
 
     const std::string config = find_config();
     PcConfig_Load(config.c_str());

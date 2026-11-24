@@ -216,7 +216,7 @@ void arm() {
     struct sigaction action {};
     action.sa_sigaction = on_fatal_signal;
     action.sa_flags = SA_SIGINFO | SA_ONSTACK;
-    ::sigemptyset(&action.sa_mask);
+    sigemptyset(&action.sa_mask);  // a macro on macOS: no :: qualifier
     for (const int number : kFatalSignals) {
         ::sigaction(number, &action, nullptr);
     }

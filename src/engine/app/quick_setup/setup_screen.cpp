@@ -8,6 +8,7 @@
 #include "engine/app/quick_setup/setup_text.h"
 #include "engine/app/quick_setup/text_raster.h"
 
+#include "engine/desktop/video_driver.h"
 #include "engine/desktop/window_icon.h"
 #include "formats/common/json.h"
 #include "i18n/core/language_set.h"
@@ -291,7 +292,9 @@ bool Screen::open_window() {
         w = desktop_.width * 9 / 10;
         h = w * 3 / 4;
     }
-    window_ = SDL_CreateWindow("Silent Hill", w, h, SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIGH_PIXEL_DENSITY);
+    window_ = SDL_CreateWindow("Silent Hill", w, h,
+                               SDL_WINDOW_RESIZABLE | SDL_WINDOW_HIGH_PIXEL_DENSITY |
+                                   static_cast<SDL_WindowFlags>(sh::desktop::hidden_window_flag()));
     if (window_ == nullptr) return false;
     SDL_SetWindowMinimumSize(window_, 320, 240);
     sh::desktop::set_window_icon(window_, request_.icons);
@@ -1069,10 +1072,7 @@ void Screen::run_command(const ScriptCommand& c, bool& done, Outcome& outcome) {
     }
 }
 
-bool interactive_video() {
-    const char* driver = SDL_GetCurrentVideoDriver();
-    return driver && SDL_strcmp(driver, "offscreen") != 0 && SDL_strcmp(driver, "dummy") != 0;
-}
+bool interactive_video() { return SDL_GetCurrentVideoDriver() != nullptr && !sh::desktop::headless_video(); }
 
 }  // namespace
 

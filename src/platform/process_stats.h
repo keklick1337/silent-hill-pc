@@ -11,7 +11,7 @@ namespace sh::platform {
 struct ProcessStats {
     double processCpuSec = -1.0;  // user + kernel time of all threads since the process started
     double threadCpuSec = -1.0;   // the same for the calling thread
-    std::int64_t rssKb = -1;      // resident set (working set on Windows)
+    std::int64_t rssKb = -1;      // resident set (working set on Windows, the memory footprint on macOS)
 };
 
 ProcessStats read_process_stats();
@@ -23,7 +23,8 @@ struct GpuUsage {
 };
 
 // Adapter-wide load from the vendor's own interface: NVML when the driver's library is already installed,
-// the amdgpu sysfs nodes on Linux. Loads nothing until the first call.
+// the amdgpu sysfs nodes on Linux, the IOAccelerator statistics on macOS (memory: the unified memory). Loads
+// nothing until the first call.
 GpuUsage read_gpu_usage();
 
 }  // namespace sh::platform

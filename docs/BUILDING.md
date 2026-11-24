@@ -1,6 +1,6 @@
 # Building
 
-How to build Silent Hill PC from source on Linux, and for Windows. Nothing is installed into the system by the build or by any script of the project: sources of dependencies that are not vendored in `third_party/` are fetched at pinned tags and commits into `third_party/deps/` (ignored by git), and built there.
+How to build Silent Hill PC from source on Linux and macOS, and for Windows. Nothing is installed into the system by the build or by any script of the project: sources of dependencies that are not vendored in `third_party/` are fetched at pinned tags and commits into `third_party/deps/` (ignored by git), and built there.
 
 The commands below are the ones the CI runs ([.github/workflows/](../.github/workflows/)). How to run the checks after a build: [DEVELOPMENT.md](DEVELOPMENT.md), section 4.
 
@@ -142,6 +142,52 @@ wineserver -w
 - Run-time loading of FFmpeg: `src/engine/loader/shared_library.{h,cpp}` (`LoadLibrary` / `dlopen`).
 - The exe icon is `assets/icon/app.ico` (resource `assets/res/app.rc`), made by `assets/icon/generate.sh` from `master.png`.
 
-## 3. Packages
+## 3. macOS
 
-`tools/ci/package.sh <build> <linux|windows> <version> [<out dir>]` writes `SilentHillPC-<version>-<platform>-x86_64.tar.gz` (Linux) or `.zip` (Windows): the executable, `sh-import`, `sh-upscale` with its model, the libraries, `assets/`, `config.cfg`, the licenses and `gamedata/` strictly from the files tracked by git. It follows the import tables of every binary to decide which libraries go in, and refuses to write a package in which an imported library is missing or anything disc-derived is present. `python3 -I tools/ci/check_package.py check <archive> <linux|windows> --run` checks a package unpacked into an empty directory. Releases: [DEVELOPMENT.md](DEVELOPMENT.md), section 5.
+macOS 13.3 or newer, on Apple silicon (arm64) or Intel. `renderer = gl` is Apple's OpenGL 4.1 on Metal; `renderer = vulkan` runs the native Vulkan backend on MoltenVK (Vulkan 1.3 over Metal): HDR, TAA, volumetric fog and the tessellation of model upscaling work, ray tracing and mesh shaders do not (MoltenVK has neither), so the RTX presets run without their ray-traced effects. `renderer = sdlgpu` falls back to GL (its SPIR-V would need translating to Metal). Sound goes through SDL3.
+
+### 3.1 Requirements
+
+- The Xcode Command Line Tools (`xcode-select --install`): Apple Clang, `make`, `git`.
+- CMake 3.16+, Ninja, `pkg-config` and glslang (the SPIR-V of the Vulkan renderer; without it `renderer = vulkan` falls back to GL), for example from Homebrew: `brew install cmake ninja pkg-config glslang`.
+- For `renderer = vulkan` in a development build, MoltenVK: `brew install molten-vk` (or the LunarG Vulkan SDK). The game looks for it beside the exe, in `/usr/local/lib` and in `/opt/homebrew/lib` (`rhi::loadVulkanLibrary`).
+- For a development build, SDL3 3.2+ and libjpeg: `brew install sdl3 jpeg-turbo` (FFmpeg for mod mp4 movies is optional: `brew install ffmpeg`). OpenAL and OpenGL are the system's frameworks.
+- For the test scripts of [DEVELOPMENT.md](DEVELOPMENT.md), section 4 (not for building or playing): GNU coreutils and a current bash, `brew install coreutils bash`, with `$(brew --prefix coreutils)/libexec/gnubin` first in `PATH`.
+
+### 3.2 Build
+
+```sh
+cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
+cmake --build build
+cd build && ./SilentHillPC --image "/path/to/Silent Hill (v1.1).cue"
+```
+
+Such a build links Homebrew's libraries and runs on the machine that built it.
+
+### 3.3 Release build as in CI
+
+A package for other Macs carries nothing of Homebrew: SDL3 is compiled statically from the pinned source, `tools/macos-deps/build.sh` builds libjpeg-turbo (static), the project's LGPL FFmpeg (dylibs named by `@loader_path`, beside the exe) and ncnn for `sh-upscale` into `third_party/deps/darwin-<cpu>/`, which CMake picks up by itself, and fetches MoltenVK (the Khronos release binary, pinned by SHA-256), which goes beside the exe. `MACOSX_DEPLOYMENT_TARGET` is the oldest macOS the binaries run on; the dependencies and the game must be built with the same one.
+
+```sh
+export MACOSX_DEPLOYMENT_TARGET=13.3
+tools/win-deps/fetch.sh SDL3 && ln -sfn deps/src/SDL3 third_party/SDL3
+tools/macos-deps/build.sh
+cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_DISABLE_FIND_PACKAGE_SDL3=ON \
+    -DCMAKE_OSX_DEPLOYMENT_TARGET=$MACOSX_DEPLOYMENT_TARGET
+cmake --build build
+tools/ci/package.sh build macos dev dist
+python3 -I tools/ci/check_package.py check dist/SilentHillPC-dev-macos-arm64.tar.gz macos --run
+```
+
+The package is ad-hoc signed, not notarized: macOS keeps a downloaded copy in quarantine. After unpacking, `xattr -dr com.apple.quarantine <folder>` lets it start (or *Open* from the Finder's context menu, then *Open Anyway* in *System Settings > Privacy & Security*).
+
+### 3.4 Notes
+
+- The quick setup recommends Vulkan on macOS when MoltenVK gives a device (Apple's OpenGL is frozen at 4.1 over Metal, `Hardware::gl_legacy`); OpenGL stays selectable.
+- The profiler overlay's figures on macOS (`src/platform/process_stats.cpp`): RAM is the process's memory footprint (as in Activity Monitor), GPU load and the memory in use come from the IOAccelerator statistics, and the total is the unified memory.
+- Floating-point contraction is off for the whole build (`-ffp-contract=off`): on arm64 Clang would otherwise fuse `a*b+c` into one rounding where x86-64 rounds twice, and the replays would differ between the platforms.
+- `SDL_VIDEODRIVER=offscreen` (the tests, the replay harness, the map sweep): SDL's offscreen driver has OpenGL only through EGL, which macOS lacks, so on macOS the game answers it with Cocoa and hidden windows (`src/engine/desktop/video_driver.h`). It needs a logged-in session with a window server, which a GitHub macOS runner has.
+
+## 4. Packages
+
+`tools/ci/package.sh <build> <linux|windows|macos> <version> [<out dir>]` writes `SilentHillPC-<version>-<platform>-<cpu>.tar.gz` (Linux, macOS) or `.zip` (Windows); `<cpu>` is `x86_64`, on macOS the build's (`arm64`): the executable, `sh-import`, `sh-upscale` with its model, the libraries, `assets/`, `config.cfg`, the licenses and `gamedata/` strictly from the files tracked by git. It follows the import tables of every binary to decide which libraries go in, and refuses to write a package in which an imported library is missing or anything disc-derived is present. `python3 -I tools/ci/check_package.py check <archive> <linux|windows|macos> --run` checks a package unpacked into an empty directory. Releases: [DEVELOPMENT.md](DEVELOPMENT.md), section 5.

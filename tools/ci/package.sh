@@ -17,15 +17,16 @@
 # tables/ or imported maps into the archive. check_package.py refuses the archive
 # if anything import-shaped is in it anyway.
 #
-# Usage: tools/ci/package.sh <build-dir> <linux|windows> <version> [<out-dir>]
-#   writes <out-dir>/SilentHillPC-<version>-<platform>-x86_64.{tar.gz,zip}
+# Usage: tools/ci/package.sh <build-dir> <linux|windows|macos> <version> [<out-dir>]
+#   writes <out-dir>/SilentHillPC-<version>-<platform>-<cpu>.{tar.gz,zip} (<cpu>: x86_64; on macOS the build's, e.g.
+#   arm64)
 #   SH_PACKAGE_RUN=1 also starts the packaged game with --version and --help
 #   (Windows: under wine) from the unpacked archive.
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 BUILD="$(cd "${1:?build dir}" && pwd)"
-PLATFORM="${2:?linux|windows}"
+PLATFORM="${2:?linux|windows|macos}"
 VERSION="${3:?version}"
 OUT="${4:-$ROOT/.tmp/ci-dist}"
 CHECK="$ROOT/tools/ci/check_package.py"
@@ -36,16 +37,23 @@ CHECK="$ROOT/tools/ci/check_package.py"
 # (a git describe of a branch build, "dev") is not a release and is not checked.
 "$ROOT/tools/ci/check_release_version.sh" "$VERSION"
 
-NAME="SilentHillPC-$VERSION-$PLATFORM-x86_64"
-mkdir -p "$OUT"
-OUT="$(cd "$OUT" && pwd)"
-STAGE="$OUT/$NAME"
-
 case "$PLATFORM" in
     linux)   EXE=""     ;;
     windows) EXE=".exe" ;;
+    macos)   EXE=""     ;;
     *) echo "package: unknown platform $PLATFORM" >&2; exit 2 ;;
 esac
+
+ARCH=x86_64
+if [[ "$PLATFORM" == macos ]]; then
+    [[ -f "$BUILD/SilentHillPC" ]] || { echo "package: missing $BUILD/SilentHillPC" >&2; exit 1; }
+    ARCH="$(lipo -archs "$BUILD/SilentHillPC")"
+    [[ "$ARCH" == *" "* ]] && ARCH=universal
+fi
+NAME="SilentHillPC-$VERSION-$PLATFORM-$ARCH"
+mkdir -p "$OUT"
+OUT="$(cd "$OUT" && pwd)"
+STAGE="$OUT/$NAME"
 
 need() { [[ -e "$1" ]] || { echo "package: missing $1" >&2; exit 1; }; }
 need "$BUILD/SilentHillPC$EXE"
@@ -77,6 +85,15 @@ cp "$BUILD/sh-upscale$EXE" "$STAGE/"
 cp -r "$BUILD/upscale-models" "$STAGE/"
 [[ "$PLATFORM" == linux ]] && strip --strip-unneeded "$STAGE/sh-upscale"
 
+# Apple silicon runs no unsigned code, and strip breaks the linker's ad-hoc signature: sign again (ad hoc).
+macos_strip() {
+    local file
+    for file in "$@"; do
+        strip -x "$file"
+        codesign --force --sign - "$file" 2>/dev/null
+    done
+}
+
 # Where a library the binaries import may be found when the build did not put it beside the exe.
 SEARCH=("$BUILD")
 shopt -s nullglob
@@ -103,6 +120,15 @@ if [[ "$PLATFORM" == windows ]]; then
     cp -a "$BUILD/software_gl" "$STAGE/"
     CXX="$(build_cxx)"
     SEARCH+=("$DEPS/bin")
+elif [[ "$PLATFORM" == macos ]]; then
+    macos_strip "$STAGE/SilentHillPC" "$STAGE/sh-import" "$STAGE/sh-upscale"
+    # The project's FFmpeg (mod mp4 movies), opened from the exe's directory by the game; nothing imports it.
+    libs=("$BUILD"/lib*.dylib)
+    (( ${#libs[@]} )) && cp "${libs[@]}" "$STAGE/"
+    if grep -qa 'SH_FMV_FFMPEG:BOOL=ON' "$BUILD/CMakeCache.txt"; then
+        ff=("$STAGE"/libavcodec.*.dylib)
+        (( ${#ff[@]} )) || { echo "package: the build has no FFmpeg dylibs (tools/macos-deps/build.sh)" >&2; exit 1; }
+    fi
 else
     strip --strip-unneeded "$STAGE/SilentHillPC" "$STAGE/sh-import"
     # The project's FFmpeg (mod mp4 movies), opened from the exe's directory, and its OpenAL Soft when the build
@@ -142,6 +168,14 @@ for _ in 1 2 3 4 5 6 7 8; do
     missing="$(python3 -I "$CHECK" missing "$STAGE" "$PLATFORM" | cut -f1 | sort -u)"
     [[ -n "$missing" ]] || break
     progressed=0
+    if [[ "$PLATFORM" == macos ]]; then
+        # A Mach-O binary names its libraries by path: one of the build machine cannot be fixed by a copy.
+        echo "package: the binaries import libraries that are neither the system's nor in the package:" >&2
+        python3 -I "$CHECK" missing "$STAGE" "$PLATFORM" >&2
+        echo "package: build the dependencies with tools/macos-deps/build.sh and SDL3 from third_party/SDL3" \
+            "(-DCMAKE_DISABLE_FIND_PACKAGE_SDL3=ON), docs/BUILDING.md section 3" >&2
+        exit 1
+    fi
     while IFS= read -r lib; do
         src=""
         for dir in "${SEARCH[@]}"; do
@@ -177,7 +211,12 @@ cp "$BUILD/gamecontrollerdb.txt" "$STAGE/"
 cp "$ROOT/assets/config.cfg" "$STAGE/config.cfg"
 
 # Base game data: exactly the tracked files of gamedata/.
-git -C "$ROOT" ls-files -z -- gamedata | (cd "$ROOT" && xargs -0 cp --parents -t "$STAGE")
+if [[ "$PLATFORM" == macos ]]; then
+    # The BSD cp has no --parents.
+    git -C "$ROOT" ls-files -z -- gamedata | (cd "$ROOT" && tar --null -T - -cf - | tar -xf - -C "$STAGE")
+else
+    git -C "$ROOT" ls-files -z -- gamedata | (cd "$ROOT" && xargs -0 cp --parents -t "$STAGE")
+fi
 
 # Licenses: the project, the bundled assets, the dependency libraries.
 cp "$ROOT/LICENSE" "$STAGE/LICENSE.txt"
@@ -194,7 +233,7 @@ if [[ "$PLATFORM" == windows ]]; then
                /usr/share/doc/gcc-mingw-w64-x86-64-posix-runtime/copyright; do
         [[ -f "$doc" ]] && cp "$doc" "$STAGE/licenses/copyright-$(basename "$(dirname "$doc")").txt"
     done
-else
+elif [[ "$PLATFORM" == linux ]]; then
     cp "$ROOT/tools/ci/notices/gcc-runtime.txt" "$STAGE/licenses/NOTICE-gcc-runtime.txt"
 fi
 if (( ${#runtime_copied[@]} )); then
@@ -227,6 +266,11 @@ if [[ "$PLATFORM" == windows ]]; then
     ARCHIVE="$NAME.zip"
     rm -f "$ARCHIVE"
     zip -qr9 "$ARCHIVE" "$NAME"
+elif [[ "$PLATFORM" == macos ]]; then
+    ARCHIVE="$NAME.tar.gz"
+    rm -f "$ARCHIVE"
+    # The BSD tar: no ._ AppleDouble files of extended attributes.
+    COPYFILE_DISABLE=1 tar -czf "$ARCHIVE" --uid 0 --gid 0 --no-mac-metadata "$NAME"
 else
     ARCHIVE="$NAME.tar.gz"
     rm -f "$ARCHIVE"
@@ -239,6 +283,6 @@ run=()
 if [[ "$PLATFORM" == linux && "${SH_PACKAGE_ALLOW_SYSTEM_LIBS:-0}" == 1 ]]; then
     echo "package: SH_PACKAGE_ALLOW_SYSTEM_LIBS=1, the archive is not checked: it needs this system's libraries" >&2
 else
-    python3 -I "$CHECK" check "$OUT/$ARCHIVE" "$PLATFORM" "${run[@]}"
+    python3 -I "$CHECK" check "$OUT/$ARCHIVE" "$PLATFORM" ${run[@]+"${run[@]}"}
 fi
 echo "package: $OUT/$ARCHIVE"

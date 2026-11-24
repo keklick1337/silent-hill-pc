@@ -1,5 +1,6 @@
 #include "engine/app/first_run/progress_window.h"
 
+#include "engine/desktop/video_driver.h"
 #include "engine/desktop/window_icon.h"
 
 #include <SDL3/SDL.h>
@@ -122,7 +123,8 @@ bool ProgressWindow::open() {
 
 bool ProgressWindow::create(int width, int height) {
     // SDL3 centres a new window by default.
-    window_ = SDL_CreateWindow("Silent Hill", width, height, 0);
+    window_ =
+        SDL_CreateWindow("Silent Hill", width, height, static_cast<SDL_WindowFlags>(sh::desktop::hidden_window_flag()));
     if (window_) {
         if (const char* base = SDL_GetBasePath()) {
             sh::desktop::set_window_icon(window_, std::filesystem::path(base) / "assets" / "icon");
@@ -180,10 +182,7 @@ bool ProgressWindow::stop_requested() {
     return stop_;
 }
 
-bool ProgressWindow::interactive() {
-    const char* driver = SDL_GetCurrentVideoDriver();
-    return driver && SDL_strcmp(driver, "offscreen") != 0 && SDL_strcmp(driver, "dummy") != 0;
-}
+bool ProgressWindow::interactive() { return SDL_GetCurrentVideoDriver() != nullptr && !sh::desktop::headless_video(); }
 
 bool ProgressWindow::can_pick() const { return renderer_ && interactive(); }
 

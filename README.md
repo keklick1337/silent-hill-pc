@@ -3,8 +3,9 @@
 [![Checks](https://github.com/keklick1337/silent-hill-pc/actions/workflows/check.yml/badge.svg)](https://github.com/keklick1337/silent-hill-pc/actions/workflows/check.yml)
 [![Build Linux](https://github.com/keklick1337/silent-hill-pc/actions/workflows/build-linux.yml/badge.svg)](https://github.com/keklick1337/silent-hill-pc/actions/workflows/build-linux.yml)
 [![Build Windows](https://github.com/keklick1337/silent-hill-pc/actions/workflows/build-windows.yml/badge.svg)](https://github.com/keklick1337/silent-hill-pc/actions/workflows/build-windows.yml)
+[![Build macOS](https://github.com/keklick1337/silent-hill-pc/actions/workflows/build-macos.yml/badge.svg)](https://github.com/keklick1337/silent-hill-pc/actions/workflows/build-macos.yml)
 
-A from-scratch engine that plays **Silent Hill** (PlayStation, 1999) on Windows and Linux from **your own disc image**.
+A from-scratch engine that plays **Silent Hill** (PlayStation, 1999) on Windows, Linux and macOS from **your own disc image**.
 
 - **No game files are in this repository or in any release, except the English game text** (and the screenshots below, which show the game's art). On the first start the game reads your disc image (NTSC USA v1.1, `SLUS-007.07`) and converts its models, textures, sound, video and font into a `gamedata/` folder beside the executable. The English messages and item texts are in `gamedata/text/en/` ([COPYRIGHT.md](COPYRIGHT.md), section 3). Without a disc image there is nothing to play.
 - **It is not an emulator and not a decompilation build.** The engine holds no code of the original game and no PlayStation emulation. The game's behaviour was written anew, with the community decompilation [silent-hill-decomp](https://github.com/shdecompilations/silent-hill-decomp) read as a description of that behaviour. The rules of Silent Hill itself — maps, events, characters, items, weapons — are data and Lua scripts in [`gamedata/`](gamedata/).
@@ -31,7 +32,7 @@ In development. The goal is the original game "about 1:1" — controls, camera, 
 
 - All 43 maps of the game are data in `gamedata/maps/` and are loaded and stepped by an automated sweep; recorded routes (school, hospital, sewers, the Otherworld, bosses and others) are replayed tick-for-tick as regression tests ([docs/TESTING.md](docs/TESTING.md)).
 - Known differences from the original: [below](#differences-from-the-original). Bugs: [issues](https://github.com/keklick1337/silent-hill-pc/issues).
-- Linux is the development platform. The Windows build is cross-compiled with mingw-w64 and tested under Wine; reports from real Windows machines are welcome.
+- Linux is the development platform. The Windows build is cross-compiled with mingw-w64 and tested under Wine; reports from real Windows machines are welcome. macOS builds natively with Apple Clang and plays the recorded routes identically to Linux.
 - Only the NTSC USA v1.1 disc is supported. PAL and Japanese discs are untested.
 
 ## Features
@@ -50,8 +51,8 @@ In development. The goal is the original game "about 1:1" — controls, camera, 
 ## System requirements
 
 - A disc image of **Silent Hill, NTSC USA, version 1.1 (`SLUS-007.07`)** that you made from your own disc: `.bin` + `.cue`, a `.bin` alone, or a raw `.iso` — in every case with full 2352-byte sectors. An ordinary 2048-byte `.iso` does not work: it has lost the audio and video streams.
-- Windows 10 or 11 (64-bit), or 64-bit Linux with glibc 2.39 or newer (the release is built on Ubuntu 24.04; on an older system, build from source).
-- A GPU with OpenGL 3.3, or Vulkan for `renderer = vulkan`. Without a usable GPU driver the game still runs, slowly, rendering on the CPU through Mesa llvmpipe (Linux: the system's Mesa; Windows: the `software_gl/` folder of the package) at the lightest graphics (`software_gl` in `config.cfg`).
+- Windows 10 or 11 (64-bit), 64-bit Linux with glibc 2.39 or newer (the release is built on Ubuntu 24.04; on an older system, build from source), or macOS 13.3 or newer on Apple silicon (on an Intel Mac, build from source).
+- A GPU with OpenGL 3.3, or Vulkan for `renderer = vulkan` (on macOS through the bundled MoltenVK; it has no ray tracing, so the RTX presets run without their ray-traced effects). Without a usable GPU driver the game still runs, slowly, rendering on the CPU through Mesa llvmpipe (Linux: the system's Mesa; Windows: the `software_gl/` folder of the package) at the lightest graphics (`software_gl` in `config.cfg`).
 - About 2 GB of free disk space for the imported data (and up to 2 GB more for the optional AI texture upscaling cache).
 
 ## Download
@@ -60,6 +61,7 @@ Get the latest build from the [Releases page](https://github.com/keklick1337/sil
 
 - Windows: `SilentHillPC-<version>-windows-x86_64.zip`
 - Linux: `SilentHillPC-<version>-linux-x86_64.tar.gz`
+- macOS (Apple silicon): `SilentHillPC-<version>-macos-arm64.tar.gz`
 
  A package holds the engine, every library it needs, the base data and the licenses — and no game files.
 
@@ -67,7 +69,7 @@ Get the latest build from the [Releases page](https://github.com/keklick1337/sil
 
 1. Unpack it anywhere you can write to.
 2. Put your disc image (`.cue` and `.bin`) beside the executable or into a `data/` folder beside it — or pass its path with `--image`.
-3. Start `SilentHillPC.exe` (Windows) or `./SilentHillPC` (Linux).
+3. Start `SilentHillPC.exe` (Windows) or `./SilentHillPC` (Linux, macOS). The macOS package is not notarized: once after unpacking, run `xattr -dr com.apple.quarantine <folder>` in the Terminal, or macOS refuses to open it.
 
 The first start opens a quick setup in a window before anything else: the language, the renderer (OpenGL, close to the original and light enough for any machine, or Vulkan with HDR, volumetric fog, ray tracing and upscaling), a graphics preset and the display, each preselected from the detected graphics card. *Apply* writes them into `config.cfg`; everything else is in the in-game *Options*, where *Run Quick Setup* brings the screen back (so does `--setup`). Then the first start imports the disc image into `gamedata/` and shows a progress window; this takes from half a minute to a few minutes and happens once. After that the disc image is no longer read and the game starts at once. A newer release that needs a new import does it by itself from the same image. When no image is found, the window asks for it: press Browse, type the path or drop the file onto the window, then Import; the path is remembered in `config.cfg` (`import_image`).
 
@@ -184,7 +186,7 @@ Switch them on in *Options > Interface > Modding Tools (F2)* (`modding_tools = 1
 
 ## Building from source
 
-Linux builds natively with GCC 14+ or Clang, CMake and Ninja; the Windows build is cross-compiled on Linux with mingw-w64 (a native Windows build is not supported). In short, on Linux:
+Linux builds natively with GCC 14+ or Clang, CMake and Ninja, macOS with Apple Clang (SDL3 and jpeg-turbo from Homebrew); the Windows build is cross-compiled on Linux with mingw-w64 (a native Windows build is not supported). In short, on Linux:
 
 ```sh
 cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
@@ -192,7 +194,7 @@ cmake --build build
 cd build && ./SilentHillPC --image "/path/to/Silent Hill (v1.1).cue"
 ```
 
-Dependencies, SDL3 from source, the optional FFmpeg and texture upscaler, the Windows cross-build, testing under Wine and packages: **[docs/BUILDING.md](docs/BUILDING.md)**. Running the checks: [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md).
+Dependencies, SDL3 from source, the optional FFmpeg and texture upscaler, the Windows cross-build, testing under Wine, macOS and packages: **[docs/BUILDING.md](docs/BUILDING.md)**. Running the checks: [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md).
 
 ## Project layout
 

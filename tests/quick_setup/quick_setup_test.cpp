@@ -67,6 +67,22 @@ SH_TEST(quick_setup_integrated_gets_enhanced_on_gl) {
     SH_CHECK(renderer_availability(hw, Renderer::Vulkan) == Availability::Available);
 }
 
+SH_TEST(quick_setup_legacy_gl_prefers_vulkan) {
+    // macOS: an integrated GPU whose OpenGL is the frozen layer over Metal, Vulkan through MoltenVK.
+    Hardware hw;
+    hw.gl = true;
+    hw.gl_legacy = true;
+    hw.vulkan = true;
+    hw.kind = GpuKind::Integrated;
+    hw.vram_bytes = 32 * kGiB;
+    const auto table = presets();
+    SH_CHECK(recommend_renderer(hw) == Renderer::Vulkan);
+    SH_CHECK(recommend_preset(hw, Renderer::Vulkan, table) == "enhanced");
+    // Without a usable Vulkan device OpenGL stays the choice.
+    hw.vulkan = false;
+    SH_CHECK(recommend_renderer(hw) == Renderer::Gl);
+}
+
 SH_TEST(quick_setup_discrete_by_memory_and_rays) {
     const auto table = presets();
     SH_CHECK(recommend_renderer(discrete(4 * kGiB, false)) == Renderer::Vulkan);

@@ -86,6 +86,9 @@ std::string vkError(const char* what, VkResult r) {
     return std::string("vulkan: ") + what + ": " + resultName(r) + " (" + std::to_string(static_cast<int>(r)) + ")";
 }
 
+// Must be enabled on a device that lists it (MoltenVK): the name is behind VK_ENABLE_BETA_EXTENSIONS in the headers.
+constexpr const char* kPortabilitySubset = "VK_KHR_portability_subset";
+
 std::string versionText(std::uint32_t v) {
     return std::to_string(VK_API_VERSION_MAJOR(v)) + "." + std::to_string(VK_API_VERSION_MINOR(v)) + "." +
            std::to_string(VK_API_VERSION_PATCH(v));
@@ -811,7 +814,14 @@ VulkanDevice::~VulkanDevice() {
 }
 
 Result<void> VulkanDevice::createInstance() {
+#ifdef __APPLE__
+    // The instance comes from the library SDL makes the surface with (loadVulkanLibrary).
+    if (!loadVulkanLibrary())
+        return Result<void>::fail("vulkan: no MoltenVK or Vulkan loader (brew install molten-vk, or the Vulkan SDK)");
+    volkInitializeCustom(reinterpret_cast<PFN_vkGetInstanceProcAddr>(SDL_Vulkan_GetVkGetInstanceProcAddr()));
+#else
     if (VkResult r = volkInitialize(); r != VK_SUCCESS) return Result<void>::fail(vkError("no Vulkan loader", r));
+#endif
     std::uint32_t loaderVersion = VK_API_VERSION_1_0;
     if (vkEnumerateInstanceVersion) vkEnumerateInstanceVersion(&loaderVersion);
     if (loaderVersion < VK_API_VERSION_1_1)
@@ -852,6 +862,12 @@ Result<void> VulkanDevice::createInstance() {
         }
     }
 
+#ifdef __APPLE__
+    // MoltenVK is a portability driver: the loader lists it only to an instance that asks for those.
+    const bool portability = hasExtension(available, VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME);
+    if (portability) extensions.push_back(VK_KHR_PORTABILITY_ENUMERATION_EXTENSION_NAME);
+#endif
+
     VkApplicationInfo app{VK_STRUCTURE_TYPE_APPLICATION_INFO};
     app.pApplicationName = "Silent Hill PC";
     app.pEngineName = "Silent Hill PC";
@@ -862,6 +878,9 @@ Result<void> VulkanDevice::createInstance() {
     info.ppEnabledExtensionNames = extensions.data();
     info.enabledLayerCount = static_cast<std::uint32_t>(layers.size());
     info.ppEnabledLayerNames = layers.data();
+#ifdef __APPLE__
+    if (portability) info.flags |= VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR;
+#endif
     if (VkResult r = vkCreateInstance(&info, nullptr, &instance_); r != VK_SUCCESS)
         return Result<void>::fail(vkError("vkCreateInstance", r));
     volkLoadInstanceOnly(instance_);
@@ -998,6 +1017,7 @@ Result<void> VulkanDevice::createLogicalDevice() {
                 exts.push_back(VK_KHR_DEPTH_STENCIL_RESOLVE_EXTENSION_NAME);
         }
     }
+    if (hasExtension(deviceExtensions_, kPortabilitySubset)) exts.push_back(kPortabilitySubset);
     memoryBudget_ = hasExtension(deviceExtensions_, VK_EXT_MEMORY_BUDGET_EXTENSION_NAME);
     if (memoryBudget_) exts.push_back(VK_EXT_MEMORY_BUDGET_EXTENSION_NAME);
     hdrMetadata_ =
@@ -2867,6 +2887,33 @@ void VulkanPass::endTimedSection() {
 }
 
 }  // namespace
+
+bool loadVulkanLibrary() {
+#ifdef __APPLE__
+    if (SDL_Vulkan_GetVkGetInstanceProcAddr() != nullptr) return true;
+    // The package's own MoltenVK first, then a loader (it finds MoltenVK through its ICD file, and the validation
+    // layer), then MoltenVK alone.
+    std::vector<std::string> candidates;
+    if (const char* base = SDL_GetBasePath()) {
+        candidates.push_back(std::string(base) + "libvulkan.1.dylib");
+        candidates.push_back(std::string(base) + "libMoltenVK.dylib");
+    }
+    for (const char* name :
+         {"libvulkan.1.dylib", "/usr/local/lib/libvulkan.1.dylib", "/opt/homebrew/lib/libvulkan.1.dylib",
+          "libMoltenVK.dylib", "/usr/local/lib/libMoltenVK.dylib", "/opt/homebrew/lib/libMoltenVK.dylib"}) {
+        candidates.emplace_back(name);
+    }
+    for (const std::string& path : candidates) {
+        if (SDL_Vulkan_LoadLibrary(path.c_str())) {
+            shader_log(0, "vulkan: library " + path);
+            return true;
+        }
+    }
+    return false;
+#else
+    return true;
+#endif
+}
 
 Result<std::unique_ptr<Device>> createVulkanDevice(const VulkanDeviceDesc& desc) {
     auto device = std::make_unique<VulkanDevice>(desc);
