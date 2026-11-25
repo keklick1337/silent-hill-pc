@@ -149,6 +149,8 @@
     "ui.save.saved": "Kayıt tamamlandı.",
     "ui.save.time": "Süre",
     "ui.save.yes": "Evet",
-    "ui.save.quick_off": "Hızlı kayıt kapalı: Ayarlar > Oynanış > Anında hızlı kayıt."
+    "ui.save.quick_off": "Hızlı kayıt kapalı: Ayarlar > Oynanış > Anında hızlı kayıt.",
+    "ui.gpu.no_vulkan.title": "Grafik desteklenmiyor",
+    "ui.gpu.no_vulkan": "Bu cihazın grafik sürücüsü Vulkan'ı oyunun ihtiyaç duyduğu şekilde desteklemiyor, bu yüzden oyun başlatılamıyor."
   }
 }

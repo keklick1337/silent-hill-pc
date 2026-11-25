@@ -127,6 +127,8 @@
     "ui.save.save_count": "Zapis",
     "ui.save.time": "Czas",
     "ui.save.yes": "Tak",
-    "ui.save.quick_off": "Szybki zapis wyłączony: Opcje > Rozgrywka > Natychmiastowy zapis."
+    "ui.save.quick_off": "Szybki zapis wyłączony: Opcje > Rozgrywka > Natychmiastowy zapis.",
+    "ui.gpu.no_vulkan.title": "Grafika nieobsługiwana",
+    "ui.gpu.no_vulkan": "Sterownik grafiki tego urządzenia nie obsługuje Vulkana w sposób wymagany przez grę, więc gra nie może się uruchomić."
   }
 }

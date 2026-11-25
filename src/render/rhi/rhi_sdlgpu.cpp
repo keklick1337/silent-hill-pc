@@ -269,7 +269,17 @@ SdlGpuDevice::~SdlGpuDevice() {
 }
 
 Result<void> SdlGpuDevice::init() {
-    device_ = SDL_CreateGPUDevice(SDL_GPU_SHADERFORMAT_SPIRV, desc_.debug, desc_.driver);
+    const SDL_PropertiesID create = SDL_CreateProperties();
+    SDL_SetBooleanProperty(create, SDL_PROP_GPU_DEVICE_CREATE_SHADERS_SPIRV_BOOLEAN, true);
+    SDL_SetBooleanProperty(create, SDL_PROP_GPU_DEVICE_CREATE_DEBUGMODE_BOOLEAN, desc_.debug);
+    if (desc_.driver) SDL_SetStringProperty(create, SDL_PROP_GPU_DEVICE_CREATE_NAME_STRING, desc_.driver);
+    // SDL asks for these Vulkan features by default and refuses a device without them (Mali has no
+    // shaderClipDistance); the shaders write no clip distance, every pipeline clips depth, nothing draws indirect.
+    SDL_SetBooleanProperty(create, SDL_PROP_GPU_DEVICE_CREATE_FEATURE_CLIP_DISTANCE_BOOLEAN, false);
+    SDL_SetBooleanProperty(create, SDL_PROP_GPU_DEVICE_CREATE_FEATURE_DEPTH_CLAMPING_BOOLEAN, false);
+    SDL_SetBooleanProperty(create, SDL_PROP_GPU_DEVICE_CREATE_FEATURE_INDIRECT_DRAW_FIRST_INSTANCE_BOOLEAN, false);
+    device_ = SDL_CreateGPUDeviceWithProperties(create);
+    SDL_DestroyProperties(create);
     if (!device_) return Result<void>::fail(sdlError("SDL_CreateGPUDevice"));
     caps_.driver = SDL_GetGPUDeviceDriver(device_);
 #if SDL_VERSION_ATLEAST(3, 4, 0)

@@ -149,6 +149,8 @@
     "ui.save.saved": "Salvataggio completato.",
     "ui.save.time": "Tempo",
     "ui.save.yes": "Sì",
-    "ui.save.quick_off": "Salvataggio rapido disattivato: Opzioni > Gioco > Salvataggio lampo."
+    "ui.save.quick_off": "Salvataggio rapido disattivato: Opzioni > Gioco > Salvataggio lampo.",
+    "ui.gpu.no_vulkan.title": "Grafica non supportata",
+    "ui.gpu.no_vulkan": "Il driver grafico di questo dispositivo non supporta Vulkan come richiesto dal gioco, quindi il gioco non può avviarsi."
   }
 }

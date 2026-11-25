@@ -149,6 +149,8 @@
     "ui.save.saved": "Finished saving.",
     "ui.save.time": "Time",
     "ui.save.yes": "Yes",
-    "ui.save.quick_off": "Quick save is off: Options > Gameplay > Instant Quick Save."
+    "ui.save.quick_off": "Quick save is off: Options > Gameplay > Instant Quick Save.",
+    "ui.gpu.no_vulkan.title": "Graphics not supported",
+    "ui.gpu.no_vulkan": "This device's graphics driver does not support Vulkan in the way the game needs, so the game cannot start."
   }
 }
