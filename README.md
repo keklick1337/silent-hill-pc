@@ -4,6 +4,7 @@
 [![Build Linux](https://github.com/keklick1337/silent-hill-pc/actions/workflows/build-linux.yml/badge.svg)](https://github.com/keklick1337/silent-hill-pc/actions/workflows/build-linux.yml)
 [![Build Windows](https://github.com/keklick1337/silent-hill-pc/actions/workflows/build-windows.yml/badge.svg)](https://github.com/keklick1337/silent-hill-pc/actions/workflows/build-windows.yml)
 [![Build macOS](https://github.com/keklick1337/silent-hill-pc/actions/workflows/build-macos.yml/badge.svg)](https://github.com/keklick1337/silent-hill-pc/actions/workflows/build-macos.yml)
+[![Build Android](https://github.com/keklick1337/silent-hill-pc/actions/workflows/build-android.yml/badge.svg)](https://github.com/keklick1337/silent-hill-pc/actions/workflows/build-android.yml)
 
 A from-scratch engine that plays **Silent Hill** (PlayStation, 1999) on Windows, Linux and macOS from **your own disc image**.
 
