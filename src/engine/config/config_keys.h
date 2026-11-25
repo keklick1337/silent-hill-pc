@@ -189,6 +189,8 @@ inline constexpr Word kCameraStyles[] = {{"tps", 1}, {"ots", 2}, {"fps", 3}};
 inline constexpr Word kSpeakers[] = {{"stereo", 1}, {"quad", 2}, {"51", 3}, {"71", 4}, {"hrtf", 5}};
 inline constexpr Word kAspects[] = {{"raw", 1}, {"accurate", 1}};
 inline constexpr Word kSoftwareGl[] = {{"auto", 0}, {"force", 1}, {"off", 2}};
+inline constexpr Word kTouchControls[] = {{"auto", 0}, {"0", 0}, {"on", 1}, {"1", 1}, {"off", 2}, {"2", 2}};
+inline constexpr Word kTouchMovement[] = {{"stick", 0}, {"0", 0}, {"dpad", 1}, {"1", 1}};
 inline constexpr Word kWater[] = {{"low", 0}, {"0", 0}, {"medium", 1}, {"1", 1}, {"high", 2}, {"2", 2}};
 inline constexpr Word kUpscaling[] = {{"off", 0},          {"0", 0}, {"tessellation", 1}, {"1", 1},
                                       {"mesh_shaders", 2}, {"2", 2}};
@@ -395,6 +397,19 @@ inline constexpr Setting kSettings[] = {
     keys::custom("quick_weapon_switch", Hook::QuickWeapons, "the quick weapon actions"),
     keys::flag("altcam_button_sprint", &keys::C::altButtonSprint, 0, "sprint only on the run button"),
     keys::flag("immersive_fps_head_tracking", &keys::C::immersiveFpsHeadTracking, 0, "first-person view follows the head bone"),
+    keys::word("touch_controls", &keys::C::touchControls, 0, keys::kTouchControls, 0,
+               "on-screen controls: auto (touch screens), on or off"),
+    keys::whole("touch_action_button", &keys::C::touchActionButton, 0, 0, 1,
+                "the action button: 0 when there is something to act on, 1 always"),
+    keys::flag("touch_aim_toggle", &keys::C::touchAimToggle, 1, "a tap of the aim button raises the weapon, the next lowers it"),
+    keys::flag("touch_stick_run", &keys::C::touchStickRun, 1, "the stick pushed most of the way forward runs"),
+    keys::word("touch_movement", &keys::C::touchMovement, 0, keys::kTouchMovement, 0,
+               "movement by touch: stick (the floating stick) or dpad (four arrows and a run toggle)"),
+    keys::real("touch_opacity", &keys::C::touchOpacity, 0.6, 0.2, 1.0, "opacity of the on-screen controls"),
+    keys::real("touch_scale", &keys::C::touchScale, 1.0, 0.6, 1.6, "size of the on-screen controls"),
+    keys::real("phone_vibration", &keys::C::phoneVibration, 1.0, 0.0, 1.0,
+               "strength of the rumble on a phone's own vibrator, 0 = off"),
+    keys::text("touch_layout", &text_field<&keys::C::touchLayout>, "", "places of the on-screen controls, empty = default"),
     keys::flag("control_2d", &keys::C::control2d, 0, "screen-relative movement"),
     keys::flag("control_2d_snap", &keys::C::control2dSnap, 0, "screen-relative movement turns at once"),
     keys::flag("disable_dpad_movement", &keys::C::disableDpadMovement, 0, "the d-pad does not move Harry"),

@@ -255,6 +255,16 @@ typedef struct {
     int scriptRawApi;
     int worldObjectsShadow;
     int quickSetup;  // 1: the quick setup is shown at the next start
+    // The touch screen's controls (input/touch/touch_controls.h).
+    int touchControls;      // 0 auto (on a touch device), 1 on (also on a desktop, the mouse as a finger), 2 off
+    int touchActionButton;  // 0 only when there is something to act on, 1 always
+    int touchAimToggle;     // 1: a tap raises the weapon and the next lowers it
+    int touchStickRun;      // 1: the stick pushed to its rim runs
+    int touchMovement;      // 0 the floating stick, 1 the d-pad with its run toggle
+    float touchOpacity;
+    float touchScale;
+    float phoneVibration;  // the pad rumble on a phone's own vibrator (input/phone_rumble.h): 0 off .. 1 full
+    char touchLayout[240];  // input/touch/touch_layout.h; empty = the default places; a 256-byte config line
 } s_PcConfig;
 
 extern s_PcConfig g_PcConfig;

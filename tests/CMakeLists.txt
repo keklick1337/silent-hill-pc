@@ -27,8 +27,8 @@ target_include_directories(sh_tests PRIVATE
 target_compile_definitions(sh_tests PRIVATE "SH_PROJECT_ROOT=\"${PROJECT_SOURCE_DIR}\"")
 
 # A module that is not part of the build has no target, so its link is skipped.
-foreach(sh_lib IN ITEMS sh_common sh_disc sh_iso9660 sh_archive sh_vfs sh_mods sh_hooks sh_mods_console sh_tables sh_log sh_crash sh_memory
-        sh_png sh_gltf sh_import sh_import_ui sh_quick_setup sh_import_tool sh_upscale_tool sh_desktop
+foreach(sh_lib IN ITEMS sh_common sh_disc sh_miniz sh_iso9660 sh_archive sh_vfs sh_mods sh_hooks sh_mods_console sh_tables sh_log sh_crash sh_memory
+        sh_png sh_gltf sh_import sh_import_ui sh_quick_setup sh_screen_kit sh_import_tool sh_upscale_tool sh_desktop
         sh_convert_tim sh_convert_model sh_convert_audio sh_convert_text sh_i18n sh_convert_font sh_convert_level
         sh_convert_anim sh_convert_cutscene sh_convert_archive
         sh_convert_mapdata sh_convert_filetable sh_maps sh_maps_unified sh_assets sh_items sh_script lua_static sh_convert_materials sh_chara sh_chara_actions sh_sound_registry sh_gconfig sh_utf8 sh_input sh_audio sh_entities sh_player sh_player_script sh_world sh_combat sh_cutscene sh_save sh_save_c sh_render sh_frame sh_present sh_flags sh_console sh_text sh_camera sh_inventory sh_screens sh_menu sh_loop sh_devtools sh_gameflow sh_effects sh_offscreen sh_feedback sh_loader sh_gpu sh_fmv)
@@ -85,9 +85,10 @@ if(SH_TEST_CHARA_GAME IN_LIST SH_TEST_SOURCES)
                                     "${PROJECT_SOURCE_DIR}/src/engine/chara/game/map_cast.cpp")
 endif()
 
-# The bind table, the console key binds, the prompt table, the pointer arithmetic, the console's selection and the
-# camera styles are compiled into the game (src/input); their tests build the parts that need neither SDL nor the
-# game.
+# The bind table, the console key binds, the prompt table, the pointer arithmetic, the console's selection, the
+# camera styles, the phone's rumble and the touch controls' plain parts are compiled into the game (src/input); their
+# tests build the parts that need neither SDL nor the game (input/touch_test.cpp and input/touch_dpad_test.cpp use the
+# touch sources below).
 set(SH_TEST_INPUT_BIND_TABLE "${CMAKE_CURRENT_SOURCE_DIR}/input/bind_table_test.cpp")
 if(SH_TEST_INPUT_BIND_TABLE IN_LIST SH_TEST_SOURCES)
     target_sources(sh_tests PRIVATE "${PROJECT_SOURCE_DIR}/src/input/bind/bind_table.cpp"
@@ -95,9 +96,16 @@ if(SH_TEST_INPUT_BIND_TABLE IN_LIST SH_TEST_SOURCES)
                                     "${PROJECT_SOURCE_DIR}/src/input/bind/console_binds.cpp"
                                     "${PROJECT_SOURCE_DIR}/src/input/glyphs/glyph_table.cpp"
                                     "${PROJECT_SOURCE_DIR}/src/input/pointer_math.cpp"
+                                    "${PROJECT_SOURCE_DIR}/src/input/phone_rumble.cpp"
                                     "${PROJECT_SOURCE_DIR}/src/input/inventory_pointer.cpp"
+                                    "${PROJECT_SOURCE_DIR}/src/input/ring_carousel.cpp"
                                     "${PROJECT_SOURCE_DIR}/src/input/object_pick.cpp"
-                                    "${PROJECT_SOURCE_DIR}/src/input/camera_style.cpp")
+                                    "${PROJECT_SOURCE_DIR}/src/input/camera_style.cpp"
+                                    "${PROJECT_SOURCE_DIR}/src/input/touch/touch_layout.cpp"
+                                    "${PROJECT_SOURCE_DIR}/src/input/touch/touch_gestures.cpp"
+                                    "${PROJECT_SOURCE_DIR}/src/input/touch/action_kinds.cpp"
+                                    "${PROJECT_SOURCE_DIR}/src/input/touch/touch_icons.cpp"
+                                    "${PROJECT_SOURCE_DIR}/src/input/touch/touch_sprites.cpp")
 endif()
 
 # The debug layer is compiled into the game (src/engine/debug); its test builds the parts that need no game.

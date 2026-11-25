@@ -4,6 +4,7 @@
 // the game data, opens the window and the renderer, hands the settings to the subsystems, loads the game's data
 // tables and the start map, and runs the main loop. The steps of main() run in the order they are written in; each
 // says what it needs to have happened before it.
+#include <algorithm>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
@@ -16,6 +17,10 @@
 #include <vector>
 
 #include <SDL3/SDL.h>
+#ifdef __ANDROID__
+// SDL's Java activity calls SDL_main in libmain.so: the header renames main() below.
+#include <SDL3/SDL_main.h>
+#endif
 
 #include "audio/bridge/sound_bridge.h"
 #include "audio/voice/voice_line_player.h"
@@ -31,6 +36,7 @@
 #include "engine/app/game_data_dir.h"
 #include "engine/app/loader/game_files.h"
 #include "engine/app/map_info_tables.h"
+#include "engine/app/mod_import_picker.h"
 #include "engine/app/mods_data_reload.h"
 #include "engine/app/pc_paths.h"
 #include "engine/app/restart.h"
@@ -63,6 +69,7 @@
 #include "i18n/text_bridge.h"
 #include "input/camera_style.h"
 #include "input/pad.h"
+#include "input/touch/touch_controls.h"
 #include "media/fmv/movie_player.h"
 #include "render/geometry/hero_fill_light.h"
 #include "render/gpu/device_host.h"
@@ -129,9 +136,37 @@ void set_text(char (&setting)[N], const char* value) {
 
 // ---- before the game data ----
 
+// A phone's graphics preset sizes its picture by the screen, which it is told before config.cfg is read.
+void phone_screen_before_config() {
+#ifdef __ANDROID__
+    if (!SDL_InitSubSystem(SDL_INIT_VIDEO)) return;
+    if (const SDL_DisplayMode* mode = SDL_GetCurrentDisplayMode(SDL_GetPrimaryDisplay())) {
+        const float density = mode->pixel_density > 0.0f ? mode->pixel_density : 1.0f;
+        RenderPreset_SetScreenHeight(static_cast<int>(static_cast<float>(std::min(mode->w, mode->h)) * density));
+    }
+#endif
+}
+
+// A phone shows every frame at the display's own rhythm (FIFO, the display asked for the frame cap: display_rate.h):
+// an unsynced present only heats it up. Its window is the whole screen whatever config.cfg says (device_host.cpp).
+// Its frame caps are 30, 60 and 120 (Options offers those the display can show).
+void phone_settings_after_config() {
+#ifdef __ANDROID__
+    g_PcConfig.vsync = 1;
+    g_PcConfig.presentMode = 1;
+    g_PcConfig.refreshRate = 0;
+    g_PcConfig.fullscreen = 2;
+    if (g_PcConfig.fpsCap != 30 && g_PcConfig.fpsCap != 120) g_PcConfig.fpsCap = 60;
+    // Vulkan native or SDL GPU over Vulkan: there is no OpenGL ES backend, so gl (the desktop default) means vulkan.
+    const std::optional<sh::gpu::BackendKind> backend = sh::gpu::backend_from_name(g_PcConfig.renderer);
+    if (!backend || *backend == sh::gpu::BackendKind::Gl) set_text(g_PcConfig.renderer, "vulkan");
+    RenderPreset_PlatformLimits(&g_PcConfig);
+#endif
+}
+
 // The applications-menu entry of a Linux desktop: written or removed, then the program ends.
 int desktop_entry(bool install, const char* argv0) {
-#if defined(__linux__)
+#if defined(__linux__) && !defined(__ANDROID__)
     std::error_code ec;
     fs::path exe = fs::read_symlink("/proc/self/exe", ec);
     if (ec || exe.empty()) {
@@ -217,6 +252,13 @@ void choose_start_map(bool skip_to_game) {
 // window of its own, so the config it writes is simply read again: the start goes on as a fresh one would. Returns
 // the exit code when the player closed the window.
 std::optional<int> quick_setup(const sh::app::CommandLine& args, const std::string& config) {
+#ifdef __ANDROID__
+    // Its questions are a desktop's (renderer, window size, OpenGL probe); a phone starts with Vulkan, fullscreen
+    // and the defaults of config.cfg.
+    (void)args;
+    (void)config;
+    return std::nullopt;
+#endif
     namespace qs = sh::quick_setup;
     std::error_code ec;
     const bool exists = fs::is_regular_file(config, ec);
@@ -236,8 +278,8 @@ std::optional<int> quick_setup(const sh::app::CommandLine& args, const std::stri
     request.language = g_PcConfig.languageCode;
     request.window = {g_PcConfig.windowWidth, g_PcConfig.windowHeight};
     for (int preset = 0; preset < RENDER_PRESET_COUNT; ++preset) {
-        if (preset == RENDER_PRESET_CUSTOM) {
-            continue;
+        if (preset == RENDER_PRESET_CUSTOM || preset == RENDER_PRESET_MOBILE) {
+            continue;  // the quick setup is a desktop's
         }
         s_PcConfig values = g_PcConfig;
         RenderPreset_Apply(preset, &values);
@@ -293,6 +335,7 @@ std::optional<int> first_run(const sh::app::CommandLine& args, const std::string
     request.image_arg = args.image ? args.image->c_str() : nullptr;
     request.reimport = args.reimport ? 1 : 0;
     request.language = g_PcConfig.languageCode;
+    request.import_script = args.import_script ? args.import_script->c_str() : nullptr;
     PcFirstRunResult result;
     if (const int code = PcFirstRun_Run(&request, &result); code != 0) {
         return code;
@@ -414,6 +457,9 @@ bool redirect(std::FILE* stream, const char* path, const char* mode, bool unbuff
 // own and opens one. Otherwise the output joins the log file, or goes nowhere - the journal reaches the terminal
 // through its own descriptor either way. (The in-game console is another thing: console_enabled.)
 void route_standard_output() {
+#ifdef __ANDROID__
+    return;  // both already go to the system log (use_bundle_root)
+#endif
     const bool terminal = g_PcConfig.showConsole == 1 || g_PcConfig.showConsole == 3;
     if (terminal) {
 #ifdef _WIN32
@@ -545,6 +591,11 @@ bool open_window() {
                         sh::platform::window_mode_from_config(g_PcConfig.fullscreen));
     if (!sh::gpu::renderer()) {
         SH_LOG_ERROR(RENDER, "no renderer: the window or the graphics device could not be created");
+#ifdef __ANDROID__
+        // A phone has no OpenGL fallback: without this the app would only vanish.
+        const std::string box_title = sh::i18n::ui_text("ui.gpu.no_vulkan.title");
+        ShDialog_Show(1, box_title.c_str(), sh::i18n::ui_text("ui.gpu.no_vulkan"));
+#endif
         return false;
     }
     sh::platform::set_window_resized_hook(on_window_resized);
@@ -740,6 +791,7 @@ int main(int argc, char* argv[]) {
     // Before any path: started from a macOS bundle, the root moves to the user's Application Support.
     sh::app::use_bundle_root();
     sh::mods::set_restart_handler(sh::app::restart);
+    sh::app::install_mod_import_picker();
     MapManifest_SetRoot(PcPaths_ExeDir());
     ShLog_Init();
     std::atexit(ShLog_Shutdown);
@@ -775,7 +827,9 @@ int main(int argc, char* argv[]) {
     sh::desktop::prepare_video_driver();
 
     const std::string config = find_config();
+    phone_screen_before_config();
     PcConfig_Load(config.c_str());
+    phone_settings_after_config();
     if (const std::optional<int> exit_code = quick_setup(args, config)) {
         return *exit_code;
     }
@@ -815,6 +869,7 @@ int main(int argc, char* argv[]) {
     if (!open_window()) {
         return 1;
     }
+    sh::input::touch::install();
     apply_input_settings();
     apply_display_settings();
     apply_graphics_settings();

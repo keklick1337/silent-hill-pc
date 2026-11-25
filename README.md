@@ -32,7 +32,7 @@ In development. The goal is the original game "about 1:1" — controls, camera, 
 
 - All 43 maps of the game are data in `gamedata/maps/` and are loaded and stepped by an automated sweep; recorded routes (school, hospital, sewers, the Otherworld, bosses and others) are replayed tick-for-tick as regression tests ([docs/TESTING.md](docs/TESTING.md)).
 - Known differences from the original: [below](#differences-from-the-original). Bugs: [issues](https://github.com/keklick1337/silent-hill-pc/issues).
-- Linux is the development platform. The Windows build is cross-compiled with mingw-w64 and tested under Wine; reports from real Windows machines are welcome. macOS builds natively with Apple Clang and plays the recorded routes identically to Linux.
+- Linux is the development platform. The Windows build is cross-compiled with mingw-w64 and tested under Wine; reports from real Windows machines are welcome. macOS builds natively with Apple Clang and plays the recorded routes identically to Linux. An Android build (APK for arm64-v8a, armeabi-v7a, x86_64 and x86, Vulkan only) starts, imports a zipped disc image and plays with on-screen touch controls or a gamepad (see [Touch controls](#touch-controls); [docs/BUILDING.md](docs/BUILDING.md), section 5).
 - Only the NTSC USA v1.1 disc is supported. PAL and Japanese discs are untested.
 
 ## Features
@@ -50,7 +50,7 @@ In development. The goal is the original game "about 1:1" — controls, camera, 
 
 ## System requirements
 
-- A disc image of **Silent Hill, NTSC USA, version 1.1 (`SLUS-007.07`)** that you made from your own disc: `.bin` + `.cue`, a `.bin` alone, or a raw `.iso` — in every case with full 2352-byte sectors. An ordinary 2048-byte `.iso` does not work: it has lost the audio and video streams.
+- A disc image of **Silent Hill, NTSC USA, version 1.1 (`SLUS-007.07`)** that you made from your own disc: `.bin` + `.cue`, a `.bin` alone, or a raw `.iso` — in every case with full 2352-byte sectors — or a `.zip` holding them (read in place, not unpacked). An ordinary 2048-byte `.iso` does not work: it has lost the audio and video streams.
 - Windows 10 or 11 (64-bit), 64-bit Linux with glibc 2.39 or newer (the release is built on Ubuntu 24.04; on an older system, build from source), or macOS 13.3 or newer (Apple silicon or Intel).
 - A GPU with OpenGL 3.3, or Vulkan for `renderer = vulkan` (on macOS through the bundled MoltenVK; it has no ray tracing, so the RTX presets run without their ray-traced effects). Without a usable GPU driver the game still runs, slowly, rendering on the CPU through Mesa llvmpipe (Linux: the system's Mesa; Windows: the `software_gl/` folder of the package) at the lightest graphics (`software_gl` in `config.cfg`).
 - About 2 GB of free disk space for the imported data (and up to 2 GB more for the optional AI texture upscaling cache).
@@ -70,7 +70,7 @@ Get the latest build from the [Releases page](https://github.com/keklick1337/sil
 On Windows and Linux:
 
 1. Unpack it anywhere you can write to.
-2. Put your disc image (`.cue` and `.bin`) beside the executable or into a `data/` folder beside it — or pass its path with `--image`.
+2. Put your disc image (`.cue` and `.bin`, or a `.zip` of them) beside the executable or into a `data/` folder beside it — or pass its path with `--image`.
 3. Start `SilentHillPC.exe` (Windows) or `./SilentHillPC` (Linux).
 
 On macOS:
@@ -78,6 +78,8 @@ On macOS:
 1. Open the `.dmg` and drag *Silent Hill PC* to *Applications*.
 2. Start it. The app is not notarized, so the first start is refused once: open *System Settings > Privacy & Security* and press *Open Anyway* (or, in the Terminal, `xattr -dr com.apple.quarantine "/Applications/Silent Hill PC.app"`).
 3. The import window asks for the disc image: press Browse or drop the `.cue` onto it. The game keeps its data, settings and saves in `~/Library/Application Support/Silent Hill PC/` (put mods into `mods/` there).
+
+On Android (built from source, see [docs/BUILDING.md](docs/BUILDING.md), section 5): install the APK and start it; the import screen's Browse opens the system file picker — choose a `.zip` holding the `.cue` and `.bin` (a lone `.bin` works too; a `.cue` cannot name its `.bin` through the picker). The game keeps its data, settings and saves in the app's own folder, `Android/data/<app id>/files/` on the shared storage. The back key is Esc.
 
 The first start opens a quick setup in a window before anything else: the language, the renderer (OpenGL, close to the original and light enough for any machine, or Vulkan with HDR, volumetric fog, ray tracing and upscaling), a graphics preset and the display, each preselected from the detected graphics card. *Apply* writes them into `config.cfg`; everything else is in the in-game *Options*, where *Run Quick Setup* brings the screen back (so does `--setup`). Then the first start imports the disc image into `gamedata/` and shows a progress window; this takes from half a minute to a few minutes and happens once. After that the disc image is no longer read and the game starts at once. A newer release that needs a new import does it by itself from the same image. When no image is found, the window asks for it: press Browse, type the path or drop the file onto the window, then Import; the path is remembered in `config.cfg` (`import_image`).
 
@@ -126,6 +128,22 @@ Defaults; everything can be rebound in *Options > Controls*. A controller uses t
 
 The controller mapping and the control styles are in *Options > Controls*.
 
+### Touch controls
+
+On a phone or tablet (Android) the game is played by touch; a controller works too, and while one is in use the on-screen controls step aside.
+
+- **Stick**: put a thumb anywhere in the left part of the screen and push; a light push walks, pushing forward to the rim runs.
+- **D-pad** (instead of the stick, *Options > Controls > Movement*): a cross of four arrows in the lower left, held with one finger as the d-pad of the original's pad; the arrow under the finger is pressed, a diagonal presses the two beside it, and the finger slides from arrow to arrow without lifting. With it a **Run** button shows: a tap turns running on (the button is lit) and the next tap turns it off.
+- **Action**: appears when Harry can act on something in reach (take an item, read a note, open a door, check something); its picture says which.
+- **Aim** (shown while a weapon is in hand) raises the weapon (a tap, the next tap lowers it); **Attack** appears while the weapon is up, its picture the weapon's kind, and with a boot while a downed enemy lies in front of Harry (a tap kicks it, a held press stomps it).
+- **Struggle**: a large button while a monster holds Harry or he lies on the floor; tap it again and again (or flick the stick back and forth) to break free.
+- **Camera**, **Map**, **Inventory** and **Pause** sit along the top; Camera is the View button (V on a keyboard).
+- **Menus, inventory, save screen**: tap to choose, drag to scroll (a flick glides on). A row of several values opens the list of them to tap one; a bar is set where it is tapped (hold and drag to slide it). The **Back** button in the top left corner does what Esc does; a tap on a message or a scene's text goes on to the next line.
+- **Map**: like a page in a browser: pinch to zoom about the fingers, drag to move it (a flick glides on, the edges spring back), double-tap to zoom in at a point and again to see the whole page; with the whole page shown, swipe up or down to turn the page. **Back** closes it.
+- **Skip** (top right) appears where the original lets the player skip: the logos, movies and skippable scenes.
+
+*Options > Controls > Touch Controls* edits the layout (drag a control to move it, pinch it to resize it; the check mark saves), sets size and opacity, whether the action button shows only when needed or always, whether the aim button toggles, the stick or the d-pad (`touch_movement`, on a phone), and whether the stick's rim runs. The keys are `touch_*` in `config.cfg`; `touch_controls = on` shows the controls on a desktop too, with the mouse as the finger. While no controller with motors is in use, the game's rumble (running into a wall, hits, shots, the heartbeat at low health) plays on the phone's own vibrator: *Options > Controls > Vibration* turns it on or off as on a pad, *Phone Vibration* (`phone_vibration`) sets its strength. *Options > Interface > Performance Overlay* shows the frame rate or the profiler.
+
 ## Configuration
 
 Most settings are in the in-game *Options* screens. All of them, with explanations, are in `config.cfg` beside the executable (the defaults are [assets/config.cfg](assets/config.cfg)): `graphics_preset`, `renderer`, `fullscreen`, `width` / `height`, `vsync`, `fps_cap`, `language`, key bindings, the import options, and the `GAMEPLAY CHANGE` switches. Deleting `config.cfg` and unpacking it again from the package restores the defaults.
@@ -159,13 +177,13 @@ Every change of rules, balance or story is an option marked `GAMEPLAY CHANGE` in
 
 ## Mods
 
-1. Copy the mod's folder into `mods/` beside the executable, so that `mods/<name>/mod.json` exists.
+1. In *Options > Mods > Import mods* pick a folder or a `.zip` with one mod or several (on a desktop you can also drop it onto the window): the game shows what it found and copies the mods you tick into `mods/` beside the executable. Or copy the mod's folder there yourself, so that `mods/<name>/mod.json` exists.
 2. Start the game, open *Options > Mods*, switch the mod on (a new mod is off until you do) and let the game restart. The same screen sets the load order. The console does it too: `mods`, `mods enable <id>`.
 
 A mod that changes rules, balance or story is marked `GAMEPLAY CHANGE` on that screen. With an empty `mods/` folder the game is the original.
 
 - The modding guide (English): [docs/modding/](docs/modding/README.md) — getting started, `mod.json`, every kind of data, Lua scripting, the event catalogue, the [Lua API reference](docs/modding/lua-api.md), troubleshooting
-- Example mods, each showing one technique: [examples/mods/](examples/mods/README.md). Every release also has them as `SilentHillPC-<version>-example-mods.zip`: unpack it into the game folder, then turn the mods on in *Options > Mods*.
+- Example mods, each showing one technique: [examples/mods/](examples/mods/README.md). Every release also has them as `SilentHillPC-<version>-example-mods.zip`: import it in *Options > Mods > Import mods* (or unpack it into the game folder), then turn the mods on in *Options > Mods*.
 - Data formats written by the import: [docs/FORMATS.md](docs/FORMATS.md), [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
 
 [docs/README.md](docs/README.md) lists all documents.

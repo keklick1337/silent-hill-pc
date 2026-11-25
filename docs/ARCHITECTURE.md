@@ -35,7 +35,7 @@ Rules:
 
 | Directory | Contents |
 |---|---|
-| `src/engine/app` | entry point (`game_main.cpp`), quick setup (`quick_setup/`, before everything else on the first start), first start (`first_run/`), main loop, game screen, restart, paths |
+| `src/engine/app` | entry point (`game_main.cpp`), quick setup (`quick_setup/`, before everything else on the first start), first start (`first_run/`: the disc import and its screen), what both screens draw with (`screen_kit/`: text from the TrueType and system fonts, the menus' widgets, layout for any window), main loop, game screen, restart, paths |
 | `src/engine/platform`, `timing`, `loop` | window, mode, vsync, events (`sh::platform`, `window.h`); VBlank clock, replay virtual time (`sh::timing`); frame and logic tick |
 | `src/engine/desktop` | the application's desktop face (`sh_desktop`): application name and id `silent-hill-pc` (X11 window class, Wayland app id — `SDL_SetAppMetadata`), window icon from `<exe>/assets/icon/app_<N>.png`, a Linux application menu entry on the user's request — `--install-desktop` / `--uninstall-desktop` write `~/.local/share/applications/silent-hill-pc.desktop` (absolute exe path, `StartupWMClass=silent-hill-pc`) and icons into `~/.local/share/icons/hicolor/<N>x<N>/apps/`; the template is `assets/linux/silent-hill-pc.desktop.in` (embedded in the exe), the same from the shell is `assets/linux/install-desktop.sh`. Whether anyone sees the windows (`video_driver.h`): `SDL_VIDEODRIVER=offscreen` or `dummy` means a headless run, and on macOS, whose SDL offscreen driver has no OpenGL, offscreen is answered by Cocoa with hidden windows. Everything about the icon is in `assets/icon/`: `master.svg` → `master.png` → sizes and `app.ico` (`generate.sh`); to replace the icon, replace `master.png` and run `generate.sh --keep-master`. Test: `tests/desktop/` |
 | `src/engine/config`, `gconfig`, `log`, `console`, `debug`, `devtools`, `crash` | `config.cfg`; game tables `gamedata/config/`; log with categories; console; debug menus; crash handler |
@@ -94,7 +94,7 @@ Commands and the order of checks: [DEVELOPMENT.md](DEVELOPMENT.md), section 4.
 
 The decisions in force. Code and documents refer to them by number, so the numbers are not reused; gaps are decisions that no longer apply.
 
-- **D9. Platforms.** Linux x64 and Windows (mingw, dependencies built from source inside the project — [BUILDING.md](BUILDING.md)).
+- **D9. Platforms.** Linux x64 and Windows (mingw, dependencies built from source inside the project — [BUILDING.md](BUILDING.md)), macOS, and Android (an APK of all four ABIs, Vulkan only; the game is `libmain.so` under SDL's activity, `android/`).
 - **D10, D12. Lua.** Lua 5.4 (`third_party/lua`) is the scripting layer. Sandbox: no `io`, `os`, `debug`, `package`, `dofile`, `loadfile`, bytecode; an instruction limit through a hook and a memory limit through our own allocator.
 - **D13, D27. Time.** Logic runs on a virtual VBlank, as in the original: gameplay is 2 VBlanks per tick (~30 Hz), menus 1; rendering is separate, with interpolation. A slow frame skips rendering rather than slowing the logic down.
 - **D19. Style.** `.clang-format` (Google style, indent 4, 120 columns) for `src/` and `tests/`: changed lines are formatted, the whole tree is not reformatted; comments only about the non-obvious "why", in English.
@@ -133,7 +133,7 @@ Where each part of the game lives. Every engine module computes what happens; th
 | Cutscenes and movies | `src/engine/cutscene/`, `src/media/fmv/` | the disc's `DMS` cutscenes are converted to JSON once and evaluated by the engine; movies are decoded by the engine (mods may add mp4 through FFmpeg) |
 | Screens and menus | `src/engine/screens/`, `src/ui/` | title, options, map, credits and the rest; menus are Lua in `gamedata/menus/` |
 | Audio | `src/engine/audio/`, `src/audio/` | the engine plays the converted sound banks and music with the original driver's voice, envelope and reverb rules; no sound chip is emulated; sound names in `gamedata/sounds/` |
-| Input | `src/input/` | keyboard and mouse bind to actions, which become the pad bits the logic reads; controllers keep their own bindings |
+| Input | `src/input/` | keyboard and mouse bind to actions, which become the pad bits the logic reads; controllers keep their own bindings; a touch screen's controls hold the same actions (`src/input/touch/`, pictures in `gamedata/ui/touch/`, the action button's kinds in `gamedata/config/touch_actions.json`); the game's pad vibration (`src/engine/gameflow/pad_vibration.h`, scripts in `gamedata/config/pad_vibration.json`, started from Lua with `sh.pad.effect`) drives a pad's motors, and on Android the phone's own vibrator while no pad with motors is in use (`src/input/phone_rumble.h`, SDL's `VIBRATOR_SERVICE` haptic, `phone_vibration`) |
 | Text and languages | `src/i18n/`, `src/engine/text/` | all text under keys in `gamedata/text/<lang>/`, a language is a folder with `lang.json`; the game font plus glyph sheets in `gamedata/font/`, other scripts from bundled or system fonts |
 | Saves | `src/engine/save/` | named files in `.savegames/` beside the executable, everything by name |
 | Rendering | `src/render/` | [RENDER.md](RENDER.md) |
