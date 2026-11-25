@@ -68,21 +68,21 @@ std::int32_t label_growth(const char* english)
 
 std::int32_t item_name_x() { return name_x(label_growth("Name:")); }
 
-std::int32_t place_name_row_tag(std::int32_t x, const char* tag, int item)
+std::int32_t place_name_row_tag(std::int32_t x, const char* tag, int item, std::int32_t shift)
 {
     const char* english = Pc_TextItemIn(static_cast<int>(item) - kFirstItemNumber, 0, PC_TEXT_BASE);
     const TagPlace place =
         place_name_tag(x, label_growth(tag), label_growth("Name:"), sh::i18n::text_width(english != nullptr ? english : ""),
                        sh::i18n::text_width(sh::i18n::menu_text(item_name_text(item))));
-    text::game_text().set_position(place.x, place.y);
+    text::game_text().set_position(place.x + shift, place.y);
     return place.y;
 }
 
-void draw_map_notice(bool no_map)
+void draw_map_notice(bool no_map, std::int32_t shift)
 {
     const screens::ItemScreenStyle& style = item_screen_style();
     const std::string& notice = no_map ? style.notice_no_map : style.notice_too_dark;
-    text::game_text().set_position(style.notice_x, style.notice_y);
+    text::game_text().set_position(style.notice_x + shift, style.notice_y);
     text::game_text().set_color(style.notice_color);
     text::game_text().draw(notice.c_str(), kNoticeLetters);
 }

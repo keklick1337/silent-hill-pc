@@ -5,6 +5,8 @@
 
 #include "engine/inventory/inventory_draw.h"
 
+#include "engine/inventory/wide_layout.h"
+
 #include "engine/world/fixed_trig.h"
 
 namespace sh::inventory {
@@ -114,11 +116,24 @@ std::uint8_t glare_out(std::int32_t t, std::int32_t end, std::int32_t gain)
     return t < end ? static_cast<std::uint8_t>((end - t) * gain) : 0;
 }
 
+// A selection's frame, moved with its column on a wide window.
+Box frame_of(Selection selection, std::int32_t shift)
+{
+    Box box = kFrames[static_cast<std::size_t>(selection)];
+    WideLayout wide;
+    wide.shift = shift;
+    box.x = static_cast<std::int16_t>(wide.x(column_of(selection), box.x));
+    return box;
+}
+
 }  // namespace
 
 Background layout_background(OutlineTrail& trail, const BackgroundInput& in)
 {
     Background out;
+    WideLayout wide;
+    wide.shift = in.column_shift;
+    constexpr Column kPanelColumns[3] = {Column::Left, Column::Centre, Column::Right};
     const std::int32_t wave = in.frame & 0x7F;
     const std::int32_t pulse = wave < 64 ? wave : 127 - wave;
     const bool settled = in.selection_age == kSettledAge;
@@ -133,7 +148,7 @@ Background layout_background(OutlineTrail& trail, const BackgroundInput& in)
                 const Rgb color = panel_color(in.difficulty, row == hi_row && column == hi_column, pulse);
                 for (int half = 0; half < 2; half++) {
                     GradientQuad& quad = out.panels[out.panel_count++];
-                    const std::int32_t x0 = kPanelLeft + kPanelPitch * column;
+                    const std::int32_t x0 = wide.x(kPanelColumns[column], kPanelLeft + kPanelPitch * column);
                     const std::int32_t x1 = x0 + kPanelWidth;
                     const std::int32_t y0 = kPanelTop[row] + kPanelHalf * half;
                     const std::int32_t y1 = y0 + kPanelHalf;
@@ -149,8 +164,8 @@ Background layout_background(OutlineTrail& trail, const BackgroundInput& in)
     for (int age = 3; age > 0; age--)
         trail.quads[age] = trail.quads[age - 1];
 
-    const Box& to = kFrames[static_cast<std::size_t>(in.selection)];
-    const Box& from = kFrames[static_cast<std::size_t>(in.previous)];
+    const Box to = frame_of(in.selection, in.column_shift);
+    const Box from = frame_of(in.previous, in.column_shift);
     const std::int32_t share = previous_share(in.selection_age);
     const std::int32_t left = blend(to.x, from.x, share);
     const std::int32_t top = blend(to.y, from.y, share);
@@ -214,8 +229,9 @@ Background layout_background(OutlineTrail& trail, const BackgroundInput& in)
     const auto dim = static_cast<std::uint8_t>(pulse + 0x70);
     const Rgb start{bright, bright, 255};
     const Rgb end{dim, dim, 255};
-    const Point a = br.top_left;
-    const Point b = br.bottom_right;
+    const Column column = column_of(in.selection);
+    const Point a{wide.x(column, br.top_left.x), br.top_left.y};
+    const Point b{wide.x(column, br.bottom_right.x), br.bottom_right.y};
     // Each bracket: a horizontal stroke drawn twice (one line apart) and a vertical stroke.
     out.corners[0] = {a, Point{a.x + half_w, a.y}, start, end, Layer::Overlay};
     out.corners[1] = {Point{a.x, a.y - 1}, Point{a.x + half_w, a.y - 1}, start, end, Layer::Overlay};

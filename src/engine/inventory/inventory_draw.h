@@ -174,6 +174,7 @@ struct BackgroundInput {
     std::int32_t step = 0;           // the screen step (ScreenStep)
     std::int32_t frame = 0;          // the game's frame counter
     std::int32_t glare_time = 0;     // frames of the examine glare, 0..64
+    std::int32_t column_shift = 0;   // a wide window moves the side columns out by this (wide_layout.h)
 };
 
 struct Background {

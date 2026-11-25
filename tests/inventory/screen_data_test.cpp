@@ -19,6 +19,7 @@ SH_TEST(inventory_screen_json_matches_defaults) {
         SH_CHECK(a.labels[i].text == b.labels[i].text);
         SH_CHECK(a.labels[i].at == b.labels[i].at);
         SH_CHECK(a.labels[i].boxed == b.labels[i].boxed);
+        SH_CHECK(a.labels[i].column == b.labels[i].column);
         SH_CHECK(a.label_order[i] == b.label_order[i]);
         SH_CHECK(a.command_words[i] == b.command_words[i]);
     }

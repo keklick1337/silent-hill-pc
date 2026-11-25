@@ -26,7 +26,8 @@ add_library(sh_inventory STATIC
     screen_input.cpp
     item_view.cpp
     item_catalog.cpp
-    item_screen_text.cpp)
+    item_screen_text.cpp
+    wide_layout.cpp)
 
 target_compile_features(sh_inventory PRIVATE cxx_std_20)
 target_include_directories(sh_inventory PUBLIC ${PROJECT_SOURCE_DIR}/src)

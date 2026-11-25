@@ -36,6 +36,7 @@ add_library(sh_screens STATIC
     ranking.cpp
     background.cpp
     paper_map.cpp
+    map_touch_view.cpp
     health_cues.cpp)
 
 target_compile_features(sh_screens PRIVATE cxx_std_20)

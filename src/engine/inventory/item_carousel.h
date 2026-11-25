@@ -27,6 +27,10 @@ struct CarouselState {
     std::int32_t shown_slot = 0;   // the slot the carousel is centred on
     std::int32_t glare_time = 0;   // the examine glare, 0..64
     std::int32_t ammo_slot = -1;   // the ammo slot the last reload took rounds from
+    // A finger turns the ring (src/input/inventory_pointer.h): the row is drawn centred on `finger_position` (Q12
+    // slots, 0 .. slot count) instead of running its own scroll.
+    bool finger = false;
+    std::int32_t finger_position = 0;
 };
 
 class CarouselHost {

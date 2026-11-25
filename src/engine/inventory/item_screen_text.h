@@ -26,10 +26,12 @@ std::int32_t label_growth(const char* english);
 // x of the item name after the "Name:" label.
 std::int32_t item_name_x();
 
-// Places the drawer for the tag `tag` after the item's name (x of the tag in English); returns the y.
-std::int32_t place_name_row_tag(std::int32_t x, const char* tag, int item);
+// Places the drawer for the tag `tag` after the item's name (x of the tag in English); returns the y. `shift` moves
+// the tag sideways once placed (a wide window, wide_layout.h).
+std::int32_t place_name_row_tag(std::int32_t x, const char* tag, int item, std::int32_t shift = 0);
 
-// The inventory's MAP notice: "too dark to look at the map" or (no_map) "no map for this place".
-void draw_map_notice(bool no_map);
+// The inventory's MAP notice: "too dark to look at the map" or (no_map) "no map for this place", moved sideways by
+// `shift`.
+void draw_map_notice(bool no_map, std::int32_t shift = 0);
 
 }  // namespace sh::inventory

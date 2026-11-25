@@ -1,13 +1,14 @@
 {
+    "description": "The inventory screen's labels, command words, command column and scroll arrows (screen units: the 4:3 frame is 320 wide). A label's \"column\" (left, centre, right; centre when left out) says which way it moves on a wide window.",
     "labels": {
-        "Equipment": { "text": "Equipment", "x": 118, "y": -80, "boxed": true },
-        "Exit":      { "text": "Exit", "x": 144, "y": 304, "boxed": true },
-        "Option":    { "text": "Option", "x": 36, "y": 304, "boxed": true },
-        "Map":       { "text": "Map", "x": 240, "y": 304, "boxed": true },
-        "Command":   { "text": "Command", "x": 218, "y": -80, "boxed": true },
-        "Status":    { "text": "Status", "x": 40, "y": -80, "boxed": true },
-        "Number":    { "text": "No.", "x": 16, "y": 184, "boxed": false },
-        "Name":      { "text": "Name:", "x": 16, "y": 200, "boxed": false }
+        "Equipment": { "text": "Equipment", "x": 118, "y": -80, "boxed": true, "column": "centre" },
+        "Exit":      { "text": "Exit", "x": 144, "y": 304, "boxed": true, "column": "centre" },
+        "Option":    { "text": "Option", "x": 36, "y": 304, "boxed": true, "column": "left" },
+        "Map":       { "text": "Map", "x": 240, "y": 304, "boxed": true, "column": "right" },
+        "Command":   { "text": "Command", "x": 218, "y": -80, "boxed": true, "column": "right" },
+        "Status":    { "text": "Status", "x": 40, "y": -80, "boxed": true, "column": "left" },
+        "Number":    { "text": "No.", "x": 16, "y": 184, "boxed": false, "column": "left" },
+        "Name":      { "text": "Name:", "x": 16, "y": 200, "boxed": false, "column": "left" }
     },
     "command_words": {
         "Use": "Use", "Equip": "Equip", "Unequip": "Unequip", "Reload": "Reload",
@@ -35,5 +36,14 @@
         ],
         "blink_mask": 31,
         "blink_step": 8
+    },
+    "wide": {
+        "description": "On a window wider than 4:3 (Widescreen: wider view, the menus' full width) the side columns move out by column_spread of the room past the 4:3 frame, at most max_column_shift units and never closer than edge_margin to the window's edge (edge_margin_touch while the touch controls are shown: their corner buttons stay clear); the item ring spreads, its neighbours following the columns by ring_spread. Nothing is scaled. enabled false keeps the 4:3 layout.",
+        "enabled": true,
+        "column_spread": 0.75,
+        "max_column_shift": 96,
+        "edge_margin": 20,
+        "edge_margin_touch": 64,
+        "ring_spread": 0.6
     }
 }

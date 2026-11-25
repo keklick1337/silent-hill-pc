@@ -16,6 +16,7 @@
 #include "engine/game_state/save_record.h"
 #include "engine/game_state/session.h"
 #include "engine/inventory/game/inventory_host.h"
+#include "engine/inventory/game/wide_screen.h"
 #include "engine/inventory/inventory_draw.h"
 #include "engine/inventory/item_screen_text.h"
 #include "engine/inventory/item_view.h"
@@ -30,6 +31,10 @@
 #include "i18n/localization.h"
 #include "render/draw2d/draw2d.h"
 #include "engine/mods/data_reload.h"
+#include "engine/config/pc_config.h"
+#include "engine/platform/window.h"
+#include "platform/sh_platform.h"
+#include "render/gpu/render_state.h"
 
 extern "C" const char* PcPort_GetGameDataPath(void);
 
@@ -150,6 +155,14 @@ public:
     std::int32_t glitch_row() override { return sh::loop::game_random().next_int(0, 133); }
 };
 
+// A quad moved sideways (a column of a wide window).
+inv::GradientQuad moved(inv::GradientQuad quad, std::int32_t dx)
+{
+    for (inv::Point& p : quad.corners)
+        p.x += dx;
+    return quad;
+}
+
 void add_gradient(Table2d table, std::int32_t entry, const inv::GradientQuad& quad, bool semi_transparent)
 {
     d2::Polygon poly;
@@ -202,6 +215,28 @@ const inv::ResultsInfoData* results_data()
 
 }  // namespace
 
+namespace sh::inventory {
+
+WideLayout wide_screen()
+{
+    const sh::render::PictureShape& picture = sh::render::picture();
+    float factor = 1.0f;
+    // The player's 4:3 choices keep the original layout: bars in widescreen (widescreen_mode 0), the 4:3 art
+    // stretched over the window (menu_pillarbox 0), or the native 4:3 picture.
+    if (!picture.native_render && picture.menu_pillarbox && picture.widescreen_mode == 1)
+    {
+        int width = 0, height = 0;
+        sh::platform::window_size(&width, &height);
+        if (width > 0 && height > 0)
+            factor = (static_cast<float>(width) / static_cast<float>(height)) / (4.0f / 3.0f);
+    }
+    // The touch controls' corner buttons (Back, Pause) sit over the screen's corners.
+    const bool touch = (Sh_IsMobile() != 0 && g_PcConfig.touchControls != 2) || g_PcConfig.touchControls == 1;
+    return wide_layout(screen_data().wide, factor, touch);
+}
+
+}  // namespace sh::inventory
+
 extern "C" {
 
 void Gfx_Inventory_HealthStatusDraw(void);
@@ -218,14 +253,17 @@ void Gfx_Primitive2dTextureSet(std::int32_t x, std::int32_t y, std::int32_t entr
 void Gfx_ItemScreen_RectDraw(void)
 {
     const sh::screens::ItemScreenStyle& style = inv::item_screen_style();
+    // The rule runs on to the window's edges on a wide window.
+    const std::int32_t extra = inv::wide_screen().extra;
+    const std::int32_t x0 = style.rule_x0 - extra, x1 = style.rule_x1 + extra;
     d2::Polygon poly;
     poly.count = 4;
     poly.color[0] = {static_cast<std::uint8_t>(style.rule_color[0]), static_cast<std::uint8_t>(style.rule_color[1]),
                      static_cast<std::uint8_t>(style.rule_color[2])};
-    poly.xy[0] = {static_cast<std::int16_t>(style.rule_x0), static_cast<std::int16_t>(style.rule_y0)};
-    poly.xy[1] = {static_cast<std::int16_t>(style.rule_x0), static_cast<std::int16_t>(style.rule_y1)};
-    poly.xy[2] = {static_cast<std::int16_t>(style.rule_x1), static_cast<std::int16_t>(style.rule_y0)};
-    poly.xy[3] = {static_cast<std::int16_t>(style.rule_x1), static_cast<std::int16_t>(style.rule_y1)};
+    poly.xy[0] = {static_cast<std::int16_t>(x0), static_cast<std::int16_t>(style.rule_y0)};
+    poly.xy[1] = {static_cast<std::int16_t>(x0), static_cast<std::int16_t>(style.rule_y1)};
+    poly.xy[2] = {static_cast<std::int16_t>(x1), static_cast<std::int16_t>(style.rule_y0)};
+    poly.xy[3] = {static_cast<std::int16_t>(x1), static_cast<std::int16_t>(style.rule_y1)};
     sh::screens::submit_2d_packet(Table2d::Menu, 0, poly, Packet2d::PolyF4);
 }
 
@@ -246,16 +284,17 @@ void Gfx_Inventory_CmdOptionsDraw(void)
 
     const inv::CommandColumn column = inv::layout_command_column(screen_data(), item.command, on_off_hidden, active,
                                                                  inv::inventory_menu().command);
+    const std::int32_t shift = inv::wide_screen().x(inv::Column::Right, 0);
     for (int i = 0; i < column.label_count; i++)
     {
-        game_text().set_position(column.labels[i].at.x, column.labels[i].at.y);
+        game_text().set_position(column.labels[i].at.x + shift, column.labels[i].at.y);
         game_text().draw(label_text(column.labels[i].label), 10);
     }
     if (!column.active)
         return;
 
     for (const inv::GradientQuad& quad : column.bar)
-        add_gradient(Table2d::Menu, 7, quad, false);
+        add_gradient(Table2d::Menu, 7, moved(quad, shift), false);
 }
 
 void Gfx_Inventory_ScrollArrowsDraw(std::int32_t* selection)
@@ -283,6 +322,7 @@ void Gfx_Inventory_ScrollArrowsDraw(std::int32_t* selection)
 
 void Gfx_ItemScreens_LabelsDraw(void)
 {
+    const inv::WideLayout wide = inv::wide_screen();
     for (const inv::ScreenLabel which : screen_data().label_order)
     {
         const inv::ScreenLabelSpec& spec = screen_data().labels[static_cast<int>(which)];
@@ -291,7 +331,7 @@ void Gfx_ItemScreens_LabelsDraw(void)
         std::int32_t x = spec.at.x;
         if (spec.boxed)
             x += (sh::i18n::text_width(english) - sh::i18n::text_width(sh::i18n::menu_text(label))) / 2;
-        game_text().set_position(x, spec.at.y);
+        game_text().set_position(wide.x(spec.column, x), spec.at.y);
         game_text().draw(label, 10);
     }
 }
@@ -309,6 +349,7 @@ void Gfx_Inventory_HealthStatusDraw(void)
     GameRandom random;
     const inv::HealthStatus status =
         inv::layout_health_status(s_health_monitor, session().system.characters.player.health, random);
+    const std::int32_t shift = inv::wide_screen().x(inv::Column::Left, 0);
 
     for (int i = 0; i < status.strip_count; i++)
     {
@@ -317,17 +358,17 @@ void Gfx_Inventory_HealthStatusDraw(void)
         for (int j = 0; j < 4; j++)
         {
             poly.uv[j] = texel_of(strip.uv[j]);
-            poly.xy[j] = point_of(strip.corners[j]);
+            poly.xy[j] = point_of(inv::Point{strip.corners[j].x + shift, strip.corners[j].y});
         }
         // Each part one ordering slot nearer than the previous one.
         sh::screens::submit_2d_packet(Table2d::World, 2039 - strip.part, poly, Packet2d::PolyFT4);
     }
 
-    add_gradient(Table2d::World, 2036, status.glow, true);
+    add_gradient(Table2d::World, 2036, moved(status.glow, shift), true);
     texture_mode(Table2d::World, 2036, 2);
 
     for (int i = 0; i < status.bar_count; i++)
-        add_gradient(Table2d::World, 2040, status.bars[i], false);
+        add_gradient(Table2d::World, 2040, moved(status.bars[i], shift), false);
 }
 
 void Gfx_Results_Save(void)
@@ -380,6 +421,10 @@ void Gfx_Inventory_2dBackgroundDraw(std::int32_t* selection)
     input.step = session().game.game_steps[1];
     input.frame = session().system.flow.frame_counters[0];
     input.glare_time = inv::item_screen().carousel.glare_time;
+    input.column_shift = inv::wide_screen().shift;
+    // The spread screen draws past the 4:3 frame on its world pass too (the portrait, the models, the outline).
+    if (input.column_shift > 0)
+        sh::render::picture().ui2d_wide_frames = 2;
     const inv::Background bg = inv::layout_background(s_outline_trail, input);
 
     for (int i = 0; i < bg.panel_count; i++)

@@ -237,6 +237,7 @@ namespace game_state {
 constexpr std::int32_t kMainMenu = 7;
 constexpr std::int32_t kMainLoadScreen = 10;
 constexpr std::int32_t kInGame = 11;
+constexpr std::int32_t kInventoryScreen = 14;
 }  // namespace game_state
 namespace sys_flag {
 constexpr std::uint32_t kDemo = 1u << 1;

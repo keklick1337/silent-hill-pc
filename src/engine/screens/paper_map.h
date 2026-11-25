@@ -8,9 +8,12 @@
 #pragma once
 
 #include "engine/screens/map_screen_data.h"
+#include "engine/screens/map_touch_view.h"
 #include "render/draw2d/draw2d.h"
 
+#include <algorithm>
 #include <array>
+#include <chrono>
 #include <cstdint>
 #include <functional>
 #include <optional>
@@ -213,6 +216,17 @@ public:
     virtual PaperMapPlayer player() = 0;
     virtual std::int32_t sin(std::int32_t angle) = 0;
     virtual std::int32_t cos(std::int32_t angle) = 0;
+
+    // Touch. A window pixel (the touch layer's: SDL_GetWindowSizeInPixels) in the screen's draw coordinates: x from
+    // the centre of the 320-wide frame, y in the interlaced lines from the centre (the page spans -240..240). False
+    // while the picture's place in the window is unknown.
+    virtual bool window_to_screen(float /*window_x*/, float /*window_y*/, float* /*x*/, float* /*y*/) { return false; }
+    // The draw x of the window's left and right edge.
+    virtual void screen_span(float* left, float* right) {
+        const float wide = std::max(1.0f, wide_factor());
+        *left = -160.0f * wide;
+        *right = 160.0f * wide;
+    }
 };
 
 // The draws the map scripts use too (sh.map_screen_*): each submits to its layer.
@@ -225,6 +239,31 @@ bool paper_map_draw_marks(PaperMapHost& host, const PaperMapBook& book, int mode
 std::int32_t paper_map_draw_player(PaperMapHost& host, const PaperMapBook& book, int page, const PaperMapView& view);
 void paper_map_draw_page_arrows(PaperMapHost& host, const PaperMapBook& book, int page);
 
+// True while the paper map on screen is zoomed in (or zooming), by the pad's zoom or by touch.
+bool paper_map_zoomed();
+
+// The touch screen moves the paper map as a browser moves a page (map_touch_view.h). Positions are window pixels as
+// the touch layer has them (SDL_GetWindowSizeInPixels, top-left origin), velocities pixels a second; the screen
+// maps them into its picture itself. The calls may come from any thread: they are queued and applied in the
+// screen's own frame. Touch owns the view from its first event until the pad zooms (Confirm) or pans (the stick);
+// the pad's zoom then continues from what touch showed. Taps are not read here: a single tap stays the touch
+// layer's (Back), and its vertical swipe at fit still turns the page through the pad's Up and Down.
+//
+// The map's Show step is up and takes touch.
+bool paper_map_touch_available();
+// One finger down / moved. A move after a pinch (one of two fingers lifted) continues as a drag from there.
+void paper_map_touch_begin(float x, float y);
+void paper_map_touch_move(float x, float y);
+// Two fingers: their midpoint and distance. The first call after a one-finger event starts the pinch.
+void paper_map_touch_pinch(float mid_x, float mid_y, float distance);
+// The last finger lifted, moving at this speed (a drag glides on; a pinch ignores it).
+void paper_map_touch_end(float velocity_x, float velocity_y);
+// Zoom in on the point (centred), or back out to fit when zoomed.
+void paper_map_touch_double_tap(float x, float y);
+// The whole page is shown and nothing zooms: a vertical swipe turns the page. True also while the pad owns an
+// unzoomed view.
+bool paper_map_touch_at_fit();
+
 // The paper map game state: open, show (zoom, pan, page turn, close), turn the page, load the page, close.
 class PaperMapScreen {
 public:
@@ -233,6 +272,12 @@ public:
 private:
     void show(PaperMapHost& host, const PaperMapBook& book);
     void begin_page_turn(PaperMapHost& host, const PaperMapBook& book, int to);
+    // Touch: the queued events and the view's motion of this frame; the drawing in touch's view; the hand-overs.
+    void touch_frame(PaperMapHost& host);
+    std::int32_t draw_touch(PaperMapHost& host, const PaperMapBook& book);
+    void touch_take_over(PaperMapHost& host);
+    void touch_hand_back(const MapScreenData& data);
+    void touch_reset();
 
     int page_ = 0;
     int turn_to_ = 0;
@@ -241,6 +286,15 @@ private:
     std::int32_t pan_y_ = 0;
     std::int32_t zoom_ = 4096;  // Q12: 4096 = the whole page, 0 = zoomed in fully
     bool zoomed_ = false;
+
+    // Touch's view of the page, in page units: x as draw x from the window's left edge, y as half lines from the
+    // top of the page's 480 lines, so the page is 320x240 and fit is the pad's unzoomed view.
+    MapTouchView touch_;
+    bool touch_mode_ = false;
+    bool touch_pinching_ = false;
+    bool touch_dragging_ = false;
+    MapTouchVec touch_last_{};  // the drag's last point, page units
+    std::chrono::steady_clock::time_point touch_clock_{};
 };
 
 }  // namespace sh::screens

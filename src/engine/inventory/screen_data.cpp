@@ -64,13 +64,51 @@ Point point_of(const json::Value& v) {
     return {to_int(v.array()[0], "x", -4096, 4096), to_int(v.array()[1], "y", -4096, 4096)};
 }
 
+double number_of(const json::Value& parent, std::string_view key, double lo, double hi) {
+    const json::Value& v = member(parent, key);
+    if (!v.is_number() || v.number() < lo || v.number() > hi) {
+        fail("\"" + std::string(key) + "\" must be a number in " + std::to_string(lo) + ".." + std::to_string(hi));
+    }
+    return v.number();
+}
+
+Column column_of_spec(const json::Value& spec) {
+    const json::Value* v = spec.find("column");
+    if (v == nullptr) {
+        return Column::Centre;
+    }
+    if (v->is_string()) {
+        if (v->string() == "left") return Column::Left;
+        if (v->string() == "centre") return Column::Centre;
+        if (v->string() == "right") return Column::Right;
+    }
+    fail("\"column\" is \"left\", \"centre\" or \"right\"");
+}
+
+WideRules parse_wide(const json::Value& wide) {
+    reject_unknown(wide, {"description", "enabled", "column_spread", "max_column_shift", "edge_margin",
+                          "edge_margin_touch", "ring_spread"});
+    WideRules rules;
+    const json::Value& enabled = member(wide, "enabled");
+    if (!enabled.is_bool()) {
+        fail("\"enabled\" is true or false");
+    }
+    rules.enabled = enabled.boolean();
+    rules.column_spread = number_of(wide, "column_spread", 0.0, 1.0);
+    rules.max_column_shift = int_of(wide, "max_column_shift", 0, 1024);
+    rules.edge_margin = int_of(wide, "edge_margin", 0, 160);
+    rules.edge_margin_touch = int_of(wide, "edge_margin_touch", 0, 160);
+    rules.ring_spread = number_of(wide, "ring_spread", 0.0, 4.0);
+    return rules;
+}
+
 InventoryScreenData parse_data(std::string_view json_text) {
     const Result<json::Value> doc = json::parse(json_text);
     if (!doc) {
         fail(doc.error());
     }
     const json::Value& root = doc.value();
-    reject_unknown(root, {"labels", "command_words", "command_column", "scroll_arrows"});
+    reject_unknown(root, {"description", "labels", "command_words", "command_column", "scroll_arrows", "wide"});
     InventoryScreenData data;
 
     const json::Value& labels = member(root, "labels");
@@ -82,13 +120,14 @@ InventoryScreenData parse_data(std::string_view json_text) {
         while (kLabelNames[index] != key) {
             index++;
         }
-        reject_unknown(spec, {"text", "x", "y", "boxed"});
+        reject_unknown(spec, {"text", "x", "y", "boxed", "column"});
         const json::Value& text = member(spec, "text");
         const json::Value& boxed = member(spec, "boxed");
         if (!text.is_string() || text.string().empty() || !boxed.is_bool()) {
             fail("label \"" + key + "\" needs a text and \"boxed\"");
         }
-        data.labels[index] = {text.string(), {int_of(spec, "x", -4096, 4096), int_of(spec, "y", -4096, 4096)}, boxed.boolean()};
+        data.labels[index] = {text.string(), {int_of(spec, "x", -4096, 4096), int_of(spec, "y", -4096, 4096)}, boxed.boolean(),
+                              column_of_spec(spec)};
         data.label_order[order++] = static_cast<ScreenLabel>(index);
     }
     if (order != kLabelNames.size()) {
@@ -144,6 +183,10 @@ InventoryScreenData parse_data(std::string_view json_text) {
     }
     data.arrows.blink_mask = int_of(arrows, "blink_mask", 1, 255);
     data.arrows.blink_step = int_of(arrows, "blink_step", 0, 255);
+
+    if (const json::Value* wide = root.find("wide")) {
+        data.wide = parse_wide(*wide);
+    }
     return data;
 }
 
@@ -152,10 +195,14 @@ InventoryScreenData parse_data(std::string_view json_text) {
 const InventoryScreenData& default_screen_data() {
     static const InventoryScreenData kData = [] {
         InventoryScreenData d;
-        const ScreenLabelSpec specs[8] = {
-            {"Equipment", {118, -80}, true}, {"Exit", {144, 304}, true}, {"Option", {36, 304}, true},
-            {"Map", {240, 304}, true},       {"Command", {218, -80}, true}, {"Status", {40, -80}, true},
-            {"No.", {16, 184}, false},       {"Name:", {16, 200}, false}};
+        const ScreenLabelSpec specs[8] = {{"Equipment", {118, -80}, true, Column::Centre},
+                                          {"Exit", {144, 304}, true, Column::Centre},
+                                          {"Option", {36, 304}, true, Column::Left},
+                                          {"Map", {240, 304}, true, Column::Right},
+                                          {"Command", {218, -80}, true, Column::Right},
+                                          {"Status", {40, -80}, true, Column::Left},
+                                          {"No.", {16, 184}, false, Column::Left},
+                                          {"Name:", {16, 200}, false, Column::Left}};
         for (std::size_t i = 0; i < 8; i++) {
             d.labels[i] = specs[i];
             d.label_order[i] = static_cast<ScreenLabel>(i);

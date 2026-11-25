@@ -4,13 +4,20 @@
 // state, and hands the answer to the screen as held pad buttons.
 #include "input/inventory_pointer.h"
 
+#include <algorithm>
+#include <chrono>
+#include <cmath>
 #include <cstdint>
 
 #include "engine/config/pc_config.h"
 #include "engine/game_state/game_state.h"
 #include "engine/game_state/game_state_ui.h"
+#include "engine/inventory/game/wide_screen.h"
+#include "engine/inventory/item_view.h"
 #include "engine/platform/window.h"
 #include "input/mouse_pointer.h"
+#include "input/touch/touch_controls.h"
+#include "platform/sh_platform.h"
 #include "render/gpu/render_state.h"
 
 namespace sh::input {
@@ -93,6 +100,22 @@ std::uint32_t buttons_of(InventoryPointer::Press press) {
     return 0;
 }
 
+// The finger's ring draws the row itself (item_carousel.cpp) while it has one.
+void draw_ring_at(const std::optional<double>& position) {
+    sh::inventory::CarouselState& carousel = sh::inventory::item_screen().carousel;
+    carousel.finger = position.has_value();
+    carousel.finger_position = position ? static_cast<std::int32_t>(std::lround(*position * 4096.0)) : 0;
+}
+
+// Seconds since the last frame of the pointer, held to a tenth so a stall does not throw the ring.
+double frame_seconds() {
+    static double last = -1.0;
+    const double now = std::chrono::duration<double>(std::chrono::steady_clock::now().time_since_epoch()).count();
+    const double seconds = last < 0.0 ? 0.0 : std::clamp(now - last, 0.0, 0.1);
+    last = now;
+    return seconds;
+}
+
 }  // namespace
 
 void update_inventory_pointer() {
@@ -103,8 +126,10 @@ void update_inventory_pointer() {
     const MousePointer& mouse = mouse_pointer();
     int text_x = 0;
     int text_y = 0;
+    const double seconds = frame_seconds();
     if (gs::inventory_screen_step() != kLiveStep || !mouse.menu_position(&text_x, &text_y)) {
         pointer.reset();
+        draw_ring_at(std::nullopt);
         return;
     }
 
@@ -125,9 +150,22 @@ void update_inventory_pointer() {
     }
     view.command_row = gs::inventory_command_row();
     view.has_equipped = gs::player_weapon_attack() >= gs::inventory_first_weapon_attack();
-    view.ring_scale = ring_scale();
+    const sh::inventory::WideLayout wide = sh::inventory::wide_screen();
+    view.ring_scale = ring_scale() * wide.ring;
+    view.column_shift = wide.shift;
+    view.touch = Sh_IsMobile() != 0 || touch::controls_enabled();
+    if (view.touch) {
+        // The ring follows a dragging finger itself, instead of the drag turning the wheel.
+        touch::claim_list_drag(pointer.ring_flinging());
+        const touch::ListFinger finger = touch::list_finger();
+        view.finger_down = finger.down;
+        view.finger_dragging = finger.dragging;
+        view.finger_horizontal = finger.horizontal;
+        view.seconds = seconds;
+    }
 
     const InventoryPointer::Action action = pointer.update(view);
+    draw_ring_at(action.ring_position);
     if (action.focus) {
         // The screen ignores input for a few frames after its selection moves; this move comes already settled,
         // so the click that follows the pointer is not lost.
@@ -137,6 +175,9 @@ void update_inventory_pointer() {
     if (action.command_row) {
         gs::set_inventory_command_row(*action.command_row);
         gs::sfx_play_balanced(gs::sfx::kMenuMove, kSoundVolume, kSoundCentre);
+    }
+    if (action.settle) {
+        gs::inventory_snap_selection(static_cast<int>(gs::InventorySelection::Item));
     }
     if (action.press != InventoryPointer::Press::None) {
         gs::pad_press_held(buttons_of(action.press));

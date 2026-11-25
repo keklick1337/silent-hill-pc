@@ -3,7 +3,7 @@
 //
 // The inventory screen's static layout as data (gamedata/menu/inventory_screen.json): the
 // box-title and field labels with their words and positions, the command words and the
-// command column's rows and highlight bar, and the scroll arrows. A mod replaces the file
+// command column's rows and highlight bar, the scroll arrows and the layout on a wide window. A mod replaces the file
 // whole (mods/<folder>/menu/inventory_screen.json). Standard library plus the shared JSON
 // and mod helpers.
 
@@ -16,6 +16,7 @@
 #include <string_view>
 
 #include "engine/inventory/inventory_draw.h"
+#include "engine/inventory/wide_layout.h"
 #include "formats/common/status.h"
 
 namespace sh::inventory {
@@ -24,6 +25,7 @@ struct ScreenLabelSpec {
     std::string text;
     Point at;
     bool boxed = false;
+    Column column = Column::Centre;  // which column moves it on a wide window
 };
 
 struct CommandColumnSpec {
@@ -52,6 +54,7 @@ struct InventoryScreenData {
     std::array<std::string, 8> command_words;  // indexed by CommandLabel
     CommandColumnSpec column;
     ScrollArrowSpec arrows;
+    WideRules wide;  // optional "wide" block; the built-in rules when it is missing
 };
 
 // The original screen's values (what gamedata/menu/inventory_screen.json ships).

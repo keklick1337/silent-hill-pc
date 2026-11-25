@@ -3,6 +3,8 @@
 
 #include "engine/inventory/game/item_stage.h"
 
+#include "engine/inventory/game/wide_screen.h"
+
 #include <array>
 #include <span>
 #include <string>
@@ -40,6 +42,7 @@ namespace {
 
 constexpr std::int32_t kCameraDistance = 0x2800;
 constexpr std::int16_t kItemScreenProjection = 1000;
+constexpr std::int32_t kResultsStep = 21;  // item screen steps from here on are the results screen
 constexpr std::uint32_t kSceneTableEntries = 1u << 11;  // the scene's ordering table
 constexpr std::uint32_t kPickupTableEntries = 1u << 9;  // the pickup's own table
 
@@ -163,6 +166,10 @@ void ItemStage::draw(int index, StageDraw mode) {
     fit.in_menu = game::session().game.game_state != game::game_state::kInGame;
     fit.row_offset = g_PcInvCarouselYOff;
     fit.hand_offset = g_PcInvEquipYOff;
+    // Only the inventory's row spreads; the results screen's awards keep their places.
+    if (game::session().game.game_state == game::game_state::kInventoryScreen &&
+        game::session().game.game_steps[1] < kResultsStep)
+        fit.row_spread = wide_screen().ring;
     ScreenMatrix screen;
     for (int i = 0; i < 3; ++i) {
         for (int j = 0; j < 3; ++j) screen.m[i][j] = ls.m[i][j];

@@ -53,7 +53,7 @@ ItemView& item_view();
 // last reload's ammo slot), the item text (typing and rolling timers, item shown last) and the
 // directions read this frame.
 struct ItemScreenState {
-    CarouselState carousel{0, 0, 0, 0};  // the reload's ammo slot starts at 0, as the game's does
+    CarouselState carousel{0, 0, 0, 0, false, 0};  // the reload's ammo slot starts at 0, as the game's does
     DescriptionState description;
     Directions directions;
 };
@@ -108,12 +108,14 @@ struct ScreenFit {
     bool in_menu = false;               // the item screens (not the world: the map5_s01 lock reels)
     std::int32_t row_offset = 0;        // invcary: the item row a touch down
     std::int32_t hand_offset = 0;       // inveqy: the item in hand a touch up
+    float row_spread = 1.0f;            // the item row spreads sideways on a wide window (wide_layout.h)
 };
 
 inline constexpr std::int32_t kOffsetFrameHeight = 448;  // frame height the offsets were tuned at
 
 // Fits the local-to-screen matrix of model `display`: narrows a stretched picture, makes the
-// model's height true in square mode, nudges the row and the item in hand.
+// model's height true in square mode, nudges the row and the item in hand, spreads the row on a wide window (its
+// models move apart, none grows).
 void fit_to_screen(ScreenMatrix& ls, int display, const ScreenFit& fit);
 
 // The brightness (256: full) of model `display` at ring depth `z`: each slot off the centre darkens

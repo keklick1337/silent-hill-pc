@@ -83,6 +83,8 @@ void fit_to_screen(ScreenMatrix& ls, int display, const ScreenFit& fit)
             ls.t[1] += (fit.hand_offset * frame) / kOffsetFrameHeight;
         else if (display < 7)
             ls.t[1] += (fit.row_offset * frame) / kOffsetFrameHeight;
+        if (display < 7 && fit.row_spread != 1.0f)
+            ls.t[0] = static_cast<std::int32_t>(static_cast<float>(ls.t[0]) * fit.row_spread);
     }
 }
 

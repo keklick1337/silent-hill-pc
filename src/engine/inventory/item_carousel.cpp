@@ -49,6 +49,38 @@ std::int32_t ring_offset(std::int32_t slot, std::int32_t centre, std::int32_t co
 std::int32_t arc_x(std::int32_t angle) { return fixed_sin(angle / 3) / 3; }
 std::int32_t arc_z(std::int32_t depth_angle) { return std::abs(fixed_sin(depth_angle)) + kRowZ; }
 
+// The row under a finger: centred on the finger's position, swung from the selected slot the way the scroll swings
+// it, with no scroll of its own (the menu steps the selection after the finger, so it must not wait for one).
+void follow_finger(CarouselState& state, CarouselHost& host, std::int32_t selected, std::int32_t count)
+{
+    state.timer = 0;
+    state.shown_slot = selected;
+    if (count <= 0)
+        return;
+    // The centre's distance from the selected slot the short way round, in Q12 slots.
+    const std::int32_t ring = count * kOne;
+    std::int32_t shift = (state.finger_position - selected * kOne) % ring;
+    if (shift < -ring / 2)
+        shift += ring;
+    if (shift >= ring / 2)
+        shift -= ring;
+    const std::int32_t swing = -(shift * kSlotTurn) / kOne;
+    for (int i = 0; i < kCarouselModels; i++) {
+        const std::int32_t slot = host.display_slot(i);
+        if (slot == -1)
+            continue;
+        const std::int32_t offset = ring_offset(slot, selected, count, true);
+        const std::int32_t angle = offset * kSlotTurn + swing;
+        std::int32_t x = arc_x(angle);
+        // The selected model keeps its spin while the row stands still under the finger.
+        if (angle != 0 || slot != selected)
+            host.turn_model(i, -angle / 3);
+        if (offset < -3 || offset > 3)
+            x = kOffscreenX;
+        host.place_model(i, x, kRowY, arc_z(angle >> 2));
+    }
+}
+
 void browse(CarouselState& state, CarouselHost& host)
 {
     for (int i = 0; i < kCarouselModels; i++)
@@ -56,6 +88,10 @@ void browse(CarouselState& state, CarouselHost& host)
 
     const std::int32_t selected = host.selected_slot();
     const std::int32_t count = host.slot_count();
+    if (state.finger) {
+        follow_finger(state, host, selected, count);
+        return;
+    }
     if (selected == state.shown_slot) {
         for (int i = 0; i < kCarouselModels; i++) {
             const std::int32_t slot = host.display_slot(i);

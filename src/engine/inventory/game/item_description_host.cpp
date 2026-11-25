@@ -13,6 +13,7 @@
 #include "engine/game_state/save_record.h"
 #include "engine/game_state/session.h"
 #include "engine/inventory/game/inventory_host.h"
+#include "engine/inventory/game/wide_screen.h"
 #include "engine/inventory/item_description.h"
 #include "engine/inventory/item_screen_text.h"
 #include "engine/inventory/item_view.h"
@@ -71,7 +72,7 @@ public:
 
     void draw_slot_number(std::int32_t x, std::int32_t y, std::int32_t number) override
     {
-        game_text().set_position(x + inv::label_growth("No."), y);
+        game_text().set_position(wide_.x(inv::Column::Left, x + inv::label_growth("No.")), y);
         game_text().draw_int(number);
     }
 
@@ -91,14 +92,14 @@ public:
 
     std::int32_t place_tag(inv::TagText text, std::int32_t x, int item) override
     {
-        return inv::place_name_row_tag(x, tag_text(text), item);
+        return inv::place_name_row_tag(x, tag_text(text), item, wide_.x(inv::Column::Right, 0));
     }
 
     void draw_tag(inv::TagText text) override { game_text().draw(tag_text(text), 10); }
 
     void draw_stock(std::int32_t x, std::int32_t y, std::int32_t count) override
     {
-        game_text().set_position(x, y);
+        game_text().set_position(wide_.x(inv::Column::Right, x), y);
         game_text().draw_int(count);
     }
 
@@ -106,14 +107,14 @@ public:
 
     bool draw_name(int item, std::int32_t letters) override
     {
-        game_text().set_position(inv::item_name_x(), 200);
+        game_text().set_position(wide_.x(inv::Column::Left, inv::item_name_x()), 200);
         return game_text().draw(inv::item_name_text(item), letters) == true;
     }
 
     bool draw_body(inv::BodyText text, int item, std::int32_t letters) override
     {
         static const char* const kNotices[] = {"Can't_use_it_here.", "Too_dark_to_look_at\n\t\tthe_item_here."};
-        game_text().set_position(30, 232);
+        game_text().set_position(wide_.x(inv::Column::Left, 30), 232);
         const char* str = text == inv::BodyText::Description ? inv::item_description_text(item)
                                                               : kNotices[static_cast<int>(text) - 1];
         return game_text().draw(str, letters) == true;
@@ -121,6 +122,7 @@ public:
 
 private:
     std::int32_t* selection_;
+    const inv::WideLayout wide_ = inv::wide_screen();
     std::int32_t stock_grow_ = 0;
 };
 

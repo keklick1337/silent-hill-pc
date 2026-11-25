@@ -116,6 +116,7 @@ void Gfx_Items_DrawInit(void) {
     inv::item_screen().description.name_timer = 0;
     inv::item_screen().description.roll_timer = 0;
     inv::item_screen().carousel.timer = 0;
+    inv::item_screen().carousel.finger = false;
 
     const std::uint8_t* list = sh::game_state::map_loadable_items();
     std::size_t i = 0;

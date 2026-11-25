@@ -18,6 +18,7 @@
 #include "engine/gameflow/game/game_link.h"
 #include "engine/ids/game_numbers.h"
 #include "engine/inventory/game/inventory_host.h"
+#include "engine/inventory/game/wide_screen.h"
 #include "engine/inventory/inventory_menu.h"
 #include "engine/inventory/item_screen_text.h"
 #include "engine/inventory/item_view.h"
@@ -217,7 +218,7 @@ public:
 
     void show_map_unavailable(bool no_map) override
     {
-        effect([&] { inv::draw_map_notice(no_map); });
+        effect([&] { inv::draw_map_notice(no_map, inv::wide_screen().x(inv::Column::Left, 0)); });
     }
 
     void toggle(int index, bool on) override

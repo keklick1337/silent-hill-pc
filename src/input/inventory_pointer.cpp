@@ -10,6 +10,7 @@ struct Region {
     int left, top, right, bottom;
 
     constexpr bool contains(int x, int y) const { return x >= left && x <= right && y >= top && y <= bottom; }
+    constexpr Region moved(int dx) const { return {left + dx, top, right + dx, bottom}; }
 };
 
 // The brackets the screen draws around what is selected.
@@ -50,8 +51,8 @@ std::optional<int> ring_offset_at(int x, int y, float scale) {
     return kRingSpan;
 }
 
-std::optional<int> command_row_at(int x, int y, int rows) {
-    if (x < kRowLeft || x > kRowRight) {
+std::optional<int> command_row_at(int x, int y, int rows, int shift) {
+    if (x < kRowLeft + shift || x > kRowRight + shift) {
         return std::nullopt;
     }
     const int first = rows >= 2 ? kFirstRowOfTwo : kOnlyRow;
@@ -68,7 +69,103 @@ bool on_commands(InventoryFocus focus) {
     return focus == InventoryFocus::ItemCommands || focus == InventoryFocus::EquippedCommands;
 }
 
+// How far a finger moves the ring by one item, in screen pixels at ring scale 1: from the centre item to its
+// neighbour, so the item under the finger stays under it.
+constexpr double kItemPitch = 62.0;
+
+bool in_ring_band(int y) { return y >= kRingItem.top && y <= kRingItem.bottom; }
+
+// Places from `from` to `to` the shorter way round (positive: towards higher places).
+int ring_distance(int from, int to, int count) {
+    int ahead = ((to - from) % count + count) % count;
+    if (ahead * 2 > count) ahead -= count;
+    return ahead;
+}
+
 }  // namespace
+
+void InventoryPointer::reset() {
+    turn_to_ = kNowhere;
+    carousel_ = RingCarousel{};
+    ring_owned_ = false;
+    finger_down_ = false;
+    frames_since_lift_ = kTapFrames;
+    down_on_ring_ = false;
+}
+
+bool InventoryPointer::follow_finger(const View& view, Action& action) {
+    carousel_.set_count(view.item_count);
+    carousel_.set_pitch(kItemPitch * static_cast<double>(view.ring_scale));
+    const bool landed = view.finger_down && !finger_down_;
+    if (finger_down_ && !view.finger_down) {
+        frames_since_lift_ = 0;
+    } else if (frames_since_lift_ < kTapFrames) {
+        ++frames_since_lift_;
+    }
+    finger_down_ = view.finger_down;
+
+    if (on_commands(view.focus)) {
+        // Commands opened by other means (the pad): the ring stops on the selected item.
+        ring_owned_ = false;
+        down_on_ring_ = false;
+        carousel_.release();
+        carousel_.jump(view.selected_item);
+        return false;
+    }
+    if (landed) {
+        down_x_ = view.x;
+        down_on_ring_ = in_ring_band(view.y);
+        if (down_on_ring_ && ring_owned_) {
+            carousel_.touch();
+        }
+    }
+    // A ring at rest is where the screen keeps it (the pad turns it too).
+    if (!ring_owned_ && !carousel_.held()) {
+        carousel_.jump(view.selected_item);
+    }
+
+    if (view.finger_dragging && view.finger_horizontal && down_on_ring_) {
+        if (!carousel_.grabbed()) {
+            ring_owned_ = true;
+            // From where the finger landed: the ring catches up the distance a drag needs to start.
+            carousel_.press(down_x_);
+        }
+        carousel_.drag(view.x, view.seconds);
+    } else if (carousel_.held() && (!view.finger_down || view.finger_dragging)) {
+        carousel_.release();
+    }
+
+    // A click a finger made (a mouse clicking a neighbour walks the ring there as before).
+    if (view.clicked && !carousel_.held() && frames_since_lift_ < kTapFrames) {
+        const std::optional<int> offset = ring_offset_at(view.x, view.y, view.ring_scale);
+        // A tap on the centre item of a ring at rest opens its commands as a click does (below); one on a ring
+        // still settling only lets it settle.
+        if (offset && *offset != 0) {
+            ring_owned_ = true;
+            carousel_.turn_by(*offset);
+        }
+    }
+
+    carousel_.update(view.seconds);
+    if (!ring_owned_) {
+        return false;
+    }
+    if (!carousel_.active() && carousel_.item() == view.selected_item) {
+        // At rest on the chosen item, and the screen agrees: the ring is the screen's again.
+        ring_owned_ = false;
+        return true;
+    }
+    if (view.focus != InventoryFocus::Item) {
+        action.focus = InventoryFocus::Item;
+    }
+    action.ring_position = carousel_.position();
+    const int ahead = ring_distance(view.selected_item, carousel_.item(), view.item_count);
+    if (ahead != 0) {
+        action.press = ahead > 0 ? Press::RingRight : Press::RingLeft;
+        action.settle = true;
+    }
+    return true;
+}
 
 InventoryPointer::Action InventoryPointer::update(const View& view) {
     Action action;
@@ -92,13 +189,20 @@ InventoryPointer::Action InventoryPointer::update(const View& view) {
         }
     }
 
+    if (!view.touch) {
+        ring_owned_ = false;
+    } else if (follow_finger(view, action)) {
+        return action;
+    }
+
     // Open commands own the pointer: passing over the ring on the way to them must not take the selection away.
+    const Region commands = kCommands.moved(view.column_shift);
     if (on_commands(view.focus)) {
-        if (view.right_clicked || (view.clicked && !kCommands.contains(view.x, view.y))) {
+        if (view.right_clicked || (view.clicked && !commands.contains(view.x, view.y))) {
             action.press = Press::Cancel;
             return action;
         }
-        const std::optional<int> row = command_row_at(view.x, view.y, view.command_count);
+        const std::optional<int> row = command_row_at(view.x, view.y, view.command_count, view.column_shift);
         if (!row) {
             return action;
         }
@@ -135,11 +239,11 @@ InventoryPointer::Action InventoryPointer::update(const View& view) {
             return action;
         }
         target = InventoryFocus::EquippedItem;
-    } else if (kSettings.contains(view.x, view.y)) {
+    } else if (kSettings.moved(-view.column_shift).contains(view.x, view.y)) {
         target = InventoryFocus::Settings;
     } else if (kExit.contains(view.x, view.y)) {
         target = InventoryFocus::Exit;
-    } else if (kMap.contains(view.x, view.y)) {
+    } else if (kMap.moved(view.column_shift).contains(view.x, view.y)) {
         target = InventoryFocus::Map;
     }
     if (target) {

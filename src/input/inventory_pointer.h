@@ -5,10 +5,15 @@
 //   - pointing at a region (the item ring, the equipped item, Option / Exit / Map) selects it;
 //   - a click on the selected item opens its commands, a click on another item of the ring turns the ring to it;
 //   - a click on a command runs it; a right click, or a click beside the open commands, cancels;
-//   - the wheel over the ring turns it by one item.
+//   - the wheel over the ring turns it by one item;
+//   - on a touch screen a finger turns the ring as a carousel (ring_carousel.h): the ring follows a sideways drag,
+//     glides on and settles on the item nearest the centre, the screen stepping its selection after it one item at
+//     a time; a tap on a neighbour turns the ring there softly.
 #pragma once
 
 #include <optional>
+
+#include "input/ring_carousel.h"
 
 namespace sh::input {
 
@@ -33,9 +38,19 @@ public:
         int command_count = 0;   // rows of the open command list
         int command_row = 0;     // the highlighted one
         bool has_equipped = false;
-        // How far the picture is squeezed sideways when it is stretched over a wide window (1 = not at all):
-        // the ring's items move towards the centre by it.
+        // How far the ring's items move sideways from the centre (1 = not at all): below 1 when the picture is
+        // stretched over a wide window, above 1 when the screen spreads over it.
         float ring_scale = 1.0f;
+        // A screen spread over a wide window moves its side columns (Option; Map and the commands) out by this.
+        int column_shift = 0;
+
+        // A touch screen: the pointer is a finger (touch_controls.h ListFinger), and `seconds` passed since the
+        // last frame.
+        bool touch = false;
+        bool finger_down = false;
+        bool finger_dragging = false;
+        bool finger_horizontal = false;
+        double seconds = 0.0;
     };
 
     enum class Press { None, RingLeft, RingRight, Enter, Cancel };
@@ -45,18 +60,40 @@ public:
         std::optional<InventoryFocus> focus;
         std::optional<int> command_row;
         Press press = Press::None;
+        // The finger has the ring: the screen draws its centre here (places, 0 .. item_count), whichever item it
+        // has selected by then.
+        std::optional<double> ring_position;
+        // The ring press is to be taken at once: the screen's selection settles first, as the finger's ring does
+        // not wait for the screen's own scroll.
+        bool settle = false;
     };
 
     Action update(const View& view);
     // Forgets a ring turn in progress (the screen was left).
-    void reset() { turn_to_ = kNowhere; }
+    void reset();
+    // The ring glides fast: a finger that lands only stops it.
+    bool ring_flinging() const { return carousel_.flinging(); }
 
 private:
     static constexpr int kNowhere = -1;
 
+    // True when the finger's ring took the frame.
+    bool follow_finger(const View& view, Action& action);
+
     // The place in the ring a click asked for. The screen moves the ring one place per step, so a turn of several
     // places is walked there one press at a time.
     int turn_to_ = kNowhere;
+
+    // The ring under the finger. While it owns the ring (dragged, gliding, settling, or the screen still stepping
+    // after it) the screen draws it; then the ring is the screen's again.
+    RingCarousel carousel_;
+    bool ring_owned_ = false;
+    bool finger_down_ = false;
+    // A tap's click comes as the finger lifts or just after.
+    static constexpr int kTapFrames = 4;
+    int frames_since_lift_ = kTapFrames;
+    bool down_on_ring_ = false;
+    int down_x_ = 0;
 };
 
 // The pointer on the running game (inventory_pointer_host.cpp). Called by the inventory screen at the start of

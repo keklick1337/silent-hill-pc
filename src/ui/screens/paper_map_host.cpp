@@ -27,7 +27,15 @@
 #include "engine/screens/screens_view.h"
 #include "engine/app/loader/picture_places.h"
 #include "render/gpu/render_state.h"
+#include "render/gpu/render_queries.h"
+#include "render/frame/frame.h"
 #include "engine/mods/data_reload.h"
+
+#include <SDL3/SDL.h>
+
+#include <cmath>
+
+extern SDL_Window* g_window;
 
 extern "C" {
 const char* PcPort_GetGameDataPath(void);
@@ -212,6 +220,50 @@ public:
     }
     std::int32_t sin(std::int32_t angle) override { return gs::sin_q12(angle); }
     std::int32_t cos(std::int32_t angle) override { return gs::cos_q12(angle); }
+
+    bool window_to_screen(float window_x, float window_y, float* x, float* y) override {
+        if (!sh::render::published().world_ortho_valid) return false;
+        // The touch layer counts drawable pixels, the picture query window units.
+        float ux = window_x, uy = window_y;
+        if (g_window != nullptr) {
+            int pw = 0, ph = 0, ww = 0, wh = 0;
+            SDL_GetWindowSizeInPixels(g_window, &pw, &ph);
+            SDL_GetWindowSize(g_window, &ww, &wh);
+            if (pw > 0 && ph > 0 && ww > 0 && wh > 0) {
+                ux = window_x * static_cast<float>(ww) / static_cast<float>(pw);
+                uy = window_y * static_cast<float>(wh) / static_cast<float>(ph);
+            }
+        }
+        float fx = 0.f, fy = 0.f;
+        // A point in the bars still maps (outside 0..1): the gesture goes on there.
+        sh::gpu::window_to_picture(static_cast<int>(std::lround(ux)), static_cast<int>(std::lround(uy)), &fx, &fy);
+        const std::array<float, 4> r = screen_rect();
+        *x = r[0] + fx * (r[1] - r[0]);
+        *y = r[2] + fy * (r[3] - r[2]);
+        return true;
+    }
+    void screen_span(float* left, float* right) override {
+        if (!sh::render::published().world_ortho_valid) {
+            PaperMapHost::screen_span(left, right);
+            return;
+        }
+        const std::array<float, 4> r = screen_rect();
+        *left = r[0];
+        *right = r[1];
+    }
+
+private:
+    // The draw coordinates the world pass fits to the picture (left, right, top, bottom), as the screen draws them:
+    // the pass's ortho without the draw offset.
+    static std::array<float, 4> screen_rect() {
+        const sh::render::PublishedView& pub = sh::render::published();
+        if (sh::render::picture().hor_plus) {
+            return {pub.world_ortho_rect[0], pub.world_ortho_rect[1], pub.world_ortho_rect[2], pub.world_ortho_rect[3]};
+        }
+        const sh::frame::State& fs = sh::frame::state();
+        return {pub.world_ortho[0] - fs.draw_offset_x, pub.world_ortho[1] - fs.draw_offset_x,
+                pub.world_ortho[2] - fs.draw_offset_y, pub.world_ortho[3] - fs.draw_offset_y};
+    }
 };
 
 PaperMapScreen s_screen;

@@ -2,7 +2,11 @@
 #include "engine/screens/paper_map.h"
 
 #include <algorithm>
+#include <atomic>
 #include <climits>
+#include <cmath>
+#include <mutex>
+#include <utility>
 
 namespace sh::screens {
 
@@ -218,6 +222,45 @@ PaperMapWideSpan paper_map_scene_span(float wide) {
     return out;
 }
 
+namespace {
+
+// One tile of the page picture: texels u, v into tile (tx, ty), cut_w by cut_h of them, on the screen from corner[0]
+// (top left) to corner[1] (bottom right).
+draw2d::Polygon page_tile(const PaperMapImage& image, std::uint32_t palette, int shade, int tx, int ty, std::int32_t u,
+                          std::int32_t v, std::int16_t cut_w, std::int16_t cut_h,
+                          const std::array<draw2d::Point, 2>& corner) {
+    const std::uint16_t rg = static_cast<std::uint16_t>(shade + (shade << 8));
+    const std::uint32_t column = image.column + static_cast<std::uint32_t>(ty * 16);
+    const std::uint32_t page =
+        page_word(image.depth, (column + static_cast<std::uint32_t>(tx)) << 6, ((column >> 4) & 1) << 8);
+    // The tile's texels are 2 rows per screen row: the picture is stored at half height in each tile.
+    const PackedTexel t0 = unpack(static_cast<std::uint32_t>(u + ((v << 1) << 8)) + (palette << 16));
+    const PackedTexel t1 = unpack(static_cast<std::uint32_t>((u + cut_w) + ((v << 1) << 8)) + (page << 16));
+    const std::int16_t bottom_v = static_cast<std::int16_t>((static_cast<std::int16_t>(v) << 1) - 1);
+    const std::int32_t row = (bottom_v + (cut_h << 1)) << 8;
+    const PackedTexel t2 = unpack(static_cast<std::uint16_t>(u + row));
+    const PackedTexel t3 = unpack(static_cast<std::uint16_t>((cut_w + u) + row));
+
+    draw2d::Polygon tile;
+    tile.count = 4;
+    tile.textured = true;
+    tile.color[0] = {static_cast<std::uint8_t>(rg), static_cast<std::uint8_t>(rg >> 8),
+                     static_cast<std::uint8_t>(shade)};
+    tile.xy[0] = {corner[0].x, corner[0].y};
+    tile.xy[1] = {corner[1].x, corner[0].y};
+    tile.xy[2] = {corner[0].x, corner[1].y};
+    tile.xy[3] = {corner[1].x, corner[1].y};
+    tile.uv[0] = t0.uv;
+    tile.uv[1] = t1.uv;
+    tile.uv[2] = t2.uv;
+    tile.uv[3] = t3.uv;
+    tile.palette = draw2d::Palette::from_word(t0.extra);
+    tile.page = draw2d::TexturePage::from_word(t1.extra);
+    return tile;
+}
+
+}  // namespace
+
 std::vector<draw2d::Polygon> paper_map_tiles(const PaperMapView& view, const PaperMapImage& image, int shade,
                                              const PaperMapWideSpan* wide) {
     std::vector<draw2d::Polygon> out;
@@ -241,7 +284,6 @@ std::vector<draw2d::Polygon> paper_map_tiles(const PaperMapView& view, const Pap
     const int top = view.top + (image.v >> 1);
     const int low = bottom + (image.v >> 1);
     const std::uint32_t palette = palette_word(image.clut_x, image.clut_y);
-    const std::uint16_t rg = static_cast<std::uint16_t>(shade + (shade << 8));
 
     for (int tx = 0; tx < 3; ++tx) {
         for (int ty = 0; ty < 2; ++ty) {
@@ -260,33 +302,8 @@ std::vector<draw2d::Polygon> paper_map_tiles(const PaperMapView& view, const Pap
             xs[tx + 1] = static_cast<std::int16_t>(xs[tx] + ((cut_w << 12) / scale));
             ys[ty + 1] = static_cast<std::int16_t>(ys[ty] + ((cut_h << 13) / scale));
 
-            const std::uint32_t column = image.column + static_cast<std::uint32_t>(ty * 16);
-            const std::uint32_t page =
-                page_word(image.depth, (column + static_cast<std::uint32_t>(tx)) << 6, ((column >> 4) & 1) << 8);
-            // The tile's texels are 2 rows per screen row: the picture is stored at half height in each tile.
-            const PackedTexel t0 = unpack(static_cast<std::uint32_t>(u + ((v << 1) << 8)) + (palette << 16));
-            const PackedTexel t1 = unpack(static_cast<std::uint32_t>((u + cut_w) + ((v << 1) << 8)) + (page << 16));
-            const std::int16_t bottom_v = static_cast<std::int16_t>((static_cast<std::int16_t>(v) << 1) - 1);
-            const std::int32_t row = (bottom_v + (cut_h << 1)) << 8;
-            const PackedTexel t2 = unpack(static_cast<std::uint16_t>(u + row));
-            const PackedTexel t3 = unpack(static_cast<std::uint16_t>((cut_w + u) + row));
-
-            draw2d::Polygon tile;
-            tile.count = 4;
-            tile.textured = true;
-            tile.color[0] = {static_cast<std::uint8_t>(rg), static_cast<std::uint8_t>(rg >> 8),
-                             static_cast<std::uint8_t>(shade)};
-            tile.xy[0] = {xs[tx], ys[ty]};
-            tile.xy[1] = {xs[tx + 1], ys[ty]};
-            tile.xy[2] = {xs[tx], ys[ty + 1]};
-            tile.xy[3] = {xs[tx + 1], ys[ty + 1]};
-            tile.uv[0] = t0.uv;
-            tile.uv[1] = t1.uv;
-            tile.uv[2] = t2.uv;
-            tile.uv[3] = t3.uv;
-            tile.palette = draw2d::Palette::from_word(t0.extra);
-            tile.page = draw2d::TexturePage::from_word(t1.extra);
-            out.push_back(tile);
+            out.push_back(page_tile(image, palette, shade, tx, ty, u, v, cut_w, cut_h,
+                                    {draw2d::Point{xs[tx], ys[ty]}, draw2d::Point{xs[tx + 1], ys[ty + 1]}}));
         }
     }
     return out;
@@ -564,6 +581,7 @@ void PaperMapScreen::update(PaperMapHost& host, const PaperMapBook& book) {
             pan_x_ = -1;
             zoom_ = kOne;
             zoomed_ = false;
+            touch_reset();
             host.stop_radio();
             host.play_map_sound();
             host.store_frame();
@@ -608,13 +626,17 @@ void PaperMapScreen::update(PaperMapHost& host, const PaperMapBook& book) {
         }
 
         case Close: {
-            PaperMapView view = view_through(pan_x_, pan_y_, zoom_);
-            const PaperMapWideView wide = paper_map_wide_view(view.left, view.scale, host.wide_factor());
-            if (wide.span.on) host.note_wide_frame();
-            view.left = wide.left;
-            paper_map_draw_player(host, book, page_, view);
-            paper_map_draw_marks(host, book, static_cast<int>(PaperMapMarks::Found), page_, 0, 0, view);
-            paper_map_draw_page(host, book, view, &wide.span);
+            if (touch_mode_) {
+                draw_touch(host, book);
+            } else {
+                PaperMapView view = view_through(pan_x_, pan_y_, zoom_);
+                const PaperMapWideView wide = paper_map_wide_view(view.left, view.scale, host.wide_factor());
+                if (wide.span.on) host.note_wide_frame();
+                view.left = wide.left;
+                paper_map_draw_player(host, book, page_, view);
+                paper_map_draw_marks(host, book, static_cast<int>(PaperMapMarks::Found), page_, 0, 0, view);
+                paper_map_draw_page(host, book, view, &wide.span);
+            }
             if (host.fade_done()) {
                 if (host.opened_from_game()) {
                     host.restore_frame();
@@ -631,32 +653,311 @@ void PaperMapScreen::update(PaperMapHost& host, const PaperMapBook& book) {
     }
 }
 
+namespace {
+
+// Touch events wait here for the screen's frame (the touch layer may run on another thread).
+struct TouchEvent {
+    enum class Kind { Begin, Move, Pinch, End, DoubleTap };
+    Kind kind = Kind::Begin;
+    float x = 0.f, y = 0.f, distance = 0.f;
+};
+
+constexpr std::size_t kTouchQueueLimit = 64;
+// The Show step counts as up this long after its last frame, so a slow frame does not drop a gesture.
+constexpr std::int64_t kTouchShownNs = 250'000'000;
+constexpr float kPageWidth = 320.0f;
+constexpr float kPageHeight = 240.0f;
+constexpr float kPageLines = 480.0f;  // the page's draw lines (-240..240)
+// Window pixels far apart enough that the linear map read from them is exact to a fraction of a pixel.
+constexpr float kProbePixels = 4096.0f;
+constexpr float kLongestTouchFrame = 0.1f;
+
+std::mutex g_touch_mutex;
+std::vector<TouchEvent> g_touch_events;
+std::atomic<std::int64_t> g_touch_shown_ns{0};
+std::atomic<bool> g_touch_at_fit{true};
+std::atomic<bool> g_zoomed{false};
+
+std::int64_t now_ns() {
+    return std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::steady_clock::now().time_since_epoch())
+        .count();
+}
+
+void touch_shown(bool on) { g_touch_shown_ns.store(on ? now_ns() : 0); }
+
+void queue_touch(const TouchEvent& e) {
+    if (!paper_map_touch_available()) return;
+    std::lock_guard<std::mutex> lock(g_touch_mutex);
+    // Only the latest position of a drag or a pinch matters within one frame.
+    if (!g_touch_events.empty() && g_touch_events.back().kind == e.kind &&
+        (e.kind == TouchEvent::Kind::Move || e.kind == TouchEvent::Kind::Pinch)) {
+        g_touch_events.back() = e;
+        return;
+    }
+    if (g_touch_events.size() < kTouchQueueLimit) g_touch_events.push_back(e);
+}
+
+std::vector<TouchEvent> take_touch() {
+    std::lock_guard<std::mutex> lock(g_touch_mutex);
+    return std::exchange(g_touch_events, {});
+}
+
+template <class Shape>
+void shift(Shape& shape, int dx, int dy) {
+    for (int i = 0; i < shape.count; ++i) {
+        shape.xy[i].x = static_cast<std::int16_t>(shape.xy[i].x + dx);
+        shape.xy[i].y = static_cast<std::int16_t>(shape.xy[i].y + dy);
+    }
+}
+
+MapTouchVec operator-(MapTouchVec a, MapTouchVec b) { return {a.x - b.x, a.y - b.y}; }
+
+}  // namespace
+
+bool paper_map_zoomed() { return g_zoomed.load(); }
+
+bool paper_map_touch_available() {
+    const std::int64_t shown = g_touch_shown_ns.load();
+    return shown != 0 && now_ns() - shown < kTouchShownNs;
+}
+
+void paper_map_touch_begin(float x, float y) { queue_touch({TouchEvent::Kind::Begin, x, y, 0.f}); }
+void paper_map_touch_move(float x, float y) { queue_touch({TouchEvent::Kind::Move, x, y, 0.f}); }
+void paper_map_touch_pinch(float mid_x, float mid_y, float distance) {
+    queue_touch({TouchEvent::Kind::Pinch, mid_x, mid_y, distance});
+}
+void paper_map_touch_end(float velocity_x, float velocity_y) {
+    queue_touch({TouchEvent::Kind::End, velocity_x, velocity_y, 0.f});
+}
+void paper_map_touch_double_tap(float x, float y) { queue_touch({TouchEvent::Kind::DoubleTap, x, y, 0.f}); }
+bool paper_map_touch_at_fit() { return g_touch_at_fit.load(); }
+
 void PaperMapScreen::begin_page_turn(PaperMapHost& host, const PaperMapBook& book, int to) {
     turn_to_ = to;
     host.seek_file(image_file(book, to));
     host.fade_out();
     pan_x_ = -1;
+    // The new page opens at fit; touch keeps the view if it had it.
+    touch_.reset();
+    touch_dragging_ = false;
+    touch_pinching_ = false;
+    touch_shown(false);
     host.set_step(Turn);
 }
 
-void PaperMapScreen::show(PaperMapHost& host, const PaperMapBook& book) {
-    const MapScreenData& d = book.data();
+void PaperMapScreen::touch_reset() {
+    touch_mode_ = false;
+    touch_dragging_ = false;
+    touch_pinching_ = false;
+    touch_.reset();
+    touch_clock_ = {};
+    take_touch();
+}
+
+void PaperMapScreen::touch_take_over(PaperMapHost& host) {
+    // Touch starts from what the pad's zoom shows now, so the page does not jump under the finger.
     PaperMapView view = paper_map_view(pan_x_, pan_y_, zoom_);
     const PaperMapWideView wide = paper_map_wide_view(view.left, view.scale, host.wide_factor());
-    if (wide.span.on) host.note_wide_frame();
-    view.left = wide.left;
+    float left = 0.f, right = 0.f;
+    host.screen_span(&left, &right);
+    const float s = static_cast<float>(kOne) / static_cast<float>(std::max<int>(view.scale, 1));
+    touch_.set_view(s, {-160.0f - static_cast<float>(wide.left) * s - left, -static_cast<float>(view.top) * s});
+    // The pad's zoom rests unzoomed while touch has the view; touch_hand_back gives it the view back.
+    zoomed_ = false;
+    zoom_ = kOne;
+    touch_mode_ = true;
+}
 
-    const std::int32_t packed = paper_map_draw_player(host, book, page_, view);
-    paper_map_draw_marks(host, book, static_cast<int>(PaperMapMarks::Found), page_, 0, 0, view);
-    if (host.fade_idle() && !zoomed_ && zoom_ == kOne) {
-        paper_map_draw_page_arrows(host, book, page_);
+void PaperMapScreen::touch_hand_back(const MapScreenData& data) {
+    // The pad's only zoomed view is the original's half-page one: centre it where touch's view was centred.
+    const float fit = touch_.fit_scale();
+    if (touch_.scale() > fit * 1.01f) {
+        const MapTouchVec c = touch_.to_page({touch_.viewport().x * 0.5f, touch_.viewport().y * 0.5f});
+        zoomed_ = true;
+        zoom_ = 0;
+        pan_x_ = std::clamp(static_cast<int>(std::lround(c.x)) - kScreenW / 4, 0, data.pan_max[0]) * kOne;
+        pan_y_ = std::clamp(static_cast<int>(std::lround(c.y)) - kScreenH / 4, 0, data.pan_max[1]) * kOne;
+    } else {
+        zoomed_ = false;
+        zoom_ = kOne;
     }
-    paper_map_draw_page(host, book, view, &wide.span);
+    touch_mode_ = false;
+    touch_dragging_ = false;
+    touch_pinching_ = false;
+    touch_.reset();
+}
+
+void PaperMapScreen::touch_frame(PaperMapHost& host) {
+    const auto now = std::chrono::steady_clock::now();
+    float dt = 1.0f / 60.0f;
+    if (touch_clock_ != std::chrono::steady_clock::time_point{}) {
+        dt = std::clamp(std::chrono::duration<float>(now - touch_clock_).count(), 0.0f, kLongestTouchFrame);
+    }
+    touch_clock_ = now;
+
+    float left = 0.f, right = 0.f;
+    host.screen_span(&left, &right);
+    touch_.set_frame({kPageWidth, kPageHeight}, {std::max(1.0f, right - left), kPageHeight});
+
+    const std::vector<TouchEvent> events = take_touch();
+    // Window pixels to page units through two far points: the map is linear, and window_to_screen rounds.
+    float ax = 0.f, ay = 0.f, bx = 0.f, by = 0.f;
+    const bool mapped = !events.empty() && host.window_to_screen(0.f, 0.f, &ax, &ay) &&
+                        host.window_to_screen(kProbePixels, kProbePixels, &bx, &by);
+    const MapTouchVec per_pixel{(bx - ax) / kProbePixels, (by - ay) / kProbePixels * 0.5f};
+    auto units = [&](float wx, float wy) {
+        return MapTouchVec{ax + wx * (bx - ax) / kProbePixels - left,
+                           (ay + wy * (by - ay) / kProbePixels + kPageLines * 0.5f) * 0.5f};
+    };
+    for (const TouchEvent& e : events) {
+        if (!mapped) break;
+        switch (e.kind) {
+            case TouchEvent::Kind::Begin:
+            case TouchEvent::Kind::Move: {
+                if (!touch_mode_) touch_take_over(host);
+                const MapTouchVec p = units(e.x, e.y);
+                if (e.kind == TouchEvent::Kind::Begin || !touch_dragging_) {
+                    touch_.begin_pan();
+                    touch_dragging_ = true;
+                    touch_pinching_ = false;
+                } else {
+                    touch_.pan(p - touch_last_);
+                }
+                touch_last_ = p;
+                break;
+            }
+            case TouchEvent::Kind::Pinch: {
+                if (!touch_mode_) touch_take_over(host);
+                const MapTouchVec p = units(e.x, e.y);
+                if (!touch_pinching_) {
+                    touch_.begin_pinch(p, e.distance);
+                    touch_pinching_ = true;
+                    touch_dragging_ = false;
+                } else {
+                    // Only the ratio of the distances counts, so they stay in window pixels.
+                    touch_.pinch(p, e.distance);
+                }
+                break;
+            }
+            case TouchEvent::Kind::End:
+                if (!touch_mode_) break;
+                touch_.release({e.x * per_pixel.x, e.y * per_pixel.y});
+                touch_dragging_ = false;
+                touch_pinching_ = false;
+                break;
+            case TouchEvent::Kind::DoubleTap:
+                if (!touch_mode_) touch_take_over(host);
+                touch_.double_tap(units(e.x, e.y));
+                touch_dragging_ = false;
+                touch_pinching_ = false;
+                break;
+        }
+    }
+    if (touch_mode_) touch_.update(dt);
+}
+
+std::int32_t PaperMapScreen::draw_touch(PaperMapHost& host, const PaperMapBook& book) {
+    const MapScreenData& d = book.data();
+    float left = 0.f, right = 0.f;
+    host.screen_span(&left, &right);
+    if (host.wide_factor() > 1.0f) host.note_wide_frame();
+
+    // The draws take the original's Q12 view size, so the tiles, the marks and the arrow agree on one scale.
+    const int q = std::clamp(static_cast<int>(std::lround(static_cast<float>(kOne) / touch_.scale())), 1, 65535);
+    const float per_texel = static_cast<float>(kOne) / static_cast<float>(q);
+    const MapTouchVec o = touch_.offset();
+    // Texel (0, 0) is drawn at (-160 + dx, -240 + dy); the view of the marks puts it at (-160, -240).
+    const int dx = static_cast<int>(std::lround(left + o.x + 160.0f));
+    const int dy = static_cast<int>(std::lround(o.y * 2.0f));
+    const PaperMapView at_corner{0, 0, static_cast<std::uint16_t>(q)};
+
+    std::int32_t packed = 0;
+    if (host.saved_page() == page_) {
+        const std::optional<PaperMapPoint> at = paper_map_player_point(book, page_, host.player());
+        packed = paper_map_packed_point(at);
+        if (at && !host.input().hold_arrow) {
+            // The arrow's own arithmetic divides by the view size in whole texels, which drifts at zooms other
+            // than the original's two: place it here and give it a 1:1 view that keeps the place.
+            PaperMapPoint place = *at;
+            place.x = static_cast<std::int16_t>(
+                std::lround(-160.0f + static_cast<float>(dx) + static_cast<float>(at->x + kScreenW / 2) * per_texel));
+            place.z = static_cast<std::int16_t>(std::lround(
+                (-240.0f + static_cast<float>(dy) + static_cast<float>(at->z + kScreenH / 2) * 2.0f * per_texel) *
+                0.5f));
+            const std::int16_t heading = paper_map_fold_heading(at->heading);
+            const PaperMapArrow arrow =
+                paper_map_arrow(d.player_arrow, place, PaperMapView{0, 0, kOne}, host.sin(heading), host.cos(heading));
+            host.submit(PaperMapLayer::Arrows, arrow.outline);
+            host.submit(PaperMapLayer::Arrows, arrow.fill);
+        }
+    }
+
+    const std::array<std::int16_t, 2> palette = host.marking_palette();
+    std::optional<std::vector<draw2d::Polygon>> marks =
+        paper_map_marks(book, page_, static_cast<int>(PaperMapMarks::Found), 0, 0, at_corner, palette[0], palette[1],
+                        [&host](int n) { return host.flag(n); });
+    if (marks) {
+        for (draw2d::Polygon& m : *marks) {
+            shift(m, dx, dy);
+            host.submit(PaperMapLayer::Marks, m);
+        }
+    }
+
+    // Only the texels on screen: a whole tile at this zoom would pass the GPU's polygon size limit.
+    const PaperMapImage image = host.page_image();
+    const int off = image.v >> 1;
+    const float x0 = -160.0f + static_cast<float>(dx), y0 = -240.0f + static_cast<float>(dy);
+    const int u0 = std::max(0, static_cast<int>(std::floor((left - x0) / per_texel)));
+    const int u1 = std::min(kScreenW, static_cast<int>(std::ceil((right - x0) / per_texel)));
+    const int v0 = std::max(0, static_cast<int>(std::floor((-240.0f - y0) / (2.0f * per_texel))));
+    const int v1 = std::min(kScreenH, static_cast<int>(std::ceil((240.0f - y0) / (2.0f * per_texel))));
+    const std::uint32_t tile_palette = palette_word(image.clut_x, image.clut_y);
+    for (int tx = 0; tx < 3; ++tx) {
+        for (int ty = 0; ty < 2; ++ty) {
+            const int cl = std::max(u0, tx * kTile), cr = std::min(u1, (tx + 1) * kTile);
+            const int ct = std::max(v0 + off, ty * kTile), cb = std::min(v1 + off, (ty + 1) * kTile);
+            if (cl >= cr || ct >= cb) continue;
+            const draw2d::Point top_left = xy(-160 + dx + (cl * kOne) / q, -240 + dy + ((ct - off) * 2 * kOne) / q);
+            const draw2d::Point bottom_right = xy(-160 + dx + (cr * kOne) / q, -240 + dy + ((cb - off) * 2 * kOne) / q);
+            host.submit(PaperMapLayer::Page, page_tile(image, tile_palette, d.image_shade, tx, ty, cl - tx * kTile,
+                                                       ct - ty * kTile, static_cast<std::int16_t>(cr - cl),
+                                                       static_cast<std::int16_t>(cb - ct), {top_left, bottom_right}));
+        }
+    }
+    host.pause_music();
+    return packed;
+}
+
+void PaperMapScreen::show(PaperMapHost& host, const PaperMapBook& book) {
+    touch_shown(true);
+    touch_frame(host);
+    g_zoomed.store(touch_mode_ ? !touch_.at_fit() : zoomed_);
+    g_touch_at_fit.store(touch_mode_ ? touch_.at_fit() : (!zoomed_ && zoom_ == kOne));
+    const MapScreenData& d = book.data();
+
+    std::int32_t packed = 0;
+    if (touch_mode_) {
+        packed = draw_touch(host, book);
+        if (host.fade_idle() && touch_.at_fit()) paper_map_draw_page_arrows(host, book, page_);
+    } else {
+        PaperMapView view = paper_map_view(pan_x_, pan_y_, zoom_);
+        const PaperMapWideView wide = paper_map_wide_view(view.left, view.scale, host.wide_factor());
+        if (wide.span.on) host.note_wide_frame();
+        view.left = wide.left;
+
+        packed = paper_map_draw_player(host, book, page_, view);
+        paper_map_draw_marks(host, book, static_cast<int>(PaperMapMarks::Found), page_, 0, 0, view);
+        if (host.fade_idle() && !zoomed_ && zoom_ == kOne) {
+            paper_map_draw_page_arrows(host, book, page_);
+        }
+        paper_map_draw_page(host, book, view, &wide.span);
+    }
 
     const PaperMapInput in = host.input();
     // From the inventory only Cancel closes (the map button there is the inventory's own).
     const bool close = host.opened_from_inventory() ? in.cancel : (in.cancel || in.map);
     if (close) {
+        touch_shown(false);
         host.play_map_sound();
         if (host.opened_from_inventory()) {
             host.flush_frame_lists();
@@ -676,6 +977,11 @@ void PaperMapScreen::show(PaperMapHost& host, const PaperMapBook& book) {
         return;
     }
 
+    // The pad zooming or panning takes the view back from touch.
+    if (touch_mode_ && (in.enter || in.stick_x != 0 || in.stick_y != 0)) {
+        touch_hand_back(d);
+    }
+
     if (in.enter) {
         if (zoomed_) {
             zoomed_ = false;
@@ -693,6 +999,8 @@ void PaperMapScreen::show(PaperMapHost& host, const PaperMapBook& book) {
 
     if (!zoomed_) {
         if (zoom_ == kOne) {
+            // As the pad's zoom, touch turns no page while zoomed in.
+            if (touch_mode_ && !touch_.at_fit()) return;
             const PaperMapPage* p = book.page(page_);
             if (p != nullptr && in.up && host.has_page(p->up)) {
                 begin_page_turn(host, book, p->up);

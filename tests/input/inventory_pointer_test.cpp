@@ -179,3 +179,39 @@ SH_TEST(inventory_pointer_empty_inventory) {
     const InventoryPointer::Action a = p.update(v);
     SH_CHECK(!a.focus.has_value() && a.press == Press::None);
 }
+
+SH_TEST(inventory_pointer_follows_a_spread_screen) {
+    InventoryPointer p;
+    // Option and Map moved out by 60: their old places miss, the new ones hit.
+    InventoryPointer::View v = at(-100, 200);
+    v.column_shift = 60;
+    v.clicked = true;
+    SH_CHECK(!p.update(v).focus.has_value());
+    v.x = -160;
+    SH_CHECK(p.update(v).focus == InventoryFocus::Settings);
+    v.x = 160;
+    SH_CHECK(p.update(v).focus == InventoryFocus::Map);
+
+    // The open commands and their rows move with the right column.
+    v = at(100, -146);
+    v.column_shift = 60;
+    v.focus = InventoryFocus::ItemCommands;
+    v.command_count = 1;
+    v.clicked = true;
+    SH_CHECK(p.update(v).press == Press::Cancel);  // beside the moved list
+    v.x = 160;
+    SH_CHECK(p.update(v).press == Press::Enter);
+
+    // A spread ring: the neighbour's share widens with it.
+    v = at(-90, 0);
+    v.clicked = true;
+    p.update(v);
+    SH_CHECK(p.update(at(0, 0)).press == Press::RingLeft);  // -90 was two places left
+    p.reset();
+    v.ring_scale = 1.5f;
+    v.focus = InventoryFocus::Item;
+    p.update(v);
+    InventoryPointer::View w = at(0, 0);
+    w.selected_item = 3;  // one step done: the turn of one place is over
+    SH_CHECK(p.update(w).press == Press::None);
+}
