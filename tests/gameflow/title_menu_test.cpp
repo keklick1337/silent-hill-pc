@@ -114,7 +114,7 @@ bool has(const std::vector<std::string>& log, const std::string& s) {
     return false;
 }
 
-constexpr int kLoad = 0, kContinue = 1, kStart = 2, kOption = 3, kExit = 4;
+constexpr int kContinue = 1, kStart = 2, kOption = 3, kExit = 4;
 
 }  // namespace
 

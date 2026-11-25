@@ -55,7 +55,6 @@ constexpr int kMapEventScripts = 64;  // the overlays' script tables are shorter
 constexpr int kStateCount = 15;
 constexpr std::int32_t kStateLoadMap = 5;
 constexpr std::int32_t kStateLoadRoom = 6;
-constexpr std::int32_t kStateMapScreen = 3;
 constexpr std::int32_t kStateGameOver = 13;
 constexpr std::int32_t kStatePaused = 14;
 constexpr std::int32_t kBordersNone = 1;

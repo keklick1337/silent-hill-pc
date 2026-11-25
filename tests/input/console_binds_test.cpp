@@ -17,7 +17,7 @@ using namespace sh::input;
 
 namespace {
 
-constexpr int kKeyK = 14, kKeyF = 9, kKeyA = 4, kGrave = 53, kReturn = 40, kBackspace = 42, kLeftShift = 225;
+constexpr int kKeyK = 14, kKeyA = 4, kGrave = 53, kReturn = 40, kBackspace = 42, kLeftShift = 225;
 constexpr int kF1 = 58, kKeypad1 = 89;
 
 class Host final : public ConsoleBindHost {

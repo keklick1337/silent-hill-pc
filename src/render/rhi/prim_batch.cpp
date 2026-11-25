@@ -191,7 +191,7 @@ Result<std::unique_ptr<PrimRenderer>> PrimRenderer::create(Device& device, Textu
     // section 2.2d): every blend mode with and without the mask test, flat and depth-tested.
     for (std::uint8_t blend = 0; blend <= static_cast<std::uint8_t>(BlendMode::ConstantAlpha); ++blend) {
         for (StencilMode stencil : {StencilMode::Off, StencilMode::MaskTest}) {
-            for (const auto [test, write] : {std::pair{false, true}, std::pair{true, true}, std::pair{true, false}}) {
+            for (const auto& [test, write] : {std::pair{false, true}, std::pair{true, true}, std::pair{true, false}}) {
                 PrimPipelineKey key;
                 key.blend = static_cast<BlendMode>(blend);
                 key.stencil = stencil;

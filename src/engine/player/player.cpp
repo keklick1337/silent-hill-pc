@@ -23,7 +23,6 @@ constexpr std::int64_t kBoxTop = -6553;          // -1.6 m
 constexpr std::int64_t kBoxOffsetY = -4505;      // -1.1 m
 constexpr std::int64_t kCollisionActive = 3;
 constexpr std::int64_t kAimLookAhead = 1024;     // quarter turn: the aim looks straight ahead
-constexpr std::int64_t kFullHealth = 409600;     // 100
 
 // Stun timer limit by difficulty (-1 easy, 0 normal, 1 hard), Q12 seconds.
 std::int64_t stun_limit(std::int64_t difficulty, std::int64_t current) {

@@ -174,7 +174,6 @@ private:
     std::uint64_t jitter_count_ = 0;
     int rows_timed_ = 0, rows_untimed_ = 0;
     double gpu_timed_ = 0.0, gpu_untimed_ = 0.0, frame_timed_ = 0.0, frame_untimed_ = 0.0;
-    int gpu_timed_rows_ = 0, gpu_untimed_rows_ = 0;
 };
 
 // The CSV of the rows: a header from the pass names known so far and one line per row. A row written before a pass

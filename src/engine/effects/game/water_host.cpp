@@ -132,7 +132,7 @@ sh::frame::OrderKey world_key(std::int32_t slot) { return {sh::frame::Layer::Wor
 
 class WaterHostImpl final : public fx::WaterHost {
 public:
-    WaterHostImpl(const fx::WaterParams& params, bool tint) : params_(params), tint_(tint) {}
+    WaterHostImpl(const fx::WaterParams& /*params*/, bool tint) : tint_(tint) {}
 
     std::int32_t sin(std::int32_t a) override { return sh::world::fixed_sin(a); }
     std::int32_t cos(std::int32_t a) override { return sh::world::fixed_cos(a); }
@@ -285,7 +285,6 @@ public:
     }
 
 private:
-    const fx::WaterParams& params_;
     bool tint_;
     sh::effects::drawer::DrawerProjection projection_;
 };

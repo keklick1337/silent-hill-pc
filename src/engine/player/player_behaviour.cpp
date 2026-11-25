@@ -31,7 +31,7 @@ constexpr unsigned kKeyForward = 1u, kKeyLeft = 2u, kKeyBack = 4u, kKeyRight = 8
 // Pad word bits of the directions: digital pad and the left stick.
 constexpr std::int32_t kPadUp = (1 << 4) | (1 << 24), kPadRight = (1 << 5) | (1 << 25), kPadDown = (1 << 6) | (1 << 26),
                        kPadLeft = (1 << 7) | (1 << 27);
-constexpr std::int32_t kStickUp = 1 << 24, kStickRight = 1 << 25, kStickDown = 1 << 26, kStickLeft = 1 << 27;
+constexpr std::int32_t kStickUp = 1 << 24, kStickDown = 1 << 26;
 
 // Run speeds of the control layer (Q12 m/s): the alternate cameras' run, the classic camera's by speed zone (the
 // authored speeds of the legs' run, behavior.lua run_top), the walk.

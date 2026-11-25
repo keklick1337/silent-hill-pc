@@ -84,7 +84,6 @@ d2::Palette palette_at(int x, int y) { return d2::Palette::from_word(static_cast
 constexpr int kScreenWidth = 320;
 constexpr int kScreenHeight = 240;
 constexpr std::size_t kPacketBufferBytes = 0x8000;  // the frame packets, one block per display buffer
-constexpr int kHarry = 1;
 
 }  // namespace
 

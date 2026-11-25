@@ -140,17 +140,22 @@ void ShLog_SetListener(ShLogListenerFn fn);
 /* --- legacy macros: category from the "[TAG]" prefix, cached per call site.
  * The first gate (any category) keeps a disabled call at one compare; the
  * call site's category is looked up only once something at that level is on. */
-#define SH_LOG_TAGGED_(lvl, fmt, ...) do { \
+/* The format string is the first argument; the macros pass all of them on as they are, so a call without
+ * arguments after the format needs no comma pasting (a GNU extension clang warns about under -Wpedantic). */
+#define SH_LOG_FIRST_(...) SH_LOG_FIRST_I_(__VA_ARGS__, 0)
+#define SH_LOG_FIRST_I_(first, ...) first
+
+#define SH_LOG_TAGGED_(lvl, ...) do { \
     static signed char sh_log_cat_ = -1; \
     if ((lvl) <= g_ShLogGateAny) { \
-        if (sh_log_cat_ < 0) sh_log_cat_ = (signed char)ShLog_CategoryFromText(fmt); \
-        if ((lvl) <= g_ShLogGate[sh_log_cat_]) ShLog_Write(sh_log_cat_, (lvl), fmt, ##__VA_ARGS__); \
+        if (sh_log_cat_ < 0) sh_log_cat_ = (signed char)ShLog_CategoryFromText(SH_LOG_FIRST_(__VA_ARGS__)); \
+        if ((lvl) <= g_ShLogGate[sh_log_cat_]) ShLog_Write(sh_log_cat_, (lvl), __VA_ARGS__); \
     } \
 } while (0)
 
-#define SH_LOG(fmt, ...)  SH_LOG_TAGGED_(SH_LOGLV_INFO, fmt, ##__VA_ARGS__)
-#define SH_WARN(fmt, ...) SH_LOG_TAGGED_(SH_LOGLV_WARN, fmt, ##__VA_ARGS__)
-#define SH_ERR(fmt, ...)  SH_LOG_TAGGED_(SH_LOGLV_ERROR, fmt, ##__VA_ARGS__)
-#define SH_DBG(fmt, ...)  SH_LOG_TAGGED_(SH_LOGLV_DEBUG, fmt, ##__VA_ARGS__)
-#define SH_DBG_ECHO(fmt, ...) ShLog_Echo(fmt, ##__VA_ARGS__)
+#define SH_LOG(...)  SH_LOG_TAGGED_(SH_LOGLV_INFO, __VA_ARGS__)
+#define SH_WARN(...) SH_LOG_TAGGED_(SH_LOGLV_WARN, __VA_ARGS__)
+#define SH_ERR(...)  SH_LOG_TAGGED_(SH_LOGLV_ERROR, __VA_ARGS__)
+#define SH_DBG(...)  SH_LOG_TAGGED_(SH_LOGLV_DEBUG, __VA_ARGS__)
+#define SH_DBG_ECHO(...) ShLog_Echo(__VA_ARGS__)
 

@@ -45,7 +45,6 @@ constexpr std::int32_t kRollState = 21;   // the game state the roll runs in
 constexpr int kScreenWidth = 320;
 constexpr std::uint32_t kSoundStopMusic = 18, kSoundStopEffects = 16, kSoundStopVoice = 19;
 constexpr std::uint32_t kOverlaySlot = 6;
-constexpr std::uint32_t kWorldBackSlot = 2047;
 
 // The video memory the roll's display mode overwrites, kept aside while it runs (x, y, w, h, where it is kept).
 struct KeptArea {

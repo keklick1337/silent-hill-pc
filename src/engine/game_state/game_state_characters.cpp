@@ -24,7 +24,6 @@ namespace ent = sh::entities;
 ent::CharacterSlots& slots() { return sh::game::session().system.characters; }
 ent::CharacterRecord* record(int slot) { return slots().record(slot); }
 
-constexpr std::uint16_t kAnimVisible = 1u << 1;
 constexpr int kLegacyNpcSlots = 32;  // the room spawner's slots, the ones the NPC bit words cover
 
 old_calls::GroundSurface surface_at(std::int32_t x, std::int32_t z) {
