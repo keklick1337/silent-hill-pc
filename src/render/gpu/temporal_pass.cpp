@@ -4,6 +4,7 @@
 #include "render/gpu/temporal_pass.h"
 
 #include "engine/log/sh_log.h"
+#include "render/gpu/gpu_types.h"
 #include "render/gpu/device_host.h"
 #include "render/gpu/renderer.h"
 #include "render/gpu/targets.h"
@@ -55,7 +56,7 @@ TemporalPass::~TemporalPass() = default;
 bool TemporalPass::available() {
     if (!tried_) {
         tried_ = true;
-        impl_ = rhi::createTemporal(owner_.device(), &reason_);
+        impl_ = rhi::createTemporal(owner_.device(), &reason_, phone_gpu());
         if (impl_)
             SH_LOG("[GPU] TAA, TAAU and the spatial upscale available");
         else if (owner_.host().backend() == BackendKind::Vulkan)

@@ -54,11 +54,13 @@ bool precise_sleep(double seconds) {
 #endif
 }
 
+#if !defined(__ANDROID__)
 void relax() {
 #if defined(_WIN32)
     YieldProcessor();
 #endif
 }
+#endif
 
 }  // namespace
 
@@ -118,11 +120,16 @@ void VBlankClock::thread_main() {
         double wake = next;
         if (now + 0.002 < wake) wake = now + 0.002;
         now = seconds();
+#if defined(__ANDROID__)
+        // A phone's battery and heat matter more than a blank a fraction of a millisecond late: no spinning.
+        if (wake > now) precise_sleep(wake - now);
+#else
         if (wake - now > 0.0007) {
             if (!precise_sleep(wake - now - 0.0005)) relax();
         } else {
             relax();
         }
+#endif
     }
 }
 

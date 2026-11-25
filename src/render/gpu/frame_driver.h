@@ -40,6 +40,9 @@ void frame_end();
 // Queues the 2D overlay (console, debug panels, pointer) at every frame end, after the frame was stored and
 // captured, so the frozen copies never contain it.
 void set_overlay(void (*overlay)());
+// Lays overlay::window_overlay() out against the window for the next present (frame_end does it for a game frame;
+// a movie's frame, which presents on its own, calls it before it queues its controls).
+void begin_window_overlay();
 
 // The swap interval the next frames present with (applied only on a change).
 void set_swap_interval(int interval);

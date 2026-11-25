@@ -85,6 +85,8 @@ void vulkanRayTracingChain(VkPhysicalDevice physical, std::uint32_t apiVersion,
 
 namespace sh::rhi::vkn {
 
+class Rendering;
+
 struct Context {
     VkPhysicalDevice physical = VK_NULL_HANDLE;
     VkDevice device = VK_NULL_HANDLE;
@@ -92,10 +94,9 @@ struct Context {
     VkPipelineCache pipelineCache = VK_NULL_HANDLE;
     std::uint32_t queueFamily = 0;
     VkQueueFlags queueFlags = 0;  // of the one queue everything is submitted to
-    // Core 1.3 or the KHR entry points, whichever the device was made with.
-    PFN_vkCmdBeginRendering cmdBeginRendering = nullptr;
-    PFN_vkCmdEndRendering cmdEndRendering = nullptr;
-    PFN_vkCmdPipelineBarrier2 cmdPipelineBarrier2 = nullptr;
+    // Passes, barriers and pipelines' attachment formats: dynamic rendering and synchronization2, or the Vulkan 1.0
+    // objects and calls where the device lacks them.
+    Rendering* rendering = nullptr;
 };
 
 struct Image {

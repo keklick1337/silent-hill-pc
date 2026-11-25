@@ -37,6 +37,13 @@ int bloomLevels(int width, int height) {
     return n;
 }
 
+BloomChain mobileBloomChain(int levels) {
+    BloomChain c;
+    c.levels = std::clamp(levels, 0, kMobileBloomLevels);
+    if (c.levels > 0) c.lastWeight = float(levels - c.levels + 1);
+    return c;
+}
+
 HdrResolvePlan planResolve(const HdrSettings& s, bool sceneFrame, bool hdr10, int width, int height) {
     HdrResolvePlan p;
     p.white = hdr10 ? hdr10White(s.paper_white, s.peak) : 1.f;

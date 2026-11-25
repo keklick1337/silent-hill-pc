@@ -1,8 +1,8 @@
 #version 450
 // Bloom of the HDR frame (src/render/gpu/hdr_pass.cpp): a dual filter over a mip chain. Mode 0 takes the light above
 // the threshold out of the scene into the first half-size level, mode 1 halves a level again, mode 2 adds the tent
-// upsampling of a level onto the one above it (additive blending). Every tap set averages, so the chain keeps the
-// energy it was given; the resolve divides the sum of the levels by their count.
+// upsampling of a level onto the one above it (additive blending), mode 3 is a phone's cheaper mode 0. Every tap set
+// averages, so the chain keeps the energy it was given; the resolve divides the sum of the levels by their count.
 
 #ifdef SH_RHI_VULKAN
 #define SH_UBO(slot) layout(std140, set = 3, binding = slot)
@@ -34,7 +34,10 @@ void main() {
     vec2 t = u_texel.xy;
     vec2 uv = v_uv;
     vec3 c;
-    if (u_p.x < 1.5) {
+    if (u_p.x > 2.5) {
+        // Mode 3 (phones): the prefilter as one tap between four texels, the threshold taken off their mean.
+        c = max(texture(s_src, u_p.z > 0.5 ? vec2(uv.x, 1.0 - uv.y) : uv).rgb - vec3(u_p.y), vec3(0.0));
+    } else if (u_p.x < 1.5) {
         c = src(uv) * 4.0 + src(uv + vec2(-t.x, -t.y)) + src(uv + vec2(t.x, -t.y)) + src(uv + vec2(-t.x, t.y)) +
             src(uv + vec2(t.x, t.y));
         c *= 1.0 / 8.0;

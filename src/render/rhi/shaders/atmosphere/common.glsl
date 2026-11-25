@@ -2,11 +2,16 @@
 // reconstruction from the world's depth, the soft_fog transmittance and the flashlight's beam as scene.frag lights
 // a surface with it (without the surface's turn towards the light).
 
+// A phone's GPU (vk_atmosphere.cpp sets it there only): the occlusion image carries its estimate's depth so the
+// composite reads one texel per estimate, and the integration shares the per-slice fog weights of its workgroup.
+layout(constant_id = 0) const bool kPhone = false;
+
 layout(std140, set = 0, binding = 0) uniform Atmosphere {
     vec4 u_proj;      // ndc = xy * (v.xy / v.z) + zw
     vec4 u_view;      // the world's viewport in the target: x, y, w, h (pixels)
     vec4 u_depth;     // x: view depth at window depth 1, y: first slice boundary, z: last, w: slices
-    vec4 u_grid;      // xyz: froxels across, down and in depth (slices + 1 integrated boundaries), w: AO on
+    vec4 u_grid;      // xyz: froxels across, down and in depth (slices + 1 integrated boundaries), w: AO on: its
+                      // step in pixels (1 every pixel, 2 every second one each way), 0 off
     vec4 u_fog;       // rgb: fog colour, a: fog strength
     vec4 u_fogRampP;  // x: fog on, y: 128 / 2^depthShift, z: intensity (Q12), w: cull distance
     vec4 u_fogRamp[32];
@@ -125,6 +130,20 @@ float BeamShadow(vec3 p) {
     float recv = max(lp.w, u_shadowQ.z);
     float bias = u_shadowQ.z / (recv * recv) * (4.0 + 0.01 * recv);
     return luv.z - bias > texture(s_shadow, luv.xy).r ? 0.0 : 1.0;
+}
+
+// The phone's occlusion texel: the estimate in 8 bits under the log2 of its view depth in 16 (1/2048 steps, about
+// 0.03 % of the depth); integers below 2^24, exact in r32f. 0 where nothing wrote depth.
+float PackAo(float ao, float z) {
+    if (z <= 0.0) return 255.0;
+    float zq = clamp(floor(log2(max(z, 1.0)) * 2048.0 + 0.5), 1.0, 65535.0);
+    return zq * 256.0 + floor(clamp(ao, 0.0, 1.0) * 255.0 + 0.5);
+}
+
+// x: the estimate, y: its view depth (negative where nothing wrote depth).
+vec2 UnpackAo(float v) {
+    float zq = floor(v / 256.0);
+    return vec2((v - zq * 256.0) / 255.0, zq > 0.5 ? exp2(zq / 2048.0) : -1.0);
 }
 
 float Noise(vec2 px) { return fract(52.9829189 * fract(dot(px, vec2(0.06711056, 0.00583715)))); }

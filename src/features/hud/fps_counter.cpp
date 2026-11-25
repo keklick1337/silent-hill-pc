@@ -13,6 +13,7 @@
 
 #include "engine/config/pc_config.h"
 #include "engine/log/sh_log.h"
+#include "features/dump/perf_log.h"
 #include "features/dump/perf_recorder.h"
 #include "features/dump/perf_sampler.h"
 #include "features/hud/frame_stats.h"
@@ -67,6 +68,14 @@ public:
         gpu_ = sh::dump::perf_frame_stats();
         draws_ += gpu_.drawCalls;
         triangles_ += gpu_.triangles;
+        const sh::rhi::ProfileStats::Counts& c = gpu_.counts;
+        counted_frames_ += c.frames;
+        passes_begun_ += c.passes;
+        passes_merged_ += c.merged;
+        transfers_ += c.transfers;
+        attachment_mb_ += c.attachmentMB;
+        pipeline_binds_ += c.pipelineBinds;
+        descriptor_sets_ += c.descriptorSets;
         if (gpu_.gpuMs >= 0.0) {
             gpu_ms_ += gpu_.gpuMs;
             gpu_timed_ = true;
@@ -142,6 +151,22 @@ public:
         rows_[7] = format("Draws\t%llu   %llu tris", static_cast<unsigned long long>(draws_ / frames),
                           static_cast<unsigned long long>(triangles_ / frames));
 
+        // What the frames' commands did, where the backend counts it (native Vulkan): on a phone's tile-based GPU the
+        // passes and the attachment traffic they cause are much of the frame's cost.
+        if (counted_frames_ > 0) {
+            const double n = static_cast<double>(counted_frames_);
+            rows_.insert(rows_.end() - 1, format("Passes\t%.1f   +%.1f merged   %.0f MB", passes_begun_ / n,
+                                                 passes_merged_ / n, attachment_mb_ / n));
+            rows_.insert(rows_.end() - 1, format("Binds\t%.0f pipes   %.0f sets   %.1f xfer", pipeline_binds_ / n,
+                                                 descriptor_sets_ / n, transfers_ / n));
+        }
+        counted_frames_ = passes_begun_ = passes_merged_ = transfers_ = 0;
+        attachment_mb_ = 0.0;
+        pipeline_binds_ = descriptor_sets_ = 0;
+        if (const std::string capture = sh::dump::perf_capture_brief(); !capture.empty()) {
+            rows_.insert(rows_.end() - 1, "PERF\t" + capture);
+        }
+
         // GPU time per pass, where the backend measures it (native Vulkan), above the blank last row.
         std::sort(passes_.begin(), passes_.end(), [](const auto& a, const auto& b) { return a.second > b.second; });
         std::string logged;
@@ -174,6 +199,9 @@ private:
     bool gpu_timed_ = false;
     std::uint64_t draws_ = 0;
     std::uint64_t triangles_ = 0;
+    std::uint64_t counted_frames_ = 0, passes_begun_ = 0, passes_merged_ = 0, transfers_ = 0;
+    std::uint64_t pipeline_binds_ = 0, descriptor_sets_ = 0;
+    double attachment_mb_ = 0.0;
     sh::rhi::ProfileStats gpu_;
     sh::platform::ProcessStats process_before_;
     std::vector<std::string> rows_;

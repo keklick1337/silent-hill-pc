@@ -138,6 +138,15 @@ public:
     void sleep_ms(std::uint32_t ms) override { SDL_Delay(ms); }
 };
 
+// A phone presents FIFO on a display asked to run at the frame cap (engine/platform/display_rate.h).
+bool display_paces_frames() {
+#ifdef __ANDROID__
+    return g_PcConfig.vsync != 0;
+#else
+    return false;
+#endif
+}
+
 FramePacer& pacer() {
     static FramePacer p(PacerSpec{kVBlanksPerSecond, 50});
     return p;
@@ -286,6 +295,7 @@ void pace_frame() {
     fps.uncapped = g_DebugUnlockFps || g_PcConfig.fpsCap == 0;
     fps.cap = g_PcConfig.fpsCap;
     fps.menu = unlocked;
+    fps.display_paced = display_paces_frames();
     const int target = pacer().target_fps(fps);
     // A map event's scene runs outside Gameplay. Above 60 it presents between its updates like gameplay; at or
     // below 60 it keeps the one-blank frame, so its updates do not change with the cap.

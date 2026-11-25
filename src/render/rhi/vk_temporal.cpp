@@ -2,10 +2,16 @@
 //
 // TAA, TAAU and the spatial upscale of the native Vulkan backend (vk_temporal.h). Own images live in the general
 // layout for their whole life, except the motion pass's depth, which stays a depth attachment.
+// The `tiler` layout (phones) draws the resolve and the spatial upscale as fragment passes into the history, which
+// rests in the shader-read layout between them: a tiler keeps colour attachments compressed (AFBC on Mali) but not
+// storage images, and fragment work after fragment work needs no drain of the compute queue. Its motion buffer is
+// RGBA16F, cleared by its own pass and skipped when nothing moved; the history depth is the history's alpha; the
+// sharpening is done by the composite.
 
 #include "render/rhi/vk_temporal.h"
 
 #include "render/rhi/rhi_vulkan_native.h"
+#include "render/rhi/vk_rendering.h"
 #include "render/rhi/shaders/embedded.h"
 
 #include <algorithm>
@@ -21,6 +27,9 @@ Shader temporalSpatialComp();
 Shader temporalSharpenComp();
 Shader temporalCompositeVert();
 Shader temporalCompositeFrag();
+Shader temporalResolveFrag();
+Shader temporalSpatialFrag();
+Shader temporalCompositeSharpenFrag();
 }  // namespace sh::rhi::embedded
 
 namespace sh::rhi {
@@ -31,6 +40,9 @@ constexpr VkFormat kMotionFormat = VK_FORMAT_R32G32B32A32_SFLOAT;
 constexpr VkFormat kMotionDepthFormat = VK_FORMAT_D32_SFLOAT;
 constexpr VkFormat kHistoryFormat = VK_FORMAT_R16G16B16A16_SFLOAT;
 constexpr VkFormat kHistoryDepthFormat = VK_FORMAT_R32_SFLOAT;
+// Motion is only drawn for moving meshes, which are near: 16-bit floats keep their picture offset to a small fraction
+// of a pixel and their depth well inside the disocclusion test's 10 %.
+constexpr VkFormat kTilerMotionFormat = VK_FORMAT_R16G16B16A16_SFLOAT;
 
 enum Binding : std::uint32_t {
     kUniforms = 0,
@@ -89,7 +101,8 @@ bool formatHas(VkPhysicalDevice physical, VkFormat format, VkFormatFeatureFlags 
 
 class VulkanTemporal final : public Temporal {
 public:
-    VulkanTemporal(Device& device, const vkn::Context& ctx) : device_(device), ctx_(ctx) {}
+    VulkanTemporal(Device& device, const vkn::Context& ctx, bool tiler)
+        : device_(device), ctx_(ctx), tiler_(tiler), motionFormat_(tiler ? kTilerMotionFormat : kMotionFormat) {}
     ~VulkanTemporal() override;
 
     Result<void> init();
@@ -103,11 +116,17 @@ private:
     Result<void> ensureImages(VkCommandBuffer cmd, std::uint32_t sw, std::uint32_t sh, std::uint32_t dw,
                               std::uint32_t dh);
     Result<void> ensureVertices(Slot& slot, std::size_t bytes);
-    VkPipeline graphicsPipeline(VkFormat color, bool motion);
+    // `target`: a full-screen fragment shader writing all four channels of `color` (not cached).
+    VkPipeline graphicsPipeline(VkFormat color, bool motion, VkShaderModule target = VK_NULL_HANDLE);
     void barrier(VkCommandBuffer cmd);
+    void recordTiler(VkCommandBuffer cmd, VkDescriptorSet set, const Slot& slot, const TemporalInputs& in,
+                     const vkn::Image& color, const float src[4], const float dst[4], VkPipeline composite);
 
     Device& device_;
     vkn::Context ctx_;
+    bool tiler_ = false;
+    VkFormat motionFormat_ = kMotionFormat;
+    VkPipeline resolveFrag_ = VK_NULL_HANDLE, spatialFrag_ = VK_NULL_HANDLE;
     VkDescriptorSetLayout setLayout_ = VK_NULL_HANDLE;
     VkPipelineLayout layout_ = VK_NULL_HANDLE;
     VkPipeline resolve_ = VK_NULL_HANDLE, spatial_ = VK_NULL_HANDLE, sharpen_ = VK_NULL_HANDLE;
@@ -131,7 +150,7 @@ private:
 VulkanTemporal::~VulkanTemporal() {
     VkDevice dev = ctx_.device;
     VmaAllocator vma = ctx_.allocator;
-    std::vector<VkPipeline> pipes{resolve_, spatial_, sharpen_, motion_};
+    std::vector<VkPipeline> pipes{resolve_, spatial_, sharpen_, motion_, resolveFrag_, spatialFrag_};
     for (const Variant& v : composites_) pipes.push_back(v.pipeline);
     std::vector<GpuImage> images{motionImage_, motionDepth_,     result_,         history_[0],
                                  history_[1],  historyDepth_[0], historyDepth_[1]};
@@ -212,17 +231,27 @@ Result<void> VulkanTemporal::init() {
         vkDestroyShaderModule(dev, m, nullptr);
         return r == VK_SUCCESS;
     };
-    if (!compute(embedded::temporalResolveComp(), &resolve_) || !compute(embedded::temporalSpatialComp(), &spatial_) ||
-        !compute(embedded::temporalSharpenComp(), &sharpen_))
+    if (!tiler_ &&
+        (!compute(embedded::temporalResolveComp(), &resolve_) || !compute(embedded::temporalSpatialComp(), &spatial_) ||
+         !compute(embedded::temporalSharpenComp(), &sharpen_)))
         return Result<void>::fail("temporal: the compute shaders are missing or were refused");
     motionVs_ = module(embedded::temporalMotionVert());
     motionFs_ = module(embedded::temporalMotionFrag());
     compositeVs_ = module(embedded::temporalCompositeVert());
-    compositeFs_ = module(embedded::temporalCompositeFrag());
+    compositeFs_ = module(tiler_ ? embedded::temporalCompositeSharpenFrag() : embedded::temporalCompositeFrag());
     if (!motionVs_ || !motionFs_ || !compositeVs_ || !compositeFs_)
         return Result<void>::fail("temporal: the graphics shaders are missing");
-    motion_ = graphicsPipeline(kMotionFormat, true);
+    motion_ = graphicsPipeline(motionFormat_, true);
     if (!motion_) return Result<void>::fail("temporal: no motion pipeline");
+    if (tiler_) {
+        VkShaderModule resolveFs = module(embedded::temporalResolveFrag());
+        VkShaderModule spatialFs = module(embedded::temporalSpatialFrag());
+        if (resolveFs) resolveFrag_ = graphicsPipeline(kHistoryFormat, false, resolveFs);
+        if (spatialFs) spatialFrag_ = graphicsPipeline(kHistoryFormat, false, spatialFs);
+        if (resolveFs) vkDestroyShaderModule(dev, resolveFs, nullptr);
+        if (spatialFs) vkDestroyShaderModule(dev, spatialFs, nullptr);
+        if (!resolveFrag_ || !spatialFrag_) return Result<void>::fail("temporal: no fragment resolve pipeline");
+    }
 
     VkSamplerCreateInfo s{VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO};
     s.addressModeU = s.addressModeV = s.addressModeW = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;
@@ -304,6 +333,7 @@ void VulkanTemporal::releaseImage(GpuImage& img) {
 Result<void> VulkanTemporal::ensureImages(VkCommandBuffer cmd, std::uint32_t sw, std::uint32_t sh, std::uint32_t dw,
                                           std::uint32_t dh) {
     std::vector<VkImageMemoryBarrier2> barriers;
+    const VkImageLayout rest = tiler_ ? VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL : VK_IMAGE_LAYOUT_GENERAL;
     auto want = [&](GpuImage& img, VkFormat format, std::uint32_t w, std::uint32_t h,
                     VkImageUsageFlags usage) -> Result<void> {
         if (img.image && img.w == w && img.h == h) return Result<void>::ok();
@@ -315,7 +345,7 @@ Result<void> VulkanTemporal::ensureImages(VkCommandBuffer cmd, std::uint32_t sw,
         b.dstStageMask = VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT;
         b.dstAccessMask = VK_ACCESS_2_MEMORY_READ_BIT | VK_ACCESS_2_MEMORY_WRITE_BIT;
         b.oldLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-        b.newLayout = depth ? VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL : VK_IMAGE_LAYOUT_GENERAL;
+        b.newLayout = depth ? VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL : rest;
         b.srcQueueFamilyIndex = b.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
         b.image = img.image;
         b.subresourceRange = {
@@ -324,24 +354,26 @@ Result<void> VulkanTemporal::ensureImages(VkCommandBuffer cmd, std::uint32_t sw,
         historyValid_ = false;
         return Result<void>::ok();
     };
+    // A tiler's images have no storage or transfer use, so its driver may keep them compressed.
+    const VkImageUsageFlags drawn = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT;
     const VkImageUsageFlags store = VK_IMAGE_USAGE_STORAGE_BIT | VK_IMAGE_USAGE_SAMPLED_BIT;
-    if (auto r =
-            want(motionImage_, kMotionFormat, sw, sh,
-                 VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT);
+    if (auto r = want(motionImage_, motionFormat_, sw, sh, tiler_ ? drawn : drawn | VK_IMAGE_USAGE_TRANSFER_DST_BIT);
         !r)
         return r;
     if (auto r = want(motionDepth_, kMotionDepthFormat, sw, sh, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT); !r)
         return r;
-    if (auto r = want(result_, kHistoryFormat, dw, dh, store); !r) return r;
+    if (!tiler_)
+        if (auto r = want(result_, kHistoryFormat, dw, dh, store); !r) return r;
     for (int i = 0; i < 2; ++i) {
-        if (auto r = want(history_[i], kHistoryFormat, dw, dh, store); !r) return r;
-        if (auto r = want(historyDepth_[i], kHistoryDepthFormat, dw, dh, store); !r) return r;
+        if (auto r = want(history_[i], kHistoryFormat, dw, dh, tiler_ ? drawn : store); !r) return r;
+        if (!tiler_)
+            if (auto r = want(historyDepth_[i], kHistoryDepthFormat, dw, dh, store); !r) return r;
     }
     if (!barriers.empty()) {
         VkDependencyInfo dep{VK_STRUCTURE_TYPE_DEPENDENCY_INFO};
         dep.imageMemoryBarrierCount = static_cast<std::uint32_t>(barriers.size());
         dep.pImageMemoryBarriers = barriers.data();
-        ctx_.cmdPipelineBarrier2(cmd, &dep);
+        ctx_.rendering->barrier(cmd, dep);
     }
     return Result<void>::ok();
 }
@@ -373,8 +405,8 @@ Result<void> VulkanTemporal::ensureVertices(Slot& slot, std::size_t bytes) {
 
 // The motion triangles (depth-tested among themselves, into the motion buffer) or the composite (a full-screen
 // triangle writing colour only, so the scene target keeps its alpha).
-VkPipeline VulkanTemporal::graphicsPipeline(VkFormat color, bool motion) {
-    if (!motion)
+VkPipeline VulkanTemporal::graphicsPipeline(VkFormat color, bool motion, VkShaderModule target) {
+    if (!motion && !target)
         for (const Variant& v : composites_)
             if (v.color == color) return v.pipeline;
     VkPipelineShaderStageCreateInfo stages[2]{};
@@ -384,7 +416,7 @@ VkPipeline VulkanTemporal::graphicsPipeline(VkFormat color, bool motion) {
     stages[0].pName = "main";
     stages[1] = {VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO};
     stages[1].stage = VK_SHADER_STAGE_FRAGMENT_BIT;
-    stages[1].module = motion ? motionFs_ : compositeFs_;
+    stages[1].module = motion ? motionFs_ : target ? target : compositeFs_;
     stages[1].pName = "main";
     const VkVertexInputBindingDescription binding{0, sizeof(TemporalVertex), VK_VERTEX_INPUT_RATE_VERTEX};
     const VkVertexInputAttributeDescription attrs[3] = {{0, 0, VK_FORMAT_R32G32B32A32_SFLOAT, 0},
@@ -416,7 +448,7 @@ VkPipeline VulkanTemporal::graphicsPipeline(VkFormat color, bool motion) {
     }
     VkPipelineColorBlendAttachmentState att{};
     att.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT;
-    if (motion) att.colorWriteMask |= VK_COLOR_COMPONENT_A_BIT;
+    if (motion || target) att.colorWriteMask |= VK_COLOR_COMPONENT_A_BIT;
     VkPipelineColorBlendStateCreateInfo cb{VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO};
     cb.attachmentCount = 1;
     cb.pAttachments = &att;
@@ -429,7 +461,7 @@ VkPipeline VulkanTemporal::graphicsPipeline(VkFormat color, bool motion) {
     ri.pColorAttachmentFormats = &color;
     if (motion) ri.depthAttachmentFormat = kMotionDepthFormat;
     VkGraphicsPipelineCreateInfo ci{VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO};
-    ci.pNext = &ri;
+    ctx_.rendering->pipeline(ci, ri);
     ci.stageCount = 2;
     ci.pStages = stages;
     ci.pVertexInputState = &vin;
@@ -444,7 +476,7 @@ VkPipeline VulkanTemporal::graphicsPipeline(VkFormat color, bool motion) {
     VkPipeline p = VK_NULL_HANDLE;
     if (vkCreateGraphicsPipelines(ctx_.device, ctx_.pipelineCache, 1, &ci, nullptr, &p) != VK_SUCCESS)
         return VK_NULL_HANDLE;
-    if (!motion) composites_.push_back({color, p});
+    if (!motion && !target) composites_.push_back({color, p});
     return p;
 }
 
@@ -458,11 +490,144 @@ void VulkanTemporal::barrier(VkCommandBuffer cmd) {
     VkDependencyInfo dep{VK_STRUCTURE_TYPE_DEPENDENCY_INFO};
     dep.memoryBarrierCount = 1;
     dep.pMemoryBarriers = &b;
-    ctx_.cmdPipelineBarrier2(cmd, &dep);
+    ctx_.rendering->barrier(cmd, dep);
+}
+
+void imageBarrier(std::vector<VkImageMemoryBarrier2>& out, VkImage image, VkImageLayout from, VkImageLayout to,
+                  VkPipelineStageFlags2 srcStage, VkAccessFlags2 srcAccess, VkPipelineStageFlags2 dstStage,
+                  VkAccessFlags2 dstAccess) {
+    VkImageMemoryBarrier2 b{VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER_2};
+    b.srcStageMask = srcStage;
+    b.srcAccessMask = srcAccess;
+    b.dstStageMask = dstStage;
+    b.dstAccessMask = dstAccess;
+    b.oldLayout = from;
+    b.newLayout = to;
+    b.srcQueueFamilyIndex = b.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+    b.image = image;
+    b.subresourceRange = {VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1};
+    out.push_back(b);
 }
 
 void rect(const std::array<float, 4>& r, float out[4]) {
     for (int i = 0; i < 4; ++i) out[i] = std::floor(r[static_cast<std::size_t>(i)]);
+}
+
+// Every pass is a fragment pass. Between them only the image the next one reads changes hands (attachment output to
+// fragment reads), so the tiler may already bin the next pass while the last one shades.
+void VulkanTemporal::recordTiler(VkCommandBuffer cmd, VkDescriptorSet set, const Slot& slot, const TemporalInputs& in,
+                                 const vkn::Image& color, const float src[4], const float dst[4],
+                                 VkPipeline composite) {
+    const VkImageLayout ro = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, att = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+    const VkPipelineStageFlags2 output = VK_PIPELINE_STAGE_2_COLOR_ATTACHMENT_OUTPUT_BIT;
+    const VkPipelineStageFlags2 fragment = VK_PIPELINE_STAGE_2_FRAGMENT_SHADER_BIT;
+    const VkAccessFlags2 written = VK_ACCESS_2_COLOR_ATTACHMENT_WRITE_BIT;
+    const VkAccessFlags2 read = VK_ACCESS_2_SHADER_READ_BIT;
+    auto dependency = [&](const VkMemoryBarrier2* memory, const std::vector<VkImageMemoryBarrier2>& images) {
+        VkDependencyInfo dep{VK_STRUCTURE_TYPE_DEPENDENCY_INFO};
+        dep.memoryBarrierCount = memory ? 1 : 0;
+        dep.pMemoryBarriers = memory;
+        dep.imageMemoryBarrierCount = static_cast<std::uint32_t>(images.size());
+        dep.pImageMemoryBarriers = images.data();
+        ctx_.rendering->barrier(cmd, dep);
+    };
+    auto fullScreen = [&](const GpuImage& target, VkAttachmentLoadOp load, VkPipeline pipeline) {
+        VkRenderingAttachmentInfo a{VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO};
+        a.imageView = target.view;
+        a.imageLayout = att;
+        a.loadOp = load;
+        a.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+        VkRenderingInfo ri{VK_STRUCTURE_TYPE_RENDERING_INFO};
+        const VkRect2D area{{0, 0}, {target.w, target.h}};
+        ri.renderArea = area;
+        ri.layerCount = 1;
+        ri.colorAttachmentCount = 1;
+        ri.pColorAttachments = &a;
+        ctx_.rendering->begin(cmd, ri, &kHistoryFormat, VK_FORMAT_UNDEFINED);
+        const VkViewport viewport{0.0f, 0.0f, static_cast<float>(target.w), static_cast<float>(target.h), 0.0f, 1.0f};
+        vkCmdSetViewport(cmd, 0, 1, &viewport);
+        vkCmdSetScissor(cmd, 0, 1, &area);
+        vkCmdBindPipeline(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
+        vkCmdBindDescriptorSets(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, layout_, 0, 1, &set, 0, nullptr);
+        vkCmdDraw(cmd, 3, 1, 0, 0);
+        ctx_.rendering->end(cmd);
+    };
+
+    const bool temporal = in.mode != TemporalMode::Spatial;
+    const bool moving = temporal && !in.dynamic.empty();
+    const GpuImage& histOut = history_[current_];
+    // The scene's writes before everything; the old contents of what is drawn now are not needed.
+    VkMemoryBarrier2 scene{VK_STRUCTURE_TYPE_MEMORY_BARRIER_2};
+    scene.srcStageMask = VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT;
+    scene.srcAccessMask = VK_ACCESS_2_MEMORY_WRITE_BIT;
+    scene.dstStageMask = VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT;
+    scene.dstAccessMask = VK_ACCESS_2_MEMORY_READ_BIT | VK_ACCESS_2_MEMORY_WRITE_BIT;
+    std::vector<VkImageMemoryBarrier2> images;
+    imageBarrier(images, histOut.image, VK_IMAGE_LAYOUT_UNDEFINED, att, fragment, 0, output, written);
+    if (moving) imageBarrier(images, motionImage_.image, VK_IMAGE_LAYOUT_UNDEFINED, att, fragment, 0, output, written);
+    dependency(&scene, images);
+
+    if (moving) {
+        VkRenderingAttachmentInfo a{VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO};
+        a.imageView = motionImage_.view;
+        a.imageLayout = att;
+        a.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+        a.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+        VkRenderingAttachmentInfo datt{VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO};
+        datt.imageView = motionDepth_.view;
+        datt.imageLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+        datt.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+        datt.storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+        datt.clearValue.depthStencil = {1.0f, 0};
+        VkRenderingInfo ri{VK_STRUCTURE_TYPE_RENDERING_INFO};
+        const VkRect2D area{{0, 0}, {motionImage_.w, motionImage_.h}};
+        ri.renderArea = area;
+        ri.layerCount = 1;
+        ri.colorAttachmentCount = 1;
+        ri.pColorAttachments = &a;
+        ri.pDepthAttachment = &datt;
+        ctx_.rendering->begin(cmd, ri, &motionFormat_, kMotionDepthFormat);
+        // Flipped like the backend's own passes, so NDC +Y is up as the scene drew it.
+        const VkViewport viewport{0.0f, src[3], src[2], -src[3], 0.0f, 1.0f};
+        vkCmdSetViewport(cmd, 0, 1, &viewport);
+        vkCmdSetScissor(cmd, 0, 1, &area);
+        vkCmdBindPipeline(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, motion_);
+        vkCmdBindDescriptorSets(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, layout_, 0, 1, &set, 0, nullptr);
+        const VkDeviceSize offset = 0;
+        vkCmdBindVertexBuffers(cmd, 0, 1, &slot.vbo, &offset);
+        vkCmdDraw(cmd, static_cast<std::uint32_t>(in.dynamic.size()), 1, 0, 0);
+        ctx_.rendering->end(cmd);
+        images.clear();
+        imageBarrier(images, motionImage_.image, att, ro, output, written, fragment, read);
+        dependency(nullptr, images);
+    }
+
+    fullScreen(histOut, VK_ATTACHMENT_LOAD_OP_DONT_CARE, temporal ? resolveFrag_ : spatialFrag_);
+    images.clear();
+    imageBarrier(images, histOut.image, att, ro, output, written, fragment, read);
+    dependency(nullptr, images);
+
+    vkn::transition(device_, in.color, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
+    const auto dw = static_cast<std::uint32_t>(dst[2]), dh = static_cast<std::uint32_t>(dst[3]);
+    VkRenderingAttachmentInfo a{VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO};
+    a.imageView = color.view;
+    a.imageLayout = att;
+    a.loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
+    a.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+    VkRenderingInfo ri{VK_STRUCTURE_TYPE_RENDERING_INFO};
+    const VkRect2D area{{static_cast<std::int32_t>(dst[0]), static_cast<std::int32_t>(dst[1])}, {dw, dh}};
+    ri.renderArea = area;
+    ri.layerCount = 1;
+    ri.colorAttachmentCount = 1;
+    ri.pColorAttachments = &a;
+    ctx_.rendering->begin(cmd, ri, &color.format, VK_FORMAT_UNDEFINED);
+    const VkViewport viewport{dst[0], dst[1], dst[2], dst[3], 0.0f, 1.0f};
+    vkCmdSetViewport(cmd, 0, 1, &viewport);
+    vkCmdSetScissor(cmd, 0, 1, &area);
+    vkCmdBindPipeline(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, composite);
+    vkCmdBindDescriptorSets(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, layout_, 0, 1, &set, 0, nullptr);
+    vkCmdDraw(cmd, 3, 1, 0, 0);
+    ctx_.rendering->end(cmd);
 }
 
 Result<void> VulkanTemporal::apply(const TemporalInputs& in) {
@@ -512,7 +677,8 @@ Result<void> VulkanTemporal::apply(const TemporalInputs& in) {
     std::memcpy(blk.jitter, jitter, sizeof jitter);
     std::memcpy(blk.reproj, in.reproject.data(), sizeof blk.reproj);
     const float params[4] = {reset ? 1.0f : 0.0f,
-                             in.mode == TemporalMode::Motion ? 0.0f : std::clamp(in.sharpness, 0.0f, 1.0f), 0.0f, 0.0f};
+                             in.mode == TemporalMode::Motion ? 0.0f : std::clamp(in.sharpness, 0.0f, 1.0f), 0.0f,
+                             tiler_ && temporal && vbytes > 0 ? 1.0f : 0.0f};
     std::memcpy(blk.params, params, sizeof params);
     std::memcpy(slot.mapped, &blk, sizeof blk);
     vmaFlushAllocation(ctx_.allocator, slot.uboAlloc, 0, VK_WHOLE_SIZE);
@@ -531,35 +697,50 @@ Result<void> VulkanTemporal::apply(const TemporalInputs& in) {
     const GpuImage& histDepthOut = historyDepth_[current_];
     const VkImageLayout ro = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, gen = VK_IMAGE_LAYOUT_GENERAL;
     const VkDescriptorBufferInfo ubo{slot.ubo, 0, sizeof(Block)};
+    const VkImageLayout own = tiler_ ? ro : gen;
     const VkDescriptorImageInfo infos[kBindingCount] = {
         {},
         {nearest_, color.sampledView ? color.sampledView : color.view, ro},
         {nearest_, depth.sampledView, ro},
-        {nearest_, motionImage_.view, gen},
-        {linear_, histIn.view, gen},
+        {nearest_, motionImage_.view, own},
+        {linear_, histIn.view, own},
         {nearest_, histDepthIn.view, gen},
         {VK_NULL_HANDLE, histOut.view, gen},
         {VK_NULL_HANDLE, histDepthOut.view, gen},
         {VK_NULL_HANDLE, result_.view, gen},
-        {nearest_, histOut.view, gen},
+        {nearest_, histOut.view, own},
         {nearest_, result_.view, gen}};
     std::array<VkWriteDescriptorSet, kBindingCount> w{};
+    std::uint32_t writes = 0;
     for (std::uint32_t i = 0; i < kBindingCount; ++i) {
-        w[i] = {VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET};
-        w[i].dstSet = set;
-        w[i].dstBinding = i;
-        w[i].descriptorCount = 1;
-        w[i].descriptorType = kTypes[i];
+        // The tiler's shaders use none of the images it does not make; unused bindings may stay unwritten.
+        if (tiler_ &&
+            (i == kHistoryDepthIn || i == kHistoryOut || i == kHistoryDepthOut || i == kResult || i == kResultSampled))
+            continue;
+        VkWriteDescriptorSet& wi = w[writes++];
+        wi = {VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET};
+        wi.dstSet = set;
+        wi.dstBinding = i;
+        wi.descriptorCount = 1;
+        wi.descriptorType = kTypes[i];
         if (i == kUniforms)
-            w[i].pBufferInfo = &ubo;
+            wi.pBufferInfo = &ubo;
         else
-            w[i].pImageInfo = &infos[i];
+            wi.pImageInfo = &infos[i];
     }
-    vkUpdateDescriptorSets(ctx_.device, kBindingCount, w.data(), 0, nullptr);
+    vkUpdateDescriptorSets(ctx_.device, writes, w.data(), 0, nullptr);
 
     vkn::beginSpan(device_, "temporal");
     vkn::transition(device_, in.depth, ro);
     vkn::transition(device_, in.color, ro);
+    if (tiler_) {
+        recordTiler(cmd, set, slot, in, color, src, dst, composite);
+        vkn::transition(device_, in.color, color.rest);
+        vkn::endSpan(device_);
+        historyValid_ = in.mode == TemporalMode::Taa;
+        current_ = 1 - current_;
+        return Result<void>::ok();
+    }
     barrier(cmd);
     if (temporal) {
         const VkClearColorValue zero{};
@@ -574,7 +755,7 @@ Result<void> VulkanTemporal::apply(const TemporalInputs& in) {
             att.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
             VkRenderingAttachmentInfo datt{VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO};
             datt.imageView = motionDepth_.view;
-            datt.imageLayout = VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL;
+            datt.imageLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
             datt.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
             datt.storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
             datt.clearValue.depthStencil = {1.0f, 0};
@@ -585,7 +766,7 @@ Result<void> VulkanTemporal::apply(const TemporalInputs& in) {
             ri.colorAttachmentCount = 1;
             ri.pColorAttachments = &att;
             ri.pDepthAttachment = &datt;
-            ctx_.cmdBeginRendering(cmd, &ri);
+            ctx_.rendering->begin(cmd, ri, &kMotionFormat, kMotionDepthFormat);
             // Flipped like the backend's own passes, so NDC +Y is up as the scene drew it.
             const VkViewport viewport{0.0f, src[3], src[2], -src[3], 0.0f, 1.0f};
             vkCmdSetViewport(cmd, 0, 1, &viewport);
@@ -595,7 +776,7 @@ Result<void> VulkanTemporal::apply(const TemporalInputs& in) {
             const VkDeviceSize offset = 0;
             vkCmdBindVertexBuffers(cmd, 0, 1, &slot.vbo, &offset);
             vkCmdDraw(cmd, static_cast<std::uint32_t>(in.dynamic.size()), 1, 0, 0);
-            ctx_.cmdEndRendering(cmd);
+            ctx_.rendering->end(cmd);
         }
         barrier(cmd);
     }
@@ -619,14 +800,14 @@ Result<void> VulkanTemporal::apply(const TemporalInputs& in) {
     ri.layerCount = 1;
     ri.colorAttachmentCount = 1;
     ri.pColorAttachments = &att;
-    ctx_.cmdBeginRendering(cmd, &ri);
+    ctx_.rendering->begin(cmd, ri, &color.format, VK_FORMAT_UNDEFINED);
     const VkViewport viewport{dst[0], dst[1], dst[2], dst[3], 0.0f, 1.0f};
     vkCmdSetViewport(cmd, 0, 1, &viewport);
     vkCmdSetScissor(cmd, 0, 1, &area);
     vkCmdBindPipeline(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, composite);
     vkCmdBindDescriptorSets(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, layout_, 0, 1, &set, 0, nullptr);
     vkCmdDraw(cmd, 3, 1, 0, 0);
-    ctx_.cmdEndRendering(cmd);
+    ctx_.rendering->end(cmd);
     vkn::transition(device_, in.color, color.rest);
     vkn::endSpan(device_);
 
@@ -638,7 +819,7 @@ Result<void> VulkanTemporal::apply(const TemporalInputs& in) {
 
 }  // namespace
 
-std::unique_ptr<Temporal> createTemporal(Device& device, std::string* reason) {
+std::unique_ptr<Temporal> createTemporal(Device& device, std::string* reason, bool tiler) {
     auto say = [&](const char* why) {
         if (reason) *reason = why;
         return nullptr;
@@ -654,7 +835,13 @@ std::unique_ptr<Temporal> createTemporal(Device& device, std::string* reason) {
                    VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BIT | VK_FORMAT_FEATURE_SAMPLED_IMAGE_BIT) ||
         !formatHas(ctx->physical, kMotionDepthFormat, VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT))
         return say("the device cannot store the history");
-    auto t = std::make_unique<VulkanTemporal>(device, *ctx);
+    // Else the desktop layout, which runs everywhere the checks above pass.
+    tiler = tiler &&
+            formatHas(ctx->physical, kHistoryFormat,
+                      VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BIT | VK_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_LINEAR_BIT) &&
+            formatHas(ctx->physical, kTilerMotionFormat,
+                      VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BIT | VK_FORMAT_FEATURE_SAMPLED_IMAGE_BIT);
+    auto t = std::make_unique<VulkanTemporal>(device, *ctx, tiler);
     if (auto r = t->init(); !r) {
         if (reason) *reason = r.error();
         return nullptr;

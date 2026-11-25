@@ -124,7 +124,8 @@ set(_temporal_sources "")
 foreach(_pair IN ITEMS "motion.vert:temporalMotionVert" "motion.frag:temporalMotionFrag"
                        "resolve.comp:temporalResolveComp" "spatial.comp:temporalSpatialComp"
                        "sharpen.comp:temporalSharpenComp" "composite.vert:temporalCompositeVert"
-                       "composite.frag:temporalCompositeFrag")
+                       "composite.frag:temporalCompositeFrag" "resolve.frag:temporalResolveFrag"
+                       "spatial.frag:temporalSpatialFrag" "composite_sharpen.frag:temporalCompositeSharpenFrag")
     string(REPLACE ":" ";" _pair "${_pair}")
     list(GET _pair 0 _file)
     list(GET _pair 1 _symbol)
@@ -148,7 +149,7 @@ foreach(_pair IN ITEMS "motion.vert:temporalMotionVert" "motion.frag:temporalMot
     list(APPEND _temporal_sources "${_cpp}")
 endforeach()
 
-add_library(sh_rhi STATIC rhi_sdlgpu.cpp rhi_vulkan.cpp rhi_vulkan_rt.cpp vk_atmosphere.cpp vk_temporal.cpp
+add_library(sh_rhi STATIC rhi_sdlgpu.cpp rhi_vulkan.cpp rhi_vulkan_rt.cpp vk_atmosphere.cpp vk_temporal.cpp vk_rendering.cpp
     ${_rt_shader_sources} ${_atmo_sources} ${_temporal_sources})
 target_link_libraries(sh_rhi PUBLIC sh_rhi_gl ${SH_SDL3_TARGET} PRIVATE sh_vulkan_deps)
 target_compile_options(sh_rhi PRIVATE
@@ -158,5 +159,5 @@ if(NOT SH_GLSLC AND NOT SH_GLSLANG)
     message(WARNING "No glslc or glslangValidator: the SDL3 GPU backend has no shaders, renderer = vulkan falls back to gl")
 endif()
 # Vulkan structures are written {VK_STRUCTURE_TYPE_...} with the rest zeroed on purpose.
-set_source_files_properties(rhi_vulkan.cpp rhi_vulkan_rt.cpp vk_atmosphere.cpp vk_temporal.cpp PROPERTIES COMPILE_OPTIONS
+set_source_files_properties(rhi_vulkan.cpp rhi_vulkan_rt.cpp vk_atmosphere.cpp vk_temporal.cpp vk_rendering.cpp PROPERTIES COMPILE_OPTIONS
     "$<$<OR:$<CXX_COMPILER_ID:GNU>,$<CXX_COMPILER_ID:Clang>>:-Wno-missing-field-initializers>")

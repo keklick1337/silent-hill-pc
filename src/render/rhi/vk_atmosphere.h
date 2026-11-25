@@ -32,6 +32,7 @@ struct AtmosphereInputs {
     bool ao = false;
     float ao_strength = 0.35f;  // 0..1
     float ao_radius = 96.0f;    // view units (256 per metre)
+    int ao_step = 1;            // 2 or 4: the occlusion is estimated at every second or fourth pixel each way (phones)
     bool volumetric = false;
     float scatter = 0.25f;    // share of the beam the fog scatters, 0..1
     float anisotropy = 0.2f;  // Henyey-Greenstein g
@@ -60,7 +61,7 @@ public:
 };
 
 // Empty `reason` and a working object, or null and why not (another backend, no compute on the queue, a format
-// without the storage use).
-std::unique_ptr<Atmosphere> createAtmosphere(Device& device, std::string* reason);
+// without the storage use). `phone`: a phone's GPU, a coarser fog volume and a cheaper occlusion (vk_atmosphere.cpp).
+std::unique_ptr<Atmosphere> createAtmosphere(Device& device, std::string* reason, bool phone = false);
 
 }  // namespace sh::rhi

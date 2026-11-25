@@ -7,6 +7,7 @@
 namespace sh::rhi::embedded {
 
 Shader gpu_hdr_bloom_frag();
+Shader gpu_hdr_bloom_up_frag();
 Shader gpu_hdr_resolve_frag();
 Shader gpu_hdr10_encode_frag();
 

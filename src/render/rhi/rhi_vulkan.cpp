@@ -7,6 +7,7 @@
 #include "render/rhi/rhi_pool.h"
 #include "render/rhi/rhi_vulkan_native.h"
 #include "render/rhi/shader_overrides.h"
+#include "render/rhi/vk_rendering.h"
 
 // volk first: it declares the Vulkan API as function pointers (VK_NO_PROTOTYPES), which SDL_vulkan.h then reuses.
 #include <volk.h>
@@ -20,8 +21,11 @@
 #endif
 
 #include <algorithm>
+#include <atomic>
+#include <cstdarg>
 #include <cmath>
 #include <cstdio>
+#include <cstdlib>
 #include <cstring>
 #include <deque>
 #include <functional>
@@ -321,12 +325,37 @@ struct VkTexture {
     bool swapchain = false;
     bool external = false;  // vulkanAdoptImage: the image is its owner's
     std::uint64_t bytes = 0;
+    std::uint64_t usedIn = 0;  // the last submission whose main command buffer refers to the image
 };
 
 struct VkBuf {
     VkBuffer buffer = VK_NULL_HANDLE;
     VmaAllocation alloc = nullptr;
     BufferDesc desc;
+    std::uint64_t usedIn = 0;  // the last submission whose main command buffer refers to the buffer
+    bool pinned = false;       // handed out natively (rhi_vulkan_native.h): never replaced
+    // Earlier contents of a buffer rewritten from offset 0 after a draw of the same frame read it (cycling), each free
+    // once the submission `busy` is done.
+    struct Spare {
+        VkBuffer buffer = VK_NULL_HANDLE;
+        VmaAllocation alloc = nullptr;
+        std::uint64_t busy = 0;
+    };
+    std::vector<Spare> spares;
+};
+
+// An upload into a buffer or an image that the frame's commands have not used yet: recorded ahead of them (into the
+// preamble), so it does not break the render pass it was asked for in the middle of.
+struct HoistedCopy {
+    VkBuffer src = VK_NULL_HANDLE;
+    VkDeviceSize srcOffset = 0;
+    VkBuffer dst = VK_NULL_HANDLE;  // a buffer copy, or an image one:
+    VkDeviceSize dstOffset = 0;
+    VkDeviceSize size = 0;
+    VkImage image = VK_NULL_HANDLE;
+    VkImageAspectFlags aspect = 0;
+    VkImageLayout rest = VK_IMAGE_LAYOUT_UNDEFINED;
+    VkBufferImageCopy region{};
 };
 
 struct VkSamp {
@@ -479,6 +508,7 @@ public:
     void setProfiling(bool on) override { profiling_ = on; }
     void setPassTiming(bool on) override { passTiming_ = on; }
     ProfileStats takeProfileStats() override;
+    void traceFrames(int frames) override { traceFrames_ = std::max(frames, 0); }
 
     // rhi_vulkan_native.h.
     VulkanNative native() const {
@@ -486,21 +516,25 @@ public:
     }
     VkCommandBuffer nativeCommands() {
         if (!recording_) return VK_NULL_HANDLE;
-        list_.endRenderPass();
+        closePass();
         leaveTransfer();
         return frame().cmd;
     }
     std::uint32_t frameSlot() const { return frameIndex_; }
     void retireNative(std::function<void()> release) { retire(std::move(release)); }
     bool imageInfo(TextureH h, VulkanImageInfo* out) {
-        const VkTexture* t = textures_.get(h);
+        VkTexture* t = textures_.get(h);
         if (!t) return false;
+        t->usedIn = recordingSerial();
         *out = {t->image, t->sampledView, t->format, t->rest, t->desc.width, t->desc.height};
         return true;
     }
     VkBuffer nativeBuffer(BufferH h) {
-        const VkBuf* b = buffers_.get(h);
-        return b ? b->buffer : VK_NULL_HANDLE;
+        VkBuf* b = buffers_.get(h);
+        if (!b) return VK_NULL_HANDLE;
+        b->pinned = true;
+        b->usedIn = recordingSerial();
+        return b->buffer;
     }
     TextureH adoptImage(VkImage image, VkImageView view, VkFormat format, std::uint32_t w, std::uint32_t h) {
         VkTexture t;
@@ -605,6 +639,7 @@ private:
         t.layout = to;
     }
     void memoryBarrier();
+    void closePass();
     void enterTransfer();
     void leaveTransfer();
     void touch(TextureH h);
@@ -629,6 +664,13 @@ private:
     VkInstance instance_ = VK_NULL_HANDLE;
     VkDebugUtilsMessengerEXT messenger_ = VK_NULL_HANDLE;
     VkSurfaceKHR surface_ = VK_NULL_HANDLE;
+    // Android gives the activity a new window each time it comes back to the front (from another app, or from the
+    // system's file picker): the surface of the old one only feeds an abandoned queue, so it is made again.
+    std::atomic<bool> surfaceStale_{false};
+#ifdef __ANDROID__
+    static bool SDLCALL onAppEvent(void* self, SDL_Event* event);
+#endif
+    void renewSurface();
     VkPhysicalDevice physical_ = VK_NULL_HANDLE;
     VkPhysicalDeviceProperties props_{};
     VkDevice device_ = VK_NULL_HANDLE;
@@ -647,11 +689,9 @@ private:
     double timestampPeriodNs_ = 1.0;
     std::uint64_t timestampMask_ = ~0ull;
 
-    PFN_vkCmdBeginRendering cmdBeginRendering_ = nullptr;
-    PFN_vkCmdEndRendering cmdEndRendering_ = nullptr;
-    PFN_vkCmdPipelineBarrier2 cmdPipelineBarrier2_ = nullptr;
-    PFN_vkQueueSubmit2 queueSubmit2_ = nullptr;
-    PFN_vkCmdWriteTimestamp2 cmdWriteTimestamp2_ = nullptr;
+    // Dynamic rendering and synchronization2 when the device has them, render passes and Vulkan 1.0 barriers else.
+    bool hasDynamicRendering_ = false, hasSync2_ = false;  // of the chosen device, before SH_VK_COMPAT
+    vkn::Rendering passApi_;
 
     detail::Pool<TextureH, VkTexture> textures_;
     detail::Pool<BufferH, VkBuf> buffers_;
@@ -684,6 +724,11 @@ private:
     std::vector<TextureH> swapTextures_;
     std::vector<VkSemaphore> renderDone_;
     bool swapchainDirty_ = false;
+    // The swapchain is not in the surface's current transform (a landscape game on a phone whose screen is portrait
+    // by nature): Android answers every present with VK_SUBOPTIMAL_KHR then and the compositor turns the picture.
+    // Remaking the swapchain would change nothing but cost a wait for the idle device each frame; a new size still
+    // remakes it (acquireSwapchainTexture compares the window's).
+    bool swapRotated_ = false;
     VulkanHdrOutput hdr_;                            // what the engine asks for
     bool hdrActive_ = false;                         // the swapchain is HDR10 (ST 2084, BT.2020)
     VulkanHdrBlock hdrBlock_ = VulkanHdrBlock::Off;  // why not, while it is not
@@ -703,6 +748,24 @@ private:
     // Recording state.
     bool recording_ = false;
     bool inPass_ = false;
+    // endRenderPass leaves the GPU's pass open: a next pass on the same attachments continues it (a tile-based GPU
+    // keeps them in its tile memory), anything else ends it first (closePass).
+    bool lingering_ = false;
+    bool passStoresColor_ = false, passStoresDepth_ = false;
+    // A pass begins on the GPU at its first draw (or at its end, for a clear): a clear asked for before that becomes
+    // the pass's load op, and a pass with no draw and no clear is no pass at all.
+    bool rendering_ = false;
+    VkRenderingAttachmentInfo pendColor_{}, pendDepth_{};
+    bool pendDepthOn_ = false, pendStencil_ = false;
+    VkExtent2D pendExtent_{};
+    // The pass merging, the late begin, the hoisted uploads and buffer cycling; SH_VK_NO_MERGE=1 turns them off (a
+    // comparison of the picture and the counts).
+    bool restructure_ = true;
+    std::vector<HoistedCopy> hoisted_;
+    std::uint64_t recordingSerial() const { return submitted_ + 1; }
+    void beginRendering();
+    void recordHoisted(VkCommandBuffer cmd);
+    bool cycleBuffer(VkBuf& b);
     bool inTransfer_ = false;
     bool lost_ = false;
     TextureH passColor_, passDepth_;
@@ -753,6 +816,13 @@ private:
     Uint64 budgetAtMs_ = 0;
     std::int64_t budgetKb_ = -1;
     int validationLogs_ = 0;
+    ProfileStats::Counts counts_{};
+    // traceFrames: the frames still to log, and the lines of the one being recorded.
+    int traceFrames_ = 0;
+    bool tracing_ = false;
+    std::string trace_;
+    std::uint32_t passDraws_ = 0;  // draws of the open pass (the trace)
+    void note(const char* fmt, ...);
 
     VulkanList list_;
     VulkanPass pass_;
@@ -771,7 +841,30 @@ private:
 
 // ---- setup ------------------------------------------------------------------------------------------------------
 
+#ifdef __ANDROID__
+bool SDLCALL VulkanDevice::onAppEvent(void* self, SDL_Event* event) {
+    if (event->type == SDL_EVENT_DID_ENTER_FOREGROUND) static_cast<VulkanDevice*>(self)->surfaceStale_ = true;
+    return true;
+}
+#endif
+
+void VulkanDevice::renewSurface() {
+    vkDeviceWaitIdle(device_);
+    completed_ = submitted_;
+    destroySwapchain();
+    vkDestroySurfaceKHR(instance_, surface_, nullptr);
+    surface_ = VK_NULL_HANDLE;
+    if (!SDL_Vulkan_CreateSurface(desc_.window, instance_, nullptr, &surface_)) {
+        surface_ = VK_NULL_HANDLE;
+        shader_log(1, std::string("vulkan: the window's surface cannot be made again: ") + SDL_GetError());
+    }
+    swapchainDirty_ = true;
+}
+
 VulkanDevice::~VulkanDevice() {
+#ifdef __ANDROID__
+    SDL_RemoveEventWatch(&VulkanDevice::onAppEvent, this);
+#endif
     if (!device_) {
         if (surface_) vkDestroySurfaceKHR(instance_, surface_, nullptr);
         if (messenger_) vkDestroyDebugUtilsMessengerEXT(instance_, messenger_, nullptr);
@@ -811,6 +904,7 @@ VulkanDevice::~VulkanDevice() {
     if (oneShotPool_) vkDestroyCommandPool(device_, oneShotPool_, nullptr);
     if (pipelineCache_) vkDestroyPipelineCache(device_, pipelineCache_, nullptr);
     if (allocator_) vmaDestroyAllocator(allocator_);
+    passApi_.destroy();
     vkDestroyDevice(device_, nullptr);
     if (surface_) vkDestroySurfaceKHR(instance_, surface_, nullptr);
     if (messenger_) vkDestroyDebugUtilsMessengerEXT(instance_, messenger_, nullptr);
@@ -901,6 +995,9 @@ Result<void> VulkanDevice::createInstance() {
     }
     if (wantSurface && !SDL_Vulkan_CreateSurface(desc_.window, instance_, nullptr, &surface_))
         return Result<void>::fail(std::string("vulkan: SDL_Vulkan_CreateSurface: ") + SDL_GetError());
+#ifdef __ANDROID__
+    if (surface_) SDL_AddEventWatch(&VulkanDevice::onAppEvent, this);
+#endif
     vkCaps_.surfaceless = surface_ == VK_NULL_HANDLE;
     return Result<void>::ok();
 }
@@ -949,12 +1046,9 @@ Result<void> VulkanDevice::pickPhysicalDevice() {
             }
         }
         vkGetPhysicalDeviceFeatures2(pd, &f2);
+        // Without them (Vulkan 1.1 phones) passes and barriers take the Vulkan 1.0 path (vk_rendering.h).
         dynamicRendering = core13 ? f13.dynamicRendering : fdr.dynamicRendering;
         sync2 = core13 ? f13.synchronization2 : fs2.synchronization2;
-        if (!dynamicRendering || !sync2) {
-            why = name + " lacks dynamic rendering or synchronization2";
-            continue;
-        }
         if (surface_ && !hasExtension(exts, VK_KHR_SWAPCHAIN_EXTENSION_NAME)) {
             why = name + " has no swapchain";
             continue;
@@ -997,6 +1091,8 @@ Result<void> VulkanDevice::pickPhysicalDevice() {
         props_ = p;
         queueFamily_ = *family;
         deviceExtensions_ = std::move(exts);
+        hasDynamicRendering_ = dynamicRendering;
+        hasSync2_ = sync2;
         timestampMask_ =
             families[*family].timestampValidBits >= 64 ? ~0ull : ((1ull << families[*family].timestampValidBits) - 1);
         vkCaps_.timestamps = families[*family].timestampValidBits > 0 && p.limits.timestampPeriod > 0.f;
@@ -1008,13 +1104,18 @@ Result<void> VulkanDevice::pickPhysicalDevice() {
 
 Result<void> VulkanDevice::createLogicalDevice() {
     const bool core13 = apiVersion_ >= VK_API_VERSION_1_3;
+    // SH_VK_COMPAT=1 takes the render pass path on any device, to compare it with dynamic rendering.
+    const char* compatEnv = std::getenv("SH_VK_COMPAT");
+    const bool compat = compatEnv && compatEnv[0] && std::strcmp(compatEnv, "0") != 0;
+    const bool useDynamic = hasDynamicRendering_ && !compat;
+    const bool useSync2 = hasSync2_ && !compat;
     std::vector<const char*> exts;
     if (surface_) exts.push_back(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
     if (!core13) {
-        exts.push_back(VK_KHR_DYNAMIC_RENDERING_EXTENSION_NAME);
-        exts.push_back(VK_KHR_SYNCHRONIZATION_2_EXTENSION_NAME);
-        // Dependencies of the two above on a 1.1 device.
-        if (apiVersion_ < VK_API_VERSION_1_2) {
+        if (useDynamic) exts.push_back(VK_KHR_DYNAMIC_RENDERING_EXTENSION_NAME);
+        if (useSync2) exts.push_back(VK_KHR_SYNCHRONIZATION_2_EXTENSION_NAME);
+        // Dependencies of dynamic rendering on a 1.1 device.
+        if (useDynamic && apiVersion_ < VK_API_VERSION_1_2) {
             if (hasExtension(deviceExtensions_, VK_KHR_CREATE_RENDERPASS_2_EXTENSION_NAME))
                 exts.push_back(VK_KHR_CREATE_RENDERPASS_2_EXTENSION_NAME);
             if (hasExtension(deviceExtensions_, VK_KHR_DEPTH_STENCIL_RESOLVE_EXTENSION_NAME))
@@ -1054,14 +1155,20 @@ Result<void> VulkanDevice::createLogicalDevice() {
     VkPhysicalDeviceFeatures2 f2{VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2};
     f2.features.fillModeNonSolid = supported.fillModeNonSolid;
     if (core13) {
-        f13.dynamicRendering = VK_TRUE;
-        f13.synchronization2 = VK_TRUE;
-        f2.pNext = &f13;
+        f13.dynamicRendering = useDynamic ? VK_TRUE : VK_FALSE;
+        f13.synchronization2 = useSync2 ? VK_TRUE : VK_FALSE;
+        if (useDynamic || useSync2) f2.pNext = &f13;
     } else {
         fdr.dynamicRendering = VK_TRUE;
         fs2.synchronization2 = VK_TRUE;
-        fdr.pNext = &fs2;
-        f2.pNext = &fdr;
+        if (useSync2) {
+            fs2.pNext = f2.pNext;
+            f2.pNext = &fs2;
+        }
+        if (useDynamic) {
+            fdr.pNext = f2.pNext;
+            f2.pNext = &fdr;
+        }
     }
     VulkanRayTracingSetup rt;
     vulkanRayTracingChain(physical_, apiVersion_, deviceExtensions_, &rt, &exts, &f2.pNext);
@@ -1114,14 +1221,8 @@ Result<void> VulkanDevice::createLogicalDevice() {
     volkLoadDevice(device_);
     vkGetDeviceQueue(device_, queueFamily_, 0, &queue_);
 
-    cmdBeginRendering_ = core13 ? vkCmdBeginRendering : vkCmdBeginRenderingKHR;
-    cmdEndRendering_ = core13 ? vkCmdEndRendering : vkCmdEndRenderingKHR;
-    cmdPipelineBarrier2_ = core13 ? vkCmdPipelineBarrier2 : vkCmdPipelineBarrier2KHR;
-    queueSubmit2_ = core13 ? vkQueueSubmit2 : vkQueueSubmit2KHR;
-    cmdWriteTimestamp2_ = core13 ? vkCmdWriteTimestamp2 : vkCmdWriteTimestamp2KHR;
-    if (!cmdBeginRendering_ || !cmdEndRendering_ || !cmdPipelineBarrier2_ || !queueSubmit2_ || !cmdWriteTimestamp2_)
-        return Result<void>::fail(
-            "vulkan: the driver did not give the dynamic rendering or synchronization2 entry points");
+    // A driver that names the features but gives no entry points gets the Vulkan 1.0 path as well.
+    passApi_.init(device_, core13, useDynamic, useSync2, kFrames);
 
     VmaVulkanFunctions functions{};
     VmaAllocatorCreateInfo a{};
@@ -1224,6 +1325,8 @@ void VulkanDevice::fillCaps() {
     if (apiVersion_ >= VK_API_VERSION_1_2) subgroup.pNext = &driver;
     vkGetPhysicalDeviceProperties2(physical_, &p2);
     c.subgroupSize = subgroup.subgroupSize;
+    c.fragmentQuadOps = (subgroup.supportedStages & VK_SHADER_STAGE_FRAGMENT_BIT) != 0 &&
+                        (subgroup.supportedOperations & VK_SUBGROUP_FEATURE_QUAD_BIT) != 0;
     if (apiVersion_ >= VK_API_VERSION_1_2) {
         c.driverName = driver.driverName;
         c.driverInfo = driver.driverInfo;
@@ -1236,6 +1339,8 @@ void VulkanDevice::fillCaps() {
     c.hdrMetadata = hasExtension(e, VK_EXT_HDR_METADATA_EXTENSION_NAME);
     c.memoryBudget = memoryBudget_;
     c.rayTracingEnabled = rayTracing_;
+    c.dynamicRendering = passApi_.dynamicRendering();
+    c.synchronization2 = passApi_.synchronization2();
     VkPhysicalDeviceFeatures features{};
     vkGetPhysicalDeviceFeatures(physical_, &features);
     c.tessellationShader = features.tessellationShader == VK_TRUE;
@@ -1270,6 +1375,7 @@ void VulkanDevice::fillCaps() {
     caps_.storageBuffers = true;
     caps_.tessellation = tessellation_;
     caps_.meshShaders = meshShaders_;
+    caps_.fragmentQuadOps = c.fragmentQuadOps;
     caps_.meshShadersMissing = meshShaders_ ? std::string() : meshShadersMissing_;
 }
 
@@ -1279,6 +1385,14 @@ Result<void> VulkanDevice::init() {
     if (auto r = createLogicalDevice(); !r) return r;
     if (auto r = createFrames(); !r) return r;
     fillCaps();
+    // Or a file of that name in the working directory (a phone's game folder, where no environment is set).
+    const char* plain = std::getenv("SH_VK_NO_MERGE");
+    std::FILE* flag = std::fopen("SH_VK_NO_MERGE", "rb");
+    if (flag) std::fclose(flag);
+    if (flag || (plain && plain[0] != '\0' && plain[0] != '0')) {
+        restructure_ = false;
+        shader_log(0, "vulkan: SH_VK_NO_MERGE: one GPU pass per render pass, uploads where they are asked for");
+    }
 
     TextureDesc d;
     d.width = d.height = 1;
@@ -1300,7 +1414,10 @@ Result<void> VulkanDevice::init() {
 
 void VulkanDevice::destroySwapchain() {
     for (TextureH h : swapTextures_) {
-        if (auto t = textures_.remove(h)) vkDestroyImageView(device_, t->view, nullptr);
+        if (auto t = textures_.remove(h)) {
+            passApi_.forget(t->view);
+            vkDestroyImageView(device_, t->view, nullptr);
+        }
     }
     swapTextures_.clear();
     for (VkSemaphore s : renderDone_) vkDestroySemaphore(device_, s, nullptr);
@@ -1327,7 +1444,10 @@ Result<void> VulkanDevice::createSwapchain() {
     VkSwapchainKHR old = swapchain_;
     swapchain_ = VK_NULL_HANDLE;
     for (TextureH h : swapTextures_) {
-        if (auto t = textures_.remove(h)) vkDestroyImageView(device_, t->view, nullptr);
+        if (auto t = textures_.remove(h)) {
+            passApi_.forget(t->view);
+            vkDestroyImageView(device_, t->view, nullptr);
+        }
     }
     swapTextures_.clear();
     for (VkSemaphore s : renderDone_) vkDestroySemaphore(device_, s, nullptr);
@@ -1437,6 +1557,28 @@ Result<void> VulkanDevice::createSwapchain() {
     }
     swapFormat_ = chosen.format;
     swapExtent_ = extent;
+    swapRotated_ = info.preTransform != sc.currentTransform;
+    {
+        auto modeName = [](VkPresentModeKHR m) {
+            switch (m) {
+                case VK_PRESENT_MODE_IMMEDIATE_KHR: return "immediate";
+                case VK_PRESENT_MODE_MAILBOX_KHR: return "mailbox";
+                case VK_PRESENT_MODE_FIFO_KHR: return "fifo";
+                case VK_PRESENT_MODE_FIFO_RELAXED_KHR: return "fifo relaxed";
+                default: return "other";
+            }
+        };
+        std::uint32_t made = 0;
+        vkGetSwapchainImagesKHR(device_, swapchain_, &made, nullptr);
+        char line[256];
+        std::snprintf(line, sizeof line,
+                      "[PERF] swapchain %ux%u, %u images (asked %u, surface min %u), present %s, transform 0x%x "
+                      "(surface 0x%x), format %d, %u frames in flight",
+                      extent.width, extent.height, made, images, sc.minImageCount, modeName(mode),
+                      static_cast<unsigned>(info.preTransform), static_cast<unsigned>(sc.currentTransform),
+                      static_cast<int>(chosen.format), pacing_.framesInFlight <= 1 ? 1u : kFrames);
+        shader_log(0, line);
+    }
     if (hdrActive_ && hdrMetadata_) applyHdrMetadata();
     if (hdr_.enabled)
         shader_log(hdrActive_ ? 0 : 1,
@@ -1497,6 +1639,7 @@ void VulkanDevice::releaseTexture(VkTexture& t) {
     const VkImage image = t.image;
     const VkImageView view = t.view, sampled = t.sampledView;
     const VmaAllocation alloc = t.alloc;
+    passApi_.forget(view);
     retire([dev, allocator, image, view, sampled, alloc] {
         if (sampled != view) vkDestroyImageView(dev, sampled, nullptr);
         vkDestroyImageView(dev, view, nullptr);
@@ -1885,7 +2028,7 @@ VkPipeline VulkanDevice::variant(VkPipe& p, VkFormat color, VkFormat depth) {
     ri.stencilAttachmentFormat = hasStencil(depth) ? depth : VK_FORMAT_UNDEFINED;
 
     VkGraphicsPipelineCreateInfo info{VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO};
-    info.pNext = &ri;
+    passApi_.pipeline(info, ri);
     info.stageCount = stageCount;
     info.pStages = stages;
     info.pVertexInputState = p.mesh ? nullptr : &vi;
@@ -1928,6 +2071,10 @@ void VulkanDevice::destroy(BufferH handle) {
         const VkBuffer buffer = b->buffer;
         const VmaAllocation alloc = b->alloc;
         retire([allocator, buffer, alloc] { vmaDestroyBuffer(allocator, buffer, alloc); });
+        for (const VkBuf::Spare& spare : b->spares) {
+            appVramBytes_ -= b->desc.size;
+            retire([allocator, spare] { vmaDestroyBuffer(allocator, spare.buffer, spare.alloc); });
+        }
     }
 }
 
@@ -2034,7 +2181,10 @@ VkDescriptorSet VulkanDevice::allocSet(VkDescriptorSetLayout layout) {
         info.pSetLayouts = &layout;
         VkDescriptorSet set = VK_NULL_HANDLE;
         const VkResult r = vkAllocateDescriptorSets(device_, &info, &set);
-        if (r == VK_SUCCESS) return set;
+        if (r == VK_SUCCESS) {
+            ++counts_.descriptorSets;
+            return set;
+        }
         if (r != VK_ERROR_OUT_OF_POOL_MEMORY && r != VK_ERROR_FRAGMENTED_POOL) return VK_NULL_HANDLE;
         ++f.descPool;
     }
@@ -2059,7 +2209,8 @@ void VulkanDevice::barrier(VkCommandBuffer cmd, VkImage image, VkImageAspectFlag
     VkDependencyInfo dep{VK_STRUCTURE_TYPE_DEPENDENCY_INFO};
     dep.imageMemoryBarrierCount = 1;
     dep.pImageMemoryBarriers = &b;
-    cmdPipelineBarrier2_(cmd, &dep);
+    passApi_.barrier(cmd, dep);
+    ++counts_.barriers;
 }
 
 void VulkanDevice::memoryBarrier() {
@@ -2071,13 +2222,15 @@ void VulkanDevice::memoryBarrier() {
     VkDependencyInfo dep{VK_STRUCTURE_TYPE_DEPENDENCY_INFO};
     dep.memoryBarrierCount = 1;
     dep.pMemoryBarriers = &b;
-    cmdPipelineBarrier2_(frame().cmd, &dep);
+    passApi_.barrier(frame().cmd, dep);
+    ++counts_.barriers;
 }
 
 void VulkanDevice::enterTransfer() {
-    list_.endRenderPass();
+    closePass();
     if (inTransfer_) return;
     inTransfer_ = true;
+    ++counts_.transfers;
     beginSpan("transfer", 8);
     memoryBarrier();
 }
@@ -2094,8 +2247,76 @@ void VulkanDevice::leaveTransfer() {
     endSpan();
 }
 
+void VulkanDevice::note(const char* fmt, ...) {
+    char line[160];
+    std::va_list args;
+    va_start(args, fmt);
+    std::vsnprintf(line, sizeof line, fmt, args);
+    va_end(args);
+    trace_ += '\n';
+    trace_ += line;
+}
+
 void VulkanDevice::touch(TextureH h) {
     if (std::find(touched_.begin(), touched_.end(), h) == touched_.end()) touched_.push_back(h);
+}
+
+void VulkanDevice::recordHoisted(VkCommandBuffer cmd) {
+    if (hoisted_.empty()) return;
+    // After whatever the submissions before still do with these buffers and images; before anything of this frame.
+    VkMemoryBarrier2 mb{VK_STRUCTURE_TYPE_MEMORY_BARRIER_2};
+    mb.srcStageMask = VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT;
+    mb.srcAccessMask = VK_ACCESS_2_MEMORY_WRITE_BIT;
+    mb.dstStageMask = VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT;
+    mb.dstAccessMask = VK_ACCESS_2_MEMORY_READ_BIT | VK_ACCESS_2_MEMORY_WRITE_BIT;
+    VkDependencyInfo dep{VK_STRUCTURE_TYPE_DEPENDENCY_INFO};
+    dep.memoryBarrierCount = 1;
+    dep.pMemoryBarriers = &mb;
+    passApi_.barrier(cmd, dep);
+    for (const HoistedCopy& h : hoisted_) {
+        if (h.image) {
+            barrier(cmd, h.image, h.aspect, h.rest, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+            vkCmdCopyBufferToImage(cmd, h.src, h.image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &h.region);
+            barrier(cmd, h.image, h.aspect, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, h.rest);
+        } else {
+            const VkBufferCopy region{h.srcOffset, h.dstOffset, h.size};
+            vkCmdCopyBuffer(cmd, h.src, h.dst, 1, &region);
+        }
+    }
+    passApi_.barrier(cmd, dep);
+    hoisted_.clear();
+}
+
+// The buffer's draws of this frame keep its memory; its new contents go into memory no submission still reads.
+bool VulkanDevice::cycleBuffer(VkBuf& b) {
+    if (b.pinned) return false;
+    const std::uint64_t serial = recordingSerial();
+    auto it = std::find_if(b.spares.begin(), b.spares.end(),
+                           [&](const VkBuf::Spare& s) { return s.busy <= completed_; });
+    VkBuf::Spare next;
+    if (it != b.spares.end()) {
+        next = *it;
+        b.spares.erase(it);
+    } else {
+        // Two frames in flight and a few rewrites a frame: past that many the frame waits for the transfer instead.
+        constexpr std::size_t kMaxSpares = 8;
+        if (b.spares.size() >= kMaxSpares) return false;
+        VkBufferCreateInfo info{VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO};
+        info.size = std::max<std::uint32_t>(b.desc.size, 4);
+        info.usage =
+            (b.desc.usage == BufferUsage::Index ? VK_BUFFER_USAGE_INDEX_BUFFER_BIT : VK_BUFFER_USAGE_VERTEX_BUFFER_BIT) |
+            (b.desc.shaderRead ? VkBufferUsageFlags{VK_BUFFER_USAGE_STORAGE_BUFFER_BIT} : 0u) |
+            VK_BUFFER_USAGE_TRANSFER_DST_BIT;
+        VmaAllocationCreateInfo ai{};
+        ai.usage = VMA_MEMORY_USAGE_AUTO;
+        if (vmaCreateBuffer(allocator_, &info, &ai, &next.buffer, &next.alloc, nullptr) != VK_SUCCESS) return false;
+        appVramBytes_ += b.desc.size;
+    }
+    b.spares.push_back({b.buffer, b.alloc, serial});
+    b.buffer = next.buffer;
+    b.alloc = next.alloc;
+    b.usedIn = 0;
+    return true;
 }
 
 void VulkanDevice::recordPendingInits(VkCommandBuffer cmd) {
@@ -2112,7 +2333,7 @@ void VulkanDevice::beginSpan(const char* name, std::size_t length) {
     const std::size_t n = std::min(length, s.name.size() - 1);
     std::memcpy(s.name.data(), name, n);
     s.begin = f.queryCount++;
-    cmdWriteTimestamp2_(f.cmd, VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT, f.queries, s.begin);
+    passApi_.timestamp(f.cmd, VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT, f.queries, s.begin);
     f.spans.push_back(s);
     openSpan_ = static_cast<std::int32_t>(f.spans.size() - 1);
 }
@@ -2122,7 +2343,7 @@ void VulkanDevice::endSpan() {
     if (openSpan_ < 0) return;
     Span& s = f.spans[static_cast<std::size_t>(openSpan_)];
     s.end = f.queryCount++;
-    cmdWriteTimestamp2_(f.cmd, VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT, f.queries, s.end);
+    passApi_.timestamp(f.cmd, VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT, f.queries, s.end);
     openSpan_ = -1;
 }
 
@@ -2168,6 +2389,8 @@ ProfileStats VulkanDevice::takeProfileStats() {
     out.passes = passTimes_;
     out.passCount = passTimeCount_;
     passTimeCount_ = 0;
+    out.counts = counts_;
+    counts_ = {};
     out.patchTriangles = static_cast<std::int64_t>(patchTriangles_);
     out.pipelinesBuilt = pipelinesBuilt_;
     out.pipelineBuildMs = pipelineBuildMs_;
@@ -2230,6 +2453,7 @@ CommandList* VulkanDevice::begin() {
         if (r == VK_ERROR_OUT_OF_DATE_KHR || r == VK_ERROR_SURFACE_LOST_KHR) swapchainDirty_ = true;
     }
     completed_ = std::max(completed_, f.serial);
+    passApi_.frameStart(frameIndex_);
     collectTimings(f);
     collectGarbage();
     vkResetFences(device_, 1, &f.fence);
@@ -2247,10 +2471,14 @@ CommandList* VulkanDevice::begin() {
     f.timed = profiling_ && f.queries;
     if (f.timed) {
         vkCmdResetQueryPool(f.cmd, f.queries, 0, kMaxQueries);
-        cmdWriteTimestamp2_(f.cmd, VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT, f.queries, f.queryCount++);
+        passApi_.timestamp(f.cmd, VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT, f.queries, f.queryCount++);
     }
     recording_ = true;
-    inPass_ = inTransfer_ = false;
+    inPass_ = inTransfer_ = lingering_ = rendering_ = false;
+    hoisted_.clear();
+    tracing_ = traceFrames_ > 0;
+    trace_.clear();
+    if (tracing_) note("frame %llu", static_cast<unsigned long long>(submitted_ + 1));
     openSpan_ = -1;
     openSection_ = -1;
     storageDirty_ = true;
@@ -2272,7 +2500,7 @@ CommandList* VulkanDevice::begin() {
 Result<void> VulkanDevice::submit() {
     if (!recording_) return Result<void>::fail("vulkan: submit without begin");
     Frame& f = frame();
-    list_.endRenderPass();
+    closePass();
     leaveTransfer();
     VkTexture* swap = acquired_ && swapchain_ ? textures_.get(acquired_) : nullptr;
     if (swap && swap->swapchain) {
@@ -2281,20 +2509,28 @@ Result<void> VulkanDevice::submit() {
     } else {
         swap = nullptr;
     }
-    if (f.timed) cmdWriteTimestamp2_(f.cmd, VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT, f.queries, f.queryCount++);
+    if (f.timed) passApi_.timestamp(f.cmd, VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT, f.queries, f.queryCount++);
     vkEndCommandBuffer(f.cmd);
     recording_ = false;
+    ++counts_.frames;
+    if (tracing_) {
+        tracing_ = false;
+        --traceFrames_;
+        shader_log(0, "[PERF] trace: " + trace_);
+        trace_.clear();
+    }
     flushRing(f.staging);
     flushRing(f.uniforms);
 
     VkCommandBufferSubmitInfo cmds[2]{};
     std::uint32_t cmdCount = 0;
-    if (!pendingInits_.empty()) {
+    if (!pendingInits_.empty() || !hoisted_.empty()) {
         vkResetCommandBuffer(f.preamble, 0);
         VkCommandBufferBeginInfo bi{VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO};
         bi.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
         vkBeginCommandBuffer(f.preamble, &bi);
         recordPendingInits(f.preamble);
+        recordHoisted(f.preamble);
         vkEndCommandBuffer(f.preamble);
         cmds[cmdCount].sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_SUBMIT_INFO;
         cmds[cmdCount++].commandBuffer = f.preamble;
@@ -2314,7 +2550,7 @@ Result<void> VulkanDevice::submit() {
     si.pCommandBufferInfos = cmds;
     si.signalSemaphoreInfoCount = swap ? 1 : 0;
     si.pSignalSemaphoreInfos = &signal;
-    const VkResult sr = queueSubmit2_(queue_, 1, &si, f.fence);
+    const VkResult sr = passApi_.submit(queue_, 1, &si, f.fence);
     acquired_ = {};
     acquireWait_ = false;
     frameIndex_ = (frameIndex_ + 1) % kFrames;
@@ -2322,7 +2558,7 @@ Result<void> VulkanDevice::submit() {
         // The fence will never signal: make it signalled so the slot's next wait does not stall.
         vkResetFences(device_, 1, &f.fence);
         VkSubmitInfo2 empty{VK_STRUCTURE_TYPE_SUBMIT_INFO_2};
-        if (sr != VK_ERROR_DEVICE_LOST) queueSubmit2_(queue_, 1, &empty, f.fence);
+        if (sr != VK_ERROR_DEVICE_LOST) passApi_.submit(queue_, 1, &empty, f.fence);
         f.timed = false;
         return markLost("vkQueueSubmit2", sr);
     }
@@ -2344,11 +2580,12 @@ Result<void> VulkanDevice::submit() {
     }
     const VkResult pr = vkQueuePresentKHR(queue_, &pi);
     if (presentWait_ && (pr == VK_SUCCESS || pr == VK_SUBOPTIMAL_KHR)) presentId_ = id;
-    if (pr == VK_ERROR_OUT_OF_DATE_KHR || pr == VK_SUBOPTIMAL_KHR || pr == VK_ERROR_SURFACE_LOST_KHR) {
+    if (pr == VK_ERROR_OUT_OF_DATE_KHR || (pr == VK_SUBOPTIMAL_KHR && !swapRotated_) ||
+        pr == VK_ERROR_SURFACE_LOST_KHR) {
         swapchainDirty_ = true;
         return Result<void>::ok();
     }
-    if (pr != VK_SUCCESS) return markLost("vkQueuePresentKHR", pr);
+    if (pr != VK_SUCCESS && pr != VK_SUBOPTIMAL_KHR) return markLost("vkQueuePresentKHR", pr);
     return Result<void>::ok();
 }
 
@@ -2406,7 +2643,7 @@ Result<void> VulkanDevice::readback(TextureH texture, const Rect& rect, std::spa
     si.commandBufferInfoCount = 1;
     si.pCommandBufferInfos = &cmd;
     vkResetFences(device_, 1, &oneShotFence_);
-    VkResult r = queueSubmit2_(queue_, 1, &si, oneShotFence_);
+    VkResult r = passApi_.submit(queue_, 1, &si, oneShotFence_);
     if (r == VK_SUCCESS) r = vkWaitForFences(device_, 1, &oneShotFence_, VK_TRUE, kFenceTimeoutNs);
     if (r == VK_SUCCESS) {
         vmaInvalidateAllocation(allocator_, alloc, 0, VK_WHOLE_SIZE);
@@ -2441,9 +2678,8 @@ void VulkanList::uploadTextureLevel(TextureH texture, std::uint32_t level, const
     if (!dev_.allocHost(dev_.frame().staging, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, kStagingChunk, size, 16, 0, &s)) return;
     std::memcpy(s.ptr, pixels.data(), size);
     dev_.textureUploadBytes_ += size;
-    dev_.enterTransfer();
-    dev_.transition(*t, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
-    dev_.touch(texture);
+    ++dev_.counts_.textureUploads;
+    dev_.counts_.uploadBytes += size;
     VkBufferImageCopy region{};
     region.bufferOffset = s.offset;
     region.imageSubresource = {t->aspect & VK_IMAGE_ASPECT_COLOR_BIT ? VkImageAspectFlags(VK_IMAGE_ASPECT_COLOR_BIT)
@@ -2451,6 +2687,27 @@ void VulkanList::uploadTextureLevel(TextureH texture, std::uint32_t level, const
                                level, 0, 1};
     region.imageOffset = {rect.x, rect.y, 0};
     region.imageExtent = {static_cast<std::uint32_t>(rect.w), static_cast<std::uint32_t>(rect.h), 1};
+    // A sampled texture the frame has not used yet takes its texels before the frame's commands.
+    if (dev_.restructure_ && t->usedIn != dev_.recordingSerial() && t->layout == t->rest &&
+        t->rest == VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL) {
+        HoistedCopy h;
+        h.src = s.buffer;
+        h.image = t->image;
+        h.aspect = t->aspect;
+        h.rest = t->rest;
+        h.region = region;
+        dev_.hoisted_.push_back(h);
+        ++dev_.counts_.hoisted;
+        if (dev_.tracing_) dev_.note("  upload texture %dx%d level %u (%llu bytes), ahead of the frame", rect.w, rect.h,
+                                     level, static_cast<unsigned long long>(size));
+        return;
+    }
+    dev_.enterTransfer();
+    if (dev_.tracing_) dev_.note("  upload texture %dx%d level %u (%llu bytes)", rect.w, rect.h, level,
+                                 static_cast<unsigned long long>(size));
+    t->usedIn = dev_.recordingSerial();
+    dev_.transition(*t, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+    dev_.touch(texture);
     vkCmdCopyBufferToImage(dev_.frame().cmd, s.buffer, t->image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
 }
 
@@ -2461,7 +2718,26 @@ void VulkanList::uploadBuffer(BufferH buffer, std::uint32_t offset, std::span<co
     if (!dev_.allocHost(dev_.frame().staging, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, kStagingChunk, data.size(), 16, 0, &s))
         return;
     std::memcpy(s.ptr, data.data(), data.size());
+    ++dev_.counts_.bufferUploads;
+    dev_.counts_.uploadBytes += data.size();
+    // A write from offset 0 starts the contents afresh: a buffer the frame already drew from takes new memory for
+    // them (the draws before keep the old), so the copy can still go ahead of the frame.
+    if (dev_.restructure_ && b->usedIn == dev_.recordingSerial() && offset == 0) dev_.cycleBuffer(*b);
+    if (dev_.restructure_ && !b->pinned && b->usedIn != dev_.recordingSerial()) {
+        HoistedCopy h;
+        h.src = s.buffer;
+        h.srcOffset = s.offset;
+        h.dst = b->buffer;
+        h.dstOffset = offset;
+        h.size = data.size();
+        dev_.hoisted_.push_back(h);
+        ++dev_.counts_.hoisted;
+        if (dev_.tracing_) dev_.note("  upload buffer %zu bytes at %u, ahead of the frame", data.size(), offset);
+        return;
+    }
     dev_.enterTransfer();
+    if (dev_.tracing_) dev_.note("  upload buffer %zu bytes at %u", data.size(), offset);
+    b->usedIn = dev_.recordingSerial();
     const VkBufferCopy region{s.offset, offset, data.size()};
     vkCmdCopyBuffer(dev_.frame().cmd, s.buffer, b->buffer, 1, &region);
 }
@@ -2471,6 +2747,10 @@ void VulkanList::copyTexture(TextureH src, const Rect& srcRect, TextureH dst, st
     VkTexture* d = dev_.textures_.get(dst);
     if (!s || !d || srcRect.w <= 0 || srcRect.h <= 0) return;
     dev_.enterTransfer();
+    ++dev_.counts_.copies;
+    s->usedIn = d->usedIn = dev_.recordingSerial();
+    if (dev_.tracing_) dev_.note("  copy %dx%d from %ux%u to %ux%u", srcRect.w, srcRect.h, s->desc.width, s->desc.height,
+                                 d->desc.width, d->desc.height);
     VkImageLayout sl = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, dl = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
     if (s == d) sl = dl = VK_IMAGE_LAYOUT_GENERAL;
     dev_.transition(*s, sl);
@@ -2486,17 +2766,58 @@ void VulkanList::copyTexture(TextureH src, const Rect& srcRect, TextureH dst, st
     vkCmdCopyImage(dev_.frame().cmd, s->image, sl, d->image, dl, 1, &region);
 }
 
-void VulkanList::blitTexture(TextureH src, const Rect& srcRect, TextureH dst, const Rect& dstRect, Filter filter) {
+namespace {
+
+// Clips one axis of a blit to both images, keeping the scale: a region outside an image is undefined behaviour, and
+// a phone's GPU stops (device lost) on it, e.g. a present at the window's new size into the swapchain of the old one.
+bool clipBlitAxis(int& s0, int& sw, int& d0, int& dw, int sSize, int dSize) {
+    const double k = static_cast<double>(sw) / dw;
+    double a0 = s0, a1 = s0 + sw, b0 = d0, b1 = d0 + dw;
+    if (b0 < 0) a0 -= b0 * k, b0 = 0;
+    if (b1 > dSize) a1 -= (b1 - dSize) * k, b1 = dSize;
+    if (a0 < 0) b0 -= a0 / k, a0 = 0;
+    if (a1 > sSize) b1 -= (a1 - sSize) / k, a1 = sSize;
+    s0 = static_cast<int>(std::lround(a0));
+    sw = static_cast<int>(std::lround(a1)) - s0;
+    d0 = static_cast<int>(std::lround(b0));
+    dw = static_cast<int>(std::lround(b1)) - d0;
+    return sw > 0 && dw > 0;
+}
+
+}  // namespace
+
+void VulkanList::blitTexture(TextureH src, const Rect& srcIn, TextureH dst, const Rect& dstIn, Filter filter) {
     VkTexture* s = dev_.textures_.get(src);
     VkTexture* d = dev_.textures_.get(dst);
-    if (!s || !d || srcRect.w <= 0 || srcRect.h <= 0 || dstRect.w <= 0 || dstRect.h <= 0) return;
+    if (!s || !d || srcIn.w <= 0 || srcIn.h <= 0 || dstIn.w <= 0 || dstIn.h <= 0) return;
+    Rect srcRect = srcIn, dstRect = dstIn;
+    if (!clipBlitAxis(srcRect.x, srcRect.w, dstRect.x, dstRect.w, static_cast<int>(s->desc.width),
+                      static_cast<int>(d->desc.width)) ||
+        !clipBlitAxis(srcRect.y, srcRect.h, dstRect.y, dstRect.h, static_cast<int>(s->desc.height),
+                      static_cast<int>(d->desc.height)))
+        return;
     dev_.enterTransfer();
+    ++dev_.counts_.blits;
+    s->usedIn = d->usedIn = dev_.recordingSerial();
+    if (dev_.tracing_)
+        dev_.note("  blit %dx%d to %dx%d%s", srcRect.w, srcRect.h, dstRect.w, dstRect.h, d->swapchain ? " (swapchain)" : "");
     VkImageLayout sl = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, dl = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
     if (s == d) sl = dl = VK_IMAGE_LAYOUT_GENERAL;
     dev_.transition(*s, sl);
     if (s != d) dev_.transition(*d, dl);
     dev_.touch(src);
     dev_.touch(dst);
+    if (srcRect.w == dstRect.w && srcRect.h == dstRect.h && s->format == d->format && dev_.restructure_) {
+        // An unscaled blit is a copy, which is cheaper on most GPUs (a phone's blit is a draw of its own).
+        VkImageCopy copy{};
+        copy.srcSubresource = {VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1};
+        copy.srcOffset = {srcRect.x, srcRect.y, 0};
+        copy.dstSubresource = {VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1};
+        copy.dstOffset = {dstRect.x, dstRect.y, 0};
+        copy.extent = {static_cast<std::uint32_t>(srcRect.w), static_cast<std::uint32_t>(srcRect.h), 1};
+        vkCmdCopyImage(dev_.frame().cmd, s->image, sl, d->image, dl, 1, &copy);
+        return;
+    }
     VkImageBlit region{};
     region.srcSubresource = {VK_IMAGE_ASPECT_COLOR_BIT, 0, 0, 1};
     region.srcOffsets[0] = {srcRect.x, srcRect.y, 0};
@@ -2511,28 +2832,100 @@ void VulkanList::blitTexture(TextureH src, const Rect& srcRect, TextureH dst, co
 // Never reached: createTexture refuses multisampled textures on this backend (Caps::maxSamples is 1).
 void VulkanList::resolveTexture(TextureH, TextureH) {}
 
+namespace {
+
+const char* loadName(LoadOp op) { return op == LoadOp::Load ? "load" : op == LoadOp::Clear ? "clear" : "-"; }
+
+double attachmentMB(const VkTexture& t) {
+    return static_cast<double>(t.desc.width) * t.desc.height * bytesPerTexel(t.desc.format) / (1024.0 * 1024.0);
+}
+
+}  // namespace
+
 RenderPass* VulkanList::beginRenderPass(const RenderPassDesc& desc) {
-    endRenderPass();
     dev_.leaveTransfer();
     VkTexture* c = dev_.textures_.get(desc.color.texture);
-    if (!c) return nullptr;
     VkTexture* d = desc.depthStencil.texture ? dev_.textures_.get(desc.depthStencil.texture) : nullptr;
-    if (desc.depthStencil.texture && !d) return nullptr;
-    if (!desc.name.empty())
-        dev_.beginSpan(desc.name.data(), desc.name.size());
-    else
-        dev_.beginSpan("other", 5);
+    const char* name = desc.name.empty() ? "other" : desc.name.data();
+    const std::size_t nameLength = desc.name.empty() ? 5 : desc.name.size();
     VkCommandBuffer cmd = dev_.frame().cmd;
+    // The pass before on the same attachments goes on: a clear becomes its load op (nothing drawn yet) or a clear
+    // inside it, a load needs nothing. Once begun, it cannot when it does not store what this pass keeps.
+    const bool same = dev_.lingering_ && c && desc.color.texture == dev_.passColor_ &&
+                      desc.depthStencil.texture == dev_.passDepth_;
+    if (same && (!dev_.rendering_ || ((desc.color.store == StoreOp::DontCare || dev_.passStoresColor_) &&
+                                      (!d || desc.depthStencil.store == StoreOp::DontCare || dev_.passStoresDepth_)))) {
+        dev_.lingering_ = false;
+        dev_.endSpan();
+        dev_.beginSpan(name, nameLength);
+        if (!dev_.rendering_) {
+            if (desc.color.load == LoadOp::Clear) {
+                dev_.pendColor_.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+                std::memcpy(dev_.pendColor_.clearValue.color.float32, desc.color.clear.data(), sizeof(float) * 4);
+            }
+            if (desc.color.store == StoreOp::Store) {
+                dev_.pendColor_.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+                dev_.passStoresColor_ = true;
+            }
+            if (d && desc.depthStencil.load == LoadOp::Clear) {
+                dev_.pendDepth_.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+                dev_.pendDepth_.clearValue.depthStencil = {desc.depthStencil.clearDepth, desc.depthStencil.clearStencil};
+            }
+            if (d && desc.depthStencil.store == StoreOp::Store) {
+                dev_.pendDepth_.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+                dev_.passStoresDepth_ = true;
+            }
+        } else {
+            VkClearAttachment clears[2]{};
+            std::uint32_t n = 0;
+            if (desc.color.load == LoadOp::Clear) {
+                clears[n].aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+                clears[n].colorAttachment = 0;
+                std::memcpy(clears[n].clearValue.color.float32, desc.color.clear.data(), sizeof(float) * 4);
+                ++n;
+            }
+            if (d && desc.depthStencil.load == LoadOp::Clear) {
+                clears[n].aspectMask = d->aspect & (VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT);
+                clears[n].clearValue.depthStencil = {desc.depthStencil.clearDepth, desc.depthStencil.clearStencil};
+                ++n;
+            }
+            if (n > 0) {
+                const VkClearRect rect{{{0, 0}, {c->desc.width, c->desc.height}}, 0, 1};
+                vkCmdClearAttachments(cmd, n, clears, 1, &rect);
+                ++dev_.counts_.inPassClears;
+            }
+        }
+        ++dev_.counts_.merged;
+        if (dev_.tracing_)
+            dev_.note("  merge %.*s: colour %s, depth %s%s", static_cast<int>(nameLength), name,
+                      loadName(desc.color.load), d ? loadName(desc.depthStencil.load) : "none",
+                      dev_.rendering_ ? "" : " (not begun yet)");
+        dev_.pass_.setViewport({0.f, 0.f, float(c->desc.width), float(c->desc.height), 0.f, 1.f});
+        dev_.pass_.setScissor({0, 0, int(c->desc.width), int(c->desc.height)});
+        const float blend[4] = {0.f, 0.f, 0.f, 0.f};
+        vkCmdSetBlendConstants(cmd, blend);
+        vkCmdSetStencilReference(cmd, VK_STENCIL_FACE_FRONT_AND_BACK, 0);
+        return &dev_.pass_;
+    }
+    dev_.closePass();
+    if (!c) return nullptr;
+    if (desc.depthStencil.texture && !d) return nullptr;
+    dev_.beginSpan(name, nameLength);
     dev_.transition(*c, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
     if (d) dev_.transition(*d, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL);
+    const std::uint64_t serial = dev_.recordingSerial();
+    c->usedIn = serial;
+    if (d) d->usedIn = serial;
 
-    VkRenderingAttachmentInfo color{VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO};
+    VkRenderingAttachmentInfo& color = dev_.pendColor_;
+    color = {VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO};
     color.imageView = c->view;
     color.imageLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
     color.loadOp = vkLoad(desc.color.load);
     color.storeOp = vkStore(desc.color.store);
     std::memcpy(color.clearValue.color.float32, desc.color.clear.data(), sizeof(float) * 4);
-    VkRenderingAttachmentInfo depth{VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO};
+    VkRenderingAttachmentInfo& depth = dev_.pendDepth_;
+    depth = {VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO};
     if (d) {
         depth.imageView = d->view;
         depth.imageLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
@@ -2540,20 +2933,26 @@ RenderPass* VulkanList::beginRenderPass(const RenderPassDesc& desc) {
         depth.storeOp = vkStore(desc.depthStencil.store);
         depth.clearValue.depthStencil = {desc.depthStencil.clearDepth, desc.depthStencil.clearStencil};
     }
-    VkRenderingInfo ri{VK_STRUCTURE_TYPE_RENDERING_INFO};
-    ri.renderArea = {{0, 0}, {c->desc.width, c->desc.height}};
-    ri.layerCount = 1;
-    ri.colorAttachmentCount = 1;
-    ri.pColorAttachments = &color;
-    ri.pDepthAttachment = d ? &depth : nullptr;
-    ri.pStencilAttachment = d && hasStencil(d->format) ? &depth : nullptr;
-    dev_.cmdBeginRendering_(cmd, &ri);
+    dev_.pendDepthOn_ = d != nullptr;
+    dev_.pendStencil_ = d && hasStencil(d->format);
+    dev_.pendExtent_ = {c->desc.width, c->desc.height};
+    if (dev_.tracing_)
+        dev_.note("pass %.*s %ux%u: colour %s/%s%s, depth %s/%s", static_cast<int>(nameLength), name, c->desc.width,
+                  c->desc.height, loadName(desc.color.load), desc.color.store == StoreOp::Store ? "store" : "-",
+                  c->swapchain ? " (swapchain)" : "", d ? loadName(desc.depthStencil.load) : "none",
+                  d && desc.depthStencil.store == StoreOp::Store ? "store" : "-");
+    dev_.passDraws_ = 0;
     dev_.inPass_ = true;
+    dev_.rendering_ = false;
+    dev_.lingering_ = false;
+    dev_.passStoresColor_ = desc.color.store == StoreOp::Store;
+    dev_.passStoresDepth_ = d && desc.depthStencil.store == StoreOp::Store;
     dev_.passColor_ = desc.color.texture;
     dev_.passDepth_ = d ? desc.depthStencil.texture : TextureH{};
     dev_.passColorFormat_ = c->format;
     dev_.passDepthFormat_ = d ? d->format : VK_FORMAT_UNDEFINED;
     dev_.boundVk_ = VK_NULL_HANDLE;  // the variant depends on the attachments
+    if (!dev_.restructure_) dev_.beginRendering();
     dev_.pass_.setViewport({0.f, 0.f, float(c->desc.width), float(c->desc.height), 0.f, 1.f});
     dev_.pass_.setScissor({0, 0, int(c->desc.width), int(c->desc.height)});
     const float blend[4] = {0.f, 0.f, 0.f, 0.f};
@@ -2562,16 +2961,73 @@ RenderPass* VulkanList::beginRenderPass(const RenderPassDesc& desc) {
     return &dev_.pass_;
 }
 
+void VulkanDevice::beginRendering() {
+    if (!inPass_ || rendering_) return;
+    VkRenderingInfo ri{VK_STRUCTURE_TYPE_RENDERING_INFO};
+    ri.renderArea = {{0, 0}, pendExtent_};
+    ri.layerCount = 1;
+    ri.colorAttachmentCount = 1;
+    ri.pColorAttachments = &pendColor_;
+    ri.pDepthAttachment = pendDepthOn_ ? &pendDepth_ : nullptr;
+    ri.pStencilAttachment = pendStencil_ ? &pendDepth_ : nullptr;
+    passApi_.begin(frame().cmd, ri, &passColorFormat_, passDepthFormat_);
+    rendering_ = true;
+    ++counts_.passes;
+    if (pendColor_.loadOp == VK_ATTACHMENT_LOAD_OP_LOAD) {
+        ++counts_.loads;
+        if (const VkTexture* c = textures_.get(passColor_)) counts_.attachmentMB += attachmentMB(*c);
+    }
+    if (pendDepthOn_ && pendDepth_.loadOp == VK_ATTACHMENT_LOAD_OP_LOAD) {
+        ++counts_.loads;
+        if (const VkTexture* d = textures_.get(passDepth_)) counts_.attachmentMB += attachmentMB(*d);
+    }
+    if (tracing_)
+        note("  begun: colour %s, depth %s", pendColor_.loadOp == VK_ATTACHMENT_LOAD_OP_LOAD ? "load"
+                                             : pendColor_.loadOp == VK_ATTACHMENT_LOAD_OP_CLEAR ? "clear" : "-",
+             !pendDepthOn_ ? "none" : pendDepth_.loadOp == VK_ATTACHMENT_LOAD_OP_LOAD ? "load"
+                                   : pendDepth_.loadOp == VK_ATTACHMENT_LOAD_OP_CLEAR ? "clear" : "-");
+}
+
 void VulkanList::endRenderPass() {
-    if (!dev_.inPass_) return;
+    if (!dev_.inPass_ || dev_.lingering_) return;
     dev_.pass_.endTimedSection();
-    dev_.cmdEndRendering_(dev_.frame().cmd);
-    dev_.inPass_ = false;
-    if (VkTexture* c = dev_.textures_.get(dev_.passColor_); c && c->rest != c->layout) dev_.transition(*c, c->rest);
-    if (VkTexture* d = dev_.textures_.get(dev_.passDepth_); d && d->rest != d->layout) dev_.transition(*d, d->rest);
-    dev_.passColor_ = {};
-    dev_.passDepth_ = {};
-    dev_.endSpan();
+    if (dev_.restructure_)
+        dev_.lingering_ = true;
+    else
+        dev_.closePass();
+}
+
+void VulkanDevice::closePass() {
+    if (!inPass_) return;
+    pass_.endTimedSection();
+    // Nothing drawn: only a clear makes the pass worth beginning.
+    if (!rendering_ && (pendColor_.loadOp == VK_ATTACHMENT_LOAD_OP_CLEAR ||
+                        (pendDepthOn_ && pendDepth_.loadOp == VK_ATTACHMENT_LOAD_OP_CLEAR)))
+        beginRendering();
+    VkTexture* c = textures_.get(passColor_);
+    VkTexture* d = textures_.get(passDepth_);
+    if (rendering_) {
+        passApi_.end(frame().cmd);
+        if (c && passStoresColor_) {
+            ++counts_.stores;
+            counts_.attachmentMB += attachmentMB(*c);
+        }
+        if (d && passStoresDepth_) {
+            ++counts_.stores;
+            counts_.attachmentMB += attachmentMB(*d);
+        }
+        if (tracing_) note("  end: %u draws", passDraws_);
+    } else if (tracing_) {
+        note("  dropped: nothing drawn or cleared");
+    }
+    inPass_ = false;
+    rendering_ = false;
+    lingering_ = false;
+    if (c && c->rest != c->layout) transition(*c, c->rest);
+    if (d && d->rest != d->layout) transition(*d, d->rest);
+    passColor_ = {};
+    passDepth_ = {};
+    endSpan();
 }
 
 TextureH VulkanDevice::surfacelessTarget(std::uint32_t w, std::uint32_t h) {
@@ -2604,13 +3060,17 @@ TextureH VulkanList::acquireSwapchainTexture(std::uint32_t* width, std::uint32_t
     int pw = 0, ph = 0;
     SDL_GetWindowSizeInPixels(window, &pw, &ph);
     if (pw <= 0 || ph <= 0) return give({});
+    if (dev_.surfaceStale_.exchange(false) && dev_.surface_) {
+        dev_.closePass();
+        dev_.renewSurface();
+    }
     if (!dev_.surface_) {
         dev_.acquired_ = dev_.surfacelessTarget(static_cast<std::uint32_t>(pw), static_cast<std::uint32_t>(ph));
         return give(dev_.acquired_);
     }
     if (dev_.swapchainDirty_ || !dev_.swapchain_ || dev_.swapExtent_.width != static_cast<std::uint32_t>(pw) ||
         dev_.swapExtent_.height != static_cast<std::uint32_t>(ph)) {
-        endRenderPass();
+        dev_.closePass();
         if (!dev_.createSwapchain() || !dev_.swapchain_) return give({});
     }
     Frame& f = dev_.frame();
@@ -2619,7 +3079,7 @@ TextureH VulkanList::acquireSwapchainTexture(std::uint32_t* width, std::uint32_t
         const VkResult r =
             vkAcquireNextImageKHR(dev_.device_, dev_.swapchain_, kAcquireTimeoutNs, f.acquired, VK_NULL_HANDLE, &index);
         if (r == VK_SUCCESS || r == VK_SUBOPTIMAL_KHR) {
-            if (r == VK_SUBOPTIMAL_KHR) dev_.swapchainDirty_ = true;
+            if (r == VK_SUBOPTIMAL_KHR && !dev_.swapRotated_) dev_.swapchainDirty_ = true;
             dev_.swapIndex_ = index;
             dev_.acquireWait_ = true;
             dev_.acquired_ = dev_.swapTextures_[index];
@@ -2630,7 +3090,7 @@ TextureH VulkanList::acquireSwapchainTexture(std::uint32_t* width, std::uint32_t
             if (r == VK_ERROR_DEVICE_LOST) dev_.lost_ = true;
             return give({});
         }
-        endRenderPass();
+        dev_.closePass();
         if (!dev_.createSwapchain() || !dev_.swapchain_) return give({});
     }
     return give({});
@@ -2676,6 +3136,7 @@ void VulkanPass::setStencilReference(std::uint8_t reference) {
 void VulkanPass::bindVertexBuffer(BufferH buffer, std::uint32_t offset) {
     VkBuf* b = dev_.buffers_.get(buffer);
     if (!b) return;
+    b->usedIn = dev_.recordingSerial();
     const VkDeviceSize off = offset;
     vkCmdBindVertexBuffers(dev_.frame().cmd, 0, 1, &b->buffer, &off);
 }
@@ -2683,6 +3144,7 @@ void VulkanPass::bindVertexBuffer(BufferH buffer, std::uint32_t offset) {
 void VulkanPass::bindIndexBuffer(BufferH buffer, IndexType type, std::uint32_t offset) {
     VkBuf* b = dev_.buffers_.get(buffer);
     if (!b) return;
+    b->usedIn = dev_.recordingSerial();
     vkCmdBindIndexBuffer(dev_.frame().cmd, b->buffer, offset,
                          type == IndexType::U32 ? VK_INDEX_TYPE_UINT32 : VK_INDEX_TYPE_UINT16);
 }
@@ -2692,7 +3154,10 @@ void VulkanPass::bindSampler(ShaderStage stage, std::uint32_t slot, TextureH tex
     // As on SDL3 GPU, a texture without a sampler binds nothing and the slot keeps what it had.
     if (texture && !sampler) return;
     const std::size_t s = stage == ShaderStage::Vertex ? 0 : 1;
-    dev_.samplerBind_[s][slot] = {texture, sampler};
+    // Callers rebind per draw; an unchanged slot must not cost a new descriptor set (Mali reloads its tables).
+    VulkanDevice::SamplerBinding& b = dev_.samplerBind_[s][slot];
+    if (b.texture == texture && b.sampler == sampler) return;
+    b = {texture, sampler};
     dev_.samplersDirty_[s] = true;
 }
 
@@ -2734,13 +3199,16 @@ void VulkanDevice::pushLiveUniforms() {
 }
 
 bool VulkanDevice::flushDraw() {
-    if (!boundPipe_ || !inPass_) return false;
+    if (!boundPipe_ || !inPass_ || lingering_) return false;
+    beginRendering();
     Frame& f = frame();
+    const std::uint64_t serial = recordingSerial();
     VkPipe& p = *boundPipe_;
     const VkPipeline pipeline = variant(p, passColorFormat_, passDepthFormat_);
     if (!pipeline) return false;
     if (pipeline != boundVk_) {
         vkCmdBindPipeline(f.cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
+        ++counts_.pipelineBinds;
         boundVk_ = pipeline;
         samplersDirty_ = {true, true};
         uniformsDirty_ = true;
@@ -2753,6 +3221,7 @@ bool VulkanDevice::flushDraw() {
         for (std::uint32_t i = 0; i < count; ++i) {
             VkBuf* b = buffers_.get(storageBind_[i].buffer);
             if (!b || !b->desc.shaderRead) return false;  // nothing valid to read: the draw is skipped
+            b->usedIn = serial;
             infos[i] = {b->buffer, storageBind_[i].offset, VK_WHOLE_SIZE};
         }
         VkDescriptorSet set = allocSet(p.setLayouts[kStorageBuffers]);
@@ -2782,6 +3251,7 @@ bool VulkanDevice::flushDraw() {
             VkTexture* t = textures_.get(b.texture);
             VkSamp* sm = samplers_.get(b.sampler);
             if (!t || !(t->desc.usage & kUsageSampled)) t = textures_.get(dummy_);
+            t->usedIn = serial;
             images[i] = {sm ? sm->sampler : dummySampler_, t->sampledView, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL};
             writes[i] = {VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET};
             writes[i].dstSet = set;
@@ -2841,6 +3311,7 @@ bool VulkanDevice::flushDraw() {
 void VulkanPass::draw(std::uint32_t vertexCount, std::uint32_t firstVertex) {
     if (!vertexCount || !dev_.flushDraw()) return;
     ++dev_.drawCalls_;
+    ++dev_.passDraws_;
     dev_.triangles_ += vertexCount / 3;
     if (dev_.boundPipe_->tcs) dev_.patchTriangles_ += vertexCount / 3;
     vkCmdDraw(dev_.frame().cmd, vertexCount, 1, firstVertex, 0);
@@ -2849,6 +3320,7 @@ void VulkanPass::draw(std::uint32_t vertexCount, std::uint32_t firstVertex) {
 void VulkanPass::drawIndexed(std::uint32_t indexCount, std::uint32_t firstIndex, std::int32_t vertexOffset) {
     if (!indexCount || !dev_.flushDraw()) return;
     ++dev_.drawCalls_;
+    ++dev_.passDraws_;
     dev_.triangles_ += indexCount / 3;
     if (dev_.boundPipe_->tcs) dev_.patchTriangles_ += indexCount / 3;
     vkCmdDrawIndexed(dev_.frame().cmd, indexCount, 1, firstIndex, vertexOffset, 0);
@@ -2865,6 +3337,7 @@ void VulkanPass::bindStorageBuffer(std::uint32_t slot, BufferH buffer, std::uint
 void VulkanPass::drawMeshTasks(std::uint32_t taskGroups) {
     if (!taskGroups || !dev_.meshShaders_ || !dev_.boundPipe_ || !dev_.boundPipe_->mesh || !dev_.flushDraw()) return;
     ++dev_.drawCalls_;
+    ++dev_.passDraws_;
     vkCmdDrawMeshTasksEXT(dev_.frame().cmd, taskGroups, 1, 1);
 }
 
@@ -2876,7 +3349,7 @@ void VulkanPass::beginTimedSection(std::string_view name) {
     const std::size_t n = std::min(name.size(), s.name.size() - 1);
     std::memcpy(s.name.data(), name.data(), n);
     s.begin = f.queryCount++;
-    dev_.cmdWriteTimestamp2_(f.cmd, VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT, f.queries, s.begin);
+    dev_.passApi_.timestamp(f.cmd, VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT, f.queries, s.begin);
     f.spans.push_back(s);
     dev_.openSection_ = static_cast<std::int32_t>(f.spans.size() - 1);
 }
@@ -2886,7 +3359,7 @@ void VulkanPass::endTimedSection() {
     if (dev_.openSection_ < 0) return;
     Span& s = f.spans[static_cast<std::size_t>(dev_.openSection_)];
     s.end = f.queryCount++;
-    dev_.cmdWriteTimestamp2_(f.cmd, VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT, f.queries, s.end);
+    dev_.passApi_.timestamp(f.cmd, VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT, f.queries, s.end);
     dev_.openSection_ = -1;
 }
 
@@ -3032,9 +3505,14 @@ std::string describeVulkanCaps(const VulkanCaps& c) {
     out += line;
     std::snprintf(line, sizeof line,
                   "\nray tracing: acceleration_structure %s, ray_query %s, ray_tracing_pipeline %s; mesh_shader %s; "
-                  "tessellation %s; subgroup %u",
+                  "tessellation %s; subgroup %u (fragment quad operations %s)",
                   yes(c.accelerationStructure), yes(c.rayQuery), yes(c.rayTracingPipeline), yes(c.meshShader),
-                  yes(c.tessellationShader), c.subgroupSize);
+                  yes(c.tessellationShader), c.subgroupSize, yes(c.fragmentQuadOps));
+    out += line;
+    std::snprintf(line, sizeof line,
+                  "\npasses: %s; barriers and submits: %s",
+                  c.dynamicRendering ? "dynamic rendering" : "render pass objects (no dynamic rendering)",
+                  c.synchronization2 ? "synchronization2" : "Vulkan 1.0 (no synchronization2)");
     out += line;
     std::snprintf(line, sizeof line,
                   "\npresent: %s, swapchain_colorspace %s, hdr_metadata %s; memory_budget %s; VRAM %llu MB, budget "
@@ -3064,14 +3542,12 @@ struct NativeAccess {
         std::vector<VkQueueFamilyProperties> families(n);
         vkGetPhysicalDeviceQueueFamilyProperties(d.physical_, &n, families.data());
         c.queueFlags = d.queueFamily_ < n ? families[d.queueFamily_].queueFlags : 0;
-        c.cmdBeginRendering = d.cmdBeginRendering_;
-        c.cmdEndRendering = d.cmdEndRendering_;
-        c.cmdPipelineBarrier2 = d.cmdPipelineBarrier2_;
+        c.rendering = &d.passApi_;
     }
 
     static VkCommandBuffer record(VulkanDevice& d) {
         if (!d.recording_ || d.lost_) return VK_NULL_HANDLE;
-        d.list_.endRenderPass();
+        d.closePass();
         d.leaveTransfer();
         // The caller binds pipelines and sets of its own.
         d.boundVk_ = VK_NULL_HANDLE;
@@ -3088,6 +3564,7 @@ struct NativeAccess {
     static bool image(VulkanDevice& d, TextureH texture, vkn::Image* out) {
         VkTexture* t = d.textures_.get(texture);
         if (!t) return false;
+        t->usedIn = d.recordingSerial();
         out->image = t->image;
         out->view = t->view;
         out->sampledView = t->sampledView;
@@ -3102,7 +3579,11 @@ struct NativeAccess {
 
     static void transition(VulkanDevice& d, TextureH texture, VkImageLayout layout) {
         VkTexture* t = d.textures_.get(texture);
-        if (t && d.recording_ && t->layout != layout) d.transition(*t, layout);
+        if (!t || !d.recording_) return;
+        t->usedIn = d.recordingSerial();
+        if (t->layout == layout) return;
+        d.closePass();
+        d.transition(*t, layout);
     }
 
     static void beginSpan(VulkanDevice& d, const char* name) { d.beginSpan(name, std::strlen(name)); }

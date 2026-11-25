@@ -3,8 +3,8 @@
 // Frame pacing of the game loop: how long the loop waits at the
 // end of a frame. The clock is the vertical blank counter of the display (60 a second); a frame
 // waits for whole vertical blanks, or, for a frame rate the vertical blank cannot express (above
-// 60, or not a divisor of 60), for the high-resolution timer. Returns how many vertical blanks
-// the frame took, which the frame clock then credits.
+// 60, or not a divisor of 60), for the high-resolution timer (unless the display paces it: FpsChoice). Returns how
+// many vertical blanks the frame took, which the frame clock then credits.
 //
 // Three kinds of frame:
 //   - a demo plays back at the interval it was recorded with;
@@ -36,6 +36,9 @@ struct FpsChoice {
     bool uncapped = false;   // no cap (config 0 or the debug toggle)
     int cap = 0;             // frames per second
     bool menu = false;       // a menu with nothing simulated under it: never slower than vblank_rate
+    // The present waits for the display, which runs at the cap (a phone: FIFO, the display asked for the rate):
+    // a cap above vblank_rate is then paced by the present alone, as a timer of its own would beat against it.
+    bool display_paced = false;
 };
 
 struct PacerSpec {

@@ -258,6 +258,7 @@ struct Caps {
     bool tessellation = false;        // PipelineDesc::tessControlShader / tessEvalShader
     bool meshShaders = false;         // PipelineDesc::taskShader / meshShader (VK_EXT_mesh_shader)
     std::string meshShadersMissing;   // why meshShaders is false on a backend that has tessellation ("" otherwise)
+    bool fragmentQuadOps = false;     // SPIR-V subgroup quad operations in fragment shaders (native Vulkan)
 };
 
 // Recording inside one render pass. Valid until CommandList::endRenderPass.
@@ -342,6 +343,20 @@ struct ProfileStats {
     std::int32_t pipelinesBuilt = -1;
     double pipelineBuildMs = -1.0;
     std::int64_t textureUploadBytes = -1;
+    // What the command lists since the last call did, where the backend counts it (native Vulkan; zero elsewhere).
+    // On a tile-based GPU (phones) every render pass that starts or ends loads or stores its attachments through
+    // memory, so passes, loads and stores are what a frame's structure costs there: `passes` were begun on the GPU,
+    // `merged` continued the pass before them on the same attachments instead (a clear inside it is `inPassClears`),
+    // `loads` / `stores` are attachments read from / written to memory at a pass's start / end and `attachmentMB`
+    // their bytes. `transfers` are breaks between passes for copies, blits and uploads.
+    struct Counts {
+        std::uint32_t frames = 0;
+        std::uint32_t passes = 0, merged = 0, inPassClears = 0, loads = 0, stores = 0;
+        std::uint32_t transfers = 0, copies = 0, blits = 0, textureUploads = 0, bufferUploads = 0, hoisted = 0;
+        std::uint32_t pipelineBinds = 0, descriptorSets = 0, barriers = 0;
+        std::uint64_t uploadBytes = 0;
+        double attachmentMB = 0.0;
+    } counts;
 };
 
 class Device {
@@ -376,6 +391,9 @@ public:
     // timestamps between passes that can serialise the GPU.
     virtual void setPassTiming(bool /*on*/) {}
     virtual ProfileStats takeProfileStats() { return {}; }
+    // The commands of the next `frames` command lists to the log, one line per pass, merge, clear and transfer
+    // (profiling; backends without it ignore the call).
+    virtual void traceFrames(int /*frames*/) {}
 };
 
 // Text name of a backend, as the `renderer` config key spells it.

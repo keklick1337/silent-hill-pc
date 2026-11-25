@@ -2,10 +2,12 @@
 #include "engine/app/command_script.h"
 #include "engine/loop/frame_view.h"
 #include "engine/debug/command_services.h"
+#include "engine/platform/display_rate.h"
 #include "engine/platform/host_state.h"
 
 #include <vector>
 
+#include "engine/config/pc_config.h"
 #include "engine/timing/vblank.h"
 #include "input/pad.h"
 #include "render/gpu/frame_driver.h"
@@ -64,6 +66,9 @@ bool sh::platform::begin_frame()
         return false;
 
     sh::gpu::set_swap_interval(wanted_swap_interval());
+    // A phone runs its display at the frame cap (60 at least: scenes and most menus show a frame every blank), so
+    // FIFO presents every frame for the same time.
+    sh::platform::request_frame_rate(g_PcConfig.fpsCap > 60 ? g_PcConfig.fpsCap : 60);
     // Clears the frame and, while the game is frozen, draws the captured frame again under this
     // frame's UI (render/gpu/frame_driver.h).
     sh::gpu::frame_begin();

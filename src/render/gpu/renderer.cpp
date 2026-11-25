@@ -175,6 +175,7 @@ void Renderer::present() {
 }
 
 void Renderer::present_picture() {
+    feedback_->drop_capture();
     scene_ended_ = true;
     present();
 }

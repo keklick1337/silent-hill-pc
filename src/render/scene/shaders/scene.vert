@@ -43,7 +43,8 @@ SH_UBO(0) uniform SceneVs {
     vec4 u_lightPos;    // view space
     vec4 u_misc;        // x: near plane, y: map setback (view units), z: shadow caster pass, w: overlay lift (view units)
     mat4 u_casterMatrix; // view space to the flashlight's clip space
-    vec4 u_seam;        // xy: NDC shift of this seam-line pass (0 for triangles), z: normal scale (0 = 1)
+    vec4 u_seam;        // xy: NDC shift of this seam-line pass (0 for triangles), z: normal scale (0 = 1),
+                        // w: late seams' depth offset (view units; 0: the fragment writes its depth)
 };
 
 SH_UBO(1) uniform WorldFog {
@@ -165,6 +166,9 @@ vec4 SceneProject(vec3 v, out float windowDepth) {
     if (u_misc.z > 0.5) pos = u_casterMatrix * vec4(v, 1.0);
 #ifdef SH_RHI_CLIP_Z01
     pos.z = (pos.z + pos.w) * 0.5;
+    // Seams drawn after the surfaces with the rasterised depth (u_seam.w, scene_renderer.cpp late seams): the
+    // window depth of the fragment shader's scale, as far behind as the map's setback puts a line.
+    if (u_seam.w > 0.0) pos.z = (v.z + u_seam.w) / u_proj.w * pos.w;
 #endif
     return pos;
 }

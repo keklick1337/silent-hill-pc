@@ -11,6 +11,16 @@
 
 namespace sh::gpu {
 
+// A phone or tablet: the passes take their paths for a tile-based GPU. The answer of Sh_IsMobile, for the render
+// libraries, which do not link the game's platform code.
+constexpr bool phone_gpu() {
+#ifdef __ANDROID__
+    return true;
+#else
+    return false;
+#endif
+}
+
 // The Modern flashlight's outer cone cosine at size 1 (the Classic one is calibrated: render::Flashlight::outer_cos),
 // and how far past it, as a cosine step, its faint spill reaches (scene.frag ModernCone).
 inline constexpr float kModernOuterCos = 0.82f;

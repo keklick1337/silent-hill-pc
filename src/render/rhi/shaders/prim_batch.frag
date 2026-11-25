@@ -253,16 +253,16 @@ vec4 DecalSample(vec2 uvn) {
     return mix(mix(t00, t10, f.x), mix(t01, t11, f.x), f.y);
 }
 
-float FogRampAt(int i) { return floor(texelFetch(s_fogRamp, ivec2(i, 0), 0).r * 255.0 + 0.5); }
+// Texel i of the fog ramp holds entry i and the next one (255 past the end): one fetch for both ends.
+vec2 FogRampPair(int i) { return floor(texelFetch(s_fogRamp, ivec2(i, 0), 0).rg * 255.0 + 0.5); }
 
 float FogAmountAtZ(float z) {
     float fi = z * u_fogRampP.y;
     float fb = 255.0;
     if (fi < 128.0) {
         float f0 = floor(max(fi, 0.0));
-        int i = int(f0);
-        float b = (i < 127) ? FogRampAt(i + 1) : 255.0;
-        fb = mix(FogRampAt(i), b, clamp(fi - f0, 0.0, 1.0));
+        vec2 r = FogRampPair(int(f0));
+        fb = mix(r.x, r.y, clamp(fi - f0, 0.0, 1.0));
     }
     return clamp(fb * 16.0 + u_fogRampP.z, 0.0, 4096.0) / 4096.0;
 }

@@ -4,6 +4,7 @@
 #include "features/dump/perf_sampler.h"
 
 #include "features/dump/perf_bench.h"
+#include "features/dump/perf_log.h"
 #include "features/dump/perf_recorder.h"
 
 #include "engine/config/pc_config.h"
@@ -124,6 +125,7 @@ void perf_frame() {
         monitor.end_frame(ms, held);
         perf_record_frame(ms, held);
         perf_bench_frame(ms, held);
+        perf_log_frame(s.stats, ms);
     }
     s.last_frame = now;
 }

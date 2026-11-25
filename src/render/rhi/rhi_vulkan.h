@@ -4,7 +4,7 @@
 // Native Vulkan backend of the RHI (RENDER.md sections 2.2a and 2.3): its own instance, device,
 // queue, swapchain and memory (volk loads the API at run time, Vulkan Memory Allocator places the memory). It takes
 // the same SPIR-V as the SDL3 GPU backend, in SDL3's resource layout, so the shaders are built once for both.
-// Standard Vulkan only: core 1.3 (or 1.1 with the dynamic rendering and synchronization2 extensions) and KHR/EXT
+// Standard Vulkan only: core 1.1, with dynamic rendering and synchronization2 when the device has them, and KHR/EXT
 // extensions, nothing of one vendor.
 #pragma once
 
@@ -43,6 +43,7 @@ struct VulkanCaps {
     std::string driverName;  // VkPhysicalDeviceDriverProperties, when known
     std::string driverInfo;
     std::uint32_t subgroupSize = 0;
+    bool fragmentQuadOps = false;        // subgroup quad operations in the fragment stage (Vulkan 1.1)
     std::uint64_t deviceLocalBytes = 0;  // sum of the device-local heaps
     std::uint64_t vramBudgetBytes = 0;   // what VK_EXT_memory_budget allows this process at start; 0 = unknown
     bool accelerationStructure = false;  // VK_KHR_acceleration_structure
@@ -54,6 +55,8 @@ struct VulkanCaps {
     bool swapchainColorspace = false;    // VK_EXT_swapchain_colorspace (instance)
     bool hdrMetadata = false;            // VK_EXT_hdr_metadata
     bool tessellationShader = false;     // the core feature
+    bool dynamicRendering = false;       // passes use it; else VkRenderPass objects (vk_rendering.h)
+    bool synchronization2 = false;       // barriers and submits use it; else the Vulkan 1.0 calls
     bool timestamps = false;             // the graphics queue writes timestamps
     bool surfaceless = false;            // no swapchain: frames go to the backend's own images
     bool validation = false;             // the validation layer is on

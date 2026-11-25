@@ -110,7 +110,12 @@ namespace {
 constexpr std::string_view kVsBlocks[] = {"ShadowFrame"};
 constexpr rhi::VertexAttribute kAttributes[] = {{0, rhi::VertexFormat::Float3, 0}};
 constexpr std::uint32_t kStride = 3 * sizeof(float);
+#ifdef __ANDROID__
+// A phone's sun map: a quarter of the texels to clear, draw and sample; the fog ends it at 64 m at most.
+constexpr int kSide = 1024;
+#else
 constexpr int kSide = 2048;
+#endif
 constexpr float kReachCap = 16384.0f;
 }  // namespace
 

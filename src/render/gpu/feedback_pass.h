@@ -206,6 +206,13 @@ public:
                             bool hold);
     bool present_last_frame(rhi::CommandList& cmd, rhi::TextureH scene, int w, int h);
     const post::FreezeFrame& freeze() const { return freeze_; }
+    // Deferred capture (phones): capture_last_frame only notes that the scene target holds the frame, and the copy is
+    // made at the start of the next frame if that frame presents it (flush_capture, before the target is cleared);
+    // any other frame drops it (drop_capture). Most frames never freeze, and a copy of the frame is a pass of its
+    // own on a tile-based GPU.
+    void set_deferred_capture(bool on) { deferred_ = on; }
+    void flush_capture(rhi::CommandList& cmd, rhi::TextureH scene, int w, int h);
+    void drop_capture() { pending_.live = false; }
 
     bool pipelines_ready();  // creates them on first use; false (said once) when they cannot be built
 
@@ -233,6 +240,14 @@ private:
     Target pack_target_;  // RG8, the size of video memory
     Target freeze_target_;
     post::FreezeFrame freeze_;
+    struct PendingCapture {
+        rhi::TextureH scene;
+        rhi::TextureFormat format = rhi::TextureFormat::RGBA8;
+        int w = 0, h = 0;
+        bool live = false;
+    };
+    PendingCapture pending_;
+    bool deferred_ = false;
     std::vector<std::byte> zeros_;
     Stats stats_;
 };
@@ -260,6 +275,11 @@ public:
     void store_frame(rhi::CommandList& cmd);
     void capture_last_frame(rhi::CommandList& cmd);
     void present_last_frame(rhi::CommandList& cmd);
+    // Start of a frame, before the scene target is cleared: the deferred freeze capture of the frame before is made
+    // when this frame presents it, else dropped (FeedbackGpu::set_deferred_capture).
+    void settle_capture(rhi::CommandList& cmd, bool presents);
+    // A picture that is not a game frame went into the scene target: a deferred capture would copy it.
+    void drop_capture() { gpu_.drop_capture(); }
     // DrawTarget::offscreen_end: pack the offscreen redirect target (the area `rect` just left) into video memory,
     // and keep the CPU words in step when the device can read it back mid-frame.
     void write_back_offscreen(rhi::CommandList& cmd, const Rect& rect);

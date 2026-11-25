@@ -8,5 +8,6 @@ namespace sh::rhi::embedded {
 
 Shader gpu_post_vert();
 Shader gpu_post_frag();
+Shader gpu_present_frag();
 
 }  // namespace sh::rhi::embedded

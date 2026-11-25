@@ -3,6 +3,8 @@
 
 #include "render/gpu/feedback_pass.h"
 
+#include "render/gpu/gpu_types.h"
+
 #include "engine/log/sh_log.h"
 #include "render/gpu/device_host.h"
 #include "render/gpu/renderer.h"
@@ -37,6 +39,7 @@ std::uint16_t pack_word(const std::byte* px) {
 }  // namespace
 
 FeedbackPass::FeedbackPass(Renderer& owner) : owner_(owner), gpu_(owner.device()) {
+    gpu_.set_deferred_capture(phone_gpu());
     owner_.vram().on_upload([this](const Rect& rect) { vram_uploaded(rect); });
 }
 
@@ -176,6 +179,15 @@ void FeedbackPass::capture_last_frame(CommandList& cmd) {
     Targets& t = owner_.targets();
     gpu_.capture_last_frame(cmd, t.resolved(cmd), t.scene_format(), t.width(), t.height(),
                             logic_.settings().freeze_capture_hold);
+}
+
+void FeedbackPass::settle_capture(CommandList& cmd, bool presents) {
+    if (!presents) {
+        gpu_.drop_capture();
+        return;
+    }
+    Targets& t = owner_.targets();
+    gpu_.flush_capture(cmd, t.resolved(cmd), t.width(), t.height());
 }
 
 void FeedbackPass::present_last_frame(CommandList& cmd) {

@@ -232,6 +232,10 @@ void swap_improved() {
 unsigned long long texture_upscale_swaps() { return g_swaps; }
 
 bool apply_texture_upscale(int scale) {
+#ifdef __ANDROID__
+    // No AI upscaling on a phone or tablet, whatever config.cfg says (the tool is not in the APK).
+    scale = 0;
+#endif
     sh::upscale::set_gamedata(PcPort_GetGameDataPath());
     sh::upscale::set_scale(scale);
     scale = sh::upscale::scale();

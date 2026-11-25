@@ -179,7 +179,34 @@ void record_overlay(Renderer& r, rhi::CommandList& cmd, rhi::TextureH target, in
     }
 }
 
+// The window overlay is drawn once, onto the window it was laid out for; then it waits for the next frame's layout.
+void record_window_overlay(Renderer& r, rhi::CommandList& cmd, rhi::TextureH swap, std::uint32_t w, std::uint32_t h) {
+    overlay::Overlay& o = overlay::window_overlay();
+    if (!o.list().empty()) {
+        auto res = o.record(r.device(), cmd, swap, w, h);
+        if (!res) {
+            static int s_logs = 0;
+            if (s_logs++ < 4) SH_WARN("[GPU] window overlay: %s", res.error().c_str());
+        }
+    }
+    o.begin_frame(overlay::Frame{});
+}
+
 }  // namespace
+
+void begin_window_overlay() {
+    Renderer* r = g_renderer.get();
+    if (!r) return;
+    int dw = 0, dh = 0, px = 0, py = 0, pw = 0, ph = 0;
+    r->host().drawable_size(&dw, &dh);
+    r->targets().present_rect(&px, &py, &pw, &ph);
+    if (pw <= 0 || ph <= 0) {
+        px = py = 0;
+        pw = dw;
+        ph = dh;
+    }
+    overlay::window_overlay().begin_frame(overlay_frame(dw, dh, px, py, pw, ph));
+}
 
 bool start(const DriverParams& params) {
     if (g_renderer) return true;
@@ -206,6 +233,7 @@ bool start(const DriverParams& params) {
     r.post().set_after_present([](rhi::CommandList& cmd, rhi::TextureH swap, std::uint32_t w, std::uint32_t h) {
         if (g_overlay_native && g_renderer)
             record_overlay(*g_renderer, cmd, swap, static_cast<int>(w), static_cast<int>(h));
+        if (g_renderer) record_window_overlay(*g_renderer, cmd, swap, w, h);
     });
     sync_state();
     window_changed();
@@ -216,6 +244,7 @@ bool start(const DriverParams& params) {
 void stop() {
     if (!g_renderer) return;
     overlay::overlay().release_gpu();
+    overlay::window_overlay().release_gpu();
     set_renderer(nullptr);
     g_renderer.reset();
 }
@@ -238,6 +267,7 @@ void frame_begin() {
     follow_window();
     sync_state();
     r->begin_frame();
+    r->feedback().settle_capture(r->host().frame(), render::feedback_control().present_last_frame != 0);
     // Clear every frame, not only when the environment asks for it: in state transitions (door fades, pickups,
     // wipes) a frame can draw before its environment is set, and the previous frame would show through.
     const DrawEnv& env = r->draw_env();
@@ -271,6 +301,7 @@ void frame_end() {
     ShScene_FrameEnd();
 
     Targets& t = r->targets();
+    begin_window_overlay();
     g_overlay_native = render::picture().native_render != 0;
     if (g_overlay_native) {
         int dw = 0, dh = 0, px = 0, py = 0, pw = 0, ph = 0;

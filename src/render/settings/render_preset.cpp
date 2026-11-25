@@ -1,8 +1,10 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 #include "render/settings/render_preset.h"
 
+#include <algorithm>
 #include <array>
 #include <cctype>
+#include <cmath>
 #include <cstdio>
 #include <string_view>
 
@@ -58,7 +60,7 @@ struct PresetValues
 };
 
 constexpr std::array<std::string_view, RENDER_PRESET_COUNT> kNames = {
-    "original", "enhanced", "high", "ultra", "ultra_upscaled", "ultra_rtx", "ultra_rtx_upscaled", "custom",
+    "original", "enhanced", "high", "ultra", "ultra_upscaled", "ultra_rtx", "ultra_rtx_upscaled", "mobile", "custom",
 };
 
 // Indexed by preset id; custom has no row. The values are config-key values,
@@ -89,7 +91,7 @@ constexpr std::array<std::string_view, RENDER_PRESET_COUNT> kNames = {
 // takes tessellation, not mesh shaders: the same surface (the map is tessellated in
 // either mode), and more GPUs have the stage.
 constexpr PresetValues kOriginal = {
-    .nativeResolution = 1, .scaling = 3, .dithering = 1, .textureFilter = 0,
+    .nativeResolution = 0, .scaling = 2, .dithering = 1, .textureFilter = 0,
     .msaaSamples = 0, .flashlightMode = 0, .shadows = 0, .deband = 0,
     .softHighlights = 0, .postProcess = 0, .postProcessIntensity = 1.0f,
     .tonemap = 0, .usePgxp = 0, .softFog = 0,
@@ -168,9 +170,107 @@ constexpr PresetValues UltraRtx()
     return v;
 }
 
+// A phone's GPU and battery: enhanced without MSAA (TAA is off too) at a render scale from the screen's height
+// (RenderPreset_MobileRenderScale), the flashlight's shadow at a small map with the cheapest filter, the soft fog
+// (one texture fetch), and none of the frame effects. The render scale here is a placeholder: Apply writes the
+// screen's.
+constexpr PresetValues Mobile()
+{
+    PresetValues v = Enhanced();
+    v.msaaSamples = 0;
+    v.deband = 0;
+    v.shadows = 1;
+    v.shadowMapSize = 512;
+    v.shadowFilter = 0;
+    v.renderScale = 0.75f;
+    return v;
+}
+
 constexpr std::array<PresetValues, RENDER_PRESET_CUSTOM> kPresets = {
-    kOriginal, Enhanced(), High(), Ultra(), Upscaled(Ultra()), UltraRtx(), Upscaled(UltraRtx()),
+    kOriginal, Enhanced(), High(), Ultra(), Upscaled(Ultra()), UltraRtx(), Upscaled(UltraRtx()), Mobile(),
 };
+
+float g_mobile_scale = 0.75f;
+int   g_screen_lines = 0;  // a phone's or tablet's screen height (its shorter side) in pixels; 0 on a desktop
+
+// A phone's or tablet's presets are their own set, tuned for a phone's GPU (RENDER.md 7.2, the phone table):
+//   mobile    half the screen's lines, the flashlight's shadow at a small map with the cheapest filter, no map lights;
+//   original  the original look at the screen's own lines;
+//   enhanced  (the middle one) the screen's own lines with every light and shadow at a low quality, a picture like a
+//             desktop's ultra without its frame effects: the map's lamps, the extra lamps, the sun with its shadow map,
+//             the flashlight's shadow (which a held light shares, 7.9) at a 512 map with the cheapest filter, which
+//             also halves the sun's taps; no TAA, ambient occlusion, HDR frame, bloom or volumetric fog;
+//   high      enhanced plus ambient occlusion (estimated at every second pixel, atmosphere_pass.cpp), the HDR frame
+//             with the soft tonemapper and bloom, and the volumetric fog, still at the screen's own lines;
+//   ultra     high plus TAA and god rays and the flashlight's map at 1024, at kPhoneUltraLines.
+// None has the flakes' shadows (particle_shadows) or film grain; RenderPreset_PlatformLimits takes anisotropic
+// filtering, ray tracing and the AI upscaling away. The ultras' twins (upscaled, ray traced) are not offered on a
+// phone and read as ultra there.
+//
+// Measured on a 2021 phone (Mali-G78, 2400x1080) in a bar lit by nine lamps, in millions of GPU cycles a frame:
+// see RENDER.md 7.2. Ultra draws fewer lines so its TAA, fog volume and bloom fit the frame of a 2024 flagship
+// (Adreno 750, 1440-line screen) at 60 fps.
+constexpr float kPhoneUltraLines = 648.0f;
+
+// Mobile draws half the screen's lines (and columns) whatever the screen: 720 on a 1440-line phone.
+constexpr float kMobileScreenShare = 0.5f;
+
+// Trilinear is the most a phone filters: the anisotropic modes are taken by the shader itself (up to 16 taps, each a
+// bilinear quad of palette lookups), which is most of what made high's scene twice mobile's per pixel there.
+constexpr int kPhoneTextureFilterMax = 2;
+
+// The render scale that draws about `lines` lines on the screen, in steps of 0.05 the Options bar can show; never
+// above the screen.
+float scale_for_lines(float lines, int screen)
+{
+    const float scale = std::round(lines / static_cast<float>(screen) * 20.0f) / 20.0f;
+    return std::clamp(scale, 0.25f, 1.0f);
+}
+
+// The render scale of a preset on a screen of `screen` lines.
+float phone_scale(int preset, int screen)
+{
+    if (preset == RENDER_PRESET_MOBILE) return kMobileScreenShare;
+    if (preset == RENDER_PRESET_ORIGINAL || preset == RENDER_PRESET_ENHANCED || preset == RENDER_PRESET_HIGH) return 1.0f;
+    return scale_for_lines(kPhoneUltraLines, screen);
+}
+
+// The phone's variant of a preset (the table above).
+void phone_variant(int preset, PresetValues& v)
+{
+    if (g_screen_lines <= 0 || preset == RENDER_PRESET_ORIGINAL) return;
+    v.renderScale = phone_scale(preset, g_screen_lines);
+    v.postProcess = 0;
+    v.postProcessIntensity = 1.0f;
+    v.textureFilter = std::min(v.textureFilter, kPhoneTextureFilterMax);
+    v.particleShadows = 0;
+    if (preset == RENDER_PRESET_MOBILE) return;
+    v.shadows = 1;
+    v.mapLights = 1;
+    v.extraLights = 1;
+    v.sunShadows = 1;
+    v.shadowMapSize = 512;
+    v.shadowFilter = 0;
+    v.upscaler = 0;
+    v.godRays = 0;
+    if (preset == RENDER_PRESET_ENHANCED) {
+        v.ambientOcclusion = 0;
+        v.hdrFrame = 0;
+        v.hdrTonemap = 0;
+        v.bloom = 0.0f;
+        v.volumetricFog = 0;
+        return;
+    }
+    v.ambientOcclusion = 1;
+    v.hdrFrame = 1;
+    v.hdrTonemap = 1;
+    v.bloom = 0.3f;
+    v.volumetricFog = 1;
+    if (preset == RENDER_PRESET_HIGH) return;
+    v.upscaler = 1;
+    v.godRays = 1;
+    v.shadowMapSize = 1024;
+}
 
 std::string_view Trim(std::string_view s)
 {
@@ -204,6 +304,22 @@ int FromName(std::string_view name)
 }
 
 } // namespace
+
+extern "C" void RenderPreset_SetScreenHeight(int pixels)
+{
+    if (pixels <= 0) {
+        g_screen_lines = 0;
+        g_mobile_scale = 0.75f;
+        return;
+    }
+    g_screen_lines = pixels;
+    g_mobile_scale = phone_scale(RENDER_PRESET_MOBILE, pixels);
+}
+
+extern "C" float RenderPreset_MobileRenderScale(void)
+{
+    return g_mobile_scale;
+}
 
 extern "C" int RenderPreset_FromName(const char* name)
 {
@@ -266,7 +382,8 @@ extern "C" void RenderPreset_Apply(int preset, s_PcConfig* cfg)
     if (preset < 0 || preset >= RENDER_PRESET_CUSTOM)
         return;
 
-    const PresetValues& v = kPresets[static_cast<size_t>(preset)];
+    PresetValues v = kPresets[static_cast<size_t>(preset)];
+    phone_variant(preset, v);
 
     cfg->nativeResolution     = v.nativeResolution;
     cfg->scaling              = v.scaling;
@@ -308,6 +425,29 @@ extern "C" void RenderPreset_Apply(int preset, s_PcConfig* cfg)
     cfg->rtReflections        = v.rayTracing;
     cfg->rtGi                 = v.rayTracing;
     cfg->rtLights             = v.rayTracing;
+    if (preset == RENDER_PRESET_MOBILE)
+        cfg->renderScale = g_mobile_scale;  // a desktop's mobile preset too
+    RenderPreset_PlatformLimits(cfg);
+}
+
+extern "C" void RenderPreset_PlatformLimits(s_PcConfig* cfg)
+{
+#ifdef __ANDROID__
+    // A phone or tablet has no AI upscaling (no sh-upscale beside the game, and the model upscaler's tessellation is
+    // too heavy there), no ray tracing (38 ms a frame for the trace alone on an Adreno 750) and no anisotropic
+    // filtering (kPhoneTextureFilterMax). Every preset reads without them, so a saved ultra_rtx is ultra there.
+    cfg->modelUpscaling = 0;
+    cfg->textureUpscale = 0;
+    cfg->rayTracing = 0;
+    cfg->rtShadows = 0;
+    cfg->rtReflections = 0;
+    cfg->rtGi = 0;
+    cfg->rtLights = 0;
+    if (cfg->textureFilter > kPhoneTextureFilterMax) cfg->textureFilter = kPhoneTextureFilterMax;
+    if (cfg->legacyDitherFilter > kPhoneTextureFilterMax + 1) cfg->legacyDitherFilter = kPhoneTextureFilterMax + 1;
+#else
+    (void)cfg;
+#endif
 }
 
 extern "C" int RenderPreset_Matches(int preset, const s_PcConfig* cfg)
@@ -335,6 +475,8 @@ extern "C" int RenderPreset_Matches(int preset, const s_PcConfig* cfg)
 
 extern "C" void RenderSettings_Push(void)
 {
+    // Whatever config.cfg says.
+    RenderPreset_PlatformLimits(&g_PcConfig);
     sh::render::picture().render_scale          = g_PcConfig.renderScale;
     sh::render::graphics().deband             = g_PcConfig.deband ? 1 : 0;
     sh::render::graphics().soft_highlights     = g_PcConfig.softHighlights ? 1 : 0;

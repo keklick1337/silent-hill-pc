@@ -49,13 +49,20 @@ void FramePacer::wait_on_timer(PacerHost& host, int fps) {
     }
     const std::uint64_t elapsed = host.perf_counter() - timer_start_;
     if (elapsed < frame) {
-        // Sleep most of the rest, spin the last millisecond for precision.
+        // Sleep most of the rest, spin the last millisecond for precision (a phone sleeps it all: no spinning on
+        // a battery).
         const std::uint64_t remain_ms = ((frame - elapsed) * 1000) / freq;
+#if defined(__ANDROID__)
+        if (remain_ms > 0) {
+            host.sleep_ms(static_cast<std::uint32_t>(remain_ms));
+        }
+#else
         if (remain_ms > 2) {
             host.sleep_ms(static_cast<std::uint32_t>(remain_ms - 1));
         }
         while (host.perf_counter() - timer_start_ < frame) {
         }
+#endif
     }
     timer_start_ = host.perf_counter();
 }
@@ -70,7 +77,7 @@ int FramePacer::capped_frame(PacerHost& host, bool fade_wait, bool apply_cap, in
     int min_vblanks = game_min;
     if (apply_cap) {
         const int target = target_fps(fps);
-        if (target <= 0) {
+        if (target <= 0 || (fps.display_paced && target > spec_.vblank_rate)) {
             min_vblanks = 0;
         } else if (target > spec_.vblank_rate || (spec_.vblank_rate % target) != 0) {
             // Whole vertical blanks cannot express this rate.

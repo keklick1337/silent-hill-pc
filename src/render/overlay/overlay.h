@@ -191,6 +191,11 @@ private:
 
 Overlay& overlay();
 
+// A second overlay that always lands on the window after the present, in the drawable's own pixels: what has to stay
+// sharp whatever the render scale and must not pass through the post-processing (the touch controls). Its frame is
+// valid between the frame's end (or a movie frame) and that present, which records and empties it.
+Overlay& window_overlay();
+
 // Packs a colour into vertex bytes (clamped, rounded).
 void pack(const Color& color, std::uint8_t out[4]);
 

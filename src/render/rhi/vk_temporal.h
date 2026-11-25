@@ -57,7 +57,9 @@ public:
     virtual void reset() = 0;
 };
 
-// Empty `reason` and a working object, or null and why not.
-std::unique_ptr<Temporal> createTemporal(Device& device, std::string* reason);
+// Empty `reason` and a working object, or null and why not. `tiler`: the passes are laid out for a tile-based phone
+// GPU (fragment passes into compressible attachments, a half-size motion buffer, no separate sharpening pass); the
+// picture is the same within the precision of 16-bit floats.
+std::unique_ptr<Temporal> createTemporal(Device& device, std::string* reason, bool tiler = false);
 
 }  // namespace sh::rhi

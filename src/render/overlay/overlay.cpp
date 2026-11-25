@@ -179,6 +179,11 @@ Overlay& overlay() {
     return *o;
 }
 
+Overlay& window_overlay() {
+    static Overlay* o = new Overlay;
+    return *o;
+}
+
 void Overlay::begin_frame(const Frame& frame) {
     textures_.collect();
     list_.reset(frame);

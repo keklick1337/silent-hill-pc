@@ -143,6 +143,9 @@ public:
     // Depth to 1 and stencil to 0, colour kept: each ordering table tests depth only against itself, and the item
     // bracket starts on an empty depth buffer.
     void clear_depth(rhi::CommandList& cmd);
+    // A clear of the whole target waits (clear) until the target is next drawn into or read: begin_draw, resolved,
+    // clear_depth and a direct user of scene_color() (the movie's present) call this first.
+    void flush_clear(rhi::CommandList& cmd);
 
     // Picture rect inside the scene target, top-left origin.
     void picture_rect(int* x, int* y, int* w, int* h) const;
@@ -171,6 +174,8 @@ public:
     bool tick_scene_redirect();
 
 private:
+    void clear_pass(rhi::CommandList& cmd, const std::array<float, 4>& colour);
+    void depth_clear_pass(rhi::CommandList& cmd);
     void release_scene();
     void release_seed();
     int wanted_samples() const;
@@ -205,6 +210,9 @@ private:
     rhi::TextureH offscreen_color_;
     int offscreen_w_ = 0, offscreen_h_ = 0;
     rhi::TextureH solid_;  // 1x1 fill source of the pillarbox clear
+    bool clear_pending_ = false;  // flush_clear: a whole clear, or only the depth
+    bool depth_clear_pending_ = false;
+    std::array<float, 4> pending_colour_{};
     int width_ = 0, height_ = 0;
     int present_w_ = 0, present_h_ = 0;
     float applied_scale_ = 1.0f;  // view_.render_scale the scene target was last sized with

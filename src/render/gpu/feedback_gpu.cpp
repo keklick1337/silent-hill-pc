@@ -273,7 +273,22 @@ void FeedbackGpu::capture_last_frame(CommandList& cmd, TextureH scene, TextureFo
     if (!scene || w <= 0 || h <= 0) return;
     if (freeze_.sizeDiffers(w, h)) freeze_.resized(w, h);
     // The scene's own format, so an HDR frame keeps its highlights while the menu shows it again.
+    if (deferred_) {
+        pending_ = {scene, format, w, h, true};
+        return;
+    }
     if (!ensure_target(freeze_target_, w, h, format, "freeze frame")) return;
+    cmd.blitTexture(scene, {0, 0, w, h}, freeze_target_.texture, {0, 0, w, h}, Filter::Nearest);
+    freeze_.captured();
+}
+
+void FeedbackGpu::flush_capture(CommandList& cmd, TextureH scene, int w, int h) {
+    const PendingCapture p = pending_;
+    pending_.live = false;
+    // The target the frame was noted in must still be the one holding it (a resize makes a new one).
+    if (!p.live || p.scene != scene || p.w != w || p.h != h) return;
+    if (freeze_.sizeDiffers(w, h)) freeze_.resized(w, h);
+    if (!ensure_target(freeze_target_, w, h, p.format, "freeze frame")) return;
     cmd.blitTexture(scene, {0, 0, w, h}, freeze_target_.texture, {0, 0, w, h}, Filter::Nearest);
     freeze_.captured();
 }

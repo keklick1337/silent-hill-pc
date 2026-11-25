@@ -1,6 +1,7 @@
 // SceneRenderer (scene.h): GPU copies of the cells and textures a frame uses, and the draws of one frame.
 
 #include "render/scene/area_cells.h"
+#include "render/scene/fog_cutoff.h"
 #include "render/scene/materials.h"
 #include "render/scene/scene.h"
 #include "render/scene/scene_shaders.h"
@@ -8,6 +9,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <cstdlib>
 #include <cstring>
 #include <map>
 #include <optional>
@@ -62,7 +64,9 @@ static_assert(sizeof(VsBlock) == 320);
 struct MatBlock {
     std::array<float, 4> mat{};
     std::array<float, 4> rt{};  // ray-traced results bound: x shadow, y reflection, z bounce light
-    std::array<float, 4> mat2{1, 0, 0, 0};  // x: mip levels of the texture
+    // x: mip levels of the texture, y and z: the low and high 16 bits of the mask of the map lights that can reach the
+    // draw (draw_light_mask; all of them by default)
+    std::array<float, 4> mat2{1, 65535, 65535, 0};
 };
 
 // std140 SceneWater of scene.frag.
@@ -87,7 +91,52 @@ struct FrameBlock {
     WaterBlock water;
     LightBlock lights;
 };
-static_assert(sizeof(FrameBlock) == 224 + 16 * (9 + 3 * kSceneLights + kSceneFlakes));
+static_assert(sizeof(FrameBlock) == 224 + 16 * (9 + 3 * kSceneLights + kSceneFlakes + 3 + kFlakeGrid * kFlakeGrid / 2 +
+                                               kFlakeList / 4 + kLightTiles / 4));
+
+// scene.frag MapLights: which lights can reach each tile of the picture. A point within a light's range lies inside
+// the box around its sphere, so its pixel lies inside the box's projection (x / z is extreme at the box's corners);
+// the shader takes its tile from its own view position by the same mapping (ndc = proj.xy * xy / z + proj.zw), and a
+// margin covers the rounding of both. A light left out of a tile is one the shader's range test would reject at
+// every pixel of it, so the picture is the one of the full loop.
+void fill_light_tiles(LightBlock& b, const std::array<float, 4>& proj) {
+    for (auto& t : b.tiles) t = {0, 0, 0, 0};
+    const int count = std::clamp(static_cast<int>(b.info[0] + 0.5f), 0, static_cast<int>(kSceneLights));
+    constexpr float kMargin = 0.05f;  // tiles
+    constexpr int kTx = static_cast<int>(kLightTilesX), kTy = static_cast<int>(kLightTilesY);
+    for (int i = 0; i < count; ++i) {
+        const auto& l = b.pos[static_cast<std::size_t>(i)];
+        const float r = l[3];
+        const float zn = l[2] - r, zf = l[2] + r;
+        if (zf <= 0.0f) continue;  // wholly behind the eye: the shader lights only points in front of it
+        int x0 = 0, x1 = kTx - 1, y0 = 0, y1 = kTy - 1;
+        if (zn > 1.0f) {
+            float lo[2] = {1e30f, 1e30f}, hi[2] = {-1e30f, -1e30f};
+            for (int c = 0; c < 8; ++c) {
+                const float z = (c & 4) ? zf : zn;
+                const float v[2] = {l[0] + ((c & 1) ? r : -r), l[1] + ((c & 2) ? r : -r)};
+                for (int a = 0; a < 2; ++a) {
+                    const auto ia = static_cast<std::size_t>(a);
+                    const float ndc = proj[ia] * (v[a] / z) + proj[ia + 2];
+                    lo[a] = std::min(lo[a], ndc);
+                    hi[a] = std::max(hi[a], ndc);
+                }
+            }
+            const float t0x = (lo[0] * 0.5f + 0.5f) * kTx - kMargin, t1x = (hi[0] * 0.5f + 0.5f) * kTx + kMargin;
+            const float t0y = (lo[1] * 0.5f + 0.5f) * kTy - kMargin, t1y = (hi[1] * 0.5f + 0.5f) * kTy + kMargin;
+            if (t1x < 0.0f || t0x >= kTx || t1y < 0.0f || t0y >= kTy) continue;
+            x0 = std::clamp(static_cast<int>(std::floor(t0x)), 0, kTx - 1);
+            x1 = std::clamp(static_cast<int>(std::floor(t1x)), 0, kTx - 1);
+            y0 = std::clamp(static_cast<int>(std::floor(t0y)), 0, kTy - 1);
+            y1 = std::clamp(static_cast<int>(std::floor(t1y)), 0, kTy - 1);
+        }
+        for (int y = y0; y <= y1; ++y)
+            for (int x = x0; x <= x1; ++x) {
+                const int t = y * kTx + x;
+                b.tiles[static_cast<std::size_t>(t / 4)][static_cast<std::size_t>(t % 4)] |= 1u << i;
+            }
+    }
+}
 
 // The level of the surface's quality table that the settings ask for.
 const WaterQuality& water_quality() {
@@ -116,6 +165,97 @@ constexpr int kOverlay = 2;
 constexpr int kPipelineKinds = 3;
 constexpr int kCellUnits = 40 * 256;
 
+// An axis-aligned box in a mesh's own space; lo > hi: empty.
+struct Bounds {
+    std::array<float, 3> lo{1e30f, 1e30f, 1e30f};
+    std::array<float, 3> hi{-1e30f, -1e30f, -1e30f};
+    void add(float x, float y, float z) {
+        lo = {std::min(lo[0], x), std::min(lo[1], y), std::min(lo[2], z)};
+        hi = {std::max(hi[0], x), std::max(hi[1], y), std::max(hi[2], z)};
+    }
+    bool empty() const { return lo[0] > hi[0]; }
+};
+
+// The map lights (bit i: light i of `b`) whose range reaches the box `box` placed by `mv` (mesh space to view space,
+// column-major): a point the light reaches lies in the box, so the box's view-space hull lies within the range of
+// the light's centre. The shader tries only these at the draw's pixels (scene.frag MapLights), with the picture of
+// trying all of them.
+std::uint32_t draw_light_mask(const LightBlock& b, const Bounds& box, const std::array<float, 16>& mv) {
+    const int count = std::clamp(static_cast<int>(b.info[0] + 0.5f), 0, static_cast<int>(kSceneLights));
+    if (count == 0 || box.empty()) return count == 0 ? 0u : ~0u;
+    float lo[3] = {1e30f, 1e30f, 1e30f}, hi[3] = {-1e30f, -1e30f, -1e30f};
+    for (int k = 0; k < 8; ++k) {
+        const float p[3] = {(k & 1) ? box.hi[0] : box.lo[0], (k & 2) ? box.hi[1] : box.lo[1],
+                            (k & 4) ? box.hi[2] : box.lo[2]};
+        for (std::size_t r = 0; r < 3; ++r) {
+            const float v = mv[r] * p[0] + mv[4 + r] * p[1] + mv[8 + r] * p[2] + mv[12 + r];
+            lo[r] = std::min(lo[r], v);
+            hi[r] = std::max(hi[r], v);
+        }
+    }
+    std::uint32_t mask = 0;
+    for (int i = 0; i < count; ++i) {
+        const auto& l = b.pos[static_cast<std::size_t>(i)];
+        float d2 = 0.0f;
+        for (std::size_t r = 0; r < 3; ++r) {
+            const float e = std::max({lo[r] - l[r], 0.0f, l[r] - hi[r]});
+            d2 += e * e;
+        }
+        // A margin for the rounding of the box's corners.
+        const float reach = l[3] * 1.001f + 1.0f;
+        if (d2 <= reach * reach) mask |= 1u << i;
+    }
+    return mask;
+}
+
+// What a draw leaves out (RENDER.md 7.7), tested on the box `b` placed by `mv` (mesh space to view space,
+// column-major). In colour: what lies wholly past the fog's draw cutoff (view depth), behind the near plane or beside
+// the picture; the sides come from the scene's projection (scene.vert SceneProject: clip x = ortho x * (H * x +
+// centre x * z) + ortho w * z, w = z) and are widened a little for the seam lines' pixel shifts and TAA's jitter. In a
+// shadow layer: what lies wholly outside one side or the far plane of the light's clip space (GL convention); the
+// light's near plane is never used, what lies before it still casts where the depth is clamped there.
+struct DrawCull {
+    float cut_z = kNoFogCutoff;
+    float near_z = 0.0f;
+    std::array<float, 4> sides{};  // x: a, b; y: a, b of the clip rows a * p + b * z
+    const std::array<float, 16>* light = nullptr;
+
+    bool out(const Bounds& b, const std::array<float, 16>& mv) const {
+        if (b.empty()) return false;
+        constexpr float kWiden = 1.02f;
+        unsigned all_out = 0x7F;  // x > w, x < -w, y > w, y < -w, past the far plane, before the near plane
+        for (int k = 0; k < 8 && all_out; ++k) {
+            const float p[3] = {(k & 1) ? b.hi[0] : b.lo[0], (k & 2) ? b.hi[1] : b.lo[1], (k & 4) ? b.hi[2] : b.lo[2]};
+            float v[3];
+            for (std::size_t r = 0; r < 3; ++r) v[r] = mv[r] * p[0] + mv[4 + r] * p[1] + mv[8 + r] * p[2] + mv[12 + r];
+            float x, y, z, w;
+            unsigned bits = 0;
+            if (light) {
+                const auto& l = *light;
+                x = l[0] * v[0] + l[4] * v[1] + l[8] * v[2] + l[12];
+                y = l[1] * v[0] + l[5] * v[1] + l[9] * v[2] + l[13];
+                z = l[2] * v[0] + l[6] * v[1] + l[10] * v[2] + l[14];
+                w = l[3] * v[0] + l[7] * v[1] + l[11] * v[2] + l[15];
+                if (z > w) bits |= 32;
+            } else {
+                x = sides[0] * v[0] + sides[1] * v[2];
+                y = sides[2] * v[1] + sides[3] * v[2];
+                w = v[2] * kWiden;
+                if (v[2] > cut_z) bits |= 32;
+                if (v[2] < near_z) bits |= 64;
+            }
+            if (x > w) bits |= 1;
+            if (x < -w) bits |= 2;
+            if (y > w) bits |= 4;
+            if (y < -w) bits |= 8;
+            // Behind the eye the sides flip: only the near plane may leave such a corner out.
+            if (!light && v[2] <= 0.0f) bits &= 64;
+            all_out &= bits;
+        }
+        return all_out != 0;
+    }
+};
+
 struct GpuCell {
     std::shared_ptr<const CellMesh> mesh;
     BufferH vertices, indices;
@@ -140,7 +280,19 @@ struct GpuCell {
     std::vector<UpRange> up_ranges;
     std::uint32_t curved_triangles = 0;        // mean_edge is theirs
     std::array<double, 3> box_lo{}, box_hi{};  // of the cell's vertices
+    // The mesh's box and each range's (in mesh space): what the fog or a light leaves out. A range is also cut into
+    // runs of consecutive triangles (kChunkTriangles), each with its box: a cell spans 40 m, and one material of it
+    // reaches from under Harry's feet into the fog. The runs keep the triangles' order; neighbours drawn are one draw.
+    struct Chunk {
+        std::uint32_t first = 0, count = 0;  // indices
+        Bounds bounds;
+    };
+    Bounds bounds;
+    std::vector<Bounds> range_bounds;
+    std::vector<std::vector<Chunk>> range_chunks;
 };
+
+constexpr std::uint32_t kChunkTriangles = 64;
 
 // A texture whose picture exists but whose device upload failed. Such a failure is the device's state at that moment
 // (memory, an error another renderer on the shared context left pending), not the picture's, so it is tried again
@@ -162,6 +314,7 @@ struct PrelitDraw {
     bool depth_reset = false;
     float h = 0, geom_ofs_x = 0, geom_ofs_y = 0;
     int level = 0;  // model upscaling: 0 = the mesh has no patch normals, 1 = drawn plain this frame
+    Bounds bounds;  // of its vertices, view space
 };
 
 // Upscaled pipeline slots (ModelUpscaler::pipeline): kind * kBlendCount + blend, then the two shadow layers.
@@ -178,6 +331,13 @@ struct SceneRenderer::Impl {
     TextureFormat color_format;
     ShaderH vs, fs;
     ShaderH fs_exact;  // scene.frag writing the fragment's own depth
+    ShaderH fs_quad;   // fs_exact sharing shadows and map lights over 2x2 quads (SH_SCENE_QUAD), or none
+    ShaderH fs_quad_raster;  // fs_quad without the fragment's own depth (late seams)
+    // The light tiles last made (fill_light_tiles) and what they were made from.
+    std::array<std::array<std::uint32_t, 4>, kLightTiles / 4> light_tiles{};
+    std::array<float, 4> light_tiles_proj{};
+    std::array<std::array<float, 4>, kSceneLights> light_tiles_pos{};
+    float light_tiles_count = -1.0f;
     // [kind][Blend]
     PipelineH pipelines[kPipelineKinds][kBlendCount];
     // The same, drawn as edges (ViewerOverrides::wireframe).
@@ -199,6 +359,7 @@ struct SceneRenderer::Impl {
     // The shadow map's colour layer: rgb multiplied by what the surface lets through, alpha the nearest distance.
     PipelineH caster_tint;
     PipelineH seam;    // opaque line list: CellMesh::seams
+    PipelineH seam_late;  // the same with the rasterised depth, drawn after the opaque surfaces (quad shading)
     PipelineH depth_reset;  // PrelitMesh::depth_reset: depth always written, no colour
     SamplerH linear, nearest;
     SamplerH linear_clamp, nearest_clamp;  // the water's mirrored picture
@@ -414,6 +575,7 @@ struct SceneRenderer::Impl {
         if (caster) device.destroy(caster);
         if (caster_tint) device.destroy(caster_tint);
         if (seam) device.destroy(seam);
+        if (seam_late) device.destroy(seam_late);
         if (depth_reset) device.destroy(depth_reset);
         if (linear_clamp) device.destroy(linear_clamp);
         if (nearest_clamp) device.destroy(nearest_clamp);
@@ -422,6 +584,8 @@ struct SceneRenderer::Impl {
         if (vs) device.destroy(vs);
         if (fs) device.destroy(fs);
         if (fs_exact) device.destroy(fs_exact);
+        if (fs_quad) device.destroy(fs_quad);
+        if (fs_quad_raster) device.destroy(fs_quad_raster);
     }
 
     // Every texture is its own device texture at its own size (any size, power of two or not). Above what the device
@@ -537,6 +701,25 @@ struct SceneRenderer::Impl {
         cmd.uploadBuffer(g.indices, 0, std::as_bytes(std::span(m.indices)));
         g.textures.clear();
         resolve_textures(cmd, g);
+        g.bounds = {};
+        for (const CellVertex& v : m.vertices) g.bounds.add(v.x, v.y, v.z);
+        g.range_bounds.assign(m.ranges.size(), {});
+        g.range_chunks.assign(m.ranges.size(), {});
+        for (std::size_t ri = 0; ri < m.ranges.size(); ++ri) {
+            const CellRange& r = m.ranges[ri];
+            const std::uint32_t end = std::min<std::uint32_t>(r.first + r.count, static_cast<std::uint32_t>(m.indices.size()));
+            for (std::uint32_t c = r.first; c < end; c += kChunkTriangles * 3) {
+                GpuCell::Chunk chunk;
+                chunk.first = c;
+                chunk.count = std::min(kChunkTriangles * 3, end - c);
+                for (std::uint32_t i = c; i < c + chunk.count; ++i) {
+                    const CellVertex& v = m.vertices[m.indices[i]];
+                    chunk.bounds.add(v.x, v.y, v.z);
+                    g.range_bounds[ri].add(v.x, v.y, v.z);
+                }
+                g.range_chunks[ri].push_back(chunk);
+            }
+        }
         g.surface_y.clear();
         for (const CellRange& r : m.ranges) {
             const auto mat = static_cast<std::size_t>(r.material);
@@ -849,13 +1032,34 @@ Result<std::unique_ptr<SceneRenderer>> SceneRenderer::create(Device& device, Tex
     auto fs_exact = device.createShader(fd);
     if (!fs_exact) return R::fail(fs_exact.error());
     impl->fs_exact = fs_exact.value();
+    // The colour pipelines of a phone share the shadow filters and the map lights over 2x2 quads (scene.frag
+    // SH_SCENE_QUAD, RENDER.md 7.14), where the device has quad operations in the fragment stage. SH_QUAD_SHADING=0
+    // or 1 in the environment overrides the platform's choice, to compare.
+    bool quad = false;
+#if defined(__ANDROID__)
+    quad = true;
+#endif
+    if (const char* env = std::getenv("SH_QUAD_SHADING"); env && *env) quad = env[0] == '1';
+    ShaderH colour_fs = impl->fs_exact;
+    const auto fsrc_quad = shaders::sceneFragQuad();
+    if (quad && device.caps().fragmentQuadOps && !fsrc_quad.spirv.empty()) {
+        fd.glsl = {};
+        fd.spirv = fsrc_quad.spirv;
+        fd.name = "scene.frag quad";
+        if (auto fs_quad = device.createShader(fd)) {
+            impl->fs_quad = fs_quad.value();
+            colour_fs = impl->fs_quad;
+        }
+    }
+    log(0, colour_fs == impl->fs_quad ? "[SCENE] shadows and map lights shared over 2x2 quads"
+                                      : "[SCENE] shadows and map lights per pixel");
 
     for (int kind = 0; kind < kPipelineKinds; ++kind) {
         const int cull = kind != kNoCull;
         for (int blend = 0; blend < kBlendCount; ++blend) {
             PipelineDesc p;
             p.vertexShader = impl->vs;
-            p.fragmentShader = impl->fs_exact;
+            p.fragmentShader = colour_fs;
             p.vertexLayout = {sizeof(GpuVertex), kAttributes};
             p.cull = cull ? CullMode::Back : CullMode::None;
             p.frontFace = FrontFace::CounterClockwise;
@@ -949,7 +1153,7 @@ Result<std::unique_ptr<SceneRenderer>> SceneRenderer::create(Device& device, Tex
     {
         PipelineDesc p;
         p.vertexShader = impl->vs;
-        p.fragmentShader = impl->fs_exact;
+        p.fragmentShader = colour_fs;
         p.vertexLayout = {sizeof(GpuVertex), kAttributes};
         p.primitive = PrimitiveType::LineList;
         p.cull = CullMode::None;
@@ -963,6 +1167,22 @@ Result<std::unique_ptr<SceneRenderer>> SceneRenderer::create(Device& device, Tex
         auto pipe = device.createPipeline(p);
         if (!pipe) return R::fail(pipe.error());
         impl->seam = pipe.value();
+        if (impl->fs_quad) {
+            // The late seams (draw): drawn after the opaque surfaces with the rasterised depth and no depth write, so
+            // the depth test drops the line fragments the surfaces cover before they are shaded.
+            const auto fsrc_raster = shaders::sceneFragQuadRaster();
+            ShaderDesc rd = fd;
+            rd.glsl = {};
+            rd.spirv = fsrc_raster.spirv;
+            rd.name = "scene.frag quad rasterised depth";
+            if (auto fs_raster = device.createShader(rd)) {
+                impl->fs_quad_raster = fs_raster.value();
+                p.fragmentShader = impl->fs_quad_raster;
+                p.name = "scene seams late";
+                p.depthStencil.depthWrite = false;
+                if (auto late = device.createPipeline(p)) impl->seam_late = late.value();
+            }
+        }
     }
     {
         PipelineDesc p;
@@ -1131,6 +1351,7 @@ Result<void> SceneRenderer::prepare(CommandList& cmd, const Frame& frame) {
         d.geom_ofs_y = m.geom_ofs_y;
         const std::uint32_t base = static_cast<std::uint32_t>(im.scratch_vertices.size());
         for (const PrelitVertex& v : m.vertices) {
+            d.bounds.add(v.x, v.y, v.z);
             const auto fade = static_cast<std::uint8_t>(std::clamp(m.fade, 0.0f, 1.0f) * 255.0f + 0.5f);
             im.scratch_vertices.push_back(
                 {v.x, v.y, v.z, 0, 0, 0, v.u, v.v, v.r, v.g, v.b, fade, {v.box_u0, v.box_v0, v.box_u1, v.box_v1}});
@@ -1247,6 +1468,14 @@ Result<void> SceneRenderer::draw(RenderPass& pass, const Frame& frame, const Vie
     if (!shadows) fs.prog[3] = 0.0f;
     if (viewer && (vo.fog_off || full_bright)) fs.fog[3] = 0.0f;
     if (viewer && (vo.flashlight_off || full_bright)) fs.flMode[0] = 0.0f;
+    // The fog is the draw distance: in colour what lies wholly past it is left out, in a shadow layer what lies
+    // wholly outside the light's frustum (RENDER.md 7.7). The fog as this draw shades it, the viewer's included.
+    DrawCull cull;
+    if (!casters) cull.cut_z = fog_draw_cutoff(fog_ramp, fs.fog[3], fs.modes[1] > 0.5f);
+    cull.near_z = kNearPlane;
+    cull.sides = {view.ortho[0] * frame.h, view.ortho[0] * (frame.geom_ofs_x + view.draw_ofs_x) + view.ortho[12],
+                  view.ortho[5] * frame.h, view.ortho[5] * (frame.geom_ofs_y + view.draw_ofs_y) + view.ortho[13]};
+    if (casters) cull.light = &view.fs.shadowMatrix;
     pass.pushUniforms(ShaderStage::Fragment, 0, std::as_bytes(std::span(&fs, 1)));
     pass.pushUniforms(ShaderStage::Fragment, 1, std::as_bytes(std::span(&fog_ramp, 1)));
     pass.bindSampler(ShaderStage::Fragment, 8, view.fog_ramp ? view.fog_ramp : im.black, im.nearest);
@@ -1256,7 +1485,22 @@ Result<void> SceneRenderer::draw(RenderPass& pass, const Frame& frame, const Vie
     frame_block.water = im.water_block(frame, view);
     const WaterBlock& water = frame_block.water;
     const bool sun_map = !casters && view.lights.info[2] > 0.5f && view.sun_shadow;
-    if (!casters) frame_block.lights = view.lights;
+    if (!casters) {
+        frame_block.lights = view.lights;
+        // The tiles change only with the lights and the projection; a frame draws many items with the same ones.
+        if (frame_block.lights.info[0] > 0.5f) {
+            if (im.light_tiles_proj != water.proj || im.light_tiles_pos != view.lights.pos ||
+                im.light_tiles_count != view.lights.info[0]) {
+                fill_light_tiles(frame_block.lights, water.proj);
+                im.light_tiles_proj = water.proj;
+                im.light_tiles_pos = view.lights.pos;
+                im.light_tiles_count = view.lights.info[0];
+                im.light_tiles = frame_block.lights.tiles;
+            } else {
+                frame_block.lights.tiles = im.light_tiles;
+            }
+        }
+    }
     if (!sun_map) frame_block.lights.info[2] = 0.0f;
     pass.pushUniforms(ShaderStage::Fragment, 3, std::as_bytes(std::span(&frame_block, 1)));
     pass.bindSampler(ShaderStage::Fragment, 7, sun_map ? view.sun_shadow : im.white,
@@ -1327,11 +1571,27 @@ Result<void> SceneRenderer::draw(RenderPass& pass, const Frame& frame, const Vie
         if (tex)
             if (auto it = im.mip_levels.find(tex.raw); it != im.mip_levels.end())
                 m.mat2[0] = static_cast<float>(it->second);
+        m.mat2[1] = last_mat.mat2[1];
+        m.mat2[2] = last_mat.mat2[2];
         if (m.mat != last_mat.mat || m.mat2 != last_mat.mat2) {
             pass.pushUniforms(ShaderStage::Fragment, 2, std::as_bytes(std::span(&m, 1)));
             last_mat = m;
         }
         pass.bindSampler(ShaderStage::Fragment, 0, tex ? tex : im.white, sampler);
+    };
+    // The map lights that can reach the next draws (draw_light_mask), into the material block.
+    const bool lit = !casters && frame_block.lights.info[0] > 0.5f;
+    auto light_mask = [&](const Bounds& box, const std::array<float, 16>& mv) {
+        return lit ? draw_light_mask(frame_block.lights, box, mv) : ~0u;
+    };
+    auto use_lights = [&](std::uint32_t mask) {
+        const std::array<float, 2> v = {static_cast<float>(mask & 0xFFFFu), static_cast<float>(mask >> 16)};
+        if (v[0] == last_mat.mat2[1] && v[1] == last_mat.mat2[2]) return;
+        last_mat.mat2[1] = v[0];
+        last_mat.mat2[2] = v[1];
+        // Before the first material the block goes out with it.
+        if (last_mat.mat[0] >= 0.0f)
+            pass.pushUniforms(ShaderStage::Fragment, 2, std::as_bytes(std::span(&last_mat, 1)));
     };
     pass.bindSampler(ShaderStage::Fragment, 2, shadows && view.shadow_tint ? view.shadow_tint : im.white, im.linear);
     // Every blended texel casts into the transmittance layer (scene.frag weighs it by its blend).
@@ -1395,6 +1655,8 @@ Result<void> SceneRenderer::draw(RenderPass& pass, const Frame& frame, const Vie
         }
         vsb.model_view[3] = vsb.model_view[7] = vsb.model_view[11] = 0.0f;
         vsb.model_view[15] = 1.0f;
+        if (cull.out(g.bounds, vsb.model_view)) return Result<void>::ok();
+        use_lights(light_mask(g.bounds, vsb.model_view));
         vsb.misc[1] = 0.0f;
         vsb.misc[3] = 0.0f;
         // The light rules take unit normals: a scaled model (an item model drawn in the world) gives its scale back.
@@ -1432,6 +1694,8 @@ Result<void> SceneRenderer::draw(RenderPass& pass, const Frame& frame, const Vie
         VsBlock pv = vsb;
         pv.model_view = {1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1};
         if (im.mirror) pv.model_view = *im.mirror;
+        if (!d.isolated && cull.out(d.bounds, pv.model_view)) return Result<void>::ok();
+        use_lights(d.isolated ? ~0u : light_mask(d.bounds, pv.model_view));
         // Full bright: the posed meshes lose their own light too and take the flat level (an isolated item preview
         // keeps it).
         pv.light[0] = full_bright && !d.isolated ? 0.0f : 3.0f;
@@ -1483,19 +1747,26 @@ Result<void> SceneRenderer::draw(RenderPass& pass, const Frame& frame, const Vie
     // Seams first: every triangle drawn after them at the same depth covers them, so only the cracks keep their colour.
     // The lines are drawn on their pixel and one pixel to each side: the gaps the data leaves between models that only
     // nearly meet are up to a few PS1 units, two or three pixels at 1080p.
-    if (!casters) {
+    // With quad shading the seams come after the opaque surfaces (seam_late): nearly every line pixel lies under a
+    // surface and is dropped by the depth test before its shader runs. They write no depth, and their rasterised
+    // depth is as far behind as the setback of a line puts the exact one, so a crack shows them as before.
+    const bool late_seams = static_cast<bool>(im.seam_late);
+    auto draw_seams = [&](bool late) {
         const float px = view.pixel_w > 0 ? 2.0f / view.pixel_w : 0.0f;
         const float py = view.pixel_h > 0 ? 2.0f / view.pixel_h : 0.0f;
         const std::array<std::array<float, 2>, 5> shifts = {{{0, 0}, {px, 0}, {-px, 0}, {0, py}, {0, -py}}};
         const int passes = (px > 0 && py > 0) ? 5 : 1;
-        bind(im.seam);
+        bind(late ? im.seam_late : im.seam);
         for (int s = 0; s < passes; ++s) {
-            vsb.seam = {shifts[static_cast<std::size_t>(s)][0], shifts[static_cast<std::size_t>(s)][1], 0, 0};
+            vsb.seam = {shifts[static_cast<std::size_t>(s)][0], shifts[static_cast<std::size_t>(s)][1], 0,
+                        late ? kWorldDepthBias * 8.0f : 0.0f};
             for (const CellRef& ref : frame.cells) {
                 auto it = im.cells.find(ref.stem);
                 if (it == im.cells.end() || !it->second.ok || it->second.mesh->seams.empty()) continue;
                 const GpuCell& g = it->second;
                 cell_matrix(ref, vsb.model_view);
+                if (cull.out(g.bounds, vsb.model_view)) continue;
+                use_lights(light_mask(g.bounds, vsb.model_view));
                 pass.pushUniforms(ShaderStage::Vertex, 0, std::as_bytes(std::span(&vsb, 1)));
                 pass.bindVertexBuffer(g.vertices, 0);
                 pass.bindIndexBuffer(g.indices, IndexType::U32, 0);
@@ -1509,18 +1780,21 @@ Result<void> SceneRenderer::draw(RenderPass& pass, const Frame& frame, const Vie
             }
         }
         vsb.seam = {0, 0, 0, 0};
-    }
+    };
+    if (!casters && !late_seams) draw_seams(false);
     // A semi-transparent material is drawn in both passes: its solid texels in the first, with the opaque surfaces
     // and writing depth, its STP texels in the second, blended. On the PS1 the solid texels of such a polygon cover
     // whatever the ordering table drew before it; here the sprites and prims drawn after the scene (the bushes in the
     // pit under the grates of map6_s00) are only kept behind the grate by its depth.
     for (int semi = 0; semi < 2; ++semi) {
+        if (semi == 1 && !casters && late_seams) draw_seams(true);
         for (std::size_t ci = 0; ci < frame.cells.size(); ++ci) {
             const CellRef& ref = frame.cells[ci];
             auto it = im.cells.find(ref.stem);
             if (it == im.cells.end() || !it->second.ok) continue;
             const GpuCell& g = it->second;
             cell_matrix(ref, vsb.model_view);
+            if (cull.out(g.bounds, vsb.model_view)) continue;
             vsb.misc[3] = 0.0f;
             pass.pushUniforms(ShaderStage::Vertex, 0, std::as_bytes(std::span(&vsb, 1)));
             // Model upscaling: the cell's flat triangles plain, its curved ones as patches (make_cell_patches).
@@ -1533,6 +1807,9 @@ Result<void> SceneRenderer::draw(RenderPass& pass, const Frame& frame, const Vie
                 const CellRange& r = g.mesh->ranges[ri];
                 const CellMaterial& m = g.mesh->materials[static_cast<std::size_t>(r.material)];
                 if (skip_range(semi, m)) continue;
+                if (ri < g.range_bounds.size() && cull.out(g.range_bounds[ri], vsb.model_view)) continue;
+                use_lights(ri < g.range_bounds.size() ? light_mask(g.range_bounds[ri], vsb.model_view)
+                                                      : light_mask(g.bounds, vsb.model_view));
                 const int b = semi == 1 ? static_cast<int>(m.blend) : 0;
                 const int kind = layer_kind(r);
                 bind(im.pick(kind, b, wire));
@@ -1542,7 +1819,27 @@ Result<void> SceneRenderer::draw(RenderPass& pass, const Frame& frame, const Vie
                 material(static_cast<float>(b), static_cast<bool>(tex), tex, texels, false, is_water);
                 ++stats_.cell_draws;
                 if (!curved) {
-                    pass.drawIndexed(r.count, r.first, 0);
+                    // The runs the fog or the light leaves in, neighbours reached by the same map lights as one draw.
+                    std::uint32_t first = 0, count = 0, lights = 0;
+                    for (const GpuCell::Chunk& c : g.range_chunks[ri]) {
+                        if (cull.out(c.bounds, vsb.model_view)) continue;
+                        const std::uint32_t mask = light_mask(c.bounds, vsb.model_view);
+                        if (count > 0 && first + count == c.first && mask == lights) {
+                            count += c.count;
+                            continue;
+                        }
+                        if (count > 0) {
+                            use_lights(lights);
+                            pass.drawIndexed(count, first, 0);
+                        }
+                        first = c.first;
+                        count = c.count;
+                        lights = mask;
+                    }
+                    if (count > 0) {
+                        use_lights(lights);
+                        pass.drawIndexed(count, first, 0);
+                    }
                     continue;
                 }
                 const GpuCell::UpRange& u = g.up_ranges[ri];

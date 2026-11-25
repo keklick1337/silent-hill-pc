@@ -279,7 +279,12 @@ void register_render_commands(Registry& registry) {
         {opt_integer("mode", "0 off | 1 tessellation | 2 mesh shaders; config key model_upscaling")},
         [](Context& ctx, const Args& args) {
             if (args.has(0)) {
+#ifdef __ANDROID__
+                // Never on a phone or tablet (RenderPreset_Apply).
+                sh::render::graphics().model_upscaling = 0;
+#else
                 sh::render::graphics().model_upscaling = std::clamp(whole(args.str(0)), 0, 2);
+#endif
                 g_PcConfig.modelUpscaling = sh::render::graphics().model_upscaling;
             }
             say(ctx, "model upscaling: %d (config key model_upscaling; 0 off, 1 tessellation, 2 mesh shaders)",

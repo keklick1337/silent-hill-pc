@@ -16,9 +16,12 @@ set(_scene_includes "${_scene_gen}/scene_lib.glsl" "${CMAKE_CURRENT_SOURCE_DIR}/
                     "${CMAKE_CURRENT_SOURCE_DIR}/shaders/scene_pn_data.glsl")
 # file:symbol:variant. A variant is the same source compiled with one more define (the GL backend adds it to the
 # text itself, scene_renderer.cpp); "-" is the plain shader. The scene_pn stages exist on the native Vulkan backend
-# only (RENDER.md section 7.11); task and mesh shaders need SPIR-V 1.4, hence Vulkan 1.2.
+# only (RENDER.md section 7.11); task and mesh shaders need SPIR-V 1.4, hence Vulkan 1.2. SH_SCENE_QUAD uses subgroup
+# quad operations (SPIR-V 1.3, Vulkan 1.1).
 foreach(_pair IN ITEMS "scene.vert:sceneVert:-" "scene.frag:sceneFrag:-"
-                       "scene.frag:sceneFragExactDepth:SH_SCENE_EXACT_DEPTH" "scene.vert:sceneVertPn:SH_SCENE_PN"
+                       "scene.frag:sceneFragExactDepth:SH_SCENE_EXACT_DEPTH" "scene.frag:sceneFragQuad:SH_SCENE_QUAD"
+                       "scene.frag:sceneFragQuadRaster:SH_SCENE_QUAD_RASTER"
+                       "scene.vert:sceneVertPn:SH_SCENE_PN"
                        "scene_pn.tesc:scenePnTesc:-" "scene_pn.tese:scenePnTese:-" "scene_pn.task:scenePnTask:-"
                        "scene_pn.mesh:scenePnMesh:-")
     string(REPLACE ":" ";" _pair "${_pair}")
@@ -35,6 +38,8 @@ foreach(_pair IN ITEMS "scene.vert:sceneVert:-" "scene.frag:sceneFrag:-"
     set(_env vulkan1.0)
     if(_file MATCHES "\\.(task|mesh)$")
         set(_env vulkan1.2)
+    elseif(_variant MATCHES "SH_SCENE_QUAD")
+        set(_env vulkan1.1)
     endif()
     if(SH_GLSLC)
         set(_compile "${SH_GLSLC}" --target-env=${_env} ${_defines} "${_src}" -o "${_spv}")
@@ -53,7 +58,7 @@ foreach(_pair IN ITEMS "scene.vert:sceneVert:-" "scene.frag:sceneFrag:-"
     list(APPEND _scene_shader_sources "${_cpp}")
 endforeach()
 
-add_library(sh_scene STATIC area_cells.cpp frame_blend.cpp item_model.cpp materials.cpp model_upscale.cpp preview.cpp scene_renderer.cpp scene_store.cpp surface_query.cpp ${_scene_shader_sources})
+add_library(sh_scene STATIC area_cells.cpp fog_cutoff.cpp frame_blend.cpp item_model.cpp materials.cpp model_upscale.cpp preview.cpp scene_renderer.cpp scene_store.cpp surface_query.cpp ${_scene_shader_sources})
 target_compile_features(sh_scene PUBLIC cxx_std_20)
 target_include_directories(sh_scene PUBLIC ${PROJECT_SOURCE_DIR}/src)
 target_link_libraries(sh_scene PUBLIC sh_rhi_gl sh_gltf sh_png sh_common)

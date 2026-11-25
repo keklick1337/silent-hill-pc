@@ -19,11 +19,12 @@ layout(location = 0) out vec4 fragColor;
 
 SH_SAMPLER(0) uniform sampler2D s_scene;
 SH_SAMPLER(1) uniform sampler2D s_bloom;
+SH_SAMPLER(2) uniform sampler2D s_bloom2;
 
 SH_UBO(0) uniform ResolveFs {
     vec4 u_mode;   // x: operator (0 clamp, 1 soft, 2 ACES, 3 Reinhard), y: bloom share, z: threshold, w: flip v
-    vec4 u_out;    // x: white (largest value written), y: 1 / bloom levels
-    vec4 u_texel;  // zw: 1 / size of the first bloom level
+    vec4 u_out;    // x: white (largest value written), y: 1 / bloom levels, z: 1 = phone chain, w: weight of s_bloom2
+    vec4 u_texel;  // xy: 1 / size of s_bloom2 (phone chain), zw: 1 / size of the first bloom level
 };
 
 vec2 flipV(vec2 uv) { return u_mode.w > 0.5 ? vec2(uv.x, 1.0 - uv.y) : uv; }
@@ -50,6 +51,21 @@ vec3 bloomTent(vec2 uv) {
     return c * (1.0 / 16.0);
 }
 
+// The phone chain stops its upsampling one level short: the first level's own downsample and the upsampled rest
+// (s_bloom2) are spread here, each by four bilinear taps on the diagonals whose spread matches the tents they stand
+// for (sqrt(1/2) texel: one tent; sqrt(2/3): the tent below, the first level's grid and the tent above it).
+vec3 box4(sampler2D s, vec2 uv, vec2 t) {
+    return (texture(s, flipV(uv + vec2(-t.x, -t.y))).rgb + texture(s, flipV(uv + vec2(t.x, -t.y))).rgb +
+            texture(s, flipV(uv + vec2(-t.x, t.y))).rgb + texture(s, flipV(uv + vec2(t.x, t.y))).rgb) *
+           0.25;
+}
+
+vec3 bloomPhone(vec2 uv) {
+    vec3 c = box4(s_bloom, uv, u_texel.zw * 0.70710678);
+    if (u_out.w > 0.0) c += box4(s_bloom2, uv, u_texel.xy * 0.81649658) * u_out.w;
+    return c;
+}
+
 vec3 tonemap(vec3 c, int op, float white) {
     if (op == 1) {
         float knee = 0.85 * white, room = white - knee;
@@ -69,6 +85,9 @@ vec3 tonemap(vec3 c, int op, float white) {
 void main() {
     vec3 c = max(texture(s_scene, flipV(v_uv)).rgb, vec3(0.0));
     float k = u_mode.y;
-    if (k > 0.0) c += k * (bloomTent(v_uv) * u_out.y - max(c - vec3(u_mode.z), vec3(0.0)));
+    if (k > 0.0) {
+        vec3 b = u_out.z > 0.5 ? bloomPhone(v_uv) : bloomTent(v_uv);
+        c += k * (b * u_out.y - max(c - vec3(u_mode.z), vec3(0.0)));
+    }
     fragColor = vec4(tonemap(c, int(u_mode.x + 0.5), u_out.x), 1.0);
 }

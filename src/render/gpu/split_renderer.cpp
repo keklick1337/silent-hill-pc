@@ -95,11 +95,43 @@ std::array<float, 3> to_view(const scene::Camera& c, const std::array<float, 3>&
     return out;
 }
 
+// The sides of a raster view for its lights: a point shows where -1 <= proj.xy * p.xy / p.z + proj.zw <= 1 (the
+// projection as AtmosphereInputs::proj gives it). Off: every direction counts (the ray tracer's reflections and
+// bounce see what lies beside the picture).
+struct LightFrustum {
+    bool on = false;
+    std::array<float, 4> proj{};
+};
+
+LightFrustum light_frustum(const scene::Frame& frame, const scene::View& view) {
+    const float cx = frame.geom_ofs_x + view.draw_ofs_x, cy = frame.geom_ofs_y + view.draw_ofs_y;
+    return {true,
+            {view.ortho[0] * frame.h, view.ortho[5] * frame.h, view.ortho[0] * cx + view.ortho[12],
+             view.ortho[5] * cy + view.ortho[13]}};
+}
+
+// Whether a light's reach (a sphere, view space) lies wholly outside the view: behind the eye or beyond one side.
+// Each side is the plane through the eye where a * x + (b - 1) * z = 0 (and its mirror -a * x - (b + 1) * z = 0).
+bool reach_outside(const LightFrustum& f, const std::array<float, 3>& c, float r) {
+    if (!f.on) return false;
+    if (c[2] + r < 0.0f) return true;
+    for (std::size_t axis = 0; axis < 2; ++axis) {
+        const float a = f.proj[axis], b = f.proj[axis + 2];
+        const float sides[2][2] = {{a, b - 1.0f}, {-a, -b - 1.0f}};
+        for (const auto& n : sides) {
+            const float len = std::sqrt(n[0] * n[0] + n[1] * n[1]);
+            if (len > 0.0f && (n[0] * c[axis] + n[1] * c[2]) / len > r) return true;
+        }
+    }
+    return false;
+}
+
 // The frame's map lights and sun in view space (rt_lights): only lights that can reach a point the fog leaves
-// visible, the nearest first, at most kMaxRayLights. extra_only: just the lamps of extra_lights and the light that
-// takes the flashlight's shadow map (frame light `shadowed`), without the sun (the map's other lights are off).
+// visible (and, with `frustum`, one inside the view), the nearest first, at most kMaxRayLights. extra_only: just the
+// lamps of extra_lights and the light that takes the flashlight's shadow map (frame light `shadowed`), without the
+// sun (the map's other lights are off).
 void describe_lights(const scene::Frame& frame, float fog_far, rhi::RayTracer::View* rv, bool extra_only = false,
-                     std::int32_t shadowed = -1) {
+                     std::int32_t shadowed = -1, const LightFrustum& frustum = {}) {
     rv->mapLights.clear();
     for (std::size_t i = 0; i < frame.lights.size(); ++i) {
         const scene::FrameLight& l = frame.lights[i];
@@ -107,7 +139,7 @@ void describe_lights(const scene::Frame& frame, float fog_far, rhi::RayTracer::V
         rhi::RayTracer::View::Light out;
         const std::array<float, 3> p = to_view(frame.camera, l.position, true);
         const float dist = std::sqrt(p[0] * p[0] + p[1] * p[1] + p[2] * p[2]);
-        if (dist - l.range > fog_far || l.range <= 0.0f) continue;
+        if (dist - l.range > fog_far || l.range <= 0.0f || reach_outside(frustum, p, l.range)) continue;
         const std::array<float, 3> d = to_view(frame.camera, l.direction, false);
         out.position = {p[0], p[1], p[2], l.range};
         out.direction = {d[0], d[1], d[2], l.cos_outer};
@@ -154,6 +186,90 @@ constexpr float kFlakeOpacity = 0.55f;
 // Without the flashlight the flakes nearest this view point cast (about where the camera looks at Harry).
 constexpr float kFlakeAnchorZ = 768.0f;
 
+// scene.frag FlakeShadowSun: the flakes binned across the sunlight. A flake shades a point only within its reach of the
+// flake's line along the light, and that reach widens with the distance along it, so the grid holds only for points
+// up to a quarter past the fog's opaque distance from the eye and at most kFlakeDepth below the lowest flake along
+// the light (scene.frag tries every flake for the others). Each flake's disc carries a margin for the rounding of the
+// shader's distance (a difference of squares of distances up to |flake| + that bound), so a flake left out of a cell
+// never passes the shader's own test there; the lists keep the flakes' order, so the product is the same number.
+constexpr double kFlakeDepth = 1024.0;
+
+void bin_flakes(scene::LightBlock& b, float fog_far) {
+    const int n = static_cast<int>(b.info[3] + 0.5f);
+    if (n <= 0 || b.info[1] < 0.5f) return;
+    constexpr int kGrid = static_cast<int>(scene::kFlakeGrid);
+    double l[3] = {-b.sun_dir[0], -b.sun_dir[1], -b.sun_dir[2]};
+    const double ll = std::sqrt(l[0] * l[0] + l[1] * l[1] + l[2] * l[2]);
+    if (ll <= 0.0) return;
+    for (double& c : l) c /= ll;
+    // u: across the light, from the axis it is least aligned with; v = l x u.
+    const int a = std::abs(l[0]) <= std::abs(l[1]) && std::abs(l[0]) <= std::abs(l[2]) ? 0
+                  : std::abs(l[1]) <= std::abs(l[2])                                    ? 1
+                                                                                         : 2;
+    double e[3] = {0.0, 0.0, 0.0};
+    e[a] = 1.0;
+    double u[3] = {l[1] * e[2] - l[2] * e[1], l[2] * e[0] - l[0] * e[2], l[0] * e[1] - l[1] * e[0]};
+    const double ul = std::sqrt(u[0] * u[0] + u[1] * u[1] + u[2] * u[2]);
+    for (double& c : u) c /= ul;
+    const double v[3] = {l[1] * u[2] - l[2] * u[1], l[2] * u[0] - l[0] * u[2], l[0] * u[1] - l[1] * u[0]};
+    const double p_cap = std::min(1.25 * static_cast<double>(fog_far), 65536.0);
+    const double spread = std::max(0.0, static_cast<double>(b.sun_color[3]));
+    struct Disc {
+        double u, v, r;
+    };
+    std::array<Disc, scene::kSceneFlakes> discs{};
+    // kFlakeDepth bounds a flake's distance along the light from the points the grid holds for, and so its reach.
+    double low = 1e300;
+    for (int i = 0; i < n; ++i) {
+        const auto& f = b.flakes[static_cast<std::size_t>(i)];
+        low = std::min(low, l[0] * f[0] + l[1] * f[1] + l[2] * f[2]);
+    }
+    const double floor_l = low - kFlakeDepth;
+    double u0 = 1e300, v0 = 1e300, u1 = -1e300, v1 = -1e300;
+    for (int i = 0; i < n; ++i) {
+        const auto& f = b.flakes[static_cast<std::size_t>(i)];
+        const double fl = std::sqrt(double(f[0]) * f[0] + double(f[1]) * f[1] + double(f[2]) * f[2]);
+        const double far = fl + p_cap;
+        const double along = l[0] * f[0] + l[1] * f[1] + l[2] * f[2] - floor_l + 1.0;
+        const double reach = std::max(spread * along, 0.5) + std::abs(double(f[3]));
+        const double r = reach + 2.0 + 1e-3 * far;
+        Disc& d = discs[static_cast<std::size_t>(i)];
+        d.u = u[0] * f[0] + u[1] * f[1] + u[2] * f[2];
+        d.v = v[0] * f[0] + v[1] * f[1] + v[2] * f[2];
+        d.r = r;
+        u0 = std::min(u0, d.u - r);
+        u1 = std::max(u1, d.u + r);
+        v0 = std::min(v0, d.v - r);
+        v1 = std::max(v1, d.v + r);
+    }
+    const double size = std::max(u1 - u0, v1 - v0);
+    if (!(size > 0.0)) return;
+    const double cell = size / kGrid;
+    std::size_t used = 0;
+    for (int cy = 0; cy < kGrid; ++cy) {
+        for (int cx = 0; cx < kGrid; ++cx) {
+            // A point near a cell's edge may round into the next one: the flake's margin covers it on both sides.
+            const double x0 = u0 + cx * cell, x1 = x0 + cell, y0 = v0 + cy * cell, y1 = y0 + cell;
+            const std::size_t first = used;
+            for (int i = 0; i < n; ++i) {
+                const Disc& d = discs[static_cast<std::size_t>(i)];
+                if (d.u + d.r < x0 || d.u - d.r > x1 || d.v + d.r < y0 || d.v - d.r > y1) continue;
+                if (used >= scene::kFlakeList) return;  // too many: the shader tries every flake
+                b.flake_list[used / 4][used % 4] = static_cast<float>(i);
+                ++used;
+            }
+            const std::size_t c = static_cast<std::size_t>(cy * kGrid + cx);
+            b.flake_cells[c / 2][(c % 2) * 2] = static_cast<float>(first);
+            b.flake_cells[c / 2][(c % 2) * 2 + 1] = static_cast<float>(used - first);
+        }
+    }
+    b.flake_grid = {static_cast<float>(u0), static_cast<float>(v0), static_cast<float>(1.0 / cell), 1.0f};
+    b.flake_u = {static_cast<float>(u[0]), static_cast<float>(u[1]), static_cast<float>(u[2]),
+                 static_cast<float>(p_cap * p_cap)};
+    b.flake_v = {static_cast<float>(v[0]), static_cast<float>(v[1]), static_cast<float>(v[2]),
+                 static_cast<float>(floor_l)};
+}
+
 // The map's lights, the sun with its shadow map and the falling flakes for the scene shader without ray tracing
 // (map_lights, sun_shadows, particle_shadows; RENDER.md 7.14). The ray-traced light replaces the lights and the sun
 // where it is on; the flakes shade both paths.
@@ -161,13 +277,14 @@ constexpr float kFlakeAnchorZ = 768.0f;
 // map_lights is off or unavailable (atmosphere: whether the native passes run).
 void describe_scene_lights(const scene::Frame& frame, float fog_far, bool traced, bool atmosphere,
                            const SunShadowPass& sun, std::int32_t shadowed, scene::View* view) {
+    const LightFrustum frustum = light_frustum(frame, *view);
     const render::AtmosphereSettings& s = render::atmosphere();
     scene::LightBlock& b = view->lights;
     b = {};
     const bool all = atmosphere && s.map_lights != 0;
     if ((all || render::graphics().extra_lights != 0) && !traced) {
         rhi::RayTracer::View lights;
-        describe_lights(frame, fog_far, &lights, !all, shadowed);
+        describe_lights(frame, fog_far, &lights, !all, shadowed, frustum);
         // The same transform gives the same numbers: the block's entry of the light the shadow map belongs to.
         std::array<float, 3> shadowed_at{};
         if (shadowed >= 0)
@@ -192,6 +309,8 @@ void describe_scene_lights(const scene::Frame& frame, float fog_far, bool traced
                 b.info[2] = 1.0f;
                 b.sun_dir[3] = sun.fit().texel;
                 b.sun_matrix = sun.fit().receiver;
+                // The sun's taps follow the flashlight's filter quality: half of them at the cheapest one.
+                b.shadow[1] = render::flashlight().shadow_filter <= 0 ? 6.0f : 12.0f;
                 view->sun_shadow = sun.map();
                 view->sun_sampler = sun.sampler();
             }
@@ -216,6 +335,7 @@ void describe_scene_lights(const scene::Frame& frame, float fog_far, bool traced
         b.info[3] = static_cast<float>(n);
         b.sun_map[2] = kFlakeOpacity;
         b.sun_map[3] = 1.0f;
+        bin_flakes(b, fog_far);
     }
     b.sun_map[0] = static_cast<float>(sun.side());
     b.sun_map[1] = sun.fit().depth_range;
@@ -375,6 +495,7 @@ void SplitRenderer::open_pass(rhi::CommandList& cmd, const Split& split) {
         desc.name = "scene";
         p.pass = cmd.beginRenderPass(desc);
         p.bound.reset();
+        section_ = -1;
         if (p.pass) {
             owner_.prims().resetBindings();
             owner_.prims().beginDraws(*p.pass, rhi::PrimVsUniforms{}, rhi::PrimFsUniforms{});
@@ -391,11 +512,26 @@ void SplitRenderer::open_pass(rhi::CommandList& cmd, const Split& split) {
     p.pass->setScissor(t.scissor ? t.scissor_rect : viewport_rect(t.viewport));
 }
 
+namespace {
+bool g_timed_sections = false;
+}  // namespace
+
+void set_timed_sections(bool on) { g_timed_sections = on; }
+
+void SplitRenderer::time_section(int kind) {
+    if (!g_timed_sections || !pass_->pass || kind == section_) return;
+    static constexpr const char* kNames[] = {"~prims", "~scene world", "~scene item"};
+    pass_->pass->endTimedSection();
+    pass_->pass->beginTimedSection(kNames[kind]);
+    section_ = kind;
+}
+
 void SplitRenderer::close_pass(rhi::CommandList& cmd) {
     if (!pass_->pass) return;
     cmd.endRenderPass();
     pass_->pass = nullptr;
     pass_->bound.reset();
+    section_ = -1;
 }
 
 void SplitRenderer::draw_prims(rhi::CommandList& cmd, const Split& split, const SplitBatch& batch,
@@ -403,6 +539,7 @@ void SplitRenderer::draw_prims(rhi::CommandList& cmd, const Split& split, const 
     open_pass(cmd, split);
     Pass& p = *pass_;
     if (!p.pass) return;
+    time_section(0);
     Split s = split;
     s.first = step.first;
     s.count = step.count;
@@ -461,6 +598,7 @@ void SplitRenderer::draw_scene(rhi::CommandList& cmd, const Split& split) {
     open_pass(cmd, split);
     Pass& p = *pass_;
     if (!p.pass) return;
+    time_section(split.scene_item < 0 ? 1 : 2);
     Split probe;
     probe.env = split.env;
     probe.disp = split.disp;
@@ -564,7 +702,7 @@ void SplitRenderer::note_world(const scene::Frame& frame, const scene::View& vie
     const bool all_lights = (g.ray_tracing != 0 && g.rt_lights != 0) || a.map_lights != 0;
     if (all_lights || g.extra_lights != 0) {
         rhi::RayTracer::View lights;
-        describe_lights(frame, fog_opaque_distance(view), &lights, !all_lights);
+        describe_lights(frame, fog_opaque_distance(view), &lights, !all_lights, -1, light_frustum(frame, view));
         for (const rhi::RayTracer::View::Light& l : lights.mapLights) {
             if (in.lights >= rhi::kAtmosphereLights) break;
             in.lightPos[static_cast<std::size_t>(in.lights)] = l.position;

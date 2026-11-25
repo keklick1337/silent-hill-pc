@@ -396,8 +396,15 @@ SH_TEST(gpu_targets_clear) {
     gpu::Targets t(dev);
     sized(t, 640, 480);
     FakeCmd& cmd = dev.cmd;
+    // A whole clear waits for the target's next use (a tile-based GPU begins the scene pass with it); a depth clear
+    // asked for meanwhile is part of it.
     t.clear(cmd, {0, 0, 320, 224}, 255, 0, 0);
+    t.clear_depth(cmd);
+    SH_CHECK(cmd.passes.empty());
+    SH_CHECK(t.resolved(cmd) == t.scene_color());
     SH_CHECK(cmd.passes.size() == 1 && cmd.blits.empty());
+    t.flush_clear(cmd);
+    SH_CHECK(cmd.passes.size() == 1);
     SH_CHECK(cmd.passes[0].color.texture == t.scene_color() && cmd.passes[0].color.clear[0] == 1.0f);
     SH_CHECK(cmd.passes[0].depthStencil.texture == t.scene_depth() &&
              cmd.passes[0].depthStencil.load == rhi::LoadOp::Clear);
@@ -414,6 +421,13 @@ SH_TEST(gpu_targets_clear) {
              cmd.blits[0].dst_rect.h == 720);
     SH_CHECK(cmd.last_upload.size() == 4 && cmd.last_upload[0] == std::byte{128} &&
              cmd.last_upload[3] == std::byte{0xFF});
+    // A depth clear alone keeps the colour, and waits the same way.
+    cmd.passes.clear();
+    p.clear_depth(cmd);
+    SH_CHECK(cmd.passes.empty());
+    p.begin_draw(cmd);
+    SH_CHECK(cmd.passes.size() == 1 && cmd.passes[0].color.load == rhi::LoadOp::Load &&
+             cmd.passes[0].depthStencil.load == rhi::LoadOp::Clear);
 }
 
 SH_TEST(gpu_targets_scene_redirect) {
@@ -468,7 +482,8 @@ SH_TEST(gpu_targets_msaa) {
 
     // A full clear goes to the multisampled target and counts as drawn.
     t.clear(dev.cmd, {0, 0, 320, 224}, 10, 20, 30);
-    SH_CHECK(dev.cmd.passes.back().color.texture == t.draw_color());
+    t.flush_clear(dev.cmd);
+    SH_CHECK(!dev.cmd.passes.empty() && dev.cmd.passes.back().color.texture == t.draw_color());
     t.resolved(dev.cmd);
     SH_CHECK(dev.cmd.resolves.size() == 2);
 

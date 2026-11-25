@@ -9,6 +9,7 @@
 #include "render/gpu/shaders/post_shaders.h"
 #include "render/gpu/render_state.h"
 #include "render/gpu/targets.h"
+#include "render/gpu/gpu_types.h"
 
 #include <span>
 #include <string_view>
@@ -23,6 +24,13 @@ constexpr std::uint32_t kSamplerScene = 0;
 constexpr std::uint32_t kUniformPost = 0;
 const std::string_view kFsSamplers[] = {"s_scene"};
 const std::string_view kFsBlocks[] = {"PostFs"};
+const std::string_view kPresentBlocks[] = {"PresentFs"};
+
+// std140 PresentFs of shaders/present.frag.
+struct PresentUniforms {
+    float src[4];
+    float dst[4];
+};
 
 constexpr VertexAttribute kAttributes[] = {{0, VertexFormat::Float2, 0}};
 // One triangle over the whole target; the part outside [-1, 1] is clipped.
@@ -43,6 +51,17 @@ void PostPass::release() {
     if (pipeline_) dev.destroy(pipeline_);
     if (fs_) dev.destroy(fs_);
     if (vs_) dev.destroy(vs_);
+    if (present_pipeline_) dev.destroy(present_pipeline_);
+    if (present_fs_) dev.destroy(present_fs_);
+    if (present_vs_) dev.destroy(present_vs_);
+    if (present_nearest_) dev.destroy(present_nearest_);
+    if (present_linear_) dev.destroy(present_linear_);
+    if (present_triangle_) dev.destroy(present_triangle_);
+    present_pipeline_ = {};
+    present_vs_ = present_fs_ = {};
+    present_nearest_ = present_linear_ = {};
+    present_triangle_ = {};
+    present_uploaded_ = false;
     post_ = sharp_ = {};
     triangle_ = {};
     sampler_ = {};
@@ -126,6 +145,84 @@ bool PostPass::ensure_pipeline() {
     return true;
 }
 
+bool PostPass::ensure_present_pipeline() {
+    if (present_pipeline_) return true;
+    if (present_failed_) return false;
+    Device& dev = owner_.device();
+    const auto vsrc = embedded::gpu_post_vert();
+    const auto fsrc = embedded::gpu_present_frag();
+    auto fail = [this]() {
+        present_failed_ = true;
+        return false;
+    };
+    if (vsrc.spirv.empty() || fsrc.spirv.empty()) return fail();
+    ShaderDesc vd;
+    vd.stage = ShaderStage::Vertex;
+    vd.glsl = vsrc.glsl;
+    vd.spirv = vsrc.spirv;
+    vd.name = "post.vert (present)";
+    auto vs = dev.createShader(vd);
+    if (!vs) return fail();
+    present_vs_ = vs.value();
+    ShaderDesc fd;
+    fd.stage = ShaderStage::Fragment;
+    fd.glsl = fsrc.glsl;
+    fd.spirv = fsrc.spirv;
+    fd.samplerNames = kFsSamplers;
+    fd.uniformBlockNames = kPresentBlocks;
+    fd.name = "present.frag";
+    auto fs = dev.createShader(fd);
+    if (!fs) return fail();
+    present_fs_ = fs.value();
+    PipelineDesc p;
+    p.vertexShader = present_vs_;
+    p.fragmentShader = present_fs_;
+    p.vertexLayout = {sizeof(float) * 2, kAttributes};
+    p.primitive = PrimitiveType::TriangleList;
+    p.colorFormat = TextureFormat::RGBA8;
+    p.name = "present";
+    auto pipe = dev.createPipeline(p);
+    if (!pipe) return fail();
+    present_pipeline_ = pipe.value();
+    auto nearest =
+        dev.createSampler({Filter::Nearest, Filter::Nearest, AddressMode::ClampToEdge, AddressMode::ClampToEdge});
+    auto linear =
+        dev.createSampler({Filter::Linear, Filter::Linear, AddressMode::ClampToEdge, AddressMode::ClampToEdge});
+    auto tri = dev.createBuffer({BufferUsage::Vertex, sizeof(kTriangle), "present triangle"});
+    if (!nearest || !linear || !tri) return fail();
+    present_nearest_ = nearest.value();
+    present_linear_ = linear.value();
+    present_triangle_ = tri.value();
+    return true;
+}
+
+bool PostPass::draw_present(CommandList& cmd, TextureH src, const BlitStep& step, TextureH out, bool covered) {
+    if (!ensure_present_pipeline()) return false;
+    if (!present_uploaded_) {
+        cmd.uploadBuffer(present_triangle_, 0, std::as_bytes(std::span(kTriangle)));
+        present_uploaded_ = true;
+    }
+    RenderPassDesc rp;
+    // Black bars where the picture does not cover the window; nothing to keep where it does.
+    rp.color = {out, covered ? LoadOp::DontCare : LoadOp::Clear, StoreOp::Store, {0.f, 0.f, 0.f, 1.f}};
+    rp.name = "present";
+    RenderPass* pass = cmd.beginRenderPass(rp);
+    if (!pass) return false;
+    PresentUniforms u{{float(step.src.x), float(step.src.y), float(step.src.w), float(step.src.h)},
+                      {float(step.dst.x), float(step.dst.y), float(step.dst.w), float(step.dst.h)}};
+    pass->bindPipeline(present_pipeline_);
+    pass->setScissor(step.dst);
+    pass->bindVertexBuffer(present_triangle_, 0);
+    pass->bindSampler(ShaderStage::Fragment, kSamplerScene, src,
+                      step.filter == Filter::Linear ? present_linear_ : present_nearest_);
+    pass->pushUniforms(ShaderStage::Fragment, kUniformPost, std::as_bytes(std::span(&u, 1)));
+    pass->draw(3, 0);
+    // The scene target is drawn into next frame: no sampler slot may keep it.
+    pass->bindSampler(ShaderStage::Fragment, kSamplerScene, {}, {});
+    cmd.endRenderPass();
+    return true;
+}
+
 bool PostPass::ensure_texture(TextureH& tex, int& tw, int& th, int w, int h, const char* name, TextureFormat format) {
     if (tex && tw == w && th == h && (&tex != &post_ || post_format_ == format)) return true;
     Device& dev = owner_.device();
@@ -206,12 +303,6 @@ void PostPass::present(CommandList& cmd) {
     if (encode) {
         if (const TextureH compose = hdr_->compose_target(int(sw), int(sh))) out = compose;
     }
-    // Black bars, and no stale edges where the picture does not cover the window.
-    RenderPassDesc clear;
-    clear.color = {out, LoadOp::Clear, StoreOp::Store, {0.f, 0.f, 0.f, 1.f}};
-    clear.name = "present";
-    if (cmd.beginRenderPass(clear)) cmd.endRenderPass();
-
     int dx = 0, dy = 0, dw = 0, dh = 0;
     targets.present_rect(&dx, &dy, &dw, &dh);
     if (dw <= 0 || dh <= 0) {
@@ -227,9 +318,33 @@ void PostPass::present(CommandList& cmd) {
         // Degrade to the smooth stretch, never to a black frame.
         plan = plan_present(PresentScale::Bilinear, false, w, h, dst);
     }
-    for (int i = 0; i < plan.count; ++i) {
+    // Black bars, and no stale edges where the picture does not cover the window. A picture over all of it needs no
+    // clear: on a phone that is a pass of the screen's size.
+    const BlitStep* last = plan.count > 0 ? &plan.steps[std::size_t(plan.count - 1)] : nullptr;
+    const bool covered = last && !last->to_intermediate && last->dst.x == 0 && last->dst.y == 0 &&
+                         last->dst.w == int(sw) && last->dst.h == int(sh);
+    // A phone draws the last step in the render pass the overlay continues (the native backend merges the two):
+    // the window is written once instead of being copied into, stored and loaded again.
+    const bool draw_last = phone_gpu() && dev.backend() == Backend::Vulkan && last && !last->to_intermediate &&
+                           ensure_present_pipeline();
+    if (!covered && !draw_last) {
+        RenderPassDesc clear;
+        clear.color = {out, LoadOp::Clear, StoreOp::Store, {0.f, 0.f, 0.f, 1.f}};
+        clear.name = "present";
+        if (cmd.beginRenderPass(clear)) cmd.endRenderPass();
+    }
+    for (int i = 0; i < plan.count - (draw_last ? 1 : 0); ++i) {
         const BlitStep& s = plan.steps[std::size_t(i)];
         cmd.blitTexture(s.from_intermediate ? sharp_ : shown, s.src, s.to_intermediate ? sharp_ : out, s.dst, s.filter);
+    }
+    if (draw_last && !draw_present(cmd, last->from_intermediate ? sharp_ : shown, *last, out, covered)) {
+        if (!covered) {
+            RenderPassDesc clear;
+            clear.color = {out, LoadOp::Clear, StoreOp::Store, {0.f, 0.f, 0.f, 1.f}};
+            clear.name = "present";
+            if (cmd.beginRenderPass(clear)) cmd.endRenderPass();
+        }
+        cmd.blitTexture(last->from_intermediate ? sharp_ : shown, last->src, out, last->dst, last->filter);
     }
     if (after_present_) after_present_(cmd, out, sw, sh);
     if (out != swap) hdr_->encode(cmd, out, swap, int(sw), int(sh), hs.paper_white, hs.peak);

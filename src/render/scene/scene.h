@@ -198,6 +198,11 @@ struct Frame {
 
 inline constexpr std::size_t kSceneLights = 32;
 inline constexpr std::size_t kSceneFlakes = 64;
+inline constexpr std::size_t kFlakeGrid = 16;    // scene.frag FlakeShadowSun
+inline constexpr std::size_t kFlakeList = 1024;
+inline constexpr std::size_t kLightTilesX = 16;  // scene.frag MapLights: the picture's tiles across
+inline constexpr std::size_t kLightTilesY = 8;   // and down
+inline constexpr std::size_t kLightTiles = kLightTilesX * kLightTilesY;
 
 // The map's lights and sun shaded without ray tracing (map_lights), the sun's shadow map (sun_shadows) and the
 // flakes' shadow term (particle_shadows), in view space; std140, after the water's block in scene.frag. All zero:
@@ -209,11 +214,22 @@ struct LightBlock {
     std::array<float, 4> sun_map{};      // x: map side (texels), y: depth range (view units), z: flake opacity,
                                          // w: 1 the flakes also shade the flashlight
     std::array<float, 16> sun_matrix{};  // view space to the sun map's clip space (GL convention, rows as written)
-    std::array<float, 4> shadow{};       // x: 1 + the light shaded through the flashlight's shadow map, 0: none
+    std::array<float, 4> shadow{};       // x: 1 + the light shaded through the flashlight's shadow map, 0: none,
+                                         // y: the sun shadow map's taps
     std::array<std::array<float, 4>, kSceneLights> pos{};     // xyz, w: range
     std::array<std::array<float, 4>, kSceneLights> dir{};     // a spot's axis (zero: point), w: outer cone cosine
     std::array<std::array<float, 4>, kSceneLights> color{};   // rgb, w: inner cone cosine
     std::array<std::array<float, 4>, kSceneFlakes> flakes{};  // xyz, w: radius
+    // The flakes binned by where their sun shadows can fall (scene.frag FlakeShadowSun): kFlakeGrid x kFlakeGrid cells
+    // in the plane across the sunlight, each with the flakes whose shadow can reach it, in rising order.
+    std::array<float, 4> flake_grid{};  // xy: the grid's corner (u, v), z: cells per view unit, w: 1 = grid on
+    std::array<float, 4> flake_u{};     // xyz: u axis, w: the largest squared distance from the eye it holds for
+    std::array<float, 4> flake_v{};     // xyz: v axis, w: the lowest point along the light it holds for
+    std::array<std::array<float, 4>, kFlakeGrid * kFlakeGrid / 2> flake_cells{};  // two cells per entry: first, count
+    std::array<std::array<float, 4>, kFlakeList / 4> flake_list{};               // flake indices, four per entry
+    // The lights that can reach each tile of a kLightTilesX x kLightTilesY grid over the picture (scene.frag
+    // MapLights): bit i of a tile's mask is light i, four tiles per entry. The scene renderer fills it from pos.
+    std::array<std::array<std::uint32_t, 4>, kLightTiles / 4> tiles{};
 };
 
 // The PS1 frame state at the scene point: what the PS1 prims around the scene are drawn with.

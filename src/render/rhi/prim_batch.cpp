@@ -144,7 +144,7 @@ Result<std::unique_ptr<PrimRenderer>> PrimRenderer::create(Device& device, Textu
     auto vram = device.createTexture({TextureFormat::RG8, kVramWidth, kVramHeight, kUsageSampled, "prim_vram"});
     if (!vram) return R::fail(vram.error());
     self->vram_ = vram.value();
-    auto fogRamp = device.createTexture({TextureFormat::R8, kFogRampEntries, 1, kUsageSampled, "fog_ramp"});
+    auto fogRamp = device.createTexture({TextureFormat::RG8, kFogRampEntries, 1, kUsageSampled, "fog_ramp"});
     if (!fogRamp) return R::fail(fogRamp.error());
     self->fogRamp_ = fogRamp.value();
 
@@ -196,9 +196,13 @@ Result<void> PrimRenderer::uploadVertices(CommandList& cmd, std::span<const Prim
 }
 
 void PrimRenderer::uploadFogRamp(CommandList& cmd, const FogRampUniforms& fog) {
-    std::array<std::uint8_t, kFogRampEntries> bytes{};
-    for (std::size_t i = 0; i < bytes.size(); ++i)
-        bytes[i] = static_cast<std::uint8_t>(std::clamp(fog.ramp[i], 0.f, 255.f));
+    // Texel i: entry i and entry i + 1 (255 past the end), the two ends the shaders interpolate between.
+    std::array<std::uint8_t, 2 * kFogRampEntries> bytes{};
+    for (std::size_t i = 0; i < kFogRampEntries; ++i) {
+        bytes[2 * i] = static_cast<std::uint8_t>(std::clamp(fog.ramp[i], 0.f, 255.f));
+        bytes[2 * i + 1] =
+            i + 1 < kFogRampEntries ? static_cast<std::uint8_t>(std::clamp(fog.ramp[i + 1], 0.f, 255.f)) : 255;
+    }
     if (fogRampUploaded_ && bytes == fogRampBytes_) return;
     cmd.uploadTexture(fogRamp_, {0, 0, static_cast<std::int32_t>(kFogRampEntries), 1}, std::as_bytes(std::span(bytes)));
     fogRampBytes_ = bytes;

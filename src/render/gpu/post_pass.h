@@ -91,6 +91,9 @@ public:
 
 private:
     bool ensure_pipeline();
+    // The present as a draw (phones): the last step of `plan` drawn into `out` in a render pass the overlay continues.
+    bool ensure_present_pipeline();
+    bool draw_present(rhi::CommandList& cmd, rhi::TextureH src, const BlitStep& step, rhi::TextureH out, bool covered);
     bool ensure_texture(rhi::TextureH& tex, int& tw, int& th, int w, int h, const char* name,
                         rhi::TextureFormat format = rhi::TextureFormat::RGBA8);
     void release();
@@ -108,6 +111,12 @@ private:
     int sharp_w_ = 0, sharp_h_ = 0;
     bool shown_post_ = false;  // the last present showed post_, not the scene colour
     rhi::TextureH shown_hdr_;  // or else the HDR resolve's output (scene size), when it ran
+    rhi::ShaderH present_vs_, present_fs_;
+    rhi::PipelineH present_pipeline_;
+    rhi::SamplerH present_nearest_, present_linear_;
+    rhi::BufferH present_triangle_;
+    bool present_uploaded_ = false;
+    bool present_failed_ = false;
     std::unique_ptr<HdrPass> hdr_;
     std::uint32_t frame_ = 0;
     AfterPresent after_present_;

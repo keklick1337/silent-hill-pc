@@ -125,6 +125,10 @@ struct DrawStep {
 };
 std::vector<DrawStep> order_splits(const SplitBatch& batch);
 
+// GPU time of the split kinds inside the scene passes (RenderPass::beginTimedSection: "~prims", "~scene world",
+// "~scene item"), for a profiling capture: a timestamp inside a pass can change how a tile-based GPU runs it.
+void set_timed_sections(bool on);
+
 // Textures one split samples, resolved by the caller.
 struct SplitBindings {
     rhi::TextureH vram;
@@ -180,6 +184,7 @@ private:
     void close_pass(rhi::CommandList& cmd);
     void draw_prims(rhi::CommandList& cmd, const Split& split, const SplitBatch& batch, const DrawStep& step);
     void draw_scene(rhi::CommandList& cmd, const Split& split);
+    void time_section(int kind);
     void note_world(const scene::Frame& frame, const scene::View& view);
     SplitContext context(const SplitBatch& batch, bool item_pass) const;
     // Ray tracing of the frame (ray_tracing, native Vulkan only): the acceleration structures, once per frame
@@ -212,6 +217,7 @@ private:
     const SplitBatch* uploaded_ = nullptr;
     std::size_t uploaded_count_ = 0;
     Stats stats_;
+    int section_ = -1;  // the split kind timed in the open pass (time_section)
 };
 
 }  // namespace sh::gpu

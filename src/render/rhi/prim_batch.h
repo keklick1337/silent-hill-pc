@@ -144,8 +144,8 @@ public:
     Result<void> uploadVertices(CommandList& cmd, std::span<const PrimVertex> vertices);
     // The ramp of `fog` into fogRamp(), only when its bytes changed. Outside a render pass.
     void uploadFogRamp(CommandList& cmd, const FogRampUniforms& fog);
-    // The fog ramp as a kFogRampEntries x 1 R8 texture: the fragment shaders fetch it instead of indexing the WorldFog
-    // block per pixel, which is a slow path on some GPUs (Intel).
+    // The fog ramp as a kFogRampEntries x 1 RG8 texture (entry i and i + 1 per texel): the fragment shaders fetch it
+    // instead of indexing the WorldFog block per pixel, which is a slow path on some GPUs (Intel).
     TextureH fogRamp() const { return fogRamp_; }
 
     Result<PipelineH> pipeline(const PrimPipelineKey& key);
@@ -188,7 +188,7 @@ private:
     std::unordered_map<std::uint32_t, PipelineH> pipelines_;
     TextureH externalVram_;
     TextureH fogRamp_;
-    std::array<std::uint8_t, kFogRampEntries> fogRampBytes_{};
+    std::array<std::uint8_t, 2 * kFogRampEntries> fogRampBytes_{};
     bool fogRampUploaded_ = false;
     PrimFsUniforms fsUniforms_{};
     PrimVsUniforms vsUniforms_{};

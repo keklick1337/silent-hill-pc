@@ -48,11 +48,14 @@ private:
 
     Renderer& owner_;
     bool failed_ = false;
-    rhi::ShaderH vs_, bloom_fs_, resolve_fs_, encode_fs_;
-    rhi::PipelineH bloom_pipe_, bloom_add_pipe_, resolve_pipe_, encode_pipe_;
+    rhi::ShaderH vs_, bloom_fs_, bloom_up_fs_, resolve_fs_, encode_fs_;
+    rhi::PipelineH bloom_pipe_, bloom_add_pipe_, bloom_up_pipe_, resolve_pipe_, encode_pipe_;
     rhi::SamplerH linear_;
     rhi::BufferH triangle_;
     std::array<Target, post::kMaxBloomLevels> bloom_{};
+    // Phones: the upsampled levels, apart from the downsampled ones so that no pass loads its target.
+    std::array<Target, post::kMaxBloomLevels> bloom_up_{};
+    bool mobile_ = false;
     Target out_, compose_;
 };
 

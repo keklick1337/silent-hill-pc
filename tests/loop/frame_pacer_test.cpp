@@ -109,6 +109,21 @@ SH_TEST(loop_pacer_timer) {
     SH_CHECK(h.slept > before);
 }
 
+// A display that runs at the cap paces a cap above 60 by itself (FIFO): no timer beats against it. A cap the blanks
+// express still waits for them.
+SH_TEST(loop_pacer_display_paced) {
+    lp::FramePacer p = make();
+    FakeHost h;
+    lp::FpsChoice c;
+    c.cap = 120;
+    c.display_paced = true;
+    SH_CHECK(p.capped_frame(h, false, true, 1, c) == 0);
+    SH_CHECK(h.waits == 0 && h.slept == 0);
+    c.cap = 60;
+    SH_CHECK(p.capped_frame(h, false, true, 1, c) == 1);
+    SH_CHECK(h.waits == 1 && h.slept == 0);
+}
+
 // After a frame longer than a blank the platform's wait returns at once (the blank it waits for has passed). Only
 // blanks the counter shows are a frame's blanks, so no frame is left with a zero step.
 SH_TEST(loop_pacer_counts_only_blanks_that_passed) {

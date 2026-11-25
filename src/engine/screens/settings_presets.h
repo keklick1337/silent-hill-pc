@@ -36,7 +36,8 @@ enum Preset : int {
     kUltraUpscaled = 4,
     kUltraRtx = 5,
     kUltraRtxUpscaled = 6,
-    kPresetCount = 7
+    kMobile = 7,  // offered on phones and tablets only
+    kPresetCount = 8
 };
 
 std::span<const KeyValue> flashlight_style(int style);

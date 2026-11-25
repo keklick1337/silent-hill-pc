@@ -3,10 +3,13 @@
 #include "render/rhi/vk_atmosphere.h"
 
 #include "render/rhi/rhi_vulkan_native.h"
+#include "render/rhi/vk_rendering.h"
 #include "render/rhi/shaders/embedded.h"
 
 #include <algorithm>
 #include <cmath>
+#include <cstddef>
+#include <cstdint>
 #include <cstring>
 #include <vector>
 
@@ -25,6 +28,12 @@ namespace {
 constexpr std::uint32_t kSlices = 96;
 // The volume is about one froxel per ten pixels, capped so a 4K frame stays near 16 MB per volume.
 constexpr std::uint32_t kFroxelPixels = 10;
+// A phone's GPU: a coarser volume (a 4K desktop frame's froxels are 20 pixels wide under the cap; the fog and the
+// beam are smooth at that scale) and fewer occlusion taps per estimate; about a quarter of the fog's froxels.
+constexpr std::uint32_t kPhoneSlices = 64;
+constexpr std::uint32_t kPhoneFroxelPixels = 16;
+constexpr std::int32_t kPhoneAoTaps = 8;
+static_assert(kSlices <= 128 && kPhoneSlices <= 128, "integrate.comp's kMaxSlices");
 constexpr std::uint32_t kMaxGridX = 192;
 constexpr std::uint32_t kMaxGridY = 108;
 constexpr float kFirstSlice = 48.0f;  // view units: the first, linear slice ends here
@@ -98,7 +107,12 @@ bool formatHas(VkPhysicalDevice physical, VkFormat format, VkFormatFeatureFlags 
 
 class VulkanAtmosphere final : public Atmosphere {
 public:
-    VulkanAtmosphere(Device& device, const vkn::Context& ctx) : device_(device), ctx_(ctx) {}
+    VulkanAtmosphere(Device& device, const vkn::Context& ctx, bool phone)
+        : device_(device),
+          ctx_(ctx),
+          phone_(phone),
+          slices_(phone ? kPhoneSlices : kSlices),
+          froxelPixels_(phone ? kPhoneFroxelPixels : kFroxelPixels) {}
     ~VulkanAtmosphere() override;
 
     Result<void> init();
@@ -116,6 +130,19 @@ private:
 
     Device& device_;
     vkn::Context ctx_;
+    // The shaders' kPhone and kTaps specialisation constants; left at their defaults off a phone.
+    bool phone_;
+    std::uint32_t slices_;
+    std::uint32_t froxelPixels_;
+    struct PhoneConstants {
+        VkBool32 phone = VK_TRUE;
+        std::int32_t aoTaps = kPhoneAoTaps;
+    } phoneConstants_;
+    std::array<VkSpecializationMapEntry, 2> phoneEntries_{
+        {{0, offsetof(PhoneConstants, phone), sizeof(VkBool32)},
+         {1, offsetof(PhoneConstants, aoTaps), sizeof(std::int32_t)}}};
+    VkSpecializationInfo phoneSpec_{2, phoneEntries_.data(), sizeof(PhoneConstants), &phoneConstants_};
+    const VkSpecializationInfo* spec() const { return phone_ ? &phoneSpec_ : nullptr; }
     VkDescriptorSetLayout setLayout_ = VK_NULL_HANDLE;
     VkPipelineLayout layout_ = VK_NULL_HANDLE;
     VkPipeline ao_ = VK_NULL_HANDLE, inject_ = VK_NULL_HANDLE, integrate_ = VK_NULL_HANDLE;
@@ -206,6 +233,7 @@ Result<void> VulkanAtmosphere::init() {
         ci.stage.stage = VK_SHADER_STAGE_COMPUTE_BIT;
         ci.stage.module = m;
         ci.stage.pName = "main";
+        ci.stage.pSpecializationInfo = spec();
         ci.layout = layout_;
         const VkResult r = vkCreateComputePipelines(dev, ctx_.pipelineCache, 1, &ci, nullptr, out);
         vkDestroyShaderModule(dev, m, nullptr);
@@ -306,9 +334,9 @@ Result<void> VulkanAtmosphere::ensureImages(VkCommandBuffer cmd, std::uint32_t a
         return Result<void>::ok();
     };
     if (auto r = want(aoImage_, VK_IMAGE_TYPE_2D, kAoFormat, aoW, aoH, 1, VK_IMAGE_USAGE_STORAGE_BIT); !r) return r;
-    if (auto r = want(injectImage_, VK_IMAGE_TYPE_3D, kVolumeFormat, gx, gy, kSlices, VK_IMAGE_USAGE_STORAGE_BIT); !r)
+    if (auto r = want(injectImage_, VK_IMAGE_TYPE_3D, kVolumeFormat, gx, gy, slices_, VK_IMAGE_USAGE_STORAGE_BIT); !r)
         return r;
-    if (auto r = want(volumeImage_, VK_IMAGE_TYPE_3D, kVolumeFormat, gx, gy, kSlices + 1,
+    if (auto r = want(volumeImage_, VK_IMAGE_TYPE_3D, kVolumeFormat, gx, gy, slices_ + 1,
                       VK_IMAGE_USAGE_STORAGE_BIT | VK_IMAGE_USAGE_SAMPLED_BIT);
         !r)
         return r;
@@ -330,7 +358,7 @@ Result<void> VulkanAtmosphere::ensureImages(VkCommandBuffer cmd, std::uint32_t a
         VkDependencyInfo dep{VK_STRUCTURE_TYPE_DEPENDENCY_INFO};
         dep.imageMemoryBarrierCount = static_cast<std::uint32_t>(barriers.size());
         dep.pImageMemoryBarriers = barriers.data();
-        ctx_.cmdPipelineBarrier2(cmd, &dep);
+        ctx_.rendering->barrier(cmd, dep);
     }
     return Result<void>::ok();
 }
@@ -347,6 +375,7 @@ VkPipeline VulkanAtmosphere::compositePipeline(VkFormat color) {
     stages[1].stage = VK_SHADER_STAGE_FRAGMENT_BIT;
     stages[1].module = compositeFs_;
     stages[1].pName = "main";
+    stages[1].pSpecializationInfo = spec();
     VkPipelineVertexInputStateCreateInfo vin{VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO};
     VkPipelineInputAssemblyStateCreateInfo ia{VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO};
     ia.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
@@ -382,7 +411,7 @@ VkPipeline VulkanAtmosphere::compositePipeline(VkFormat color) {
     ri.colorAttachmentCount = 1;
     ri.pColorAttachmentFormats = &color;
     VkGraphicsPipelineCreateInfo ci{VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO};
-    ci.pNext = &ri;
+    ctx_.rendering->pipeline(ci, ri);
     ci.stageCount = 2;
     ci.pStages = stages;
     ci.pVertexInputState = &vin;
@@ -411,7 +440,7 @@ void VulkanAtmosphere::computeBarrier(VkCommandBuffer cmd, VkPipelineStageFlags2
     VkDependencyInfo dep{VK_STRUCTURE_TYPE_DEPENDENCY_INFO};
     dep.memoryBarrierCount = 1;
     dep.pMemoryBarriers = &b;
-    ctx_.cmdPipelineBarrier2(cmd, &dep);
+    ctx_.rendering->barrier(cmd, dep);
 }
 
 // Where the fog hides everything along the view axis: the last slice ends there. Past the ramp's end the fog is
@@ -444,11 +473,13 @@ Result<void> VulkanAtmosphere::apply(const AtmosphereInputs& in) {
     VkCommandBuffer cmd = vkn::record(device_);
     if (!cmd) return Result<void>::fail("atmosphere: no frame is being recorded");
     appliedSerial_ = serial;
-    const auto aoW = static_cast<std::uint32_t>(in.ao ? vw : 1), aoH = static_cast<std::uint32_t>(in.ao ? vh : 1);
+    const std::uint32_t aoStep = static_cast<std::uint32_t>(std::clamp(in.ao_step, 1, 4));
+    const auto aoW = in.ao ? (static_cast<std::uint32_t>(vw) + aoStep - 1) / aoStep : 1u;
+    const auto aoH = in.ao ? (static_cast<std::uint32_t>(vh) + aoStep - 1) / aoStep : 1u;
     const std::uint32_t gx =
-        in.volumetric ? std::clamp(static_cast<std::uint32_t>(vw) / kFroxelPixels, 16u, kMaxGridX) : 1;
+        in.volumetric ? std::clamp(static_cast<std::uint32_t>(vw) / froxelPixels_, 16u, kMaxGridX) : 1;
     const std::uint32_t gy =
-        in.volumetric ? std::clamp(static_cast<std::uint32_t>(vh) / kFroxelPixels, 9u, kMaxGridY) : 1;
+        in.volumetric ? std::clamp(static_cast<std::uint32_t>(vh) / froxelPixels_, 9u, kMaxGridY) : 1;
     if (auto r = ensureImages(cmd, aoW, aoH, gx, gy); !r) return r;
     const VkPipeline composite = compositePipeline(color.format);
     if (!composite) return Result<void>::fail("atmosphere: no composite pipeline for the scene format");
@@ -457,10 +488,10 @@ Result<void> VulkanAtmosphere::apply(const AtmosphereInputs& in) {
     std::memcpy(blk.proj, in.proj.data(), sizeof blk.proj);
     const float view[4] = {vx, vy, vw, vh};
     std::memcpy(blk.view, view, sizeof view);
-    const float depthP[4] = {in.sz_max, kFirstSlice, fogEnd(in.fog), static_cast<float>(kSlices)};
+    const float depthP[4] = {in.sz_max, kFirstSlice, fogEnd(in.fog), static_cast<float>(slices_)};
     std::memcpy(blk.depth, depthP, sizeof depthP);
-    const float grid[4] = {static_cast<float>(gx), static_cast<float>(gy), static_cast<float>(kSlices + 1),
-                           in.ao ? 1.0f : 0.0f};
+    const float grid[4] = {static_cast<float>(gx), static_cast<float>(gy), static_cast<float>(slices_ + 1),
+                           in.ao ? static_cast<float>(aoStep) : 0.0f};
     std::memcpy(blk.grid, grid, sizeof grid);
     std::memcpy(blk.fog, in.fs.fog.data(), sizeof blk.fog);
     std::memcpy(blk.fogRampP, in.fog.params.data(), sizeof blk.fogRampP);
@@ -546,7 +577,7 @@ Result<void> VulkanAtmosphere::apply(const AtmosphereInputs& in) {
     }
     if (in.volumetric) {
         vkCmdBindPipeline(cmd, VK_PIPELINE_BIND_POINT_COMPUTE, inject_);
-        vkCmdDispatch(cmd, (gx + 3) / 4, (gy + 3) / 4, (kSlices + 3) / 4);
+        vkCmdDispatch(cmd, (gx + 3) / 4, (gy + 3) / 4, (slices_ + 3) / 4);
         computeBarrier(cmd, VK_PIPELINE_STAGE_2_COMPUTE_SHADER_BIT);
         vkCmdBindPipeline(cmd, VK_PIPELINE_BIND_POINT_COMPUTE, integrate_);
         vkCmdDispatch(cmd, (gx + 7) / 8, (gy + 7) / 8, 1);
@@ -566,7 +597,7 @@ Result<void> VulkanAtmosphere::apply(const AtmosphereInputs& in) {
     ri.layerCount = 1;
     ri.colorAttachmentCount = 1;
     ri.pColorAttachments = &att;
-    ctx_.cmdBeginRendering(cmd, &ri);
+    ctx_.rendering->begin(cmd, ri, &color.format, VK_FORMAT_UNDEFINED);
     // Not flipped: gl_FragCoord is the target's own pixel, top row first.
     const VkViewport viewport{vx, vy, vw, vh, 0.0f, 1.0f};
     vkCmdSetViewport(cmd, 0, 1, &viewport);
@@ -574,7 +605,7 @@ Result<void> VulkanAtmosphere::apply(const AtmosphereInputs& in) {
     vkCmdBindPipeline(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, composite);
     vkCmdBindDescriptorSets(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, layout_, 0, 1, &set, 0, nullptr);
     vkCmdDraw(cmd, 3, 1, 0, 0);
-    ctx_.cmdEndRendering(cmd);
+    ctx_.rendering->end(cmd);
     vkn::transition(device_, in.color, color.rest);
     vkn::endSpan(device_);
     return Result<void>::ok();
@@ -582,7 +613,7 @@ Result<void> VulkanAtmosphere::apply(const AtmosphereInputs& in) {
 
 }  // namespace
 
-std::unique_ptr<Atmosphere> createAtmosphere(Device& device, std::string* reason) {
+std::unique_ptr<Atmosphere> createAtmosphere(Device& device, std::string* reason, bool phone) {
     auto say = [&](const char* why) {
         if (reason) *reason = why;
         return nullptr;
@@ -594,7 +625,7 @@ std::unique_ptr<Atmosphere> createAtmosphere(Device& device, std::string* reason
                    VK_FORMAT_FEATURE_STORAGE_IMAGE_BIT | VK_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_LINEAR_BIT) ||
         !formatHas(ctx->physical, kAoFormat, VK_FORMAT_FEATURE_STORAGE_IMAGE_BIT))
         return say("the device cannot store the fog volume");
-    auto a = std::make_unique<VulkanAtmosphere>(device, *ctx);
+    auto a = std::make_unique<VulkanAtmosphere>(device, *ctx, phone);
     if (auto r = a->init(); !r) {
         if (reason) *reason = r.error();
         return nullptr;

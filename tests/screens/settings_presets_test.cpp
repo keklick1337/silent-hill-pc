@@ -152,8 +152,10 @@ SH_TEST(settings_presets_preset_match)
     SH_CHECK(pr::step_choice(pr::kUltra, pr::kPresetCount, 1) == pr::kUltraUpscaled);
     SH_CHECK(pr::step_choice(pr::kUltraUpscaled, pr::kPresetCount, 1) == pr::kUltraRtx);
     SH_CHECK(pr::step_choice(pr::kUltraRtx, pr::kPresetCount, 1) == pr::kUltraRtxUpscaled);
-    SH_CHECK(pr::step_choice(pr::kUltraRtxUpscaled, pr::kPresetCount, 1) == pr::kOriginal);
-    SH_CHECK(pr::step_choice(pr::kCustom, pr::kPresetCount, -1) == pr::kUltraRtxUpscaled);
+    // The mobile preset is the last choice (the menu offers it on phones only): stepping on wraps to original.
+    SH_CHECK(pr::step_choice(pr::kUltraRtxUpscaled, pr::kPresetCount, 1) == pr::kMobile);
+    SH_CHECK(pr::step_choice(pr::kMobile, pr::kPresetCount, 1) == pr::kOriginal);
+    SH_CHECK(pr::step_choice(pr::kCustom, pr::kPresetCount, -1) == pr::kMobile);
 }
 
 SH_TEST(settings_presets_step_choice)

@@ -6,15 +6,17 @@ layout(local_size_x = 8, local_size_y = 8) in;
 #include "common.glsl"
 layout(set = 0, binding = 3, r32f) uniform image2D i_ao;
 
-const int kTaps = 12;
+// Fewer on a phone (vk_atmosphere.cpp); the composite's mean of nine estimates hides the extra noise.
+layout(constant_id = 1) const int kTaps = 12;
 
 void main() {
     ivec2 at = ivec2(gl_GlobalInvocationID.xy);
-    if (at.x >= int(u_view.z) || at.y >= int(u_view.w)) return;
-    ivec2 t = at + ivec2(u_view.xy);
+    int step = max(int(u_grid.w + 0.5), 1);
+    if (at.x * step >= int(u_view.z) || at.y * step >= int(u_view.w)) return;
+    ivec2 t = at * step + ivec2(u_view.xy);
     float z = ViewZ(t);
     if (z <= 0.0) {
-        imageStore(i_ao, at, vec4(1.0));
+        imageStore(i_ao, at, vec4(kPhone ? PackAo(1.0, -1.0) : 1.0));
         return;
     }
     vec2 px = vec2(t) + 0.5;
@@ -48,5 +50,6 @@ void main() {
         float fall = clamp(1.0 - dist2 / (radius * radius), 0.0, 1.0);
         occ += max(dot(v, n) * inversesqrt(max(dist2, 1e-4)) - 0.15, 0.0) * fall;
     }
-    imageStore(i_ao, at, vec4(clamp(1.0 - 2.0 * occ / float(kTaps), 0.0, 1.0)));
+    float ao = clamp(1.0 - 2.0 * occ / float(kTaps), 0.0, 1.0);
+    imageStore(i_ao, at, vec4(kPhone ? PackAo(ao, z) : ao));
 }

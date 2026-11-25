@@ -205,6 +205,7 @@ void Targets::make_multisampled(int samples)
 
 void Targets::begin_draw(rhi::CommandList& cmd)
 {
+    flush_clear(cmd);
     if (samples_ <= 1)
         return;
     if (ms_stale_) {
@@ -216,6 +217,7 @@ void Targets::begin_draw(rhi::CommandList& cmd)
 
 rhi::TextureH Targets::resolved(rhi::CommandList& cmd)
 {
+    flush_clear(cmd);
     if (samples_ > 1 && ms_dirty_) {
         cmd.resolveTexture(ms_color_, scene_color_);
         ms_dirty_ = false;
@@ -624,6 +626,14 @@ bool Targets::world_scaled(rhi::Viewport* full, rhi::Viewport* scaled) const
 
 void Targets::clear_depth(rhi::CommandList& cmd)
 {
+    // A whole clear still owed clears the depth too; otherwise this one waits like it (flush_clear).
+    if (clear_pending_)
+        return;
+    depth_clear_pending_ = true;
+}
+
+void Targets::depth_clear_pass(rhi::CommandList& cmd)
+{
     if (!draw_color() || !draw_depth())
         return;
     rhi::RenderPassDesc pass;
@@ -640,21 +650,13 @@ void Targets::clear_depth(rhi::CommandList& cmd)
         cmd.endRenderPass();
 }
 
-void Targets::clear(rhi::CommandList& cmd, const Rect& vram_rect, std::uint8_t r, std::uint8_t g, std::uint8_t b)
+void Targets::clear_pass(rhi::CommandList& cmd, const std::array<float, 4>& colour)
 {
-    (void)vram_rect;
-    if (!scene_color_)
-        return;
-    const std::array<float, 4> colour{r / 255.0f, g / 255.0f, b / 255.0f, 1.0f};
-    const pr::PlacedRect pic = pr::picture_rect(picture_input(view_, width_, height_, ui2d_wide()));
-    const bool bars = pic.w != width_ || pic.h != height_;
-
     rhi::RenderPassDesc pass;
     pass.color.texture = draw_color();
     pass.color.load = rhi::LoadOp::Clear;
     pass.color.store = rhi::StoreOp::Store;
-    // The bars stay black whatever the game clears to (the examine screen clears to its grey fog colour).
-    pass.color.clear = bars ? std::array<float, 4>{0.0f, 0.0f, 0.0f, 1.0f} : colour;
+    pass.color.clear = colour;
     pass.depthStencil.texture = draw_depth();
     pass.depthStencil.load = rhi::LoadOp::Clear;
     pass.depthStencil.store = rhi::StoreOp::Store;
@@ -666,7 +668,43 @@ void Targets::clear(rhi::CommandList& cmd, const Rect& vram_rect, std::uint8_t r
     // The whole target was cleared: the multisampled one holds the newest picture.
     ms_dirty_ = samples_ > 1;
     ms_stale_ = false;
-    if (!bars || pic.w <= 0 || pic.h <= 0)
+}
+
+void Targets::flush_clear(rhi::CommandList& cmd)
+{
+    if (depth_clear_pending_) {
+        depth_clear_pending_ = false;
+        depth_clear_pass(cmd);
+    }
+    if (clear_pending_) {
+        clear_pending_ = false;
+        if (scene_color_)
+            clear_pass(cmd, pending_colour_);
+    }
+}
+
+void Targets::clear(rhi::CommandList& cmd, const Rect& vram_rect, std::uint8_t r, std::uint8_t g, std::uint8_t b)
+{
+    (void)vram_rect;
+    if (!scene_color_)
+        return;
+    const std::array<float, 4> colour{r / 255.0f, g / 255.0f, b / 255.0f, 1.0f};
+    const pr::PlacedRect pic = pr::picture_rect(picture_input(view_, width_, height_, ui2d_wide()));
+    const bool bars = pic.w != width_ || pic.h != height_;
+    if (!bars) {
+        depth_clear_pending_ = false;  // this clear takes the depth too
+        // Recorded where the target is next drawn or read (flush_clear): the frame's first draws then begin with the
+        // clear as their pass's load op, after the shadow maps of the batch, instead of in a pass of its own that a
+        // tile-based GPU stores and loads again.
+        clear_pending_ = true;
+        pending_colour_ = colour;
+        return;
+    }
+    // The bars stay black whatever the game clears to (the examine screen clears to its grey fog colour). Any clear
+    // still owed is covered by this one.
+    clear_pending_ = depth_clear_pending_ = false;
+    clear_pass(cmd, std::array<float, 4>{0.0f, 0.0f, 0.0f, 1.0f});
+    if (pic.w <= 0 || pic.h <= 0)
         return;
 
     if (!solid_) {
