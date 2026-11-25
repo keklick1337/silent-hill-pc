@@ -427,7 +427,6 @@ inline constexpr Setting kSettings[] = {
     keys::flag("persistent_remains", &keys::C::persistentRemains, 0, "GAMEPLAY CHANGE: dead enemies stay"),
     keys::flag("force_hold_aim", &keys::C::forceHoldAim, 0, "GAMEPLAY CHANGE: Weapon Control pinned to hold"),
     keys::flag("bullet_fat_hitbox", &keys::C::bulletFatHitbox, 0, "GAMEPLAY CHANGE: bullets hit the whole body"),
-    keys::flag("fix_second_newspaper", &keys::C::fixSecondNewspaper, 0, "GAMEPLAY CHANGE: the flag the US release misses"),
     keys::flag("force_enemy_spawn", &keys::C::forceEnemySpawn, 0, "GAMEPLAY CHANGE: enemies regardless of the story"),
     keys::flag("fix_nurse_grab_drain", &keys::C::fixNurseGrabDrain, 0, "GAMEPLAY CHANGE: a nurse's hold drains health"),
     keys::flag("melee_once_per_swing", &keys::C::meleeOncePerSwing, 0, "GAMEPLAY CHANGE: one hit per swing"),
@@ -446,6 +445,7 @@ inline constexpr Setting kSettings[] = {
     keys::elsewhere("gamedata_dir", "the first run"),
     keys::elsewhere("map_format", "the file system"),
     keys::elsewhere("anim_source", "the file system"),
+    keys::elsewhere("keep_raw", "the file system"),
 };
 // clang-format on
 

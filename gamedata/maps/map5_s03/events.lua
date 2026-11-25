@@ -445,12 +445,11 @@ function Cutscene_GarageKaufmann()
 end
 
 -- index 9: newspaper NEWSP2.TIM (msg map5_s03.newspaper/48) over a dimmed background.
--- Flag 393 is not set by default; fix_second_newspaper (GAMEPLAY CHANGE) sets it, as in the PAL/Japanese releases.
+-- The US release never sets flag 393 here, so the newspaper in Nowhere never appears; it is set as the PAL and later
+-- Japanese releases do.
 function SecondNewspaperRead()
     sh.msg.show_dimmed(1917, 0, 0, "map5_s03.newspaper", "map5_s03.investigation_stalled_ptv") -- NEWSP2.TIM
-    if sh.game.fix_second_newspaper() ~= 0 then
-        sh.flag_set("M5S03_SeenSecondNewspaper", true) -- flag: seen second newspaper
-    end
+    sh.flag_set("M5S03_SeenSecondNewspaper", true) -- flag: seen second newspaper
 end
 
 -- index 10: pushing the shelf: Yes/No question, warp, anim 105, the shelf world object and

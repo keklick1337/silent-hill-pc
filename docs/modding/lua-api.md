@@ -569,7 +569,6 @@ The state of the game: screens, difficulty, timing.
 | `sh.game.difficulty() -> name` | "easy", "normal" or "hard"; nil outside a game. |
 | `sh.game.extra_options_enabled() -> value` | The extra options setting. |
 | `sh.game.fix_nurse_grab_drain() -> value` | The config option fix_nurse_grab_drain (read only). |
-| `sh.game.fix_second_newspaper() -> value` | The config option fix_second_newspaper (read only). |
 | `sh.game.gravity_speed() -> q12` | The fall speed gravity adds per tick. |
 | `sh.game.npc_flags() -> value` | The scene's character flag word. |
 | `sh.game.screen() -> name` | The top-level screen by name ("InGame", "MainMenu"). |

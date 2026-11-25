@@ -7,7 +7,7 @@ namespace sh::config {
 
 namespace {
 
-constexpr std::array<std::string_view, 59> kRetired = {
+constexpr std::array<std::string_view, 60> kRetired = {
     // Render paths and switches that were removed; old configs may still name them.
     "aniso_level", "rhi_prims", "model_source", "scene_renderer", "per_pixel_lighting", "chara_per_pixel_light",
     // The old collision code and its comparison mode.
@@ -39,6 +39,8 @@ constexpr std::array<std::string_view, 59> kRetired = {
     "enable_plugins", "allow_unrecognized_dlls",
     // The engine's own sound system is the only one.
     "audio_engine",
+    // The second newspaper always sets its flag, as in the PAL release.
+    "fix_second_newspaper",
 };
 
 std::string_view trim(std::string_view s) {

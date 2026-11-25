@@ -245,7 +245,6 @@ typedef struct {
     int persistentRemains;
     int forceHoldAim;
     int bulletFatHitbox;
-    int fixSecondNewspaper;
     int forceEnemySpawn;
     int fixNurseGrabDrain;
     int meleeOncePerSwing;

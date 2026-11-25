@@ -775,7 +775,6 @@ const Field kStateFields[] = {
     GAME_FIELD("game.active_buffer", false, st::GameField::ActiveBuffer),
     FIELD("game.brightness", true, game::session().game.settings.brightness),
     FIELD("game.extra_options_enabled", true, game::session().game.settings.extra_options),
-    FIELD("game.fix_second_newspaper", false, g_PcConfig.fixSecondNewspaper),
     FIELD("game.fix_nurse_grab_drain", false, g_PcConfig.fixNurseGrabDrain),
     FIELD("game.stick_radius", false, g_PcConfig.stickRadius),
     FIELD("game.tick30", false, sh::loop::frame_timing().tick30),

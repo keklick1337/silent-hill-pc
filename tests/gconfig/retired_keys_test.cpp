@@ -72,7 +72,8 @@ SH_TEST(retired_keys_old_config_lines_are_skipped) {
         "disc_image = Silent Hill (USA)-patched.bin\n"
         "enable_plugins = 1\n"
         "allow_unrecognized_dlls = 1\n"
-        "audio_engine = native\n";
+        "audio_engine = native\n"
+        "fix_second_newspaper = 0\n";
     int retired = 0, other = 0;
     std::istringstream in(text);
     for (std::string line; std::getline(in, line);) {
