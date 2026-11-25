@@ -776,6 +776,10 @@ const Field kStateFields[] = {
     FIELD("game.brightness", true, game::session().game.settings.brightness),
     FIELD("game.extra_options_enabled", true, game::session().game.settings.extra_options),
     FIELD("game.fix_nurse_grab_drain", false, g_PcConfig.fixNurseGrabDrain),
+    // The option is retired (the fix is always on); mods written for 1.1 may still ask.
+    {"game.fix_second_newspaper", false, [](bool set, long long& v) {
+         if (!set) v = 1;
+     }},
     FIELD("game.stick_radius", false, g_PcConfig.stickRadius),
     FIELD("game.tick30", false, sh::loop::frame_timing().tick30),
     GAME_FIELD("save.map_idx", true, st::GameField::SaveMapIdx),

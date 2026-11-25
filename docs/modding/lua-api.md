@@ -6,7 +6,7 @@ Every function a script can call, by table. The same text is what the in-game Lu
 
 **Units.** Positions and lengths are Q12 integers (4096 = 1 m, Y grows downwards), angles Q12 (4096 = a full turn), times Q12 seconds, health Q12 (409600 = 100), unless a line says otherwise. A character is its slot number: 0 the player, 1 and up the others. Items, flags, characters, sounds and messages are given by name.
 
-**Coverage.** 1063 functions are listed, 773 of them described. The rest are listed by signature under "Not described yet": they exist and can be called, but nobody has written down what they do; nearly all of them are helpers of the base game's own map and character scripts, and reading those scripts (`gamedata/maps/*/events.lua`, `gamedata/chara/*/behavior.lua`) is the way to learn them. `...` in a signature means the arguments have not been written down either.
+**Coverage.** 1064 functions are listed, 774 of them described. The rest are listed by signature under "Not described yet": they exist and can be called, but nobody has written down what they do; nearly all of them are helpers of the base game's own map and character scripts, and reading those scripts (`gamedata/maps/*/events.lua`, `gamedata/chara/*/behavior.lua`) is the way to learn them. `...` in a signature means the arguments have not been written down either.
 
 ## Contents
 
@@ -26,7 +26,7 @@ Every function a script can call, by table. The same text is what the in-game Lu
 - [`sh.entity`](#shentity) — 78 of 239 described
 - [`sh.event`](#shevent) — 28 of 32 described
 - [`sh.flag`](#shflag) — 4 of 4 described
-- [`sh.game`](#shgame) — 28 of 29 described
+- [`sh.game`](#shgame) — 29 of 30 described
 - [`sh.hooks`](#shhooks) — 5 of 5 described
 - [`sh.input`](#shinput) — 13 of 15 described
 - [`sh.item`](#shitem) — 4 of 4 described
@@ -569,6 +569,7 @@ The state of the game: screens, difficulty, timing.
 | `sh.game.difficulty() -> name` | "easy", "normal" or "hard"; nil outside a game. |
 | `sh.game.extra_options_enabled() -> value` | The extra options setting. |
 | `sh.game.fix_nurse_grab_drain() -> value` | The config option fix_nurse_grab_drain (read only). |
+| `sh.game.fix_second_newspaper() -> value` | Always 1: the second newspaper's flag is always set now. Kept for mods written for 1.1. |
 | `sh.game.gravity_speed() -> q12` | The fall speed gravity adds per tick. |
 | `sh.game.npc_flags() -> value` | The scene's character flag word. |
 | `sh.game.screen() -> name` | The top-level screen by name ("InGame", "MainMenu"). |

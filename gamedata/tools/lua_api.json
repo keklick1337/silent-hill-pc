@@ -1949,6 +1949,10 @@
       "signature": "sh.game.fix_nurse_grab_drain() -> value",
       "description": "The config option fix_nurse_grab_drain (read only)."
     },
+    "sh.game.fix_second_newspaper": {
+      "signature": "sh.game.fix_second_newspaper() -> value",
+      "description": "Always 1: the second newspaper's flag is always set now. Kept for mods written for 1.1."
+    },
     "sh.game.gravity_speed": {
       "signature": "sh.game.gravity_speed() -> q12",
       "description": "The fall speed gravity adds per tick."
