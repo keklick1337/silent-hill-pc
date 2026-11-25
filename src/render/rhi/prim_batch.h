@@ -176,6 +176,7 @@ public:
 
 private:
     PrimRenderer(Device& device, TextureFormat colorFormat, bool depthStencil);
+    PipelineDesc describe(const PrimPipelineKey& key) const;
     Device& device_;
     TextureFormat colorFormat_;
     bool depthStencil_;

@@ -40,7 +40,7 @@ foreach(_pair IN ITEMS "prim_batch.vert:primBatchVert" "prim_batch.frag:primBatc
     list(APPEND _rhi_shader_sources "${_cpp}")
 endforeach()
 
-add_library(sh_rhi_gl STATIC rhi_gl.cpp prim_batch.cpp shader_overrides.cpp ${_rhi_shader_sources})
+add_library(sh_rhi_gl STATIC rhi_gl.cpp prim_batch.cpp pipeline_store.cpp shader_overrides.cpp ${_rhi_shader_sources})
 target_compile_features(sh_rhi_gl PUBLIC cxx_std_20)
 target_include_directories(sh_rhi_gl PUBLIC ${PROJECT_SOURCE_DIR}/src)
 target_link_libraries(sh_rhi_gl PUBLIC sh_common)
@@ -150,6 +150,7 @@ foreach(_pair IN ITEMS "motion.vert:temporalMotionVert" "motion.frag:temporalMot
 endforeach()
 
 add_library(sh_rhi STATIC rhi_sdlgpu.cpp rhi_vulkan.cpp rhi_vulkan_rt.cpp vk_atmosphere.cpp vk_temporal.cpp vk_rendering.cpp
+    vk_pipeline_warm.cpp
     ${_rt_shader_sources} ${_atmo_sources} ${_temporal_sources})
 target_link_libraries(sh_rhi PUBLIC sh_rhi_gl ${SH_SDL3_TARGET} PRIVATE sh_vulkan_deps)
 target_compile_options(sh_rhi PRIVATE
@@ -159,5 +160,6 @@ if(NOT SH_GLSLC AND NOT SH_GLSLANG)
     message(WARNING "No glslc or glslangValidator: the SDL3 GPU backend has no shaders, renderer = vulkan falls back to gl")
 endif()
 # Vulkan structures are written {VK_STRUCTURE_TYPE_...} with the rest zeroed on purpose.
-set_source_files_properties(rhi_vulkan.cpp rhi_vulkan_rt.cpp vk_atmosphere.cpp vk_temporal.cpp vk_rendering.cpp PROPERTIES COMPILE_OPTIONS
+set_source_files_properties(rhi_vulkan.cpp rhi_vulkan_rt.cpp vk_atmosphere.cpp vk_temporal.cpp vk_rendering.cpp
+    vk_pipeline_warm.cpp PROPERTIES COMPILE_OPTIONS
     "$<$<OR:$<CXX_COMPILER_ID:GNU>,$<CXX_COMPILER_ID:Clang>>:-Wno-missing-field-initializers>")

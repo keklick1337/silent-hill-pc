@@ -45,6 +45,10 @@ struct DeviceParams {
     bool legacy_gl_window = true;
     bool raise = true;  // show and raise on creation: input that skips the intro must land on the game
     bool vulkan_validation = false;  // native Vulkan: the Khronos validation layer when the system has it
+    // Native Vulkan: the pipeline cache on disk and the prewarm (RENDER.md section 2.2d).
+    std::string pipeline_cache_dir;
+    std::string game_version;
+    bool shader_prewarm = true;
     SoftwareGl software_gl = SoftwareGl::Auto;
 };
 

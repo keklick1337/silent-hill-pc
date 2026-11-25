@@ -151,6 +151,7 @@
     "ui.save.yes": "はい",
     "ui.save.quick_off": "クイックセーブはオフです: オプション > ゲームプレイ > 即時クイックセーブ",
     "ui.gpu.no_vulkan.title": "グラフィックス非対応",
-    "ui.gpu.no_vulkan": "この端末のグラフィックスドライバーは、ゲームに必要な形で Vulkan に対応していないため、ゲームを起動できません。"
+    "ui.gpu.no_vulkan": "この端末のグラフィックスドライバーは、ゲームに必要な形で Vulkan に対応していないため、ゲームを起動できません。",
+    "ui.gpu.preparing_shaders": "シェーダーを準備しています… {percent}%"
   }
 }

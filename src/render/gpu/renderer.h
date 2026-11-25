@@ -10,6 +10,7 @@
 
 #include <cstdint>
 #include <memory>
+#include <string>
 
 struct SDL_Window;
 
@@ -42,6 +43,9 @@ struct InitParams {
     BackendKind backend = BackendKind::Gl;  // the `renderer` key
     bool vulkan_validation = false;         // `vulkan_validation`: the Khronos layer when installed
     int software_gl = 0;                    // `software_gl`: sh::gpu::SoftwareGl
+    std::string pipeline_cache_dir;         // DriverParams
+    std::string game_version;
+    bool shader_prewarm = true;
 };
 
 class Renderer {

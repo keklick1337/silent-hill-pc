@@ -359,6 +359,15 @@ struct ProfileStats {
     } counts;
 };
 
+// The pipelines the backend builds ahead at start (Device::pipelineWarmup).
+struct PipelineWarmup {
+    std::uint32_t total = 0;  // queued from the manifest of earlier runs
+    std::uint32_t done = 0;
+    // The cache on disk did not match (first start after an update or a driver change): the builds take long enough
+    // for a progress screen.
+    bool fresh = false;
+};
+
 class Device {
 public:
     virtual ~Device() = default;
@@ -394,6 +403,11 @@ public:
     // The commands of the next `frames` command lists to the log, one line per pass, merge, clear and transfer
     // (profiling; backends without it ignore the call).
     virtual void traceFrames(int /*frames*/) {}
+
+    // Pipelines built before their first use (RENDER.md section 2.2d), where the backend does it: a pipeline the
+    // caller will create later is built in the background, and createPipeline then takes it as it is.
+    virtual void preparePipeline(const PipelineDesc& /*desc*/) {}
+    virtual PipelineWarmup pipelineWarmup() const { return {}; }
 };
 
 // Text name of a backend, as the `renderer` config key spells it.

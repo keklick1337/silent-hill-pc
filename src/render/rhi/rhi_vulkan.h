@@ -29,6 +29,12 @@ struct VulkanDeviceDesc {
     bool vsync = true;
     // A CPU device (lavapipe) counts only when asked for: on the CPU the GL backend over llvmpipe is the faster path.
     bool allowCpu = false;
+    // The folder of the pipeline cache on disk and its manifest (RENDER.md section 2.2d); empty keeps the cache in
+    // memory. A cache written by another `gameVersion` or driver is discarded.
+    std::string pipelineCacheDir;
+    std::string gameVersion;
+    // Build the pipelines of the manifest in the background at start (`shader_prewarm`).
+    bool pipelinePrewarm = true;
 };
 
 // What the device can do, read once at creation; later stages (ray tracing, mesh shaders, HDR) decide on it.

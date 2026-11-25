@@ -34,6 +34,9 @@ public:
     // Chains `rendering` into `info` with dynamic rendering, else gives it a render pass compatible with those
     // formats (load and store ops and layouts do not matter for compatibility).
     void pipeline(VkGraphicsPipelineCreateInfo& info, VkPipelineRenderingCreateInfo& rendering);
+    // The render pass a pipeline of one colour attachment and this depth format is made against; VK_NULL_HANDLE with
+    // dynamic rendering. Not thread-safe: pipelines built on other threads get it resolved here first.
+    VkRenderPass compatiblePass(VkFormat color, VkFormat depth);
 
     // The slot's fence was waited for: the framebuffers made while it was last recorded are free.
     void frameStart(std::uint32_t slot);

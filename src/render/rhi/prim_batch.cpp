@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <cstddef>
 #include <cstring>
+#include <utility>
 #include <vector>
 
 namespace sh::rhi {
@@ -186,6 +187,20 @@ Result<std::unique_ptr<PrimRenderer>> PrimRenderer::create(Device& device, Textu
     if (!vb) return R::fail(vb.error());
     self->vertices_ = vb.value();
     self->maxVertices_ = maxVertices;
+    // The pipelines the frames of play draw with, built in the background where the backend can (RENDER.md
+    // section 2.2d): every blend mode with and without the mask test, flat and depth-tested.
+    for (std::uint8_t blend = 0; blend <= static_cast<std::uint8_t>(BlendMode::ConstantAlpha); ++blend) {
+        for (StencilMode stencil : {StencilMode::Off, StencilMode::MaskTest}) {
+            for (const auto [test, write] : {std::pair{false, true}, std::pair{true, true}, std::pair{true, false}}) {
+                PrimPipelineKey key;
+                key.blend = static_cast<BlendMode>(blend);
+                key.stencil = stencil;
+                key.depthTest = test;
+                key.depthWrite = write;
+                device.preparePipeline(self->describe(key));
+            }
+        }
+    }
     return R::ok(std::move(self));
 }
 
@@ -209,9 +224,7 @@ void PrimRenderer::uploadFogRamp(CommandList& cmd, const FogRampUniforms& fog) {
     fogRampUploaded_ = true;
 }
 
-Result<PipelineH> PrimRenderer::pipeline(const PrimPipelineKey& key) {
-    const std::uint32_t packed = key.pack();
-    if (auto it = pipelines_.find(packed); it != pipelines_.end()) return Result<PipelineH>::ok(it->second);
+PipelineDesc PrimRenderer::describe(const PrimPipelineKey& key) const {
     PipelineDesc desc;
     desc.vertexShader = vs_;
     desc.fragmentShader = fs_;
@@ -222,7 +235,13 @@ Result<PipelineH> PrimRenderer::pipeline(const PrimPipelineKey& key) {
     desc.colorFormat = colorFormat_;
     desc.hasDepthStencil = depthStencil_;
     desc.name = "prim_batch";
-    auto p = device_.createPipeline(desc);
+    return desc;
+}
+
+Result<PipelineH> PrimRenderer::pipeline(const PrimPipelineKey& key) {
+    const std::uint32_t packed = key.pack();
+    if (auto it = pipelines_.find(packed); it != pipelines_.end()) return Result<PipelineH>::ok(it->second);
+    auto p = device_.createPipeline(describe(key));
     if (!p) return p;
     pipelines_.emplace(packed, p.value());
     return p;

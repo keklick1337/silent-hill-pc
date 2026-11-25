@@ -145,6 +145,17 @@ void Rendering::pipeline(VkGraphicsPipelineCreateInfo& info, VkPipelineRendering
     info.subpass = 0;
 }
 
+VkRenderPass Rendering::compatiblePass(VkFormat color, VkFormat depth) {
+    if (dynamic_) return VK_NULL_HANDLE;
+    VkGraphicsPipelineCreateInfo info{VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO};
+    VkPipelineRenderingCreateInfo rendering{VK_STRUCTURE_TYPE_PIPELINE_RENDERING_CREATE_INFO};
+    rendering.colorAttachmentCount = 1;
+    rendering.pColorAttachmentFormats = &color;
+    rendering.depthAttachmentFormat = depth;
+    pipeline(info, rendering);
+    return info.renderPass;
+}
+
 void Rendering::begin(VkCommandBuffer cmd, const VkRenderingInfo& ri, const VkFormat* colorFormats,
                       VkFormat depthFormat) {
     if (dynamic_) {

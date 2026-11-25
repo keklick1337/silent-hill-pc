@@ -151,6 +151,7 @@
     "ui.save.yes": "Oui",
     "ui.save.quick_off": "Sauvegarde rapide désactivée : Options > Jouabilité > Sauvegarde éclair.",
     "ui.gpu.no_vulkan.title": "Graphismes non pris en charge",
-    "ui.gpu.no_vulkan": "Le pilote graphique de cet appareil ne prend pas en charge Vulkan comme le jeu l'exige : le jeu ne peut pas démarrer."
+    "ui.gpu.no_vulkan": "Le pilote graphique de cet appareil ne prend pas en charge Vulkan comme le jeu l'exige : le jeu ne peut pas démarrer.",
+    "ui.gpu.preparing_shaders": "Préparation des shaders… {percent} %"
   }
 }

@@ -151,6 +151,7 @@
     "ui.save.yes": "예",
     "ui.save.quick_off": "빠른 저장이 꺼져 있습니다: 옵션 > 게임플레이 > 즉시 빠른 저장.",
     "ui.gpu.no_vulkan.title": "그래픽 미지원",
-    "ui.gpu.no_vulkan": "이 기기의 그래픽 드라이버가 게임에 필요한 방식으로 Vulkan을 지원하지 않아 게임을 시작할 수 없습니다."
+    "ui.gpu.no_vulkan": "이 기기의 그래픽 드라이버가 게임에 필요한 방식으로 Vulkan을 지원하지 않아 게임을 시작할 수 없습니다.",
+    "ui.gpu.preparing_shaders": "셰이더 준비 중… {percent}%"
   }
 }

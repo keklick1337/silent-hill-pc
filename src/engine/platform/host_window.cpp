@@ -7,6 +7,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <exception>
+#include <filesystem>
 #include <string>
 
 #define SDL_MAIN_HANDLED // main() is the game's own; only SDL_SetMainReady is wanted
@@ -14,11 +15,14 @@
 
 #include "engine/log/sh_log.h"
 #include "engine/timing/vblank.h"
+#include "engine/version/engine_version.h"
 #include "render/gpu/device_host.h"
 #include "render/gpu/frame_driver.h"
 #include "render/gpu/render_state.h"
 #include "render/gpu/renderer.h"
 #include "render/textures/replacements.h"
+
+extern "C" const char* PcPort_GetGameDataPath(void);
 
 SDL_Window* g_window = nullptr;
 
@@ -240,6 +244,9 @@ void start(const char* title, int width, int height, WindowMode mode)
     params.backend = static_cast<sh::gpu::BackendKind>(sh::render::graphics().backend);
     params.vulkan_validation = sh::render::graphics().vulkan_validation != 0;
     params.software_gl = sh::render::graphics().software_gl;
+    params.pipeline_cache_dir = (std::filesystem::path(PcPort_GetGameDataPath()) / "cache" / "pipelines").string();
+    params.game_version = sh::version::full();
+    params.shader_prewarm = sh::render::graphics().shader_prewarm != 0;
     params.lookup_override = [](int tpage, int clut, int* w, int* h, int* off_x, int* off_y, int* hires_w,
                                 int* hires_h) -> std::uint32_t {
         const std::optional<sh::textures::Replacement> found = sh::textures::replacements().find(

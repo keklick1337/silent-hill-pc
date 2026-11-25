@@ -218,6 +218,9 @@ bool start(const DriverParams& params) {
     init.msaa = params.msaa;
     init.backend = params.backend;
     init.vulkan_validation = params.vulkan_validation;
+    init.pipeline_cache_dir = params.pipeline_cache_dir;
+    init.game_version = params.game_version;
+    init.shader_prewarm = params.shader_prewarm;
     init.software_gl = params.software_gl;
     g_renderer = Renderer::create(init);
     if (!g_renderer) return false;

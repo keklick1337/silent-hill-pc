@@ -485,6 +485,7 @@ find_path(JPEG_INCLUDE_DIR jpeglib.h)
 target_link_libraries(SilentHillPC PRIVATE
     sh_first_run
     sh_quick_setup  # the quick setup before the first start (src/engine/app/quick_setup)
+    sh_screen_kit   # text of the shader preparation screen (src/engine/app/shader_prewarm_screen.cpp)
     sh_miniz
     sh_tables  # animation tables from gamedata/tables/ (engine/chara/game/clip_tables.cpp)
     sh_maps    # map overlay data from gamedata/maps/ (src/engine/maps)

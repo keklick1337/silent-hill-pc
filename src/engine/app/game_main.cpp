@@ -40,6 +40,7 @@
 #include "engine/app/mods_data_reload.h"
 #include "engine/app/pc_paths.h"
 #include "engine/app/restart.h"
+#include "engine/app/shader_prewarm_screen.h"
 #include "engine/audio/sound_api.h"
 #include "engine/config/gameplay_config.h"
 #include "engine/config/pc_config.h"
@@ -516,6 +517,7 @@ void apply_settings_before_window() {
         graphics.backend = static_cast<int>(sh::gpu::BackendKind::Gl);
     }
     graphics.vulkan_validation = g_PcConfig.vulkanValidation;
+    graphics.shader_prewarm = g_PcConfig.shaderPrewarm;
     graphics.software_gl = g_PcConfig.softwareGl;
     graphics.ray_tracing = g_PcConfig.rayTracing;
     graphics.rt_shadows = g_PcConfig.rtShadows;
@@ -879,6 +881,8 @@ int main(int argc, char* argv[]) {
     sh::game_state::init_file_table();
     SH_LOG_INFO(FS, "the disc's files are read from the game data in %s", ShVfs_GameDataDir());
     load_game_tables(gamedata);
+    // Needs the text of the language in force; a cache on disk that still matches skips it.
+    sh::app::prepare_shaders();
     sh::loader::queue_clear();
     // Needs the animation tables and the work buffers; the main loop needs a loaded map.
     sh::loader::load_start_map();

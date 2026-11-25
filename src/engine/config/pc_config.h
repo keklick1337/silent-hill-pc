@@ -82,6 +82,7 @@ typedef struct {
     int msaaSamples;
     char renderer[16];  // checked at startup: an unknown name becomes "gl"
     int vulkanValidation;  // renderer = vulkan: VK_LAYER_KHRONOS_validation when the system has it
+    int shaderPrewarm;     // renderer = vulkan: the manifest's pipelines are built at start (RENDER.md 2.2d)
     int softwareGl;        // sh::gpu::SoftwareGl: 0 auto, 1 force, 2 off
     int rayTracing;        // renderer = vulkan: the scene's acceleration structures (RENDER.md section 11)
     int rtShadows;         // ray_tracing: the flashlight's shadows by rays, denoised (RENDER.md section 11)

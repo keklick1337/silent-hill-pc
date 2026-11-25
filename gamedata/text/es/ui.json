@@ -151,6 +151,7 @@
     "ui.save.yes": "Sí",
     "ui.save.quick_off": "Guardado rápido desactivado: Opciones > Jugabilidad > Guardado instantáneo.",
     "ui.gpu.no_vulkan.title": "Gráficos no compatibles",
-    "ui.gpu.no_vulkan": "El controlador gráfico de este dispositivo no admite Vulkan como el juego lo necesita, así que el juego no puede iniciarse."
+    "ui.gpu.no_vulkan": "El controlador gráfico de este dispositivo no admite Vulkan como el juego lo necesita, así que el juego no puede iniciarse.",
+    "ui.gpu.preparing_shaders": "Preparando shaders… {percent} %"
   }
 }

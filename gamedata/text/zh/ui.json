@@ -151,6 +151,7 @@
     "ui.save.yes": "是",
     "ui.save.quick_off": "快速存档已关闭：选项 > 游戏性 > 即时快速存档。",
     "ui.gpu.no_vulkan.title": "不支持的图形",
-    "ui.gpu.no_vulkan": "此设备的图形驱动程序不能以游戏所需的方式支持 Vulkan，因此游戏无法启动。"
+    "ui.gpu.no_vulkan": "此设备的图形驱动程序不能以游戏所需的方式支持 Vulkan，因此游戏无法启动。",
+    "ui.gpu.preparing_shaders": "正在准备着色器… {percent}%"
   }
 }

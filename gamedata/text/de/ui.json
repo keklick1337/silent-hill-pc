@@ -151,6 +151,7 @@
     "ui.save.yes": "Ja",
     "ui.save.quick_off": "Schnellspeichern ist aus: Optionen > Gameplay > Sofortspeichern.",
     "ui.gpu.no_vulkan.title": "Grafik nicht unterstützt",
-    "ui.gpu.no_vulkan": "Der Grafiktreiber dieses Geräts unterstützt Vulkan nicht so, wie das Spiel es braucht. Das Spiel kann nicht starten."
+    "ui.gpu.no_vulkan": "Der Grafiktreiber dieses Geräts unterstützt Vulkan nicht so, wie das Spiel es braucht. Das Spiel kann nicht starten.",
+    "ui.gpu.preparing_shaders": "Shader werden vorbereitet… {percent} %"
   }
 }

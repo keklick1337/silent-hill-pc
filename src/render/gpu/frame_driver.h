@@ -7,6 +7,7 @@
 #include "render/gpu/backend_name.h"
 
 #include <cstdint>
+#include <string>
 
 namespace sh::gpu {
 
@@ -20,6 +21,11 @@ struct DriverParams {
     BackendKind backend = BackendKind::Gl;
     bool vulkan_validation = false;
     int software_gl = 0;  // sh::gpu::SoftwareGl
+    // Native Vulkan (RENDER.md section 2.2d): the folder of the pipeline cache on disk (empty: in memory only), the
+    // game build a cache must come from, and the prewarm of the pipelines of earlier runs.
+    std::string pipeline_cache_dir;
+    std::string game_version;
+    bool shader_prewarm = true;
     // The replacement pictures (render/textures/replacement_store.h): an exe module the renderer reads through this.
     std::uint32_t (*lookup_override)(int tpage, int clut, int* w, int* h, int* off_x, int* off_y, int* hires_w,
                                      int* hires_h) = nullptr;

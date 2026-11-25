@@ -240,6 +240,7 @@ inline constexpr Setting kSettings[] = {
     keys::custom("msaa", Hook::Msaa, "multisample count: 0, 2, 4 or 8").owning(&keys::C::msaaSamples, 0),
     keys::text("renderer", &text_field<&keys::C::renderer>, "gl", "graphics backend: gl, vulkan or sdlgpu"),
     keys::flag("vulkan_validation", &keys::C::vulkanValidation, 0, "Vulkan validation layers when installed"),
+    keys::flag("shader_prewarm", &keys::C::shaderPrewarm, 1, "renderer = vulkan: build known pipelines before play"),
     keys::word("software_gl", &keys::C::softwareGl, 0, keys::kSoftwareGl, 0, "rendering on the CPU: auto, force or off"),
     keys::flag("ray_tracing", &keys::C::rayTracing, 0, "renderer = vulkan: KHR ray tracing of the scene"),
     keys::flag("rt_shadows", &keys::C::rtShadows, 0, "ray_tracing: flashlight shadows by rays"),

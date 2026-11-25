@@ -114,6 +114,9 @@ DeviceParams device_params(const InitParams& params) {
                                    params.msaa);
     p.vulkan_validation = params.vulkan_validation;
     p.software_gl = static_cast<SoftwareGl>(params.software_gl);
+    p.pipeline_cache_dir = params.pipeline_cache_dir;
+    p.game_version = params.game_version;
+    p.shader_prewarm = params.shader_prewarm;
     if (params.window_name) p.window_name = params.window_name;
     // Nothing draws with GL outside the RHI: no hidden GL window beside a Vulkan swapchain.
     p.legacy_gl_window = false;
@@ -282,6 +285,9 @@ bool DeviceHost::init_vulkan_native() {
     desc.window = window_;
     desc.surfaceless = surfaceless;
     desc.validation = params_.vulkan_validation;
+    desc.pipelineCacheDir = params_.pipeline_cache_dir;
+    desc.gameVersion = params_.game_version;
+    desc.pipelinePrewarm = params_.shader_prewarm;
     auto device = rhi::createVulkanDevice(desc);
     if (!device) {
         SH_WARN("[GPU] renderer = vulkan is not available (%s); trying the SDL3 GPU device", device.error().c_str());

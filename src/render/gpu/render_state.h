@@ -41,6 +41,7 @@ struct GraphicsSettings {
     int fullscreen_mode = 0;
     int backend = 0;  // sh::gpu::BackendKind of the `renderer` key (gpu/backend_name.h)
     int vulkan_validation = 0;  // the native Vulkan backend loads the validation layer when it is installed
+    int shader_prewarm = 1;     // the native Vulkan backend builds the pipelines of earlier runs at start
     int software_gl = 0;        // sh::gpu::SoftwareGl of the `software_gl` key (gpu/software_gl.h)
     int ray_tracing = 0;        // native Vulkan: the scene's acceleration structures each frame (ray_tracing)
     int rt_shadows = 0;         // with ray_tracing: the flashlight's shadows by rays (rt_shadows)

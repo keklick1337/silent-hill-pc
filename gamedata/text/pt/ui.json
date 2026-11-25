@@ -129,6 +129,7 @@
     "ui.save.yes": "Sim",
     "ui.save.quick_off": "Salvamento rápido desligado: Opções > Jogabilidade > Salvamento instantâneo.",
     "ui.gpu.no_vulkan.title": "Gráficos não suportados",
-    "ui.gpu.no_vulkan": "O driver gráfico deste dispositivo não suporta Vulkan da forma que o jogo precisa, por isso o jogo não pode iniciar."
+    "ui.gpu.no_vulkan": "O driver gráfico deste dispositivo não suporta Vulkan da forma que o jogo precisa, por isso o jogo não pode iniciar.",
+    "ui.gpu.preparing_shaders": "Preparando shaders… {percent}%"
   }
 }

@@ -6,7 +6,9 @@
 
 #include "render/rhi/rhi_pool.h"
 #include "render/rhi/rhi_vulkan_native.h"
+#include "render/rhi/pipeline_store.h"
 #include "render/rhi/shader_overrides.h"
+#include "render/rhi/vk_pipeline_warm.h"
 #include "render/rhi/vk_rendering.h"
 
 // volk first: it declares the Vulkan API as function pointers (VK_NO_PROTOTYPES), which SDL_vulkan.h then reuses.
@@ -28,10 +30,14 @@
 #include <cstdlib>
 #include <cstring>
 #include <deque>
+#include <filesystem>
 #include <functional>
+#include <mutex>
 #include <optional>
 #include <string>
+#include <thread>
 #include <unordered_map>
+#include <unordered_set>
 #include <vector>
 
 namespace sh::rhi {
@@ -364,6 +370,8 @@ struct VkSamp {
 
 struct ShaderModule {
     VkShaderModule module = VK_NULL_HANDLE;
+    std::uint64_t hash = 0;  // of `code`: how pipeline recipes name the shader (vk_pipeline_warm.h)
+    vkn::SpirvCode code;
 };
 
 struct VkShader {
@@ -403,6 +411,7 @@ struct VkPipe {
         VkFormat color = VK_FORMAT_UNDEFINED;
         VkFormat depth = VK_FORMAT_UNDEFINED;
         VkPipeline pipeline = VK_NULL_HANDLE;
+        std::uint64_t key = 0;  // the recipe's (VulkanDevice::shared_)
     };
     std::vector<Variant> variants;
 };
@@ -509,6 +518,8 @@ public:
     void setPassTiming(bool on) override { passTiming_ = on; }
     ProfileStats takeProfileStats() override;
     void traceFrames(int frames) override { traceFrames_ = std::max(frames, 0); }
+    void preparePipeline(const PipelineDesc& desc) override;
+    PipelineWarmup pipelineWarmup() const override;
 
     // rhi_vulkan_native.h.
     VulkanNative native() const {
@@ -633,6 +644,16 @@ private:
                                     const std::array<VkDescriptorSetLayout, kSetKinds>& layouts);
     VkDescriptorSet allocSet(VkDescriptorSetLayout layout);
     VkPipeline variant(VkPipe& p, VkFormat color, VkFormat depth);
+    Result<VkPipe> makePipe(const PipelineDesc& desc);
+    vkn::GraphicsRecipe recipeFor(const VkPipe& p, VkFormat color, VkFormat depth) const;
+    vkn::BuildTarget buildTarget(const vkn::GraphicsRecipe& recipe);
+    // The pipeline cache on disk and the manifest of the pipelines made (RENDER.md section 2.2d).
+    void loadPipelineStore();
+    void startPrewarm();
+    void notePipeline(std::uint64_t key, std::vector<std::uint8_t> bytes, const vkn::GraphicsRecipe& recipe,
+                      const VkPipe& p);
+    void savePipelineStore(bool wait);
+    void pipelineStoreFrame();
     void barrier(VkCommandBuffer cmd, VkImage image, VkImageAspectFlags aspect, VkImageLayout from, VkImageLayout to);
     void transition(VkTexture& t, VkImageLayout to) {
         barrier(frame().cmd, t.image, t.aspect, t.layout, to);
@@ -807,6 +828,37 @@ private:
     std::uint64_t patchTriangles_ = 0;
     std::int32_t pipelinesBuilt_ = 0;
     double pipelineBuildMs_ = 0.0;
+
+    // Pipelines before their first use (RENDER.md section 2.2d).
+    vkn::PipelineWarmer warmer_;
+    std::filesystem::path storeDir_;  // empty: the cache stays in memory
+    pipeline_store::Identity storeId_;
+    bool cacheValid_ = false;          // the cache file matched this build and driver
+    std::uint32_t prewarmQueued_ = 0;  // recipes of the manifest queued at start
+    bool prewarmLogged_ = false;
+    bool storeReady_ = false;  // the device started: a device that failed to start writes nothing
+    Uint64 prewarmStartMs_ = 0;
+    pipeline_store::Manifest earlier_;  // read at start, read-only after
+    std::mutex storeMutex_;             // created_, also reached from the app event watch on Android
+    pipeline_store::Manifest created_;
+    std::unordered_set<std::uint64_t> createdKeys_;
+    std::atomic<bool> storeDirty_{false};
+    std::atomic<bool> saving_{false};
+    std::mutex saveMutex_;  // one write of the files at a time
+    Uint64 lastNewPipelineMs_ = 0;
+    // First-use builds and pipelines taken from the prewarm since the last log line, and in all.
+    struct BuildLog {
+        std::uint32_t built = 0, taken = 0;
+        double ms = 0.0, longestMs = 0.0;
+        std::string longest;
+    } buildLog_;
+    Uint64 buildLogMs_ = 0;
+    // The device's graphics pipelines by recipe key, shared by the VkPipes of identical descriptions.
+    struct SharedPipeline {
+        VkPipeline pipeline = VK_NULL_HANDLE;
+        std::uint32_t refs = 0;
+    };
+    std::unordered_map<std::uint64_t, SharedPipeline> shared_;
     std::uint64_t textureUploadBytes_ = 0;
     double gpuMs_ = 0.0;
     bool gpuTimed_ = false;
@@ -843,7 +895,10 @@ private:
 
 #ifdef __ANDROID__
 bool SDLCALL VulkanDevice::onAppEvent(void* self, SDL_Event* event) {
-    if (event->type == SDL_EVENT_DID_ENTER_FOREGROUND) static_cast<VulkanDevice*>(self)->surfaceStale_ = true;
+    auto* device = static_cast<VulkanDevice*>(self);
+    if (event->type == SDL_EVENT_DID_ENTER_FOREGROUND) device->surfaceStale_ = true;
+    // The system may end a process in the background without a word: what was built is written now.
+    if (event->type == SDL_EVENT_WILL_ENTER_BACKGROUND && device->storeDirty_) device->savePipelineStore(true);
     return true;
 }
 #endif
@@ -871,15 +926,16 @@ VulkanDevice::~VulkanDevice() {
         if (instance_) vkDestroyInstance(instance_, nullptr);
         return;
     }
+    warmer_.stop();
+    savePipelineStore(true);
     vkDeviceWaitIdle(device_);
     completed_ = submitted_ + 1;
     collectGarbage();
     destroySwapchain();
     if (ownTarget_) destroy(ownTarget_);
     if (dummy_) destroy(dummy_);
-    pipelines_.forEach([&](VkPipe& p) {
-        for (const VkPipe::Variant& v : p.variants) vkDestroyPipeline(device_, v.pipeline, nullptr);
-    });
+    for (const auto& [key, sp] : shared_) vkDestroyPipeline(device_, sp.pipeline, nullptr);
+    shared_.clear();
     // Shader modules die with the last pipeline or shader that holds them.
     pipelines_ = {};
     shaders_ = {};
@@ -1238,8 +1294,7 @@ Result<void> VulkanDevice::createLogicalDevice() {
     if (VkResult r = vmaCreateAllocator(&a, &allocator_); r != VK_SUCCESS)
         return Result<void>::fail(vkError("vmaCreateAllocator", r));
 
-    VkPipelineCacheCreateInfo pc{VK_STRUCTURE_TYPE_PIPELINE_CACHE_CREATE_INFO};
-    vkCreatePipelineCache(device_, &pc, nullptr, &pipelineCache_);
+    loadPipelineStore();
 
     VkFormatProperties fp{};
     vkGetPhysicalDeviceFormatProperties(physical_, VK_FORMAT_D24_UNORM_S8_UINT, &fp);
@@ -1407,6 +1462,7 @@ Result<void> VulkanDevice::init() {
     if (surface_) {
         if (auto r = createSwapchain(); !r) return r;
     }
+    startPrewarm();
     return Result<void>::ok();
 }
 
@@ -1792,6 +1848,7 @@ Result<ShaderH> VulkanDevice::createShader(const ShaderDesc& desc) {
         return vkCreateShaderModule(device_, &info, nullptr, out);
     };
     VkShaderModule module = VK_NULL_HANDLE;
+    std::vector<std::uint32_t> used;
     // A mod's SPIR-V (shaders/<file>.spv), checked as the SDL3 GPU backend checks it.
     if (const std::optional<std::string> mod = shader_override(desc.name, ".spv"); mod) {
         const std::string where = "shaders/" + shader_file_name(desc.name) + ".spv";
@@ -1803,6 +1860,7 @@ Result<ShaderH> VulkanDevice::createShader(const ShaderDesc& desc) {
             std::vector<std::uint32_t> words(mod->size() / 4);
             std::memcpy(words.data(), mod->data(), mod->size());
             if (VkResult r = make(words.data(), mod->size(), &module); r == VK_SUCCESS) {
+                used = std::move(words);
                 shader_log(0, "shader " + std::string(desc.name) + ": the mod's " + where);
             } else {
                 module = VK_NULL_HANDLE;
@@ -1813,14 +1871,18 @@ Result<ShaderH> VulkanDevice::createShader(const ShaderDesc& desc) {
     if (!module) {
         if (VkResult r = make(desc.spirv.data(), desc.spirv.size_bytes(), &module); r != VK_SUCCESS)
             return Result<ShaderH>::fail(vkError(("shader " + std::string(desc.name)).c_str(), r));
+        used.assign(desc.spirv.begin(), desc.spirv.end());
     }
     VkShader s;
     VkDevice dev = device_;
-    s.module = std::shared_ptr<ShaderModule>(new ShaderModule{module}, [this, dev](ShaderModule* m) {
-        const VkShaderModule handle = m->module;
-        delete m;
-        retire([dev, handle] { vkDestroyShaderModule(dev, handle, nullptr); });
-    });
+    const std::uint64_t hash = pipeline_store::hash64(std::span<const std::uint32_t>(used));
+    auto code = std::make_shared<const std::vector<std::uint32_t>>(std::move(used));
+    s.module =
+        std::shared_ptr<ShaderModule>(new ShaderModule{module, hash, std::move(code)}, [this, dev](ShaderModule* m) {
+            const VkShaderModule handle = m->module;
+            delete m;
+            retire([dev, handle] { vkDestroyShaderModule(dev, handle, nullptr); });
+        });
     s.stage = desc.stage;
     s.samplers = static_cast<std::uint32_t>(desc.samplerNames.size());
     s.uniforms = static_cast<std::uint32_t>(desc.uniformBlockNames.size());
@@ -1869,17 +1931,17 @@ VkPipelineLayout VulkanDevice::pipelineLayout(const std::array<std::uint32_t, kS
     return layout;
 }
 
-Result<PipelineH> VulkanDevice::createPipeline(const PipelineDesc& desc) {
+Result<VkPipe> VulkanDevice::makePipe(const PipelineDesc& desc) {
     VkShader* mesh = desc.meshShader ? shaders_.get(desc.meshShader) : nullptr;
     VkShader* vs = mesh ? mesh : shaders_.get(desc.vertexShader);
     VkShader* fs = shaders_.get(desc.fragmentShader);
-    if (!vs || !fs) return Result<PipelineH>::fail("vulkan: pipeline with a released shader");
+    if (!vs || !fs) return Result<VkPipe>::fail("vulkan: pipeline with a released shader");
     VkShader* task = mesh && desc.taskShader ? shaders_.get(desc.taskShader) : nullptr;
     VkShader* tcs = !mesh && desc.tessControlShader ? shaders_.get(desc.tessControlShader) : nullptr;
     VkShader* tes = !mesh && desc.tessEvalShader ? shaders_.get(desc.tessEvalShader) : nullptr;
     if ((mesh && desc.taskShader && !task) ||
         (!mesh && (desc.tessControlShader || desc.tessEvalShader) && (!tcs || !tes)))
-        return Result<PipelineH>::fail("vulkan: pipeline with a released shader");
+        return Result<VkPipe>::fail("vulkan: pipeline with a released shader");
     VkPipe p;
     p.desc = desc;
     p.attributes.assign(desc.vertexLayout.attributes.begin(), desc.vertexLayout.attributes.end());
@@ -1915,6 +1977,13 @@ Result<PipelineH> VulkanDevice::createPipeline(const PipelineDesc& desc) {
     }
     for (std::uint32_t k = 0; k < kSetKinds; ++k) p.setLayouts[k] = setLayout(static_cast<SetKind>(k), p.counts[k]);
     p.layout = pipelineLayout(p.counts, p.setLayouts);
+    return Result<VkPipe>::ok(std::move(p));
+}
+
+Result<PipelineH> VulkanDevice::createPipeline(const PipelineDesc& desc) {
+    auto made = makePipe(desc);
+    if (!made) return Result<PipelineH>::fail(made.error());
+    VkPipe& p = made.value();
     // Bake the declared formats now: an error shows at creation, as on the other backends.
     const VkFormat color = textureFormat(desc.colorFormat);
     const VkFormat depth = desc.hasDepthStencil ? textureFormat(desc.depthStencilFormat) : VK_FORMAT_UNDEFINED;
@@ -1922,137 +1991,360 @@ Result<PipelineH> VulkanDevice::createPipeline(const PipelineDesc& desc) {
     return Result<PipelineH>::ok(pipelines_.add(std::move(p)));
 }
 
+vkn::GraphicsRecipe VulkanDevice::recipeFor(const VkPipe& p, VkFormat color, VkFormat depth) const {
+    using R = vkn::GraphicsRecipe;
+    R r;
+    auto stage = [&](R::Stage st, const std::shared_ptr<ShaderModule>& m, const std::string& entry) {
+        if (!m) return;
+        r.shader[st] = m->hash;
+        r.entry[st] = entry;
+    };
+    stage(R::kTask, p.task, p.taskEntry);
+    stage(R::kMesh, p.mesh, p.meshEntry);
+    stage(R::kVertex, p.vs, p.vsEntry);
+    stage(R::kTessControl, p.tcs, p.tcsEntry);
+    stage(R::kTessEval, p.tes, p.tesEntry);
+    stage(R::kFragment, p.fs, p.fsEntry);
+    r.sets = p.counts;
+    r.stride = p.desc.vertexLayout.stride;
+    for (const VertexAttribute& a : p.attributes)
+        r.attributes.push_back({a.location, vkVertexFormat(a.format), a.offset});
+    switch (p.desc.primitive) {
+        case PrimitiveType::TriangleList:
+            r.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+            break;
+        case PrimitiveType::TriangleStrip:
+            r.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP;
+            break;
+        case PrimitiveType::LineList:
+            r.topology = VK_PRIMITIVE_TOPOLOGY_LINE_LIST;
+            break;
+    }
+    r.patchControlPoints = p.desc.patchControlPoints;
+    r.wireframe = p.desc.wireframe;
+    r.cull = p.desc.cull == CullMode::None    ? VK_CULL_MODE_NONE
+             : p.desc.cull == CullMode::Front ? VK_CULL_MODE_FRONT_BIT
+                                              : VK_CULL_MODE_BACK_BIT;
+    // With the flipped viewport (setViewport) the winding reads as in GL, exactly as on SDL3 GPU.
+    r.frontFace = p.desc.frontFace == FrontFace::Clockwise ? VK_FRONT_FACE_CLOCKWISE : VK_FRONT_FACE_COUNTER_CLOCKWISE;
+    const DepthStencilState& s = p.desc.depthStencil;
+    const bool hasDepth = depth != VK_FORMAT_UNDEFINED;
+    r.depthTest = hasDepth && s.depthTest;
+    r.depthWrite = hasDepth && s.depthTest && s.depthWrite;
+    r.depthCompare = vkCompare(s.depthCompare);
+    r.stencilTest = hasDepth && hasStencil(depth) && s.stencilTest;
+    r.stencil = {vkStencilOp(s.stencil.fail),
+                 vkStencilOp(s.stencil.pass),
+                 vkStencilOp(s.stencil.depthFail),
+                 vkCompare(s.stencil.compare),
+                 s.stencilReadMask,
+                 s.stencilWriteMask,
+                 0};
+    const BlendState& b = p.desc.blend;
+    r.blend = b.enable;
+    r.srcColor = vkBlendFactor(b.srcColor);
+    r.dstColor = vkBlendFactor(b.dstColor);
+    r.colorOp = vkBlendOp(b.colorOp);
+    r.srcAlpha = vkBlendFactor(b.srcAlpha);
+    r.dstAlpha = vkBlendFactor(b.dstAlpha);
+    r.alphaOp = vkBlendOp(b.alphaOp);
+    r.writeMask = b.writeMask & 0xF;
+    r.color = color;
+    r.depth = depth;
+    return r;
+}
+
+vkn::BuildTarget VulkanDevice::buildTarget(const vkn::GraphicsRecipe& recipe) {
+    std::array<VkDescriptorSetLayout, kSetKinds> layouts{};
+    for (std::uint32_t k = 0; k < kSetKinds; ++k) layouts[k] = setLayout(static_cast<SetKind>(k), recipe.sets[k]);
+    vkn::BuildTarget t;
+    t.layout = pipelineLayout(recipe.sets, layouts);
+    t.renderPass = passApi_.compatiblePass(recipe.color, recipe.depth);
+    return t;
+}
+
 VkPipeline VulkanDevice::variant(VkPipe& p, VkFormat color, VkFormat depth) {
     for (const VkPipe::Variant& v : p.variants)
         if (v.color == color && v.depth == depth) return v.pipeline;
 
-    VkPipelineShaderStageCreateInfo stages[4]{};
-    std::uint32_t stageCount = 0;
-    auto addStage = [&](VkShaderStageFlagBits stage, const std::shared_ptr<ShaderModule>& m, const std::string& entry) {
-        if (!m) return;
-        VkPipelineShaderStageCreateInfo& st = stages[stageCount++];
-        st.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
-        st.stage = stage;
-        st.module = m->module;
-        st.pName = entry.c_str();
-    };
-    addStage(VK_SHADER_STAGE_TASK_BIT_EXT, p.task, p.taskEntry);
-    addStage(VK_SHADER_STAGE_MESH_BIT_EXT, p.mesh, p.meshEntry);
-    addStage(VK_SHADER_STAGE_VERTEX_BIT, p.vs, p.vsEntry);
-    addStage(VK_SHADER_STAGE_TESSELLATION_CONTROL_BIT, p.tcs, p.tcsEntry);
-    addStage(VK_SHADER_STAGE_TESSELLATION_EVALUATION_BIT, p.tes, p.tesEntry);
-    addStage(VK_SHADER_STAGE_FRAGMENT_BIT, p.fs, p.fsEntry);
-
-    VkVertexInputBindingDescription binding{0, p.desc.vertexLayout.stride, VK_VERTEX_INPUT_RATE_VERTEX};
-    std::vector<VkVertexInputAttributeDescription> attrs;
-    for (const VertexAttribute& a : p.attributes) attrs.push_back({a.location, 0, vkVertexFormat(a.format), a.offset});
-    VkPipelineVertexInputStateCreateInfo vi{VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO};
-    vi.vertexBindingDescriptionCount = p.desc.vertexLayout.stride ? 1 : 0;
-    vi.pVertexBindingDescriptions = &binding;
-    vi.vertexAttributeDescriptionCount = static_cast<std::uint32_t>(attrs.size());
-    vi.pVertexAttributeDescriptions = attrs.data();
-
-    VkPipelineInputAssemblyStateCreateInfo ia{VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO};
-    switch (p.desc.primitive) {
-        case PrimitiveType::TriangleList:
-            ia.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
-            break;
-        case PrimitiveType::TriangleStrip:
-            ia.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_STRIP;
-            break;
-        case PrimitiveType::LineList:
-            ia.topology = VK_PRIMITIVE_TOPOLOGY_LINE_LIST;
-            break;
+    const vkn::GraphicsRecipe recipe = recipeFor(p, color, depth);
+    std::vector<std::uint8_t> bytes = recipe.encode();
+    const std::uint64_t key = pipeline_store::hash64(bytes);
+    // Two callers asking for the same pipeline share one.
+    if (auto it = shared_.find(key); it != shared_.end()) {
+        ++it->second.refs;
+        p.variants.push_back({color, depth, it->second.pipeline, key});
+        return it->second.pipeline;
     }
-    // GL's domain origin, so a patch's generated triangles keep the winding of its control points.
-    VkPipelineTessellationDomainOriginStateCreateInfo origin{
-        VK_STRUCTURE_TYPE_PIPELINE_TESSELLATION_DOMAIN_ORIGIN_STATE_CREATE_INFO};
-    origin.domainOrigin = VK_TESSELLATION_DOMAIN_ORIGIN_LOWER_LEFT;
-    VkPipelineTessellationStateCreateInfo ts{VK_STRUCTURE_TYPE_PIPELINE_TESSELLATION_STATE_CREATE_INFO};
-    ts.pNext = &origin;
-    ts.patchControlPoints = p.desc.patchControlPoints;
-    if (p.tes) ia.topology = VK_PRIMITIVE_TOPOLOGY_PATCH_LIST;
-    VkPipelineViewportStateCreateInfo vp{VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO};
-    vp.viewportCount = 1;
-    vp.scissorCount = 1;
-    VkPipelineRasterizationStateCreateInfo rs{VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO};
-    rs.polygonMode = p.desc.wireframe && fillModeNonSolid_ ? VK_POLYGON_MODE_LINE : VK_POLYGON_MODE_FILL;
-    rs.cullMode = p.desc.cull == CullMode::None    ? VK_CULL_MODE_NONE
-                  : p.desc.cull == CullMode::Front ? VK_CULL_MODE_FRONT_BIT
-                                                   : VK_CULL_MODE_BACK_BIT;
-    // With the flipped viewport (setViewport) the winding reads as in GL, exactly as on SDL3 GPU.
-    rs.frontFace = p.desc.frontFace == FrontFace::Clockwise ? VK_FRONT_FACE_CLOCKWISE : VK_FRONT_FACE_COUNTER_CLOCKWISE;
-    rs.lineWidth = 1.f;
-    VkPipelineMultisampleStateCreateInfo ms{VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO};
-    ms.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
-    const DepthStencilState& s = p.desc.depthStencil;
-    VkPipelineDepthStencilStateCreateInfo ds{VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO};
-    const bool hasDepth = depth != VK_FORMAT_UNDEFINED;
-    ds.depthTestEnable = hasDepth && s.depthTest;
-    ds.depthWriteEnable = hasDepth && s.depthTest && s.depthWrite;
-    ds.depthCompareOp = vkCompare(s.depthCompare);
-    ds.stencilTestEnable = hasDepth && hasStencil(depth) && s.stencilTest;
-    VkStencilOpState face{vkStencilOp(s.stencil.fail),
-                          vkStencilOp(s.stencil.pass),
-                          vkStencilOp(s.stencil.depthFail),
-                          vkCompare(s.stencil.compare),
-                          s.stencilReadMask,
-                          s.stencilWriteMask,
-                          0};
-    ds.front = face;
-    ds.back = face;
-    ds.minDepthBounds = 0.f;
-    ds.maxDepthBounds = 1.f;
-    const BlendState& b = p.desc.blend;
-    VkPipelineColorBlendAttachmentState att{};
-    att.blendEnable = b.enable;
-    att.srcColorBlendFactor = vkBlendFactor(b.srcColor);
-    att.dstColorBlendFactor = vkBlendFactor(b.dstColor);
-    att.colorBlendOp = vkBlendOp(b.colorOp);
-    att.srcAlphaBlendFactor = vkBlendFactor(b.srcAlpha);
-    att.dstAlphaBlendFactor = vkBlendFactor(b.dstAlpha);
-    att.alphaBlendOp = vkBlendOp(b.alphaOp);
-    att.colorWriteMask = b.writeMask & 0xF;
-    VkPipelineColorBlendStateCreateInfo cb{VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO};
-    cb.attachmentCount = 1;
-    cb.pAttachments = &att;
-    const VkDynamicState dynamic[] = {VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR,
-                                      VK_DYNAMIC_STATE_BLEND_CONSTANTS, VK_DYNAMIC_STATE_STENCIL_REFERENCE};
-    VkPipelineDynamicStateCreateInfo dy{VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO};
-    dy.dynamicStateCount = 4;
-    dy.pDynamicStates = dynamic;
-    VkPipelineRenderingCreateInfo ri{VK_STRUCTURE_TYPE_PIPELINE_RENDERING_CREATE_INFO};
-    ri.colorAttachmentCount = 1;
-    ri.pColorAttachmentFormats = &color;
-    ri.depthAttachmentFormat = depth;
-    ri.stencilAttachmentFormat = hasStencil(depth) ? depth : VK_FORMAT_UNDEFINED;
-
-    VkGraphicsPipelineCreateInfo info{VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO};
-    passApi_.pipeline(info, ri);
-    info.stageCount = stageCount;
-    info.pStages = stages;
-    info.pVertexInputState = p.mesh ? nullptr : &vi;
-    info.pInputAssemblyState = p.mesh ? nullptr : &ia;
-    info.pTessellationState = p.tes ? &ts : nullptr;
-    info.pViewportState = &vp;
-    info.pRasterizationState = &rs;
-    info.pMultisampleState = &ms;
-    info.pDepthStencilState = &ds;
-    info.pColorBlendState = &cb;
-    info.pDynamicState = &dy;
-    info.layout = p.layout;
-    VkPipeline pipeline = VK_NULL_HANDLE;
-    const Uint64 buildStart = SDL_GetPerformanceCounter();
-    const VkResult built = vkCreateGraphicsPipelines(device_, pipelineCache_, 1, &info, nullptr, &pipeline);
-    ++pipelinesBuilt_;
-    pipelineBuildMs_ += static_cast<double>(SDL_GetPerformanceCounter() - buildStart) * 1000.0 /
-                        static_cast<double>(SDL_GetPerformanceFrequency());
-    if (built != VK_SUCCESS) {
-        shader_log(1, "pipeline " + p.name + ": " + vkError("vkCreateGraphicsPipelines", built));
-        return VK_NULL_HANDLE;
+    double waited = 0.0;
+    VkPipeline pipeline = warmer_.take(key, &waited);
+    if (pipeline) {
+        ++buildLog_.taken;
+        if (waited > 0.0) {
+            pipelineBuildMs_ += waited;
+            buildLog_.ms += waited;
+        }
+    } else {
+        using R = vkn::GraphicsRecipe;
+        const std::array<VkShaderModule, R::kStages> modules{
+            p.task ? p.task->module : VK_NULL_HANDLE, p.mesh ? p.mesh->module : VK_NULL_HANDLE,
+            p.vs ? p.vs->module : VK_NULL_HANDLE,     p.tcs ? p.tcs->module : VK_NULL_HANDLE,
+            p.tes ? p.tes->module : VK_NULL_HANDLE,   p.fs ? p.fs->module : VK_NULL_HANDLE};
+        vkn::BuildTarget target;
+        target.layout = p.layout;
+        target.renderPass = passApi_.compatiblePass(color, depth);
+        const Uint64 buildStart = SDL_GetPerformanceCounter();
+        const VkResult built =
+            vkn::buildGraphicsPipeline(device_, pipelineCache_, recipe, modules, target, fillModeNonSolid_, &pipeline);
+        const double ms = static_cast<double>(SDL_GetPerformanceCounter() - buildStart) * 1000.0 /
+                          static_cast<double>(SDL_GetPerformanceFrequency());
+        ++pipelinesBuilt_;
+        pipelineBuildMs_ += ms;
+        ++buildLog_.built;
+        buildLog_.ms += ms;
+        if (ms > buildLog_.longestMs) {
+            buildLog_.longestMs = ms;
+            buildLog_.longest = p.name;
+        }
+        if (built != VK_SUCCESS) {
+            shader_log(1, "pipeline " + p.name + ": " + vkError("vkCreateGraphicsPipelines", built));
+            return VK_NULL_HANDLE;
+        }
     }
-    p.variants.push_back({color, depth, pipeline});
+    notePipeline(key, std::move(bytes), recipe, p);
+    shared_[key] = {pipeline, 1};
+    p.variants.push_back({color, depth, pipeline, key});
     return pipeline;
+}
+
+// ---- pipeline cache on disk and prewarm (RENDER.md section 2.2d) ------------------------------------------------
+
+namespace {
+constexpr const char* kCacheFile = "vulkan.cache";
+constexpr const char* kManifestFile = "vulkan.manifest";
+constexpr Uint64 kStoreQuietMs = 5000;  // a save waits this long after the last new pipeline
+constexpr Uint64 kBuildLogMs = 5000;
+
+std::array<vkn::SpirvCode, vkn::GraphicsRecipe::kStages> stageCode(const VkPipe& p) {
+    using R = vkn::GraphicsRecipe;
+    std::array<vkn::SpirvCode, R::kStages> code{};
+    auto put = [&](R::Stage st, const std::shared_ptr<ShaderModule>& m) {
+        if (m) code[st] = m->code;
+    };
+    put(R::kTask, p.task);
+    put(R::kMesh, p.mesh);
+    put(R::kVertex, p.vs);
+    put(R::kTessControl, p.tcs);
+    put(R::kTessEval, p.tes);
+    put(R::kFragment, p.fs);
+    return code;
+}
+}  // namespace
+
+void VulkanDevice::loadPipelineStore() {
+    storeId_.game_version = desc_.gameVersion;
+    storeId_.vendor_id = props_.vendorID;
+    storeId_.device_id = props_.deviceID;
+    storeId_.driver_version = props_.driverVersion;
+    std::memcpy(storeId_.cache_uuid.data(), props_.pipelineCacheUUID, storeId_.cache_uuid.size());
+    std::vector<std::uint8_t> initial;
+    std::string state = "in memory only";
+    if (!desc_.pipelineCacheDir.empty()) {
+        storeDir_ = std::filesystem::path(desc_.pipelineCacheDir);
+        if (auto file = pipeline_store::read_file(storeDir_ / kCacheFile, pipeline_store::kMaxCacheBytes)) {
+            if (auto data = pipeline_store::unpack_cache(*file, storeId_)) {
+                initial = std::move(*data);
+                cacheValid_ = true;
+                state = std::to_string(initial.size() / 1024) + " KB read";
+            } else {
+                state = "discarded (another build of the game, another driver or GPU, or a damaged file)";
+            }
+        } else {
+            state = "none yet";
+        }
+        if (auto file = pipeline_store::read_file(storeDir_ / kManifestFile, pipeline_store::kMaxManifestBytes)) {
+            if (auto m = pipeline_store::unpack_manifest(*file)) earlier_ = std::move(*m);
+        }
+    }
+    VkPipelineCacheCreateInfo pc{VK_STRUCTURE_TYPE_PIPELINE_CACHE_CREATE_INFO};
+    pc.initialDataSize = initial.size();
+    pc.pInitialData = initial.empty() ? nullptr : initial.data();
+    if (vkCreatePipelineCache(device_, &pc, nullptr, &pipelineCache_) != VK_SUCCESS && !initial.empty()) {
+        cacheValid_ = false;
+        state = "refused by the driver";
+        pc.initialDataSize = 0;
+        pc.pInitialData = nullptr;
+        vkCreatePipelineCache(device_, &pc, nullptr, &pipelineCache_);
+    }
+    shader_log(0, "[GPU] pipeline cache: " + state + (storeDir_.empty() ? "" : " (" + storeDir_.string() + ")") +
+                      "; manifest: " + std::to_string(earlier_.recipes.size()) + " pipelines");
+}
+
+void VulkanDevice::startPrewarm() {
+    const unsigned hw = std::max(1u, std::thread::hardware_concurrency());
+    // Without the prewarm one worker remains, for the saves.
+    const unsigned threads = desc_.pipelinePrewarm ? std::clamp(hw / 2, 1u, 6u) : 1u;
+    warmer_.start(device_, pipelineCache_, fillModeNonSolid_, threads);
+    storeReady_ = true;
+    prewarmStartMs_ = SDL_GetTicks();
+    buildLogMs_ = prewarmStartMs_;
+    if (!desc_.pipelinePrewarm) {
+        shader_log(0, "[GPU] pipeline prewarm: off (shader_prewarm = 0)");
+        return;
+    }
+    using R = vkn::GraphicsRecipe;
+    auto attachable = [&](VkFormat f, VkFormatFeatureFlags need) {
+        if (f == VK_FORMAT_UNDEFINED) return true;
+        VkFormatProperties fp{};
+        vkGetPhysicalDeviceFormatProperties(physical_, f, &fp);
+        return (fp.optimalTilingFeatures & need) == need;
+    };
+    std::unordered_map<std::uint64_t, vkn::SpirvCode> code;
+    for (const auto& [hash, words] : earlier_.shaders)
+        code.emplace(hash, std::make_shared<const std::vector<std::uint32_t>>(words));
+    for (const pipeline_store::Recipe& entry : earlier_.recipes) {
+        const std::optional<R> recipe = R::decode(entry.bytes);
+        if (!recipe) continue;
+        if ((recipe->shader[R::kTessControl] || recipe->shader[R::kTessEval]) && !tessellation_) continue;
+        if ((recipe->shader[R::kTask] || recipe->shader[R::kMesh]) && !meshShaders_) continue;
+        if (!attachable(recipe->color, VK_FORMAT_FEATURE_COLOR_ATTACHMENT_BIT) ||
+            !attachable(recipe->depth, VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT))
+            continue;
+        vkn::PipelineWarmer::Job job;
+        job.key = entry.key();
+        job.recipe = *recipe;
+        bool complete = true;
+        for (std::uint32_t st = 0; st < R::kStages; ++st) {
+            if (!recipe->shader[st]) continue;
+            const auto it = code.find(recipe->shader[st]);
+            if (it == code.end())
+                complete = false;
+            else
+                job.code[st] = it->second;
+        }
+        if (!complete) continue;
+        job.target = buildTarget(*recipe);
+        if (warmer_.add(std::move(job))) ++prewarmQueued_;
+    }
+    shader_log(0, "[GPU] pipeline prewarm: " + std::to_string(prewarmQueued_) + " pipelines of the manifest on " +
+                      std::to_string(threads) + " threads" + (cacheValid_ ? "" : " (no valid cache: full builds)"));
+}
+
+void VulkanDevice::notePipeline(std::uint64_t key, std::vector<std::uint8_t> bytes, const vkn::GraphicsRecipe& recipe,
+                                const VkPipe& p) {
+    if (storeDir_.empty()) return;
+    std::lock_guard<std::mutex> lock(storeMutex_);
+    if (!createdKeys_.insert(key).second) return;
+    pipeline_store::Recipe entry;
+    entry.bytes = std::move(bytes);
+    entry.shaders = recipe.shaders();
+    for (const std::shared_ptr<ShaderModule>* m : {&p.task, &p.mesh, &p.vs, &p.tcs, &p.tes, &p.fs}) {
+        if (*m && (*m)->code && !created_.shaders.contains((*m)->hash))
+            created_.shaders.emplace((*m)->hash, *(*m)->code);
+    }
+    created_.recipes.push_back(std::move(entry));
+    storeDirty_ = true;
+    lastNewPipelineMs_ = SDL_GetTicks();
+}
+
+void VulkanDevice::savePipelineStore(bool wait) {
+    if (storeDir_.empty() || !pipelineCache_ || !storeReady_) return;
+    if (!wait && (saving_.exchange(true) || !warmer_.running())) {
+        if (!warmer_.running()) saving_ = false;
+        return;
+    }
+    pipeline_store::Manifest snapshot;
+    {
+        std::lock_guard<std::mutex> lock(storeMutex_);
+        snapshot = created_;
+        storeDirty_ = false;
+    }
+    auto work = [this, snapshot = std::move(snapshot), wait]() {
+        std::lock_guard<std::mutex> lock(saveMutex_);
+        std::size_t size = 0;
+        bool cacheOk = false;
+        if (vkGetPipelineCacheData(device_, pipelineCache_, &size, nullptr) == VK_SUCCESS && size > 0 &&
+            size <= pipeline_store::kMaxCacheBytes - 4096) {
+            std::vector<std::uint8_t> data(size);
+            if (vkGetPipelineCacheData(device_, pipelineCache_, &size, data.data()) == VK_SUCCESS) {
+                data.resize(size);
+                cacheOk = pipeline_store::write_file_atomic(storeDir_ / kCacheFile,
+                                                            pipeline_store::pack_cache(storeId_, data));
+            }
+        }
+        const pipeline_store::Manifest merged = pipeline_store::merge(earlier_, snapshot);
+        const bool manifestOk =
+            pipeline_store::write_file_atomic(storeDir_ / kManifestFile, pipeline_store::pack_manifest(merged));
+        if (!cacheOk || !manifestOk)
+            shader_log(1, "[GPU] pipeline cache: could not be written to " + storeDir_.string());
+        if (!wait) saving_ = false;
+    };
+    if (wait)
+        work();
+    else
+        warmer_.post(std::move(work));
+}
+
+void VulkanDevice::pipelineStoreFrame() {
+    const Uint64 now = SDL_GetTicks();
+    if (prewarmQueued_ > 0 && !prewarmLogged_) {
+        const vkn::PipelineWarmer::Progress pr = warmer_.progress();
+        if (pr.finished >= pr.queued) {
+            prewarmLogged_ = true;
+            char line[192];
+            std::snprintf(line, sizeof line,
+                          "[GPU] pipeline prewarm: %u pipelines ready %.0f ms after start (%.0f ms of builds on %u "
+                          "threads, %u failed)",
+                          pr.queued, static_cast<double>(now - prewarmStartMs_), pr.buildMs, warmer_.threads(),
+                          pr.failed);
+            shader_log(0, line);
+            // The cache now holds what the workers built, taken or not.
+            if (!cacheValid_ && !storeDir_.empty()) {
+                storeDirty_ = true;
+                lastNewPipelineMs_ = now;
+            }
+        }
+    }
+    if (buildLog_.built + buildLog_.taken > 0 && now - buildLogMs_ >= kBuildLogMs) {
+        char line[256];
+        std::snprintf(line, sizeof line,
+                      "[GPU] pipelines: %u built on first use (%.1f ms, longest %.1f ms: %s), %u from the prewarm",
+                      buildLog_.built, buildLog_.ms, buildLog_.longestMs,
+                      buildLog_.longest.empty() ? "-" : buildLog_.longest.c_str(), buildLog_.taken);
+        shader_log(0, line);
+        buildLog_ = {};
+        buildLogMs_ = now;
+    }
+    if (storeDirty_ && !saving_ && now - lastNewPipelineMs_ >= kStoreQuietMs) savePipelineStore(false);
+}
+
+void VulkanDevice::preparePipeline(const PipelineDesc& desc) {
+    if (!desc_.pipelinePrewarm || !warmer_.running()) return;
+    auto made = makePipe(desc);
+    if (!made) return;
+    const VkPipe& p = made.value();
+    const VkFormat color = textureFormat(desc.colorFormat);
+    const VkFormat depth = desc.hasDepthStencil ? textureFormat(desc.depthStencilFormat) : VK_FORMAT_UNDEFINED;
+    vkn::PipelineWarmer::Job job;
+    job.recipe = recipeFor(p, color, depth);
+    job.key = pipeline_store::hash64(job.recipe.encode());
+    {
+        std::lock_guard<std::mutex> lock(storeMutex_);
+        if (createdKeys_.contains(job.key)) return;
+    }
+    job.code = stageCode(p);
+    job.target.layout = p.layout;
+    job.target.renderPass = passApi_.compatiblePass(color, depth);
+    warmer_.add(std::move(job));
+}
+
+PipelineWarmup VulkanDevice::pipelineWarmup() const {
+    const vkn::PipelineWarmer::Progress pr = warmer_.progress();
+    PipelineWarmup w;
+    w.total = pr.queued;
+    w.done = std::min(pr.finished, pr.queued);
+    w.fresh = !cacheValid_ && prewarmQueued_ > 0;
+    return w;
 }
 
 void VulkanDevice::destroy(TextureH handle) {
@@ -2097,7 +2389,13 @@ void VulkanDevice::destroy(PipelineH handle) {
         }
         VkDevice dev = device_;
         std::vector<VkPipeline> list;
-        for (const VkPipe::Variant& v : p->variants) list.push_back(v.pipeline);
+        for (const VkPipe::Variant& v : p->variants) {
+            const auto it = shared_.find(v.key);
+            if (it == shared_.end() || --it->second.refs > 0) continue;
+            list.push_back(it->second.pipeline);
+            shared_.erase(it);
+        }
+        if (list.empty()) return;
         retire([dev, list] {
             for (VkPipeline pl : list) vkDestroyPipeline(dev, pl, nullptr);
         });
@@ -2499,6 +2797,7 @@ CommandList* VulkanDevice::begin() {
 
 Result<void> VulkanDevice::submit() {
     if (!recording_) return Result<void>::fail("vulkan: submit without begin");
+    pipelineStoreFrame();
     Frame& f = frame();
     closePass();
     leaveTransfer();
