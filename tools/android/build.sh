@@ -39,6 +39,7 @@ ABIS=("$@")
 
 STAGE="$ROOT/android/app/build/sh"
 SYSROOT_LIB="$(echo "$ANDROID_NDK_HOME"/toolchains/llvm/prebuilt/*/sysroot/usr/lib)"
+STRIP="$(echo "$ANDROID_NDK_HOME"/toolchains/llvm/prebuilt/*/bin/llvm-strip)"
 # The SPIR-V compiler of the shaders: the build machine's, else the NDK's.
 GLSLC_HINT="$(echo "$ANDROID_NDK_HOME"/shader-tools/*)"
 
@@ -76,6 +77,8 @@ for abi in "${ABIS[@]}"; do
     mkdir -p "$libs"
     cp "$build/libmain.so" "$deps/lib/libSDL3.so" "$libs/"
     cp "$SYSROOT_LIB/$(triple "$abi")/libc++_shared.so" "$libs/"
+    # Stripped here, where the NDK is: Gradle strips only when it finds one, and the APK job of CI has none.
+    "$STRIP" --strip-unneeded "$libs/"*.so
     rm -rf "$STAGE/deps-licenses/$abi"
     mkdir -p "$STAGE/deps-licenses/$abi"
     cp -a "$deps/share/sh-licenses/." "$STAGE/deps-licenses/$abi/"
