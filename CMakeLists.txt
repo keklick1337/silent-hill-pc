@@ -169,6 +169,40 @@ if(NOT ANDROID)
     find_package(OpenAL REQUIRED)
 endif()
 
+# libopus (BSD-3-Clause, static): the Ogg Opus sound of mods and the opus music export (src/formats/convert/audio/
+# ogg_opus.h). The platform's dependency script builds it into its prefix (tools/opus/build.sh); without that the
+# system's Opus (CMake package or pkg-config), and without that the fetched source tree (tools/win-deps/fetch.sh
+# opus) built inside the project.
+if(ANDROID)
+    set(Opus_DIR "${SH_ANDROID_DEPS_PREFIX}/lib/cmake/Opus" CACHE PATH "" FORCE)
+endif()
+find_package(Opus CONFIG QUIET HINTS "${_sh_own_deps}")
+if(NOT Opus_FOUND AND NOT ANDROID AND NOT WIN32)
+    find_package(PkgConfig QUIET)
+    if(PKG_CONFIG_FOUND)
+        pkg_check_modules(SH_SYSTEM_OPUS QUIET IMPORTED_TARGET opus)
+    endif()
+endif()
+if(Opus_FOUND)
+    set(SH_OPUS_TARGET Opus::opus)
+    message(STATUS "Opus: ${Opus_VERSION} (${Opus_DIR})")
+elseif(SH_SYSTEM_OPUS_FOUND)
+    set(SH_OPUS_TARGET PkgConfig::SH_SYSTEM_OPUS)
+    message(STATUS "Opus: the system's ${SH_SYSTEM_OPUS_VERSION} (pkg-config)")
+elseif(EXISTS "${PROJECT_SOURCE_DIR}/third_party/deps/src/opus/CMakeLists.txt" AND NOT ANDROID)
+    set(OPUS_BUILD_TESTING OFF CACHE BOOL "" FORCE)
+    set(OPUS_BUILD_PROGRAMS OFF CACHE BOOL "" FORCE)
+    set(OPUS_INSTALL_PKG_CONFIG_MODULE OFF CACHE BOOL "" FORCE)
+    set(OPUS_INSTALL_CMAKE_CONFIG_MODULE OFF CACHE BOOL "" FORCE)
+    add_subdirectory("${PROJECT_SOURCE_DIR}/third_party/deps/src/opus" "${CMAKE_BINARY_DIR}/third_party/opus"
+                     EXCLUDE_FROM_ALL)
+    set(SH_OPUS_TARGET opus)
+    message(STATUS "Opus: from third_party/deps/src/opus")
+else()
+    message(FATAL_ERROR "libopus not found: run the dependency script of the platform (tools/linux-deps, "
+                        "tools/macos-deps, tools/win-deps, tools/android-deps) or tools/win-deps/fetch.sh opus")
+endif()
+
 # =============================================================================
 # Source files
 # =============================================================================
@@ -360,11 +394,11 @@ if(SH_LINUX_DEPS_PREFIX)
     )
 endif()
 
-# The license texts of tools/macos-deps/build.sh (libjpeg-turbo is linked statically; FFmpeg and ncnn copy their
-# own), and MoltenVK beside the exe, where renderer = vulkan opens it (rhi::loadVulkanLibrary).
+# The license texts of tools/macos-deps/build.sh (libjpeg-turbo and opus are linked statically; FFmpeg and ncnn copy
+# their own), and MoltenVK beside the exe, where renderer = vulkan opens it (rhi::loadVulkanLibrary).
 if(SH_MACOS_DEPS_PREFIX)
     file(GLOB _sh_macos_deps_licenses "${SH_MACOS_DEPS_PREFIX}/share/sh-licenses/*libjpeg*"
-         "${SH_MACOS_DEPS_PREFIX}/share/sh-licenses/*MoltenVK*")
+         "${SH_MACOS_DEPS_PREFIX}/share/sh-licenses/*opus*" "${SH_MACOS_DEPS_PREFIX}/share/sh-licenses/*MoltenVK*")
     if(EXISTS "${SH_MACOS_DEPS_PREFIX}/lib/libMoltenVK.dylib")
         add_custom_command(TARGET SilentHillPC POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E copy_if_different
@@ -772,7 +806,7 @@ foreach(_module IN ITEMS
         src/import src/import/ui
         src/formats/convert/tim src/formats/convert/anim src/formats/convert/cutscene src/formats/convert/archive
         src/formats/convert/model src/formats/convert/audio src/engine/audio
-        src/formats/convert/text src/i18n/core src/formats/convert/font src/formats/convert/level src/formats/convert/mapdata src/formats/convert/filetable src/engine/maps src/engine/world src/engine/combat
+        src/formats/convert/text src/i18n/core src/formats/convert/font src/formats/convert/level src/formats/convert/mapdata src/formats/convert/filetable src/formats/convert/gamefiles src/engine/maps src/engine/world src/engine/combat
         src/engine/items src/engine/script src/formats/convert/materials src/engine/chara src/engine/gconfig src/engine/utf8 src/engine/input
         src/engine/assets src/engine/entities src/engine/player src/engine/camera src/engine/inventory
         src/engine/console src/engine/cutscene src/engine/save src/engine/flags src/engine/ids src/engine/text src/engine/screens src/engine/menu src/engine/loop src/engine/devtools src/engine/gameflow src/engine/effects src/engine/loader/queue
@@ -800,6 +834,8 @@ target_link_libraries(SilentHillPC PRIVATE sh_engine_version)
 target_link_libraries(SilentHillPC PRIVATE sh_desktop)
 # The file table from gamedata/tables/filetable.json (engine/loader/queue/disc_files.cpp).
 target_link_libraries(SilentHillPC PRIVATE sh_convert_filetable)
+# The game files of an import without raw/ (src/formats/convert/gamefiles/game_files.h): the map overlays' bytes.
+target_link_libraries(SilentHillPC PRIVATE sh_convert_gamefiles)
 target_link_libraries(SilentHillPC PRIVATE sh_input)
 # The modding tools' UI toolkit (src/features/tools).
 target_link_libraries(SilentHillPC PRIVATE sh_imgui)

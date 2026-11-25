@@ -7,6 +7,7 @@
 #                                           backends - PipeWire, PulseAudio, ALSA - are opened at run time)
 #   libjpeg-turbo  static  libjpeg.a       (IJG/BSD; distributions disagree on the soname: libjpeg.so.8 / .62)
 #   FFmpeg         shared  libav*.so.N, libsw*.so.N (LGPL, tools/ffmpeg/build.sh)
+#   opus           static  libopus.a       (BSD-3-Clause, tools/opus/build.sh: Ogg Opus sound of mods)
 #
 # The root CMakeLists.txt takes this prefix by itself when it is there. A plain development build does not need
 # this script: without it the system's OpenAL and libjpeg are linked. SDL3 is not built here: the release build
@@ -60,6 +61,8 @@ build openal-soft \
 build libjpeg-turbo \
     -DENABLE_SHARED=OFF -DENABLE_STATIC=ON \
     -DWITH_TURBOJPEG=OFF -DWITH_TOOLS=OFF -DWITH_TESTS=OFF
+
+JOBS="$JOBS" "$ROOT/tools/opus/build.sh" "$PREFIX" "$BUILD_DIR/opus"
 
 echo "build: FFmpeg"
 SH_FFMPEG_PREFIX="$PREFIX" JOBS="$JOBS" "$ROOT/tools/ffmpeg/build.sh"

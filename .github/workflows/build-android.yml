@@ -74,7 +74,7 @@ jobs:
             third_party/deps/android-armeabi-v7a
             third_party/deps/android-x86_64
             third_party/deps/android-x86
-          key: android-deps-${{ env.NDK_VERSION }}-${{ hashFiles('tools/win-deps/fetch.sh', 'tools/android-deps/build.sh') }}
+          key: android-deps-${{ env.NDK_VERSION }}-${{ hashFiles('tools/win-deps/fetch.sh', 'tools/android-deps/build.sh', 'tools/opus/build.sh') }}
 
       - name: Build
         run: JOBS="$(nproc)" tools/android/build.sh

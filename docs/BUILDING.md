@@ -9,14 +9,14 @@ The commands below are the ones the CI runs ([.github/workflows/](../.github/wor
 ### 1.1 Requirements
 
 - GCC 14 or newer (or a recent Clang), CMake 3.16+, Ninja, `pkg-config`, Python 3 (for the checks).
-- Development files of OpenGL, OpenAL and libjpeg, and of SDL3 3.2 or newer if your system has it.
+- Development files of OpenGL, OpenAL, libjpeg and Opus, and of SDL3 3.2 or newer if your system has it. Without a system Opus, `tools/win-deps/fetch.sh opus` fetches the pinned source and the build compiles it inside the project.
 - `glslc` or `glslangValidator` for the SPIR-V shaders of the Vulkan renderers; without one, `renderer = vulkan` falls back to OpenGL at run time.
 
 Debian / Ubuntu:
 
 ```sh
 sudo apt-get install g++-14 cmake ninja-build pkg-config python3 glslang-tools \
-    libgl-dev libegl-dev libopenal-dev libjpeg-dev
+    libgl-dev libegl-dev libopenal-dev libjpeg-dev libopus-dev
 ```
 
 ### 1.2 Build
@@ -45,7 +45,8 @@ cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DCMAKE_DISABLE_FIND_PAC
 | --- | --- | --- |
 | `tools/ffmpeg/build.sh` | the project's minimal LGPL FFmpeg (mp4/mov, H.264, HEVC, AAC) | mp4 movies of mods; the game loads it at run time (a system FFmpeg 6 to 8 works too). Disc movies and mod AVI always work. |
 | `tools/ncnn/build.sh` | ncnn with Vulkan compute, plus the Real-ESRGAN model | the AI texture upscaler `sh-upscale` (`texture_upscale`, [design/RENDER.md](RENDER.md) section 12) |
-| `tools/linux-deps/build.sh` | OpenAL Soft (shared), libjpeg-turbo (static), FFmpeg and ncnn | everything a release package carries, as the release build does |
+| `tools/opus/build.sh <prefix> <build-dir>` | libopus (static) | called by every platform's dependency script; Ogg Opus sound of mods and `import_music = opus` |
+| `tools/linux-deps/build.sh` | OpenAL Soft (shared), libjpeg-turbo (static), Opus (static), FFmpeg and ncnn | everything a release package carries, as the release build does |
 
 All of them install into `third_party/deps/linux-x86_64/`, which CMake picks up by itself at the next configure. Without ncnn only `sh-upscale` is missing (CMake prints a warning); another prefix can be given with `-DSH_UPSCALE_NCNN_PREFIX=<dir>`.
 
@@ -113,6 +114,7 @@ Result in `build-win/`: `SilentHillPC.exe`, `SDL3.dll`, `OpenAL32.dll`, the FFmp
 | SDL3 | `release-3.4.18` | `SDL3.dll` (window, input, audio, GPU) | Zlib |
 | OpenAL Soft | `1.24.3` | `OpenAL32.dll` | LGPL-2.1-or-later |
 | libjpeg-turbo | `3.1.4.1` | static, SIMD via nasm | IJG, BSD-3-Clause, Zlib |
+| Opus | `v1.6.1` | static, without its programs and neural-network extensions (`tools/opus/build.sh`) | BSD-3-Clause |
 | FFmpeg | `n8.1.3` | `avformat`, `avcodec`, `avutil`, `swscale`, `swresample` DLLs (`tools/ffmpeg/build.sh --mingw`) | LGPL-2.1-or-later |
 | ncnn | `20250916` | static, for `sh-upscale` (`tools/ncnn/build.sh --mingw`) | BSD-3-Clause |
 | Mesa llvmpipe | `26.2.6` (mesa-dist-win) | not built: the prebuilt `opengl32.dll` and `libgallium_wgl.dll`, pinned by SHA-256 (`tools/win-deps/software_gl.sh`) | MIT and others |
@@ -151,7 +153,7 @@ macOS 13.3 or newer, on Apple silicon (arm64) or Intel. `renderer = gl` is Apple
 - The Xcode Command Line Tools (`xcode-select --install`): Apple Clang, `make`, `git`.
 - CMake 3.16+, Ninja, `pkg-config` and glslang (the SPIR-V of the Vulkan renderer; without it `renderer = vulkan` falls back to GL), for example from Homebrew: `brew install cmake ninja pkg-config glslang`.
 - For `renderer = vulkan` in a development build, MoltenVK: `brew install molten-vk` (or the LunarG Vulkan SDK). The game looks for it beside the exe, in `/usr/local/lib` and in `/opt/homebrew/lib` (`rhi::loadVulkanLibrary`).
-- For a development build, SDL3 3.2+ and libjpeg: `brew install sdl3 jpeg-turbo` (FFmpeg for mod mp4 movies is optional: `brew install ffmpeg`). OpenAL and OpenGL are the system's frameworks.
+- For a development build, SDL3 3.2+, libjpeg and Opus: `brew install sdl3 jpeg-turbo opus` (FFmpeg for mod mp4 movies is optional: `brew install ffmpeg`). OpenAL and OpenGL are the system's frameworks.
 - For the test scripts of [DEVELOPMENT.md](DEVELOPMENT.md), section 4 (not for building or playing): GNU coreutils and a current bash, `brew install coreutils bash`, with `$(brew --prefix coreutils)/libexec/gnubin` first in `PATH`.
 
 ### 3.2 Build
@@ -166,7 +168,7 @@ Such a build links Homebrew's libraries and runs on the machine that built it.
 
 ### 3.3 Release build as in CI
 
-A package for other Macs carries nothing of Homebrew: SDL3 is compiled statically from the pinned source, `tools/macos-deps/build.sh` builds libjpeg-turbo (static), the project's LGPL FFmpeg (dylibs named by `@loader_path`, beside the exe) and ncnn for `sh-upscale` into `third_party/deps/darwin-<cpu>/`, which CMake picks up by itself, and fetches MoltenVK (the Khronos release binary, pinned by SHA-256), which goes beside the exe. `MACOSX_DEPLOYMENT_TARGET` is the oldest macOS the binaries run on; the dependencies and the game must be built with the same one.
+A package for other Macs carries nothing of Homebrew: SDL3 is compiled statically from the pinned source, `tools/macos-deps/build.sh` builds libjpeg-turbo and Opus (static), the project's LGPL FFmpeg (dylibs named by `@loader_path`, beside the exe) and ncnn for `sh-upscale` into `third_party/deps/darwin-<cpu>/`, which CMake picks up by itself, and fetches MoltenVK (the Khronos release binary, pinned by SHA-256), which goes beside the exe. `MACOSX_DEPLOYMENT_TARGET` is the oldest macOS the binaries run on; the dependencies and the game must be built with the same one.
 
 ```sh
 export MACOSX_DEPLOYMENT_TARGET=13.3
@@ -212,7 +214,7 @@ tools/android/build.sh                 # all four ABIs; or name some: tools/andr
 adb install -r android/app/build/outputs/apk/debug/app-debug.apk
 ```
 
-The script builds the dependencies of an ABI the first time (`tools/android-deps/build.sh`: SDL3 shared, libjpeg-turbo static, from the pinned sources of `tools/win-deps/fetch.sh`, into `third_party/deps/android-<abi>/`), the game for each ABI in `build-android/<abi>/`, stages the native libraries (`libmain.so`, `libSDL3.so`, the NDK's `libc++_shared.so`), the base data and the launcher icon in `android/app/build/sh/`, and runs `gradle assembleDebug` in `android/` (`--release` runs `assembleRelease`, unsigned). The debug APK is signed with the debug key of the machine.
+The script builds the dependencies of an ABI the first time (`tools/android-deps/build.sh`: SDL3 shared, libjpeg-turbo and Opus static, from the pinned sources of `tools/win-deps/fetch.sh`, into `third_party/deps/android-<abi>/`), the game for each ABI in `build-android/<abi>/`, stages the native libraries (`libmain.so`, `libSDL3.so`, the NDK's `libc++_shared.so`), the base data and the launcher icon in `android/app/build/sh/`, and runs `gradle assembleDebug` in `android/` (`--release` runs `assembleRelease`, unsigned). The debug APK is signed with the debug key of the machine.
 
 What differs from the desktop build:
 

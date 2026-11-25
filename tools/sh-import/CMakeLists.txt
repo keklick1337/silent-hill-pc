@@ -16,7 +16,7 @@ target_link_libraries(sh_import_tool PUBLIC
     sh_common sh_import
     sh_convert_tim sh_convert_model sh_convert_audio sh_convert_text sh_convert_font sh_convert_level
     sh_convert_anim sh_convert_cutscene sh_convert_archive
-    sh_tables sh_convert_mapdata sh_convert_filetable sh_convert_materials sh_audio)
+    sh_tables sh_convert_mapdata sh_convert_filetable sh_convert_gamefiles sh_convert_materials sh_audio)
 target_compile_options(sh_import_tool PRIVATE
     $<$<OR:$<CXX_COMPILER_ID:GNU>,$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>>:-Wall -Wextra -Wpedantic>)
 

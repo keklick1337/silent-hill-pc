@@ -72,7 +72,7 @@ jobs:
       # The game compiles SDL3 statically from third_party/SDL3.
       - name: Fetch dependency sources
         run: |
-          tools/win-deps/fetch.sh SDL3 libjpeg-turbo FFmpeg ncnn
+          tools/win-deps/fetch.sh SDL3 libjpeg-turbo FFmpeg ncnn opus
           ln -sfn deps/src/SDL3 third_party/SDL3
 
       # Rebuilt whenever the pinned list or the build scripts change.
@@ -81,7 +81,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: third_party/deps/darwin-${{ matrix.arch }}
-          key: macos-deps-${{ matrix.arch }}-${{ env.MACOSX_DEPLOYMENT_TARGET }}-${{ hashFiles('tools/win-deps/fetch.sh', 'tools/macos-deps/build.sh', 'tools/ffmpeg/build.sh', 'tools/ncnn/build.sh') }}
+          key: macos-deps-${{ matrix.arch }}-${{ env.MACOSX_DEPLOYMENT_TARGET }}-${{ hashFiles('tools/win-deps/fetch.sh', 'tools/macos-deps/build.sh', 'tools/ffmpeg/build.sh', 'tools/ncnn/build.sh', 'tools/opus/build.sh') }}
 
       # libjpeg-turbo (static), the project's own LGPL FFmpeg for mod mp4 movies
       # (dylibs beside the exe), MoltenVK (the pinned Khronos release) and ncnn

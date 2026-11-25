@@ -2,6 +2,8 @@
 
 #include "engine/audio/sequencer.h"
 #include "formats/common/json.h"
+#include "formats/convert/audio/ogg_opus.h"
+#include "formats/convert/audio/resample.h"
 #include "formats/convert/audio/wav.h"
 
 #include <algorithm>
@@ -348,9 +350,15 @@ std::shared_ptr<const std::vector<std::int16_t>> AudioEngine::stream_pcm(const s
     if (!bytes) {
         return nullptr;
     }
-    auto decoded = convert::audio::read_wav(bytes.value());
+    auto decoded = convert::audio::read_sound(bytes.value());
     if (!decoded) {
         return nullptr;
+    }
+    // A mod's Ogg Opus decodes at 48 kHz, but a line's frames are counted at the rate of the disc's stream.
+    if (convert::audio::is_ogg(bytes.value()) && rate != 0 && decoded.value().sample_rate != rate) {
+        convert::audio::Wav& wav = decoded.value();
+        wav.samples = convert::audio::resample_pcm(wav.samples, wav.channels, wav.sample_rate, rate);
+        wav.sample_rate = rate;
     }
     channels = decoded.value().channels;
     rate = decoded.value().sample_rate;
@@ -458,7 +466,7 @@ bool AudioEngine::play_file(const std::filesystem::path& path, int tag, int left
             return false;
         }
         const std::vector<std::uint8_t> bytes((std::istreambuf_iterator<char>(in)), std::istreambuf_iterator<char>());
-        auto decoded = convert::audio::read_wav(bytes);
+        auto decoded = convert::audio::read_sound(bytes);
         if (!decoded) {
             return false;
         }

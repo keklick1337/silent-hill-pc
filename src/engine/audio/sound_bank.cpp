@@ -2,6 +2,7 @@
 
 #include "formats/common/json.h"
 #include "formats/convert/audio/spu_adpcm.h"
+#include "formats/convert/audio/ogg_opus.h"
 #include "formats/convert/audio/wav.h"
 
 #include <algorithm>
@@ -139,7 +140,7 @@ Result<SoundBank> load_sound_bank(std::string_view json_text, const BankFileRead
         if (!bytes) {
             return R::fail("bank: " + file->string() + ": " + bytes.error());
         }
-        auto wav = convert::audio::read_wav(bytes.value());
+        auto wav = convert::audio::read_sound(bytes.value());
         if (!wav) {
             return R::fail("bank: " + file->string() + ": " + wav.error());
         }

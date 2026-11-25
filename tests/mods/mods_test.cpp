@@ -555,6 +555,38 @@ SH_TEST(mods_registry_resolution_priority) {
     SH_CHECK(has(warnings, "broken: mod disabled"));
 }
 
+// A sound asked for as .wav may be a mod's .opus: the later mod wins, within one mod the WAV.
+SH_TEST(mods_registry_opus_answers_for_wav) {
+    Scratch dir("registry_opus");
+    dir.write("gamedata/convert/audio/vab/BASE/005.wav", "base");
+    dir.write("mods/low/mod.json", json_manifest("low", R"("priority": 1)"));
+    dir.write("mods/low/convert/audio/vab/BASE/005.wav", "low");
+    dir.write("mods/low/XA/xa_0001.wav", "low");
+    dir.write("mods/low/XA/xa_0001.opus", "low");
+    dir.write("mods/high/mod.json", json_manifest("high", R"("priority": 2)"));
+    dir.write("mods/high/convert/audio/vab/BASE/005.opus", "high");
+    dir.write("mods/high/XA/msg_A.OPUS", "high");
+
+    Registry reg;
+    RegistryConfig config;
+    config.dirs = {dir.path() / "mods"};
+    config.base_dir = dir.path() / "gamedata";
+    reg.configure(config);
+
+    const auto sample = reg.find("convert/audio/vab/BASE/005.wav");
+    SH_CHECK(sample && sample->filename() == "005.opus");
+    const auto line = reg.find("XA/xa_0001.wav");
+    SH_CHECK(line && line->filename() == "xa_0001.wav");
+    const auto message = reg.find("XA/msg_A.wav");
+    SH_CHECK(message && message->filename() == "msg_A.OPUS");
+    SH_CHECK(!reg.find("XA/msg_B.wav"));
+    // Only .wav has the other name: an .opus asked for is that file.
+    SH_CHECK(!reg.find("convert/audio/vab/BASE/006.opus"));
+    for (const ModFile& f : reg.files("high")) {
+        if (f.path.ends_with("005.opus")) SH_CHECK(f.replaces);
+    }
+}
+
 // A mod's .lua files count only with "scripts": true: the index leaves them out, the report says why.
 SH_TEST(mods_registry_lua_needs_scripts_flag) {
     Scratch dir("registry_lua");

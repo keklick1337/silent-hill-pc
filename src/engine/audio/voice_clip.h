@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 #pragma once
 
-// A voice recording a mod supplies as a WAV file, made ready for the voice-line input of the mixer
+// A voice recording a mod supplies as a WAV or an Ogg Opus file, made ready for the voice-line input of the mixer
 // (voice_stream.h), which takes the two rates of the disc's speech: 37.8 and 18.9 kHz.
 
 #include "formats/common/status.h"
@@ -31,7 +31,8 @@ struct VoiceClip {
 std::vector<std::int16_t> resample_voice(std::span<const std::int16_t> pcm, int channels, std::uint32_t rate);
 
 // The clip of a WAV file's bytes: integer PCM of 8 or 16 bits, mono or stereo, 4 to 96 kHz. A recording at
-// one of the two voice rates is taken as it is, any other is resampled to 37.8 kHz.
+// one of the two voice rates is taken as it is, any other is resampled to 37.8 kHz. Ogg Opus (mono or stereo, by
+// its first bytes) is decoded at 48 kHz and resampled the same way.
 Result<VoiceClip> parse_voice_wav(std::span<const std::uint8_t> file);
 
 // The same from a file of at most 64 MiB. A file that is not there fails with an empty message.

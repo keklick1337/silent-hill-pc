@@ -4,6 +4,7 @@
 # third_party/deps/darwin-<cpu>/ (e.g. darwin-arm64, ignored by git). Nothing is installed into the system.
 #
 #   libjpeg-turbo  static  libjpeg.a
+#   opus           static  libopus.a (BSD-3-Clause, tools/opus/build.sh: Ogg Opus sound of mods)
 #   FFmpeg         shared  libav*.N.dylib, libsw*.N.dylib (LGPL, tools/ffmpeg/build.sh; install names
 #                          @loader_path/..., so they find each other beside the exe)
 #   ncnn           static  for sh-upscale, with the Real-ESRGAN model (tools/ncnn/build.sh)
@@ -51,6 +52,9 @@ cmake --build "$BUILD_DIR/libjpeg-turbo" --parallel "$JOBS" >"$BUILD_DIR/libjpeg
     || { tail -n 40 "$BUILD_DIR/libjpeg-turbo.build.log"; exit 1; }
 cmake --install "$BUILD_DIR/libjpeg-turbo" >"$BUILD_DIR/libjpeg-turbo.install.log" 2>&1 \
     || { tail -n 40 "$BUILD_DIR/libjpeg-turbo.install.log"; exit 1; }
+
+JOBS="$JOBS" "$ROOT/tools/opus/build.sh" "$PREFIX" "$BUILD_DIR/opus" \
+    -DCMAKE_OSX_DEPLOYMENT_TARGET="$MACOSX_DEPLOYMENT_TARGET"
 
 echo "build: FFmpeg"
 SH_FFMPEG_PREFIX="$PREFIX" JOBS="$JOBS" "$ROOT/tools/ffmpeg/build.sh"

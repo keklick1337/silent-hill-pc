@@ -30,13 +30,21 @@ struct Options {
     bool overwrite = false;                  // import_overwrite
     bool verify = true;                      // import_verify
     unsigned threads = 0;                    // import_threads, 0 = automatic
+    bool keep_raw = false;                   // keep_raw: keep raw/ after the import (gamefiles/game_files.h)
     std::array<bool, kCategoryCount> enabled{true, true, true, true, true, true};  // import_textures ... import_data
     // import_levels = unified (default): Levels on, only gamedata/maps/areas/*.glb (map_unified.h);
     // = glb: also the per-cell research views convert/levels/ (level_converter.h); = none: Levels off.
     bool level_views = false;
-    // import_music = wav (default): the songs (SND/*.KDT + *.VAB) rendered by the engine's synthesizer to
-    // convert/audio/music/; = none skips it. Part of the Audio group.
+    // import_music = wav: the songs (SND/*.KDT + *.VAB) rendered by the engine's synthesizer to convert/audio/music/
+    // for listening; = opus: the same as Ogg Opus (128 kbit/s, about a tenth of the size); = none skips it. The game
+    // never reads them (it plays the songs from their notes), so phones, short of space, leave them out by default.
+    // Part of the Audio group.
+#if defined(__ANDROID__)
+    bool music = false;
+#else
     bool music = true;
+#endif
+    bool music_opus = false;  // import_music = opus
     std::optional<std::filesystem::path> config;  // --config
     // Where the glyph sheets of the game font are (<gamedata>/font of the base game data). Empty: `out`/font.
     std::filesystem::path font_dir;
@@ -53,6 +61,7 @@ struct CliArgs {
     std::optional<std::filesystem::path> config;
     std::optional<bool> overwrite;
     std::optional<bool> verify;
+    std::optional<bool> keep_raw;
     std::optional<unsigned> threads;
     std::optional<std::vector<Category>> only;
     std::vector<Category> skip;

@@ -173,7 +173,7 @@ The game follows the original "about 1:1". What differs by default:
 - **Loading is instant** (`cd_fast_load`); `cd_speed_ps1 = 1` restores the console's disc pace. All map cells are loaded at once; collision for logic still covers the original's window of cells.
 - **Widescreen, resolution, graphics presets, controls and camera styles** are options of the PC version; `original` and the classic control style give the console's picture and controls.
 
-Every change of rules, balance or story is an option marked `GAMEPLAY CHANGE` in `config.cfg`, off by default, with a note saying which value is the original: a pause menu, saving anywhere, instant quick save and load, enemies' bodies that remain, fixes of the original's bugs (the second newspaper, the nurse's grab, slopes), stick and melee changes and others. One is on by default by the project's decision: `aim_resume_after_inventory` (Options > Gameplay).
+Every change of rules, balance or story is an option marked `GAMEPLAY CHANGE` in `config.cfg`, off by default, with a note saying which value is the original: a pause menu, saving anywhere, instant quick save and load, enemies' bodies that remain, fixes of the original's bugs (the nurse's grab, slopes), stick and melee changes and others. One is on by default by the project's decision: `aim_resume_after_inventory` (Options > Gameplay). The Nowhere newspaper the US release lost through a bug is always restored, as in the PAL release.
 
 ## Mods
 
@@ -251,7 +251,7 @@ The project is free software under the **GNU General Public License, version 3 o
 Thanks to:
 
 - the contributors of [silent-hill-decomp](https://github.com/shdecompilations/silent-hill-decomp), whose decompilation made it possible to describe the game's behaviour;
-- the authors of the libraries the engine uses: SDL3, OpenAL Soft, FFmpeg, libjpeg-turbo, Lua, Dear ImGui, miniz, stb, cgltf, bcdec, volk, Vulkan Memory Allocator, Vulkan-Headers, ncnn and the Real-ESRGAN model, Mesa llvmpipe; the fonts JetBrains Mono, Oswald, Barlow Semi Condensed and Shinonome; Kenney's input prompts; SDL_GameControllerDB. Their licenses are listed in [COPYRIGHT.md](COPYRIGHT.md), section 2, and their texts are in `licenses/` of every package.
+- the authors of the libraries the engine uses: SDL3, OpenAL Soft, FFmpeg, libjpeg-turbo, Opus, Lua, Dear ImGui, miniz, stb, cgltf, bcdec, volk, Vulkan Memory Allocator, Vulkan-Headers, ncnn and the Real-ESRGAN model, Mesa llvmpipe; the fonts JetBrains Mono, Oswald, Barlow Semi Condensed and Shinonome; Kenney's input prompts; SDL_GameControllerDB. Their licenses are listed in [COPYRIGHT.md](COPYRIGHT.md), section 2, and their texts are in `licenses/` of every package.
 
 ## Legal
 

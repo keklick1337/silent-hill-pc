@@ -149,7 +149,7 @@ tools/win-deps/fetch.sh
 ln -sfn deps/src/SDL3 third_party/SDL3
 step Cache Linux dependencies
 hit=0
-cache_restore "linux-deps-ubuntu-24.04-gcc14-$(hash_files tools/win-deps/fetch.sh tools/linux-deps/build.sh tools/ffmpeg/build.sh tools/ncnn/build.sh)" third_party/deps/linux-x86_64 && hit=1
+cache_restore "linux-deps-ubuntu-24.04-gcc14-$(hash_files tools/win-deps/fetch.sh tools/linux-deps/build.sh tools/ffmpeg/build.sh tools/ncnn/build.sh tools/opus/build.sh)" third_party/deps/linux-x86_64 && hit=1
 step Build dependencies
 [ "$hit" = 1 ] || tools/linux-deps/build.sh
 step Configure
@@ -197,7 +197,7 @@ chown 1001:1001 "$RUNNER_TEMP"
 step Trust the checkout
 git config --global --add safe.directory "$GITHUB_WORKSPACE"
 step Cache Windows dependencies
-cache_restore "win-deps-trixie-$(hash_files tools/win-deps/*.sh tools/ffmpeg/build.sh tools/ncnn/build.sh cmake/toolchains/mingw-w64-x86_64.cmake)" third_party/deps || true
+cache_restore "win-deps-trixie-$(hash_files tools/win-deps/*.sh tools/ffmpeg/build.sh tools/ncnn/build.sh tools/opus/build.sh cmake/toolchains/mingw-w64-x86_64.cmake)" third_party/deps || true
 step Build dependencies
 tools/win-deps/build.sh
 step Configure

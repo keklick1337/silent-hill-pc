@@ -29,6 +29,8 @@ DEPS=(
     # AI texture upscaling (tools/sh-upscale, docs/RENDER.md section 12), built by tools/ncnn/build.sh.
     # Its Vulkan shaders are compiled by the glslang it carries as a submodule.
     "ncnn|https://github.com/Tencent/ncnn.git|20250916|c4193aadbbb56582aa87b1850dd3d98fb8fd936d|BSD-3-Clause|glslang"
+    # Opus audio in mods and the opus music export (Ogg Opus; the Ogg layer is the engine's own, formats/ogg_opus).
+    "opus|https://github.com/xiph/opus.git|v1.6.1|22244de5a79bd1d6d623c32e72bf1954b56235be|BSD-3-Clause"
 )
 
 mkdir -p "$SRC_DIR"

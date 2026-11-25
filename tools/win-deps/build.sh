@@ -7,6 +7,7 @@
 #   openal-soft    shared  OpenAL32.dll    (LGPL: must stay a replaceable DLL)
 #   libjpeg-turbo  static  libjpeg.a       (IJG/BSD)
 #   FFmpeg         shared  av*-N.dll, sw*-N.dll (LGPL, tools/ffmpeg/build.sh)
+#   opus           static  libopus.a       (BSD-3-Clause, tools/opus/build.sh: Ogg Opus sound of mods)
 #   Mesa llvmpipe  prebuilt software_gl/opengl32.dll (MIT, tools/win-deps/software_gl.sh)
 #   ncnn           static  for sh-upscale, with the Real-ESRGAN model (BSD-3-Clause, tools/ncnn/build.sh)
 #
@@ -69,6 +70,11 @@ build libjpeg-turbo \
 # notice); the game build copies them into <build>/licenses/.
 LIC="$PREFIX/share/sh-licenses"
 rm -rf "$LIC"; mkdir -p "$LIC"
+
+# The stack protector of libopus would need mingw's libssp in the game's link.
+JOBS="$JOBS" "$ROOT/tools/opus/build.sh" "$PREFIX" "$BUILD_DIR/opus" \
+    -DCMAKE_TOOLCHAIN_FILE="$TOOLCHAIN" -DSH_WIN_DEPS_PREFIX="$PREFIX" \
+    -DOPUS_STACK_PROTECTOR=OFF -DOPUS_FORTIFY_SOURCE=OFF
 
 # FFmpeg (LGPL, shared: avformat-62.dll ... swresample-6.dll) for mod mp4 FMVs;
 # it writes its own license files into $LIC.

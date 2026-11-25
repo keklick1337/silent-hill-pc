@@ -2,7 +2,7 @@
 # Build the Android APK (docs/BUILDING.md section 5): the game as libmain.so for each ABI with the NDK, the base data
 # of the repository, and the Gradle project in android/ that packages them with SDL's Java glue.
 #
-#   1. tools/android-deps/build.sh for an ABI whose dependencies are missing (SDL3, libjpeg-turbo)
+#   1. tools/android-deps/build.sh for an ABI whose dependencies are missing (SDL3, libjpeg-turbo, opus)
 #   2. the game for each ABI in build-android/<abi>/ (CMake, Ninja, the NDK's toolchain file)
 #   3. android/app/build/sh/: jniLibs/<abi>/ (libmain.so, libSDL3.so, libc++_shared.so), assets/base.zip (exactly
 #      the repository's files of gamedata/, the runtime assets, config.cfg, the console font and the license texts; the
@@ -55,7 +55,7 @@ rm -rf "$STAGE/jniLibs"
 for abi in "${ABIS[@]}"; do
     triple "$abi" >/dev/null
     deps="$ROOT/third_party/deps/android-$abi"
-    if [[ ! -f "$deps/lib/libSDL3.so" || ! -f "$deps/lib/libjpeg.a" ]]; then
+    if [[ ! -f "$deps/lib/libSDL3.so" || ! -f "$deps/lib/libjpeg.a" || ! -f "$deps/lib/libopus.a" ]]; then
         SH_ANDROID_API="$API" JOBS="$JOBS" "$ROOT/tools/android-deps/build.sh" "$abi"
     fi
     build="$ROOT/build-android/$abi"

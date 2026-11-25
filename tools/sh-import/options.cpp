@@ -178,6 +178,11 @@ Result<CliArgs> parse_args(std::span<const std::string> args) {
                     }
                 }
             }
+        } else if (name == "--keep-raw") {
+            if (inline_value) {
+                return R::fail(std::string(name) + " takes no value");
+            }
+            out.keep_raw = true;
         } else if (name == "--overwrite" || name == "--no-overwrite" || name == "--verify" || name == "--no-verify") {
             if (inline_value) {
                 return R::fail(std::string(name) + " takes no value");
@@ -238,6 +243,12 @@ Result<void> apply_config(Options& options, std::string_view text, std::vector<s
                 return R::fail(invalid(line_no, key, value, "0 or 1"));
             }
             (key == "import_overwrite" ? options.overwrite : options.verify) = *flag;
+        } else if (key == "keep_raw") {
+            const auto flag = parse_bool(value);
+            if (!flag) {
+                return R::fail(invalid(line_no, key, value, "0 or 1"));
+            }
+            options.keep_raw = *flag;
         } else if (key == "import_threads") {
             const auto threads = parse_threads(value);
             if (!threads) {
@@ -257,10 +268,11 @@ Result<void> apply_config(Options& options, std::string_view text, std::vector<s
             }
         } else if (key == "import_music") {
             const std::string v = lower(value);
-            if (v != "wav" && v != "none") {
-                return R::fail(invalid(line_no, key, value, "wav or none"));
+            if (v != "wav" && v != "opus" && v != "none") {
+                return R::fail(invalid(line_no, key, value, "wav, opus or none"));
             }
-            options.music = v == "wav";
+            options.music = v != "none";
+            options.music_opus = v == "opus";
         } else {
             const auto sw = std::find_if(std::begin(kSwitches), std::end(kSwitches),
                                          [&](const Switch& s) { return s.key == key; });
@@ -305,6 +317,9 @@ void apply_cli(Options& options, const CliArgs& args) {
     if (args.verify) {
         options.verify = *args.verify;
     }
+    if (args.keep_raw) {
+        options.keep_raw = *args.keep_raw;
+    }
     if (args.threads) {
         options.threads = *args.threads;
     }
@@ -322,20 +337,22 @@ void apply_cli(Options& options, const CliArgs& args) {
 std::string usage() {
     return "usage: sh-import <image> [options]\n"
            "\n"
-           "Imports a Silent Hill (NTSC USA 1.1) disc image into a gamedata directory: raw/ (the files as on the\n"
-           "disc), index.tsv, version.cfg and convert/ (PNG, glTF, WAV, JSON).\n"
+           "Imports a Silent Hill (NTSC USA 1.1) disc image into a gamedata directory: index.tsv, version.cfg,\n"
+           "convert/ (PNG, glTF, WAV, JSON, and files/ for the game files no converter rebuilds), tables/ and\n"
+           "maps/. The disc's files are extracted to raw/ first and deleted at the end.\n"
            "\n"
            "  <image>             .cue, .bin (MODE2/2352), a raw .iso (2352 bytes per sector) or a .zip of them\n"
            "  --out DIR           result directory (gamedata_dir), default \"gamedata\"\n"
            "  --overwrite         replace an existing DIR (import_overwrite)\n"
            "  --no-verify         skip the CRC32 and round-trip checks (import_verify = 0)\n"
            "  --threads N         worker threads, 0 = one per hardware thread (import_threads)\n"
+           "  --keep-raw          keep raw/, the disc's files as they are (keep_raw = 1)\n"
            "  --only LIST         convert only these groups: textures, models, audio, text, levels, data\n"
            "  --skip LIST         do not convert these groups\n"
            "  --config FILE       read \"key = value\" lines (import_image, gamedata_dir, import_overwrite,\n"
            "                      import_verify, import_threads, import_textures, import_models, import_audio,\n"
-           "                      import_text, import_levels, import_data, import_tables, import_music);\n"
-           "                      the command line wins\n"
+           "                      import_text, import_levels, import_data, import_tables, import_music,\n"
+           "                      keep_raw); the command line wins\n"
            "  -h, --help          this text\n"
            "\n"
            "Exit code 0 on success, 1 when the import failed, 2 on a usage error.\n";

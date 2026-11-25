@@ -3,6 +3,7 @@
 #include "engine/mods/mods.h"
 
 #include "formats/common/json.h"
+#include "formats/convert/gamefiles/game_files.h"
 
 #include <algorithm>
 #include <cctype>
@@ -78,6 +79,21 @@ bool is_metadata(const Manifest& m, std::string_view relative) {
 
 std::string version_and_id(const ResolvedMod& m) {
     return m.candidate.manifest.id + " " + m.candidate.manifest.version.to_string();
+}
+
+// "x.wav" -> "x.opus": the other name a mod may give a sound file.
+std::string alternative_sound(std::string_view wav) {
+    return std::string(wav.substr(0, wav.size() - 4)) + ".opus";
+}
+
+// A file of the disc the import keeps: in raw/ of an older import, else in the game files store.
+bool is_game_file(const fs::path& base_dir, const std::string& path) {
+    std::error_code ec;
+    if (fs::exists(base_dir / "raw" / fs::path(path), ec)) {
+        return true;
+    }
+    const std::shared_ptr<const sh::convert::gamefiles::Store> store = sh::convert::gamefiles::store_for(base_dir);
+    return store && store->find(path) != nullptr;
 }
 
 }  // namespace
@@ -361,12 +377,23 @@ std::optional<fs::path> Registry::find(std::string_view relative) const {
     if (index_.empty()) {
         return std::nullopt;
     }
-    const auto it = index_.find(lower(normal(relative)));
-    if (it == index_.end() || it->second.empty()) {
+    const std::string key = lower(normal(relative));
+    const Hit* top = nullptr;
+    if (const auto it = index_.find(key); it != index_.end() && !it->second.empty()) {
+        top = &it->second.back();
+    }
+    // A sound asked for as WAV may come as Ogg Opus: the readers tell the two apart by their bytes. The later mod
+    // wins; within one mod the WAV does.
+    if (key.ends_with(".wav")) {
+        const auto it = index_.find(alternative_sound(key));
+        if (it != index_.end() && !it->second.empty() && (top == nullptr || it->second.back().mod > top->mod)) {
+            top = &it->second.back();
+        }
+    }
+    if (top == nullptr) {
         return std::nullopt;
     }
-    const Hit& top = it->second.back();
-    return plan_.mods[static_cast<std::size_t>(top.mod)].candidate.root / fs::path(top.path);
+    return plan_.mods[static_cast<std::size_t>(top->mod)].candidate.root / fs::path(top->path);
 }
 
 std::vector<fs::path> Registry::find_all(std::string_view relative) const {
@@ -406,9 +433,14 @@ std::vector<ModFile> Registry::files(std::string_view id) const {
         ModFile f;
         f.path = mine->path;
         std::error_code ec;
-        // A disc file the game reads from raw/ (BG/*.TIM) is replaced just like a converted file.
-        f.replaces = !config_.base_dir.empty() && (fs::exists(config_.base_dir / fs::path(f.path), ec) ||
-                                                   fs::exists(config_.base_dir / "raw" / fs::path(f.path), ec));
+        // A disc file the game reads by sector (BG/*.TIM) is replaced just like a converted file.
+        f.replaces = !config_.base_dir.empty() &&
+                     (fs::exists(config_.base_dir / fs::path(f.path), ec) || is_game_file(config_.base_dir, f.path));
+        // An Ogg Opus sound replaces the WAV of the same name.
+        if (!f.replaces && !config_.base_dir.empty() && lower(f.path).ends_with(".opus")) {
+            const std::string wav = f.path.substr(0, f.path.size() - 5) + ".wav";
+            f.replaces = fs::exists(config_.base_dir / fs::path(wav), ec);
+        }
         for (const Hit& h : hits) {
             if (h.mod != mod->load_index) {
                 f.also_in.push_back(plan_.mods[static_cast<std::size_t>(h.mod)].candidate.manifest.id);

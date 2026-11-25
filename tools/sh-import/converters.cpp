@@ -30,7 +30,8 @@ std::vector<std::unique_ptr<sh::convert::Converter>> build_converters(const Opti
         list.push_back(sh::convert::audio::make_xa_converter());
         list.push_back(sh::convert::audio::make_kdt_converter());
         if (options.music) {
-            list.push_back(sh::audio::make_music_converter(sibling));
+            list.push_back(sh::audio::make_music_converter(
+                sibling, {}, options.music_opus ? sh::audio::MusicFile::Opus : sh::audio::MusicFile::Wav));
         }
     }
     if (options.is_enabled(Category::Text)) {

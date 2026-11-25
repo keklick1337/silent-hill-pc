@@ -78,7 +78,8 @@ public:
     const Plan& plan() const { return plan_; }
     std::vector<const ResolvedMod*> active() const { return plan_.active(); }
 
-    // The highest active mod that has `relative` (a gamedata path with '/'; case-insensitive), or nothing.
+    // The highest active mod that has `relative` (a gamedata path with '/'; case-insensitive), or nothing. For
+    // "<name>.wav" a mod's "<name>.opus" counts too (the sound readers take either, by content).
     std::optional<std::filesystem::path> find(std::string_view relative) const;
     // Every active mod that has it, lowest first (for data that mods patch one over another).
     std::vector<std::filesystem::path> find_all(std::string_view relative) const;

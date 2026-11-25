@@ -1,5 +1,7 @@
 add_library(sh_convert_audio STATIC
     wav.cpp
+    ogg_opus.cpp
+    resample.cpp
     spu_adpcm.cpp
     xa_adpcm.cpp
     json_writer.cpp
@@ -9,6 +11,6 @@ add_library(sh_convert_audio STATIC
 
 target_compile_features(sh_convert_audio PUBLIC cxx_std_20)
 target_include_directories(sh_convert_audio PUBLIC ${PROJECT_SOURCE_DIR}/src)
-target_link_libraries(sh_convert_audio PUBLIC sh_common)
+target_link_libraries(sh_convert_audio PUBLIC sh_common PRIVATE ${SH_OPUS_TARGET})
 target_compile_options(sh_convert_audio PRIVATE
     $<$<OR:$<CXX_COMPILER_ID:GNU>,$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>>:-Wall -Wextra -Wpedantic>)

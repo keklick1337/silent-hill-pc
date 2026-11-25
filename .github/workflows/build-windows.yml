@@ -59,7 +59,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: third_party/deps
-          key: win-deps-trixie-${{ hashFiles('tools/win-deps/*.sh', 'tools/ffmpeg/build.sh', 'tools/ncnn/build.sh', 'cmake/toolchains/mingw-w64-x86_64.cmake') }}
+          key: win-deps-trixie-${{ hashFiles('tools/win-deps/*.sh', 'tools/ffmpeg/build.sh', 'tools/ncnn/build.sh', 'tools/opus/build.sh', 'cmake/toolchains/mingw-w64-x86_64.cmake') }}
 
       - name: Build dependencies
         run: tools/win-deps/build.sh

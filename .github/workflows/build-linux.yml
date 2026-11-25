@@ -74,7 +74,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: third_party/deps/linux-x86_64
-          key: linux-deps-ubuntu-24.04-gcc14-${{ hashFiles('tools/win-deps/fetch.sh', 'tools/linux-deps/build.sh', 'tools/ffmpeg/build.sh', 'tools/ncnn/build.sh') }}
+          key: linux-deps-ubuntu-24.04-gcc14-${{ hashFiles('tools/win-deps/fetch.sh', 'tools/linux-deps/build.sh', 'tools/ffmpeg/build.sh', 'tools/ncnn/build.sh', 'tools/opus/build.sh') }}
 
       # OpenAL Soft (shared, LGPL), libjpeg-turbo (static), the project's own LGPL
       # FFmpeg for mod mp4 movies (shared, beside the exe) and ncnn with the

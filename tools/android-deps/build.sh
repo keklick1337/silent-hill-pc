@@ -6,6 +6,7 @@
 #   SDL3           shared  libSDL3.so    (Zlib; its Java glue, android-project/app/src/main/java of the same source
 #                                         tree, is compiled into the APK by android/app/build.gradle)
 #   libjpeg-turbo  static  libjpeg.a     (IJG/BSD)
+#   opus           static  libopus.a     (BSD-3-Clause, tools/opus/build.sh: Ogg Opus sound of mods)
 #
 # The game's sound goes through SDL3 (AAudio or OpenSL ES), so OpenAL Soft, which the desktop builds link, is not
 # needed. FFmpeg (mod mp4 movies) and ncnn (sh-upscale) are not built for Android: the disc's movies have their own
@@ -76,6 +77,10 @@ for abi in "${ABIS[@]}"; do
     build "$abi" libjpeg-turbo \
         -DENABLE_SHARED=OFF -DENABLE_STATIC=ON -DWITH_SIMD="$simd" \
         -DWITH_TURBOJPEG=OFF -DWITH_TOOLS=OFF -DWITH_TESTS=OFF
+
+    JOBS="$JOBS" "$ROOT/tools/opus/build.sh" "$prefix" "$DEPS_DIR/build/android-$abi/opus" \
+        -DCMAKE_TOOLCHAIN_FILE="$TOOLCHAIN" \
+        -DANDROID_ABI="$abi" -DANDROID_PLATFORM="android-$API" -DANDROID_STL=c++_shared
 
     # The licenses travel with the binaries; tools/android/build.sh puts share/sh-licenses/* into the APK.
     lic="$prefix/share/sh-licenses"

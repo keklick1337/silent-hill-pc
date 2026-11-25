@@ -5,6 +5,8 @@
 
 #include "formats/common/crc32.h"
 #include "formats/convert/audio/json_writer.h"
+#include "formats/convert/audio/ogg_opus.h"
+#include "formats/convert/audio/resample.h"
 #include "formats/convert/audio/wav.h"
 
 #include <algorithm>
@@ -29,8 +31,8 @@ std::string crc_text(std::span<const std::uint8_t> bytes) {
 
 class MusicConverter final : public sh::convert::Converter {
 public:
-    MusicConverter(SiblingReader sibling, MusicOptions options)
-        : sibling_(std::move(sibling)), options_(options) {}
+    MusicConverter(SiblingReader sibling, MusicOptions options, MusicFile file)
+        : sibling_(std::move(sibling)), options_(options), file_(file) {}
 
     std::string_view name() const override { return "music"; }
     bool lossless() const override { return false; }
@@ -80,15 +82,33 @@ public:
             wav.sampler = sh::convert::audio::WavSampler{};
             wav.sampler->loop = sh::convert::audio::WavLoop{*m.loop_start, *m.loop_end - 1};
         }
-        auto wav_bytes = sh::convert::audio::write_wav(wav);
-        if (!wav_bytes) {
-            return R::fail("music: " + wav_bytes.error());
+        // The description counts in the frames of the file written: Opus is always 48 kHz.
+        Timeline time{kOutputRate, m.frames(), m.loop_start, m.loop_end, m.spill_frames};
+        const bool opus = file_ == MusicFile::Opus;
+        if (opus) {
+            const auto at = [](std::uint64_t frame) {
+                return static_cast<std::uint32_t>(
+                    sh::convert::audio::resample_position(frame, kOutputRate, sh::convert::audio::kOpusRate));
+            };
+            time = Timeline{sh::convert::audio::kOpusRate, at(m.frames()), std::nullopt, std::nullopt,
+                            at(m.spill_frames)};
+            if (m.loop_start) time.loop_start = at(*m.loop_start);
+            if (m.loop_end) time.loop_end = at(*m.loop_end);
         }
+        sh::convert::audio::OpusEncoding encoding;
+        encoding.serial = sh::crc32(reinterpret_cast<const std::uint8_t*>(name.data()), name.size());
+        encoding.comments.push_back("TITLE=" + name);
+        auto file_bytes = opus ? sh::convert::audio::write_ogg_opus(wav, encoding) : sh::convert::audio::write_wav(wav);
+        if (!file_bytes) {
+            return R::fail("music: " + file_bytes.error());
+        }
+        const std::string file_name = name + (opus ? ".opus" : ".wav");
 
-        const std::string json = describe(m, path, raw, vab_path, *vab_raw, name + ".wav", layers);
+        const std::string json =
+            describe(m, time, path, raw, vab_path, *vab_raw, opus ? "opus" : "wav", file_name, layers);
 
         std::vector<sh::convert::Output> out;
-        out.push_back({"audio/music/" + name + ".wav", std::move(wav_bytes.value())});
+        out.push_back({"audio/music/" + file_name, std::move(file_bytes.value())});
         out.push_back({"audio/music/" + name + ".music.json", std::vector<std::uint8_t>(json.begin(), json.end())});
         return R::ok(std::move(out));
     }
@@ -98,13 +118,21 @@ public:
     }
 
 private:
-    std::string describe(const RenderedMusic& m, const std::string& kdt_path, std::span<const std::uint8_t> kdt,
-                         const std::string& vab_path, std::span<const std::uint8_t> vab, const std::string& wav,
+    struct Timeline {
+        std::uint32_t rate;
+        std::uint32_t frames;
+        std::optional<std::uint32_t> loop_start, loop_end;
+        std::uint32_t spill_frames;
+    };
+
+    std::string describe(const RenderedMusic& m, const Timeline& time, const std::string& kdt_path,
+                         std::span<const std::uint8_t> kdt, const std::string& vab_path,
+                         std::span<const std::uint8_t> vab, const char* file_key, const std::string& file,
                          const std::optional<std::array<std::uint8_t, 16>>& layers) const {
         sh::convert::audio::JsonWriter j;
         j.begin_object();
         j.field("format", "sh-music/1");
-        j.field("wav", wav);
+        j.field(file_key, file);
         j.key("source");
         j.begin_object(true);
         j.field("kdt", kdt_path);
@@ -112,17 +140,17 @@ private:
         j.field("vab", vab_path);
         j.field("vab_crc32", crc_text(vab));
         j.end_object();
-        j.field("sample_rate", kOutputRate);
+        j.field("sample_rate", time.rate);
         j.field("channels", 2);
-        j.field("frames", m.frames());
+        j.field("frames", time.frames);
         j.key("duration_s");
-        j.value_fixed(static_cast<double>(m.frames()) / kOutputRate, 3);
+        j.value_fixed(static_cast<double>(time.frames) / time.rate, 3);
         j.key("loop");
-        if (m.loop_start && m.loop_end) {
+        if (time.loop_start && time.loop_end) {
             j.begin_object(true);
-            j.field("start", *m.loop_start);
-            j.field("end", *m.loop_end);
-            j.field("spill_frames", m.spill_frames);
+            j.field("start", *time.loop_start);
+            j.field("end", *time.loop_end);
+            j.field("spill_frames", time.spill_frames);
             j.end_object();
         } else {
             j.null();
@@ -165,12 +193,14 @@ private:
 
     SiblingReader sibling_;
     MusicOptions options_;
+    MusicFile file_;
 };
 
 }  // namespace
 
-std::unique_ptr<sh::convert::Converter> make_music_converter(SiblingReader sibling, MusicOptions options) {
-    return std::make_unique<MusicConverter>(std::move(sibling), options);
+std::unique_ptr<sh::convert::Converter> make_music_converter(SiblingReader sibling, MusicOptions options,
+                                                             MusicFile file) {
+    return std::make_unique<MusicConverter>(std::move(sibling), options, file);
 }
 
 }  // namespace sh::audio

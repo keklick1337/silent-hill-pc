@@ -2,6 +2,7 @@
 
 #include "formats/convert/level/map_unified_files.h"
 #include "formats/convert/filetable/file_table.h"
+#include "formats/convert/gamefiles/game_files.h"
 #include "formats/convert/mapdata/mapdata_files.h"
 #include "formats/convert/materials/materials_manifest.h"
 #include "formats/convert/materials/texture_bake.h"
@@ -181,7 +182,7 @@ int run(std::span<const std::string> args, std::ostream& out, std::ostream& err,
             code = 1;
         }
     } else {
-        out << "map areas:      off (import_levels = none, the game reads the map files from raw/)\n";
+        out << "map areas:      off (import_levels = none, the map files are kept in convert/files/)\n";
     }
     // convert/textures/: true-colour pictures in the CLUT rows the geometry draws (importer 3). It rewrites the
     // model, level and map area glbs, so it comes after the map areas and before the manifest.
@@ -209,6 +210,25 @@ int run(std::span<const std::string> args, std::ostream& out, std::ostream& err,
         }
     } else {
         out << "texture bake:   off (import_textures = none)\n";
+    }
+    // Last, as every step above reads raw/: the game files without it (convert/files/), then raw/ goes.
+    if (const auto finished = sh::convert::gamefiles::finish_import(options.out, options.keep_raw, options.threads);
+        !finished) {
+        err << "sh-import: game files: " << finished.error() << "\n";
+        code = 1;
+    } else {
+        for (const std::string& note : finished.value().build.notes) {
+            err << "warning: game files: " << note << "\n";
+        }
+        out << "game files:     " << sh::convert::gamefiles::format_build_line(finished.value().build) << "\n";
+        out << "raw/:           "
+            << (finished.value().removed ? "deleted (" + std::to_string(finished.value().freed_bytes >> 20) + " MB)"
+                                         : std::string("kept (keep_raw = 1)"))
+            << "\n";
+        if (finished.value().unread.files != 0) {
+            out << "unread files:   " << finished.value().unread.files << " movie sound WAVs deleted ("
+                << (finished.value().unread.bytes >> 20) << " MB)\n";
+        }
     }
     out << "result:         " << fs::absolute(options.out, ec).string() << "\n";
     return code;

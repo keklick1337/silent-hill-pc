@@ -213,7 +213,7 @@ int Pc_SoundFilePlay(int sfxId, int left, int right, int pitchCents) {
     const float semitones = info->pitch_semitones(pitchCents);
     const std::string path = info->file_path.string();
     if (ShSound_PlayFile(path.c_str(), sfxId, gain_l, gain_r, semitones, info->loop ? 1 : 0) == 0) {
-        SH_WARN("[SFX] cannot play %s for sound %s (not a 16-bit WAV?)", path.c_str(), info->name.c_str());
+        SH_WARN("[SFX] cannot play %s for sound %s (not a 16-bit WAV or Ogg Opus?)", path.c_str(), info->name.c_str());
         return 1;
     }
     // The first play of each file sound goes to the log, the rest to debug.

@@ -63,7 +63,7 @@ Model upscaling (Options > Graphics, `model_upscaling`, experimental) never touc
 
 ## Disc files
 
-Any file of the disc is replaced by a file at the same disc path in the mod's root: `mods/<mod>/CHARA/HERO.ILM`, `BG/*.TIM`, `ITEM/*.TMD`. The path is the one in the game's file table (`gamedata/raw/`). A character model file larger than the disc's is checked before it is read; one that fails the check is refused with a `[BIGLM]` line in the log and the disc's model stays.
+Any file of the disc is replaced by a file at the same disc path in the mod's root: `mods/<mod>/CHARA/HERO.ILM`, `BG/*.TIM`, `ITEM/*.TMD`. The path is the one in the game's file table (every one is listed in `gamedata/index.tsv`). A character model file larger than the disc's is checked before it is read; one that fails the check is refused with a `[BIGLM]` line in the log and the disc's model stays.
 
 ## Animations
 
@@ -72,6 +72,15 @@ Any file of the disc is replaced by a file at the same disc path in the mod's ro
 ## Sound
 
 All sound comes from `convert/audio/`. Each file is looked up by itself, so a mod can replace one sound without copying a bank.
+
+**Formats.** Wherever a WAV goes, an Ogg Opus file (`.opus`) may go instead: the same name with the other extension (`convert/audio/vab/BASE/005.opus` for `005.wav`, `XA/xa_0123.opus`), or the path itself in a `"file"`. The game tells the two apart by their content.
+
+| Format | Channels | Rate | Loop |
+| --- | --- | --- | --- |
+| WAV, 16-bit integer PCM (voice lines: 8 or 16 bits) | mono or stereo | any (voice lines: 4 to 96 kHz) | the `smpl` chunk |
+| Ogg Opus | mono or stereo | 48 kHz, as Opus always decodes | the tags `LOOPSTART` and `LOOPLENGTH` (or `LOOPEND`), in 48 kHz frames |
+
+Opus is about a tenth of the size of a WAV at 128 kbit/s and sounds the same in the game; it is lossy, so keep the WAV as the master. A tool that writes it: `ffmpeg -i in.wav -c:a libopus -b:a 128k out.opus` or `opusenc --bitrate 128 in.wav out.opus`; a loop: `opusenc --comment LOOPSTART=48000 --comment LOOPLENGTH=96000 ...`. The file is decoded whole when it is first played and kept like a WAV, so a voice line or a sound effect is a good use; an hour-long file is not (at most 30 minutes). If a mod has both names, the WAV is taken; between mods, the later one in the load order wins as always.
 
 - **Names.** The registry `gamedata/sounds/sounds.json` gives every sound a readable name (`footstep_concrete`, `groaner_death`, `door_locked`). A mod adds an alias or points a name at another sound of the game with a file `sounds/<any>.json`:
 
@@ -85,10 +94,11 @@ All sound comes from `convert/audio/`. Each file is looked up by itself, so a mo
   { "sounds": { "footstep_concrete": { "file": "sounds/my_step.wav", "volume": 0.9 } } }
   ```
 
-  The sound plays the mod's file everywhere (16-bit WAV, the path from the mod's folder; also `pitch` in semitones, `pan`, `loop`). A new name gets a free number at load and can be used in footstep tables, character sound slots and `sh.sound.play`.
+  The sound plays the mod's file everywhere (16-bit WAV or Ogg Opus, the path from the mod's folder; also `pitch` in semitones, `pan`, `loop`). A new name gets a free number at load and can be used in footstep tables, character sound slots and `sh.sound.play`.
 - **A sample of a bank**: `convert/audio/vab/<BANK>/<NNN>.wav` — sample NNN of the bank (the number is `samples[].number` in `<BANK>.vab.json`). 16-bit WAV, mono (stereo is mixed down), any rate. A loop is the WAV's `smpl` chunk; without one the sound plays once.
 - **Bank parameters**: `convert/audio/vab/<BANK>.vab.json` — volume and pan of programs and tones, root key, envelope, reverb. Do not renumber programs and tone slots: the game addresses them by number.
 - **Music**: a song is `convert/audio/seq/SND/<NAME>.kdt.json` (its events, without loss) and its instruments are the bank `<NAME>` in `convert/audio/vab/`. The sequencer plays the song live, so the game's layers and fades work on a replacement too.
+- **Recordings of the songs** (to listen to, not read by the game): with `import_music = wav` (the desktop default in `config.cfg`) the import renders every song with the game's synthesizer into `convert/audio/music/<NAME>.wav` (44.1 kHz stereo, loop in `smpl`), with `import_music = opus` into `<NAME>.opus` (Ogg Opus, 48 kHz stereo, 128 kbit/s, loop in `LOOPSTART`/`LOOPLENGTH`, about a tenth of the size), with `none` not at all (the Android default). `<NAME>.music.json` beside it gives the loop and the render settings in the frames of that file.
 - **A voice line**: `XA/xa_NNNN.wav` in the mod's root, NNNN being the line's number in the game's table. The end of a line that the logic waits for comes from the game's tables: a longer recording does not delay the scene and is cut at the same moment.
 
 ### An example: footsteps
@@ -99,7 +109,7 @@ A step's sound is chosen in a chain: the floor's collision material, the surface
 mods/snow_steps/
   mod.json                        {"id": "snow_steps", "version": "1.0.0"}
   sounds/snow_steps.json          {"sounds": {"harry_snow_step": {"file": "sounds/snow_step.wav", "volume": 0.9}}}
-  sounds/snow_step.wav            16-bit WAV, mono or stereo, any rate
+  sounds/snow_step.wav            16-bit WAV, mono or stereo, any rate (or snow_step.opus, named so in the json)
   chara/Harry/character.json      {"footsteps": {"grass": "harry_snow_step"}}
 ```
 

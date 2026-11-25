@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 #include "engine/audio/voice_clip.h"
 
+#include "formats/convert/audio/ogg_opus.h"
+
 #include <algorithm>
 #include <cstdio>
 #include <cstring>
@@ -44,6 +46,16 @@ std::vector<std::int16_t> resample_voice(std::span<const std::int16_t> pcm, int 
 
 Result<VoiceClip> parse_voice_wav(std::span<const std::uint8_t> file) {
     using R = Result<VoiceClip>;
+    if (convert::audio::is_ogg(file)) {
+        Result<convert::audio::Wav> opus = convert::audio::read_ogg_opus(file);
+        if (!opus) {
+            return R::fail("Ogg Opus: " + opus.error());
+        }
+        VoiceClip clip;
+        clip.channels = opus.value().channels;
+        clip.pcm = resample_voice(opus.value().samples, clip.channels, opus.value().sample_rate);
+        return R::ok(std::move(clip));
+    }
     if (file.size() < kSmallestWav || !tagged(file.data(), "RIFF") || !tagged(file.data() + 8, "WAVE")) {
         return R::fail("not a RIFF WAVE file");
     }

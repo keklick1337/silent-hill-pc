@@ -60,6 +60,17 @@ SH_TEST(import_tool_defaults) {
     SH_CHECK(none && !none.value().is_enabled(Category::Levels));
 }
 
+SH_TEST(import_tool_music_formats) {
+    auto opus = resolve("import_music = opus\n", {});
+    SH_CHECK(opus && opus.value().music && opus.value().music_opus);
+    SH_CHECK(opus && names_of(opus.value()).find("music") != std::string::npos);
+    auto wav = resolve("import_music = opus\nimport_music = wav\n", {});
+    SH_CHECK(wav && wav.value().music && !wav.value().music_opus);
+    auto none = resolve("import_music = none\n", {});
+    SH_CHECK(none && !none.value().music && names_of(none.value()).find("music") == std::string::npos);
+    SH_CHECK(!resolve("import_music = mp3\n", {}));
+}
+
 SH_TEST(import_tool_args_basic) {
     const auto args = parse({"disc.cue", "--out", "dir", "--overwrite", "--no-verify", "--threads", "4", "--config", "c.cfg"});
     SH_CHECK(args);
