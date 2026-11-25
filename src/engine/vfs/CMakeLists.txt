@@ -1,6 +1,7 @@
 add_library(sh_vfs STATIC
     vfs.cpp
     disc_sectors.cpp
+    game_files_layer.cpp
 )
 
 target_compile_features(sh_vfs PUBLIC cxx_std_20)
@@ -16,6 +17,8 @@ foreach(sh_dep IN ITEMS sh_common sh_disc sh_iso9660 sh_archive sh_manifest)
         target_link_libraries(sh_vfs PUBLIC ${sh_dep})
     endif()
 endforeach()
+# The file table (tables/filetable.json) and the game files of an import without raw/; declared after this folder.
+target_link_libraries(sh_vfs PUBLIC sh_convert_filetable sh_convert_gamefiles)
 
 # C facade for the game exe (vfs_c.h). Its C++20 requirement stays private and sh_vfs is linked privately,
 # so the exe keeps its own language standard. The disc sector source it installs is declared in

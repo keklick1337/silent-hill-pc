@@ -2,6 +2,7 @@
 
 #include "engine/mods/data_merge.h"
 #include "engine/mods/mods.h"
+#include "formats/convert/gamefiles/game_files.h"
 #include "formats/convert/mapdata/mapdata_files.h"
 
 #include <cstdio>
@@ -56,10 +57,10 @@ MapLoad MapStore::load(std::string_view map) {
     // The disc first: it fills a missing gamedata/maps file and stands in for a broken one.
     bool have_disc = false;
     md::MapData disc;
-    const std::string raw_name = "raw/" + md::overlay_path(map);
-    if (auto overlay = md::read_overlay(config_.gamedata_dir, *layout); !overlay) {
-        log(1, std::string(map) + ": " + overlay.error());
-    } else if (auto decoded = md::decode_overlay(overlay.value(), *layout); !decoded) {
+    const std::string raw_name = md::overlay_path(map);
+    if (auto overlay = sh::convert::gamefiles::read_game_file(config_.gamedata_dir, raw_name); !overlay) {
+        log(1, std::string(map) + ": the game file " + raw_name + " cannot be read");
+    } else if (auto decoded = md::decode_overlay(*overlay, *layout); !decoded) {
         log(1, std::string(map) + ": " + raw_name + ": " + decoded.error());
     } else {
         disc = std::move(decoded.value());

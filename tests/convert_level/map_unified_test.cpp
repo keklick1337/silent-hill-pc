@@ -329,7 +329,7 @@ SH_TEST(map_unified_import_real_image) {
     std::ostringstream err;
     const int code = sh::import_tool::run(
         std::vector<std::string>{image.string(), "--out", out_dir.string(), "--skip", "models", "--skip", "audio",
-                                 "--skip", "text", "--no-verify"},
+                                 "--skip", "text", "--no-verify", "--keep-raw"},
         out, err, nullptr);
     SH_CHECK(code == 0);
     SH_CHECK(out.str().find("map areas:      16 areas, 16 written, 0 kept; 504 files packed, 504 round trips") !=

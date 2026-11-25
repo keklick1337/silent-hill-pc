@@ -1,7 +1,6 @@
 #include "engine/vfs/disc_sectors.h"
 
-#include "engine/manifest/map_manifest.h"
-#include "formats/archive/sh_archive.h"
+#include "formats/convert/filetable/file_table.h"
 #include "formats/common/byte_source.h"
 
 #include <algorithm>
@@ -80,38 +79,35 @@ std::unique_ptr<DiscSectors> DiscSectors::open(const Vfs& vfs, const fs::path& g
         return nullptr;
     }
 
-    // The LBA map is the game's own file table, from the imported executable rather than whatever a mod puts in
-    // its place. The executable name comes from the game manifest (disc.exe_file) with this disc's default as
-    // fallback. SILENT. ends where HILL. starts on this disc; the table's start check needs no tighter bound.
-    const char* manifest_exe = MapManifest_DiscString("exe_file");
-    const std::string exe_name = manifest_exe != nullptr ? manifest_exe : "SLUS_007.07";
-    const std::unique_ptr<ByteSource> exe = open_file_source(gamedata_dir / "raw" / exe_name);
-    if (!exe) {
-        error = "no raw/" + exe_name;
-        return nullptr;
-    }
-    const std::optional<std::vector<archive::Entry>> table =
-        archive::read_file_table(*exe, archive::Layout{0, hill.first}, archive::Layout{hill.first, hill.end - hill.first});
+    // The LBA map is the game's own file table (tables/filetable.json, written by the import from the executable and
+    // checked against it byte for byte), not whatever a mod puts in its place. Sizes come from index.tsv: a typed
+    // file's table size is rounded to 256 bytes, and an XA track has none.
+    auto table = sh::convert::filetable::load_or_import(gamedata_dir);
     if (!table) {
-        error = "raw/" + exe_name + " holds no file table";
+        error = table.error();
         return nullptr;
     }
 
     std::vector<SectorRun> runs;
-    runs.reserve(table->size());
-    for (const archive::Entry& entry : *table) {
-        const std::string path = normalize(entry.name);
+    runs.reserve(table.value().files.size());
+    for (const sh::convert::filetable::Record& record : table.value().files) {
+        const std::string path = normalize(sh::convert::filetable::path_of(record));
         const auto it = by_path.find(path);
-        if (it == by_path.end() || it->second->size != entry.size) {
+        if (it == by_path.end()) {
             error = "index.tsv does not match the file table at " + path;
             return nullptr;
         }
         SectorRun run;
-        run.lba = entry.lba;
-        run.sectors = entry.sectors;
+        run.lba = record.sector;
         run.path = path;
-        run.size = entry.size;
-        run.hill = entry.region == archive::Region::Hill;
+        run.size = it->second->size;
+        run.hill = run.lba >= hill.first && run.lba < hill.end;
+        const std::uint64_t sector = run.hill ? kXaSectorBytes : kDataSectorBytes;
+        run.sectors = static_cast<std::uint32_t>((run.size + sector - 1) / sector);
+        if (run.hill && run.size % kXaSectorBytes != 0) {
+            error = "index.tsv size of " + path + " is not whole XA sectors";
+            return nullptr;
+        }
         if (run.sectors != 0) {
             runs.push_back(std::move(run));
         }

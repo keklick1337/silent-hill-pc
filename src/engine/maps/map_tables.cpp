@@ -252,7 +252,7 @@ bool MapTables::fill(std::span<const std::uint8_t> overlay) {
             ++filled;
         }
     }
-    SH_LOG("[MAPTABLES] %s: %u arrays, %llu bytes from raw/%s, %u relocation errors (data-only map)", map_.c_str(),
+    SH_LOG("[MAPTABLES] %s: %u arrays, %llu bytes from %s, %u relocation errors (data-only map)", map_.c_str(),
            filled, static_cast<unsigned long long>(copied), bin_.c_str(), reloc_errors);
     return !header_.empty();
 }

@@ -271,7 +271,8 @@ DATA_PREFIX = DATA_NOTE[:40]
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--gamedata", required=True, help="an imported gamedata (its raw/ holds the overlays)")
+    ap.add_argument("--gamedata", required=True,
+                    help="an imported gamedata whose raw/ holds the overlays (import it with keep_raw = 1)")
     ap.add_argument("--check", action="store_true")
     args = ap.parse_args()
     items, reactions = item_names(), reaction_names()

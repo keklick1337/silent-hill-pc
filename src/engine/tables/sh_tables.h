@@ -24,7 +24,7 @@ typedef struct ShAnimEntry
     int16_t endKeyframeIdx;
 } ShAnimEntry;
 
-/* Where a table lies on the disc: the map overlay (path under gamedata/raw/) and its PSX address. */
+/* Where a table lies on the disc: the map overlay (its game path, formats/convert/gamefiles/game_files.h) and its PSX address. */
 typedef struct ShAnimSource
 {
     const char* file;
@@ -74,7 +74,7 @@ typedef struct ShTablesConfig
 void ShTables_Configure(const ShTablesConfig* config);
 
 /* Fills out[0 .. info->count) with the table: from a mod's file, else from gamedata/tables/anim/<name>.json
- * (written from the disc in gamedata/raw/ first when it is missing), else from the disc copy in gamedata/raw/.
+ * (written from the disc's game files first when it is missing), else from the disc copy in the game files.
  * A missing or broken file is an error reported through the log: the game requires the disc import;
  * the disc values keep the game running until the import is (re)run. Returns 1 when the values came from a
  * file, 0 otherwise. */

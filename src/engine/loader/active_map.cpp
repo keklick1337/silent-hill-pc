@@ -29,6 +29,7 @@
 #include "engine/screens/staff_roll_clock.h"
 #include "engine/vfs/vfs_c.h"
 #include "engine/vfs/vfs_data_json.h"
+#include "formats/convert/gamefiles/game_files.h"
 #include "i18n/text_bridge.h"
 
 extern "C" {
@@ -92,16 +93,17 @@ void tables_load(const std::string& map)
     {
         return;
     }
-    const std::string path = std::string(PcPort_GetGameDataPath()) + "/raw/" + tables.bin();
-    std::ifstream in(path, std::ios::binary);
-    if (!in)
+    // The overlay as the disc had it, from the import's game files (formats/convert/gamefiles/game_files.h).
+    const std::optional<std::vector<std::uint8_t>> overlay =
+        sh::convert::gamefiles::read_game_file(PcPort_GetGameDataPath(), tables.bin());
+    if (!overlay)
     {
         // Without the disc there is nothing to fill from: the arrays stay zero.
-        SH_ERR("[MAPTABLES] %s: %s cannot be read: the game requires the disc import", map.c_str(),
-               path.c_str());
+        SH_ERR("[MAPTABLES] %s: the game file %s cannot be read: the game requires the disc import", map.c_str(),
+               tables.bin().c_str());
         return;
     }
-    const std::vector<std::uint8_t> bytes((std::istreambuf_iterator<char>(in)), std::istreambuf_iterator<char>());
+    const std::vector<std::uint8_t>& bytes = *overlay;
     // The arrays tables.json gives as readable data take it over the disc's bytes.
     auto data = maps::apply_table_data(*text, bytes, HarryReactions_TableNames());
     if (!data)

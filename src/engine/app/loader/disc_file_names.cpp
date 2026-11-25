@@ -33,7 +33,7 @@ std::uint32_t s_xa_sectors[kXaBases + 2];
     SH_LOG("[FileTable] FATAL: %s", reason.c_str());
     const std::string msg = "The game's file table could not be loaded:\n\n" + reason +
                             "\n\nIt is part of the imported game data (tables/filetable.json, built from\n"
-                            "raw/SLUS_007.07). Start the game with --reimport to import the disc again.";
+                            "the disc's executable). Start the game with --reimport to import the disc again.";
     ShDialog_Show(1, "Silent Hill - file table missing", msg.c_str());
     std::exit(EXIT_FAILURE);
 }

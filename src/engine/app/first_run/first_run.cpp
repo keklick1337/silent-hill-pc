@@ -6,6 +6,7 @@
 #include "engine/app/first_run/progress_window.h"
 #include "formats/convert/level/map_unified_files.h"
 #include "formats/convert/filetable/file_table.h"
+#include "formats/convert/gamefiles/game_files.h"
 #include "formats/convert/mapdata/mapdata_files.h"
 #include "formats/convert/materials/materials_manifest.h"
 #include "formats/convert/materials/surface_inference.h"
@@ -728,6 +729,22 @@ int import_from(const ImportContext& context, ui::ImageCheck image, sh::first_ru
                              sh::convert::materials::format_inference_line(surfaces.value()).c_str());
             } else {
                 std::fprintf(stderr, "first run: surface materials: %s\n", surfaces.error().c_str());
+            }
+            // Last, as every step above reads raw/: the game files without it (convert/files/), then raw/ goes
+            // unless keep_raw = 1.
+            const auto finished = sh::convert::gamefiles::finish_import(gamedata, options.keep_raw, options.threads);
+            if (!finished) {
+                std::fprintf(stderr, "first run: game files: %s (raw/ is kept)\n", finished.error().c_str());
+            } else {
+                for (const std::string& note : finished.value().build.notes) {
+                    std::fprintf(stderr, "first run: game files: %s\n", note.c_str());
+                }
+                std::fprintf(stderr, "first run: game files: %s; raw/ %s; %zu unread movie sound WAVs deleted\n",
+                             sh::convert::gamefiles::format_build_line(finished.value().build).c_str(),
+                             finished.value().removed
+                                 ? ("deleted (" + std::to_string(finished.value().freed_bytes >> 20) + " MB)").c_str()
+                                 : "kept (keep_raw = 1)",
+                             finished.value().unread.files);
             }
         }});
         run_prepare(steps, window, lang, outcome.title);

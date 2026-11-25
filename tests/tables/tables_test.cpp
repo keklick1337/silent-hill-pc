@@ -372,8 +372,8 @@ SH_TEST(tables_store_creates_keeps_and_rewrites_files) {
             const ShAnimEntry zero{};
             SH_CHECK(std::memcmp(&e, &zero, sizeof e) == 0);
         }
-        SH_CHECK(log.all().find("E [TABLES] tables/anim/cat.json is missing and so is raw/: run the disc import") !=
-                 std::string::npos);
+        SH_CHECK(log.all().find("E [TABLES] tables/anim/cat.json is missing and so are the game files (raw/, "
+                                "convert/files/): run the disc import") != std::string::npos);
         SH_CHECK(!fs::exists(dir / "absent"));
     }
     // Missing file: written from the disc (raw/) and read back.
@@ -579,7 +579,8 @@ SH_TEST(tables_store_overlay_variants) {
 }
 
 // sh-import writes all tables from the disc (one file per table and one per overlay whose copy differs: DAHLIA in
-// five later overlays, CYBIL in MAP6_S01, KAUFMANN in MAP5_S02) and every copy in raw/ matches its file.
+// five later overlays, CYBIL in MAP6_S01, KAUFMANN in MAP5_S02) and every copy in raw/ (kept for the check) matches
+// its file.
 SH_TEST(tables_import_writes_and_checks_against_raw) {
     const fs::path image = fs::path(SH_PROJECT_ROOT) / "data" / "Silent Hill (v1.1).cue";
     if (!fs::exists(image)) {
@@ -591,7 +592,7 @@ SH_TEST(tables_import_writes_and_checks_against_raw) {
     std::ostringstream err;
     const int code = sh::import_tool::run(
         std::vector<std::string>{image.string(), "--out", out_dir.string(), "--skip", "textures", "--skip", "models",
-                                 "--skip", "audio", "--skip", "text", "--skip", "levels", "--no-verify"},
+                                 "--skip", "audio", "--skip", "text", "--skip", "levels", "--no-verify", "--keep-raw"},
         out, err, nullptr);
     SH_CHECK(code == 0);
     SH_CHECK(out.str().find("tables:         38 written, 0 kept; raw/ check: 70 copies, 0 differ in 0 entries") !=

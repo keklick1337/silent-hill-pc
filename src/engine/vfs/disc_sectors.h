@@ -38,8 +38,9 @@ struct SectorRun {
 // Reads by LBA through the VFS: the LBA is resolved to a file of the game and an offset in it, and the bytes
 // come from the layer that answers for that path, so a mod that replaces the file also replaces its sectors.
 //
-// The LBA map is the game's file table in SLUS_007.07, checked against gamedata/index.tsv: every entry must have
-// the same path and logical size. SILENT. sectors give Data reads (the sector tail is in raw/); HILL. sectors are
+// The LBA map is the game's file table (gamedata/tables/filetable.json), with the logical sizes of
+// gamedata/index.tsv. SILENT. sectors give Data reads (the bytes past a file's logical size in its last sector come
+// from the layer's open_stored()); HILL. sectors are
 // stored whole as 2336 bytes, so they give both Xa reads and Data reads (bytes 8..2055). Sectors outside every run
 // (the ISO 9660 area, gaps) and Xa reads of SILENT. sectors are not in gamedata/: they read as zeros and false.
 class DiscSectors {

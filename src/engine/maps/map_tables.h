@@ -3,10 +3,11 @@
 // The arrays of a map's disc overlay that the game reads: gamedata/maps/<map>/tables.json names
 // each one, where it lies in the overlay (its address in PS1 memory, the overlay loaded at kOverlayBase), its
 // element type and count. Loading a map makes zeroed storage for every array and fills it from the overlay file
-// (gamedata/raw/<bin>), as the PS1 did when it read the overlay; the storage lives until the next map load.
+// (the game file <bin>, formats/convert/gamefiles/game_files.h), as the PS1 did when it read the overlay; the storage
+// lives until the next map load.
 //
 // tables.json:
-//   "bin": the overlay file under gamedata/raw/
+//   "bin": the game path of the overlay file
 //   "symbols": [{"symbol": name, "va": "0x...", "type": element type, "count": n, "bytes": prefix to copy,
 //               "port_word": true (no place on the disc: zero storage for the visit)}]
 //   "functions", "variables": [{"symbol": name, "va": "0x..."}]: game functions and live game variables the

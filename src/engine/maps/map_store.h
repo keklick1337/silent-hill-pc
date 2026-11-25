@@ -2,7 +2,7 @@
 
 // Where the data of a map overlay comes from when the game loads it: gamedata/maps/<map>/<kind>.json (written
 // from the disc first when it is missing) with every mod's patch merged over it in load order
-// (engine/mods/data_merge.h), else the disc itself (gamedata/raw/VIN/MAPn_Snn.BIN), else nothing and the game
+// (engine/mods/data_merge.h), else the disc itself (the game file VIN/MAPn_Snn.BIN), else nothing and the game
 // keeps the values compiled into the overlay.
 // The C face for the game is engine/maps/sh_maps.h.
 
@@ -30,7 +30,7 @@ enum class Source : std::uint8_t { None, Disc, File, Mod };
 
 struct KindSource {
     Source source = Source::None;
-    std::string path;  // the file read, or "raw/VIN/MAPn_Snn.BIN"
+    std::string path;  // the file read, or the game file "VIN/MAPn_Snn.BIN"
     std::string mod;   // mod id for Source::Mod
 };
 

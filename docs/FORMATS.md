@@ -59,7 +59,7 @@ The rules match `extract.py`, `_extract`.
 - The original game reads `ceil(blocks × 256 / 2048)` sectors, that is, the same rounding.
 - The number at the end of an XA track name equals the track's sector count: `05_02152` — 2152 sectors, `ZZ_14239` — 14239 (all 30 entries).
 - Zero-size entries (7): `ANIM/HB_M1S04.ANM`, `ANIM/HB_M2S03.ANM`, `ANIM/HB_M4S00.ANM`, `ANIM/HB_M4S06.ANM`, `ANIM/HB_M6S05.ANM`, `VIN/MAPT_S00.BIN`, `VIN/MAPX_S00.BIN`. The next entry starts in the same sector, the file is empty.
-- Three entry sizes. The logical one (`size`: `blocks × 256` for SILENT, `sectors × 2336` for HILL) is returned by `read_entry` and by the `size` field of the import index (`raw/`). The stored one: `sectors × 2048` for SILENT, with the tail up to the sector boundary, and `sectors × 2336` for HILL. The tail lies in the container, `read_entry` does not return it. The bytes are raw, as on the disc.
+- Three entry sizes. The logical one (`size`: `blocks × 256` for SILENT, `sectors × 2336` for HILL) is returned by `read_entry` and by the `size` field of the import index (`index.tsv`). The stored one: `sectors × 2048` for SILENT, with the tail up to the sector boundary, and `sectors × 2336` for HILL. The tail lies in the container, `read_entry` does not return it. The bytes are raw, as on the disc.
 - Known values: CRC32 of the stored bytes of `CHARA/HERO.ILM` = `2D30905C`, `1ST/BODYPROG.BIN` = `AC9CDBC1` (import index values). CRC32 of the logical raw bytes of `1ST/BODYPROG.BIN` (674560) = `A8966201`. The tests `EncryptedOverlayIsReadAsOnDisc` and `StoredSectorsKeepTheTail` check both values.
 
 ### Order in the container

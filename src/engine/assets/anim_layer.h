@@ -3,11 +3,11 @@
 // The engine reads the game's animations from convert/anim/**/*.anim.json (sh-anim/1, lossless: anim_json.h) when
 // anim_source = json: a VFS layer that answers ANIM/<NAME>.ANM with the bytes rebuilt from
 // convert/anim/ANIM/<NAME>.anim.json. The game loads ANM files by LBA (DiscSectors), so a path the layer has replaces
-// the sectors of raw/ and Anim_BonesUpdate sees exactly the bytes of the disc file.
+// the sectors of the game files and Anim_BonesUpdate sees exactly the bytes of the disc file.
 //
 // A disc file's last sector holds bytes past its logical size (the rest of the sector). The JSON has only the
-// file, so the layer takes that tail from `tail_from` (gamedata/raw) when it has the same file size; without it the
-// tail reads as zeros, which no code of the game reads.
+// file, so the layer takes that tail from `tail_from` (the game files: convert/files/ or raw/) when it has the same
+// file size; without it the tail reads as zeros, which no code of the game reads.
 
 #include "engine/vfs/vfs.h"
 

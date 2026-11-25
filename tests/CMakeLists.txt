@@ -31,7 +31,7 @@ foreach(sh_lib IN ITEMS sh_common sh_disc sh_miniz sh_iso9660 sh_archive sh_vfs 
         sh_png sh_gltf sh_import sh_import_ui sh_quick_setup sh_screen_kit sh_import_tool sh_upscale_tool sh_desktop
         sh_convert_tim sh_convert_model sh_convert_audio sh_convert_text sh_i18n sh_convert_font sh_convert_level
         sh_convert_anim sh_convert_cutscene sh_convert_archive
-        sh_convert_mapdata sh_convert_filetable sh_maps sh_maps_unified sh_assets sh_items sh_script lua_static sh_convert_materials sh_chara sh_chara_actions sh_sound_registry sh_gconfig sh_utf8 sh_input sh_audio sh_entities sh_player sh_player_script sh_world sh_combat sh_cutscene sh_save sh_save_c sh_render sh_frame sh_present sh_flags sh_console sh_text sh_camera sh_inventory sh_screens sh_menu sh_loop sh_devtools sh_gameflow sh_effects sh_offscreen sh_feedback sh_loader sh_gpu sh_fmv)
+        sh_convert_mapdata sh_convert_filetable sh_convert_gamefiles sh_maps sh_maps_unified sh_assets sh_items sh_script lua_static sh_convert_materials sh_chara sh_chara_actions sh_sound_registry sh_gconfig sh_utf8 sh_input sh_audio sh_entities sh_player sh_player_script sh_world sh_combat sh_cutscene sh_save sh_save_c sh_render sh_frame sh_present sh_flags sh_console sh_text sh_camera sh_inventory sh_screens sh_menu sh_loop sh_devtools sh_gameflow sh_effects sh_offscreen sh_feedback sh_loader sh_gpu sh_fmv)
     if(TARGET ${sh_lib})
         target_link_libraries(sh_tests PRIVATE ${sh_lib})
     endif()

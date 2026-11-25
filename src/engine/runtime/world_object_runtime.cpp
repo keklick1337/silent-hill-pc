@@ -11,6 +11,7 @@
 #include "engine/vfs/vfs_data_json.h"
 #include "engine/world/disc_poses.h"
 #include "engine/world/object_queue.h"
+#include "formats/convert/gamefiles/game_files.h"
 
 #include <algorithm>
 #include <cstdio>
@@ -50,9 +51,8 @@ void read_disc_source(const std::string& map, DiscSource& src) {
     if (!src.registry) {
         return;
     }
-    std::ifstream in(std::string(PcPort_GetGameDataPath()) + "/raw/" + src.registry.value().bin, std::ios::binary);
-    if (in) {
-        src.overlay.assign(std::istreambuf_iterator<char>(in), std::istreambuf_iterator<char>());
+    if (auto bytes = sh::convert::gamefiles::read_game_file(PcPort_GetGameDataPath(), src.registry.value().bin)) {
+        src.overlay = std::move(*bytes);
     }
 }
 

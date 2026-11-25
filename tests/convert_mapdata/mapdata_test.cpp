@@ -291,7 +291,7 @@ SH_TEST(mapdata_import_round_trips_all_maps) {
     std::ostringstream err;
     const int code = sh::import_tool::run(
         std::vector<std::string>{image.string(), "--out", out_dir.string(), "--skip", "textures", "--skip", "models",
-                                 "--skip", "audio", "--skip", "text", "--skip", "levels", "--no-verify"},
+                                 "--skip", "audio", "--skip", "text", "--skip", "levels", "--no-verify", "--keep-raw"},
         out, err, nullptr);
     SH_CHECK(code == 0);
     SH_CHECK(out.str().find("maps:           43 maps, 258 written, 0 kept; disc check: 258 round trips, 258 files, "

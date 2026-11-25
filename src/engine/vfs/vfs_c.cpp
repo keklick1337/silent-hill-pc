@@ -5,7 +5,9 @@
 #include "engine/mods/data_merge.h"
 #include "engine/mods/registry.h"
 #include "engine/vfs/disc_sectors.h"
+#include "engine/vfs/game_files_layer.h"
 #include "engine/vfs/vfs.h"
+#include "formats/convert/gamefiles/game_files.h"
 #include "formats/convert/level/map_unified_files.h"
 #include "formats/disc/disc_image.h"
 #include "engine/platform/disc.h"
@@ -34,7 +36,8 @@ namespace {
 struct State {
     sh::vfs::Vfs vfs;
     std::unique_ptr<sh::vfs::DiscSectors> sectors;
-    const sh::vfs::Layer* raw_layer = nullptr;  // gamedata/raw, owned by vfs
+    // gamedata/raw/ and convert/files/ (the import's own copies of the game files, never a mod), owned by vfs
+    std::vector<const sh::vfs::Layer*> base_layers;
     std::string gamedata_dir;  // converted assets: the mods first (engine/mods/registry.h), then <gamedata>/convert
     bool active = false;
     bool initialized = false;
@@ -88,7 +91,7 @@ void log_maps(int level, const std::string& message) {
 }
 
 // map_format: "unified" reads BG/*.IPD and BG/*.PLM from
-// gamedata/maps/areas/*.glb (and a mod's maps/areas/), "legacy" from raw/ (and a mod's BG/).
+// gamedata/maps/areas/*.glb (and a mod's maps/areas/), "legacy" from the game files (and a mod's BG/).
 bool unified_maps(const char* config_path) {
     const std::string value = config_value(config_path, "map_format");
     if (value == "legacy") {
@@ -102,7 +105,7 @@ bool unified_maps(const char* config_path) {
 }
 
 // anim_source: "json" reads ANIM/*.ANM from convert/anim/**/*.anim.json (lossless, engine/assets/anim_layer.h),
-// "disc" from raw/ (and a mod's ANIM/). The bytes are the same.
+// "disc" from the game files (and a mod's ANIM/). The bytes are the same.
 bool json_anims(const char* config_path) {
     const std::string value = config_value(config_path, "anim_source");
     if (value == "disc") {
@@ -161,7 +164,7 @@ void add_mod_layers(State& s, bool unified, bool anims) {
                 s.vfs.add_layer(std::move(maps), priority);
             }
         }
-        // The sector tail comes from raw/, which only the base layer sees; a mod's file has zeros there.
+        // The sector tail comes from the game files, which only the base layers see; a mod's file has zeros there.
         if (anims) {
             if (auto anim = sh::assets::make_anim_json_layer(root, "mod anims: " + id, nullptr, log_maps)) {
                 s.vfs.add_layer(std::move(anim), priority);
@@ -249,48 +252,93 @@ extern "C" int ShVfs_InitGame(const char* gamedata_dir, const char* exe_dir, con
     std::string error;
     std::unique_ptr<sh::vfs::Layer> raw = sh::vfs::make_gamedata_layer(gamedata, error);
     if (raw) {
-        if (unified) {
-            std::unique_ptr<sh::vfs::Layer> maps = sh::maps::make_unified_maps_layer(gamedata, "maps", log_maps);
-            std::error_code ec;
-            if (!maps && !fs::exists(gamedata / "maps" / "areas", ec)) {
-                // An import made before the unified map files: write them once from raw/. No texture bake here:
-                // such an import predates importer 3, its textures/NAME.png is the indexed source itself (no
-                // indexed/), and baking would overwrite it. The new glbs name NAME.pNN.png, which the texture
-                // reader builds on demand (png::read_texture_or_variant); first run re-imports when it can.
-                const sh::convert::level::UnifiedReport made =
-                    sh::convert::level::generate_unified_maps(gamedata, false);
-                for (const std::string& w : made.warnings) {
-                    std::fprintf(stderr, "warning: [MAPS] %s\n", w.c_str());
-                }
-                std::fprintf(stderr, "[MAPS] wrote maps/areas: %s\n",
-                             sh::convert::level::format_unified_line(made).c_str());
-                maps = sh::maps::make_unified_maps_layer(gamedata, "maps", log_maps);
+        std::error_code ec;
+        const bool have_raw = sh::convert::gamefiles::has_raw(gamedata);
+        if (have_raw && unified && !fs::exists(gamedata / "maps" / "areas", ec)) {
+            // An import made before the unified map files: write them once from raw/. No texture bake here:
+            // such an import predates importer 3, its textures/NAME.png is the indexed source itself (no
+            // indexed/), and baking would overwrite it. The new glbs name NAME.pNN.png, which the texture
+            // reader builds on demand (png::read_texture_or_variant); first run re-imports when it can.
+            const sh::convert::level::UnifiedReport made = sh::convert::level::generate_unified_maps(gamedata, false);
+            for (const std::string& w : made.warnings) {
+                std::fprintf(stderr, "warning: [MAPS] %s\n", w.c_str());
             }
-            if (maps) {
-                // Below every mod (their layer priority is the load index, 0 and up), above raw/.
-                s.vfs.add_layer(std::move(maps), INT_MIN + 1);
+            std::fprintf(stderr, "[MAPS] wrote maps/areas: %s\n",
+                         sh::convert::level::format_unified_line(made).c_str());
+        }
+        if (have_raw && anims && !fs::exists(gamedata / "convert" / "anim", ec)) {
+            // An import made before the anim converter: write convert/anim once from raw/.
+            const int made = sh::assets::write_anim_json_from_raw(gamedata, *raw, log_maps);
+            std::fprintf(stderr, "[ANIM] wrote convert/anim: %d files\n", made);
+        }
+        if (have_raw) {
+            // An import made before the game files store, or one that keeps raw/: the store (built once), then raw/
+            // goes unless keep_raw = 1. The game reads only the store and the converted files from here on.
+            const bool keep_raw = config_value(config_path, "keep_raw") == "1";
+            const auto finished = sh::convert::gamefiles::finish_import(gamedata, keep_raw, 0);
+            if (!finished) {
+                std::fprintf(stderr, "warning: [VFS] raw/ is kept: %s\n", finished.error().c_str());
             } else {
-                std::fprintf(stderr, "[MAPS] no unified map files in %s: the map files come from raw/\n",
-                             (gamedata / "maps" / "areas").string().c_str());
+                if (finished.value().built) {
+                    std::fprintf(stderr, "[VFS] wrote %s: %s\n", sh::convert::gamefiles::kStoreDir,
+                                 sh::convert::gamefiles::format_build_line(finished.value().build).c_str());
+                    for (const std::string& note : finished.value().build.notes) {
+                        std::fprintf(stderr, "warning: [VFS] %s\n", note.c_str());
+                    }
+                }
+                if (finished.value().removed) {
+                    std::fprintf(stderr,
+                                 "[VFS] deleted %s (%llu MB): the game files come from %s and the converted "
+                                 "data (keep_raw = 1 keeps it)\n",
+                                 (gamedata / "raw").string().c_str(),
+                                 static_cast<unsigned long long>(finished.value().freed_bytes >> 20),
+                                 sh::convert::gamefiles::kStoreDir);
+                }
+                if (finished.value().unread.files != 0) {
+                    std::fprintf(stderr,
+                                 "[VFS] deleted %zu WAVs of the movies' sound (%llu MB): the movies play it "
+                                 "from their own sectors\n",
+                                 finished.value().unread.files,
+                                 static_cast<unsigned long long>(finished.value().unread.bytes >> 20));
+                }
+            }
+        }
+
+        std::string store_error;
+        std::unique_ptr<sh::vfs::Layer> files = sh::vfs::make_game_files_layer(gamedata, log_maps, store_error);
+        if (!files) {
+            std::fprintf(stderr, "[VFS] %s: the game files come from raw/\n", store_error.c_str());
+        }
+        if (unified) {
+            if (std::unique_ptr<sh::vfs::Layer> maps = sh::maps::make_unified_maps_layer(gamedata, "maps", log_maps)) {
+                // Below every mod (their layer priority is the load index, 0 and up), above the game files.
+                s.vfs.add_layer(std::move(maps), INT_MIN + 2);
+            } else {
+                std::fprintf(stderr, "[MAPS] no unified map files in %s: the map files come from %s\n",
+                             (gamedata / "maps" / "areas").string().c_str(), files ? "convert/files" : "raw/");
             }
         }
         if (anims) {
-            std::error_code ec;
-            if (!fs::exists(gamedata / "convert" / "anim", ec)) {
-                // An import made before the anim converter: write convert/anim once from raw/.
-                const int made = sh::assets::write_anim_json_from_raw(gamedata, *raw, log_maps);
-                std::fprintf(stderr, "[ANIM] wrote convert/anim: %d files\n", made);
-            }
-            if (auto anim = sh::assets::make_anim_json_layer(gamedata, "anims", raw.get(), log_maps)) {
-                // Like the unified maps: below every mod, above raw/.
-                s.vfs.add_layer(std::move(anim), INT_MIN + 1);
+            // The sector tail of an animation comes from the layer of the game files.
+            const sh::vfs::Layer* tails = files                                       ? files.get()
+                                          : sh::convert::gamefiles::has_raw(gamedata) ? raw.get()
+                                                                                      : nullptr;
+            if (auto anim = sh::assets::make_anim_json_layer(gamedata, "anims", tails, log_maps)) {
+                // Like the unified maps: below every mod, above the game files.
+                s.vfs.add_layer(std::move(anim), INT_MIN + 2);
             } else {
-                std::fprintf(stderr, "[ANIM] no convert/anim in %s: the animations come from raw/\n",
+                std::fprintf(stderr, "[ANIM] no convert/anim in %s: the animations come from the game files\n",
                              s.gamedata_dir.c_str());
             }
         }
-        s.raw_layer = raw.get();
-        s.vfs.add_layer(std::move(raw), INT_MIN);
+        if (files) {
+            s.base_layers.push_back(files.get());
+            s.vfs.add_layer(std::move(files), INT_MIN + 1);
+        }
+        if (sh::convert::gamefiles::has_raw(gamedata)) {
+            s.base_layers.push_back(raw.get());
+            s.vfs.add_layer(std::move(raw), INT_MIN);
+        }
         s.sectors = sh::vfs::DiscSectors::open(s.vfs, gamedata, error);
     }
     if (!s.sectors) {
@@ -447,7 +495,8 @@ extern "C" int ShVfs_ModFilePath(const char* path, char* out, size_t out_size) {
         return 0;
     }
     const sh::vfs::Layer* layer = state().vfs.find(path);
-    if (!layer || layer == state().raw_layer) {
+    const std::vector<const sh::vfs::Layer*>& base = state().base_layers;
+    if (!layer || std::find(base.begin(), base.end(), layer) != base.end()) {
         return 0;
     }
     const std::string host = layer->host_path(path).string();

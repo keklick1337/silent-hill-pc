@@ -8,6 +8,6 @@ add_library(sh_tables STATIC
 
 target_compile_features(sh_tables PRIVATE cxx_std_20)
 target_include_directories(sh_tables PUBLIC ${PROJECT_SOURCE_DIR}/src)
-target_link_libraries(sh_tables PRIVATE sh_common sh_mods)
+target_link_libraries(sh_tables PRIVATE sh_common sh_mods sh_convert_gamefiles)
 target_compile_options(sh_tables PRIVATE
     $<$<OR:$<CXX_COMPILER_ID:GNU>,$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>>:-Wall -Wextra -Wpedantic>)

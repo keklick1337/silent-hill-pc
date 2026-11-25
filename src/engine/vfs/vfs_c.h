@@ -12,7 +12,10 @@ extern "C" {
 #endif
 
 /* Builds the VFS once: mod folders (<exe>/mods, <exe>/data/mods and the
- * config key mods_dir, relative to the exe) over gamedata/raw. gamedata_dir is
+ * config key mods_dir, relative to the exe) over the game files of the import
+ * (convert/files/ and the converted data, formats/convert/gamefiles/game_files.h;
+ * gamedata/raw/ only while the config keeps it). An import that still has raw/
+ * gets its store here and loses raw/ unless keep_raw = 1. gamedata_dir is
  * the folder the first run resolved (PcPaths, config key gamedata_dir). When
  * it is a finished import the disc host (engine/platform/disc.h) is installed, so
  * every read by LBA comes from gamedata/ and the mods and the disc image is
@@ -31,8 +34,8 @@ const char* ShVfs_GameDataDir(void);
 /* Whole file, malloc'd (caller frees); NULL when missing. */
 unsigned char* ShVfs_ReadFile(const char* path, size_t* out_size);
 /* Host file of a mod that replaces the path (the highest mod layer that has
- * it): fills out and returns 1. 0 when no mod has the path; gamedata/raw is
- * never returned, its files are read by sector like the disc. */
+ * it): fills out and returns 1. 0 when no mod has the path; the import's own
+ * game files are never returned, they are read by sector like the disc. */
 int ShVfs_ModFilePath(const char* path, char* out, size_t out_size);
 /* The game path of the file that starts at disc sector `lba` ("SND/B.KDT", "XA/05_02152"): fills out and returns 1,
  * or 0 when no file starts there. From the game's file table, so it works without raw/. */

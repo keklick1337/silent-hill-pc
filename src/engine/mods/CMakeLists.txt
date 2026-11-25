@@ -2,7 +2,7 @@ add_library(sh_mods STATIC semver.cpp manifest.cpp load_order.cpp registry.cpp m
     asset_files_c.cpp mods_admin.cpp json_merge.cpp data_merge.cpp data_reload.cpp mod_import.cpp)
 target_compile_features(sh_mods PUBLIC cxx_std_20)
 target_include_directories(sh_mods PUBLIC ${PROJECT_SOURCE_DIR}/src)
-target_link_libraries(sh_mods PUBLIC sh_common sh_engine_version PRIVATE sh_miniz)
+target_link_libraries(sh_mods PUBLIC sh_common sh_engine_version PRIVATE sh_miniz sh_convert_gamefiles)
 target_compile_options(sh_mods PRIVATE $<$<CXX_COMPILER_ID:GNU,Clang,AppleClang>:-Wall;-Wextra;-Wpedantic>)
 
 # The `mods` console command (mods_console.h), apart so sh_mods does not need the console.

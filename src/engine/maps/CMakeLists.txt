@@ -14,7 +14,7 @@ add_library(sh_maps STATIC
 
 target_compile_features(sh_maps PRIVATE cxx_std_20)
 target_include_directories(sh_maps PUBLIC ${PROJECT_SOURCE_DIR}/src)
-target_link_libraries(sh_maps PRIVATE sh_convert_mapdata sh_common sh_mods sh_log)
+target_link_libraries(sh_maps PRIVATE sh_convert_mapdata sh_convert_gamefiles sh_common sh_mods sh_log)
 target_compile_options(sh_maps PRIVATE
     $<$<OR:$<CXX_COMPILER_ID:GNU>,$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>>:-Wall -Wextra -Wpedantic>)
 

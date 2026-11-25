@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // The registry of the animation tables: each table's name, the size of the game's array and its place on
 // the disc. No values are compiled in: the tables are read from gamedata/tables/anim/ (written by the import from
-// gamedata/raw/) into the engine's clip tables (engine/chara/game/clip_tables.cpp) before any map is
+// the disc's map overlays) into the engine's clip tables (engine/chara/game/clip_tables.cpp) before any map is
 // loaded. Where a table lies in each overlay: the "source" of each docs/FORMATS.md table file.
 
 #include "engine/tables/anim_table_registry.h"

@@ -33,7 +33,7 @@ enum
 enum
 {
     SH_MAP_SOURCE_NONE = 0, /* nothing readable: keep the values compiled into the overlay */
-    SH_MAP_SOURCE_DISC = 1, /* gamedata/raw/VIN/MAPn_Snn.BIN (the JSON file was missing or broken) */
+    SH_MAP_SOURCE_DISC = 1, /* the game file VIN/MAPn_Snn.BIN (the JSON file was missing or broken) */
     SH_MAP_SOURCE_FILE = 2, /* gamedata/maps/<map>/<kind>.json */
     SH_MAP_SOURCE_MOD  = 3  /* <mods>/<mod>/maps/<map>/<kind>.json */
 };

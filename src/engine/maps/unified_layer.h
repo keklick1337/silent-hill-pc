@@ -3,7 +3,7 @@
 // The engine reads the map files from the unified map files (formats/convert/level/map_unified.h) when
 // map_format = unified: a VFS layer that answers BG/*.IPD and BG/*.PLM with the
 // bytes packed in <root>/maps/areas/*.glb. The game loads those files by LBA (DiscSectors), so a path the layer has
-// replaces the sectors of raw/; paths it lacks fall through to the layers below.
+// replaces the sectors of the game files; paths it lacks fall through to the layers below.
 
 #include "engine/vfs/vfs.h"
 

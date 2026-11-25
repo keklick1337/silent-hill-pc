@@ -2,7 +2,7 @@
 #define SH_ENGINE_TABLES_ANIM_TABLE_REGISTRY_H
 
 /* The registry of the animation tables: names, array sizes and disc sources (anim_table_registry.cpp, part of
- * sh_tables); the values come from gamedata/tables/anim/ (the disc import writes them from gamedata/raw/). Nothing
+ * sh_tables); the values come from gamedata/tables/anim/ (the disc import writes them from the map overlays). Nothing
  * is compiled into the game: a missing table file is an error the game reports. */
 
 #include "engine/tables/sh_tables.h"

@@ -22,7 +22,7 @@ Run the game once with your disc image. The first start imports the disc into `g
 | `gamedata/convert/models/` | models as glTF (`.glb`) with a `.model.json` beside each |
 | `gamedata/convert/audio/` | sound effects, music and speech as WAV with JSON descriptions |
 | `gamedata/convert/anim/`, `convert/cutscenes/` | animations and cutscenes as JSON |
-| `gamedata/raw/` | the disc's files as they are |
+| `gamedata/convert/files/` | the disc's files no converter rebuilds byte for byte (models, sound banks, movies), as they are; `files.tsv` says where each file of the disc comes from (`gamedata/raw/`, all the disc's files, exists only with `keep_raw = 1`) |
 | `gamedata/items/`, `weapons/`, `chara/`, `maps/`, `config/`, `flags/`, `text/`, `menus/`, `sounds/` | the game itself as data and Lua: the same files as [`gamedata/`](../../gamedata/) of the repository |
 
 A mod is written against these files: you put a file at the same path in your mod.

@@ -2,6 +2,7 @@
 
 #include "engine/mods/data_merge.h"
 #include "engine/mods/mods.h"
+#include "formats/convert/gamefiles/game_files.h"
 
 #include <fstream>
 #include <iterator>
@@ -13,6 +14,13 @@ namespace sh::tables {
 namespace fs = std::filesystem;
 
 namespace {
+
+// The disc's files are there: raw/ of an older import, or the store that replaces it.
+bool has_game_files(const fs::path& gamedata_dir) {
+    std::error_code ec;
+    return sh::convert::gamefiles::has_raw(gamedata_dir) ||
+           fs::exists(gamedata_dir / sh::convert::gamefiles::kManifest, ec);
+}
 
 std::string trim(std::string_view s) {
     const auto first = s.find_first_not_of(" \t\r");
@@ -118,26 +126,26 @@ DefaultAnimTables default_anim_tables(const fs::path& gamedata_dir, const ShAnim
                                       std::span<const ShAnimFunc> funcs) {
     DefaultAnimTables out;
     out.base.symbol = info.symbol;
-    std::error_code ec;
-    if (gamedata_dir.empty() || !fs::is_directory(gamedata_dir / "raw", ec)) {
+    if (gamedata_dir.empty() || !has_game_files(gamedata_dir)) {
         out.disc_failed = true;
-        out.notes.push_back(std::string(info.name) + ": raw/ is not present: the disc import is required");
+        out.notes.push_back(std::string(info.name) +
+                            ": neither raw/ nor convert/files/ is present: the disc import is required");
         return out;
     }
     std::vector<std::pair<std::string, AnimTable>> copies;
     for (std::size_t s = 0; s < info.sourceCount; ++s) {
         const ShAnimSource& source = info.sources[s];
-        std::ifstream in(gamedata_dir / "raw" / source.file, std::ios::binary);
-        if (!in) {
+        const std::optional<std::vector<std::uint8_t>> bytes =
+            sh::convert::gamefiles::read_game_file(gamedata_dir, source.file);
+        if (!bytes) {
             out.disc_failed = true;
-            out.notes.push_back(std::string(info.name) + ": raw/" + source.file + " cannot be read");
+            out.notes.push_back(std::string(info.name) + ": the game file " + source.file + " cannot be read");
             return out;
         }
-        const std::vector<std::uint8_t> bytes((std::istreambuf_iterator<char>(in)), std::istreambuf_iterator<char>());
-        auto table = anim_table_from_overlay(info, bytes, source.va, funcs);
+        auto table = anim_table_from_overlay(info, *bytes, source.va, funcs);
         if (!table) {
             out.disc_failed = true;
-            out.notes.push_back(std::string(info.name) + ": raw/" + source.file + ": " + table.error());
+            out.notes.push_back(std::string(info.name) + ": " + source.file + ": " + table.error());
             return out;
         }
         if (s == 0) {
@@ -242,10 +250,9 @@ void TableStore::ensure_files(const ShAnimTableInfo& info) {
         return;
     }
     files_checked_[info.name] = true;
-    std::error_code ec;
-    // Only inside a gamedata/ that has the disc in raw/: an empty gamedata/ would stop the first-run import (it
-    // does not replace a non-empty directory), and without raw/ there are no disc values to write.
-    if (!fs::is_directory(config_.gamedata_dir / "raw", ec)) {
+    // Only inside a gamedata/ that has the game files: an empty gamedata/ would stop the first-run import (it
+    // does not replace a non-empty directory), and without them there are no disc values to write.
+    if (!has_game_files(config_.gamedata_dir)) {
         return;
     }
     auto written = write_default_anim_tables(config_.gamedata_dir, info, config_.funcs, config_.overwrite);
@@ -323,11 +330,11 @@ TableStore::AnimLoad TableStore::resolve(const ShAnimTableInfo& info, std::strin
     }
     if (chosen.empty()) {
         // Nothing is compiled in: without the imported file the table can only come
-        // from raw/, and without that the array stays zero. Both mean the import did not run.
+        // from the game files, and without them the array stays zero. Both mean the import did not run.
         const std::string missing = relative.empty() ? anim_table_path(info, overlay).generic_string()
                                                      : relative.generic_string();
         if (defaults.disc_failed) {
-            error(missing + " is missing and so is raw/: run the disc import");
+            error(missing + " is missing and so are the game files (raw/, convert/files/): run the disc import");
         } else {
             error(missing + " is missing: run the disc import; the disc values are used");
         }

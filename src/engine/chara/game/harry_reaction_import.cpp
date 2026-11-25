@@ -17,6 +17,7 @@
 #include <fstream>
 #include <iterator>
 #include <map>
+#include <optional>
 #include <memory>
 #include <set>
 #include <span>
@@ -37,6 +38,7 @@
 #include "engine/maps/map_table_data.h"
 #include "engine/maps/map_tables.h"
 #include "engine/vfs/vfs_c.h"
+#include "formats/convert/gamefiles/game_files.h"
 #include "engine/mods/data_reload.h"
 
 namespace cg = sh::chara::game;
@@ -136,7 +138,12 @@ const rc::MapReactionTable* map_table(const std::string& map) {
     std::string bin;
     if (read_data_file("maps/" + map + "/tables.json", &json)) {
         const std::string file = rc::tables_bin(json);
-        if (!file.empty() && read_file(std::string(PcPort_GetGameDataPath()) + "/raw/" + file, &bin)) {
+        std::optional<std::vector<std::uint8_t>> disc;
+        if (!file.empty()) {
+            disc = sh::convert::gamefiles::read_game_file(PcPort_GetGameDataPath(), file);
+        }
+        if (disc) {
+            bin.assign(disc->begin(), disc->end());
             // The map's readable table data over its overlay, as when the map itself loads.
             auto data = rt::apply_table_data(
                 json, std::span<const std::uint8_t>(reinterpret_cast<const std::uint8_t*>(bin.data()), bin.size()),

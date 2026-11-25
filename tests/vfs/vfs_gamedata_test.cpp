@@ -1,7 +1,9 @@
 #include "framework/sh_test.h"
 
 #include "engine/vfs/disc_sectors.h"
+#include "engine/vfs/game_files_layer.h"
 #include "engine/vfs/vfs.h"
+#include "formats/convert/gamefiles/game_files.h"
 #include "formats/disc/disc_image.h"
 #include "import/import.h"
 
@@ -224,6 +226,88 @@ SH_TEST(vfs_gamedata_sectors_match_image) {
     const sh::vfs::SectorRun* xa = sectors->find("\\XA\\05_02152;1");
     SH_CHECK(xa != nullptr && xa->lba == 39359 && xa->sectors == 2152 && xa->hill);
     SH_CHECK(sectors->run_at(39359) == xa);
+}
+
+// The game files store (formats/convert/gamefiles/game_files.h) gives every sector the game reads as the image has
+// it, tails included, with no raw/ layer: the files the engine never reads by sector (XA voice and music tracks)
+// are the only ones left out. With SH_TEST_GAMEDATA naming a full import the converters' rebuilds are checked too.
+SH_TEST(vfs_game_files_sectors_match_image) {
+    const fs::path gamedata = test_gamedata();
+    if (gamedata.empty()) {
+        SH_SKIP("no disc image in data/ and no SH_TEST_GAMEDATA");
+    }
+    const std::shared_ptr<sh::disc::Image> image = image_or_skip();
+    if (!sh::convert::gamefiles::has_raw(gamedata)) {
+        SH_SKIP("the test game data has no raw/ to build the store from");
+    }
+    // The store copies the kept files (about 300 MB): it is removed again unless the game data had one.
+    const bool had_store = fs::exists(gamedata / sh::convert::gamefiles::kManifest);
+    struct Cleanup {
+        fs::path dir;
+        ~Cleanup() {
+            if (!dir.empty()) {
+                std::error_code ec;
+                fs::remove_all(dir, ec);
+                sh::convert::gamefiles::forget(dir.parent_path().parent_path());
+            }
+        }
+    } cleanup{had_store ? fs::path() : gamedata / sh::convert::gamefiles::kStoreDir};
+    const auto built = sh::convert::gamefiles::build_store(gamedata, false, 0);
+    SH_CHECK(static_cast<bool>(built));
+    if (!built) {
+        std::printf("  %s\n", built.error().c_str());
+        return;
+    }
+    std::printf("  store: %s\n", sh::convert::gamefiles::format_build_line(built.value()).c_str());
+    for (std::size_t i = 0; i < built.value().notes.size() && i < 5; ++i) {
+        std::printf("  %s\n", built.value().notes[i].c_str());
+    }
+    SH_CHECK(built.value().notes.empty());
+
+    std::string error;
+    Vfs vfs;
+    vfs.add_layer(sh::vfs::make_game_files_layer(gamedata, nullptr, error), 0);
+    const std::unique_ptr<DiscSectors> sectors = DiscSectors::open(vfs, gamedata, error);
+    SH_CHECK(sectors != nullptr);
+    if (!sectors) {
+        std::printf("  %s\n", error.c_str());
+        return;
+    }
+    const auto store = sh::convert::gamefiles::store_for(gamedata);
+    SH_CHECK(store != nullptr);
+    if (!store) {
+        return;
+    }
+    std::array<std::uint8_t, sh::vfs::kXaSectorBytes> got{};
+    std::array<std::uint8_t, sh::vfs::kXaSectorBytes> want{};
+    std::uint64_t same = 0, differ = 0, left_out = 0;
+    for (const sh::vfs::SectorRun& run : sectors->runs()) {
+        const bool served = store->find(run.path) != nullptr;
+        if (!served) {
+            SH_CHECK(run.path.starts_with("XA/"));
+            ++left_out;
+            continue;
+        }
+        for (std::uint32_t i = 0; i < run.sectors; ++i) {
+            for (const SectorKind kind : {SectorKind::Data, SectorKind::Xa}) {
+                if (kind == SectorKind::Xa && !run.hill) {
+                    continue;
+                }
+                const bool ok = sectors->read(run.lba + i, kind, got.data());
+                sh::vfs::read_image_sector(*image, run.lba + i, kind, want.data());
+                if (ok && std::equal(got.begin(), got.begin() + sh::vfs::sector_bytes(kind), want.begin())) {
+                    ++same;
+                } else if (++differ <= 5) {
+                    std::printf("  lba %u (%s) differs\n", run.lba + i, run.path.c_str());
+                }
+            }
+        }
+    }
+    std::printf("  %llu sectors equal, %llu differ, %llu files left out\n", static_cast<unsigned long long>(same),
+                static_cast<unsigned long long>(differ), static_cast<unsigned long long>(left_out));
+    SH_CHECK(differ == 0);
+    // The XA voice and music tracks when their WAVs were converted; SYSTEM.CNF and the executable are not in the map.
+    SH_CHECK(left_out + 2 == built.value().skipped);
 }
 
 // A mod that replaces a file replaces its sectors; what the mod file lacks reads as zeros.
