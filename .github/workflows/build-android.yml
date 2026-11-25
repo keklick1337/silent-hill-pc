@@ -1,7 +1,8 @@
 name: Build Android
 
 # The Android APK for arm64-v8a, armeabi-v7a, x86_64 and x86 (docs/BUILDING.md
-# section 5): the game as libmain.so per ABI with the NDK, SDL3 and libjpeg-turbo
+# section 5): each ABI is built on its own runner at the same time (libs), then one
+# job packages them (apk). The game as libmain.so per ABI with the NDK, SDL3 and libjpeg-turbo
 # built from the pinned sources (tools/android-deps/build.sh), the repository's
 # base gamedata/ and the licenses, packaged by the Gradle project in android/
 # (tools/android/build.sh). The APK is signed with the runner's debug key.
@@ -28,7 +29,58 @@ env:
   NDK_VERSION: '28.2.13676358'
 
 jobs:
-  android:
+  libs:
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: true
+      matrix:
+        abi: [arm64-v8a, armeabi-v7a, x86_64, x86]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install build tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ninja-build nasm
+
+      # The SDK's command line tools, then the pinned NDK.
+      - uses: android-actions/setup-android@v3
+        with:
+          packages: 'platform-tools'
+      - name: Install the NDK
+        run: |
+          sdkmanager --install "ndk;$NDK_VERSION"
+          echo "ANDROID_NDK_HOME=$ANDROID_HOME/ndk/$NDK_VERSION" >> "$GITHUB_ENV"
+
+      - name: Cache dependency sources
+        uses: actions/cache@v4
+        with:
+          path: third_party/deps/src
+          key: deps-src-android-${{ hashFiles('tools/win-deps/fetch.sh') }}
+
+      # Rebuilt whenever the pinned list or the build script changes.
+      - name: Cache Android dependencies
+        uses: actions/cache@v4
+        with:
+          path: third_party/deps/android-${{ matrix.abi }}
+          key: android-deps-${{ matrix.abi }}-${{ env.NDK_VERSION }}-${{ hashFiles('tools/win-deps/fetch.sh', 'tools/android-deps/build.sh', 'tools/opus/build.sh') }}
+
+      - name: Build
+        run: SH_ANDROID_STEP=libs JOBS="$(nproc)" tools/android/build.sh ${{ matrix.abi }}
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: android-libs-${{ matrix.abi }}
+          path: |
+            android/app/build/sh/jniLibs/${{ matrix.abi }}
+            android/app/build/sh/deps-licenses/${{ matrix.abi }}
+          if-no-files-found: error
+          retention-days: 1
+
+  apk:
+    needs: libs
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
@@ -38,21 +90,18 @@ jobs:
       - name: Install build tools
         run: |
           sudo apt-get update
-          sudo apt-get install -y ninja-build nasm zip
+          sudo apt-get install -y zip
 
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: '21'
 
-      # The SDK's command line tools, then the pinned NDK and platform.
       - uses: android-actions/setup-android@v3
         with:
           packages: 'platform-tools'
-      - name: Install the NDK and the platform
-        run: |
-          sdkmanager --install "ndk;$NDK_VERSION" "platforms;android-36" "build-tools;36.0.0"
-          echo "ANDROID_NDK_HOME=$ANDROID_HOME/ndk/$NDK_VERSION" >> "$GITHUB_ENV"
+      - name: Install the platform
+        run: sdkmanager --install "platforms;android-36" "build-tools;36.0.0"
 
       # Gradle itself, pinned; the Android Gradle Plugin is pinned in android/settings.gradle.
       - uses: gradle/actions/setup-gradle@v4
@@ -65,19 +114,14 @@ jobs:
           path: third_party/deps/src
           key: deps-src-android-${{ hashFiles('tools/win-deps/fetch.sh') }}
 
-      # Rebuilt whenever the pinned list or the build script changes.
-      - name: Cache Android dependencies
-        uses: actions/cache@v4
+      - uses: actions/download-artifact@v4
         with:
-          path: |
-            third_party/deps/android-arm64-v8a
-            third_party/deps/android-armeabi-v7a
-            third_party/deps/android-x86_64
-            third_party/deps/android-x86
-          key: android-deps-${{ env.NDK_VERSION }}-${{ hashFiles('tools/win-deps/fetch.sh', 'tools/android-deps/build.sh', 'tools/opus/build.sh') }}
+          pattern: android-libs-*
+          path: android/app/build/sh
+          merge-multiple: true
 
-      - name: Build
-        run: JOBS="$(nproc)" tools/android/build.sh
+      - name: Package
+        run: SH_ANDROID_STEP=package tools/android/build.sh
 
       - name: Version
         id: ver

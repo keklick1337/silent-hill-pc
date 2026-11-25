@@ -12,7 +12,9 @@
 # Nothing imported from a disc image goes into the APK: the game imports the user's disc at the first start.
 #
 # Environment: ANDROID_HOME (the SDK), ANDROID_NDK_HOME (default: $ANDROID_HOME/ndk/28.2.13676358), JOBS, GRADLE
-# (default: gradle), SH_ANDROID_BUILD_TYPE (CMake build type, default Release).
+# (default: gradle), SH_ANDROID_BUILD_TYPE (CMake build type, default Release), SH_ANDROID_STEP: all (default), libs (only
+# steps 1-2 for the given ABIs, staged in android/app/build/sh/: CI builds each ABI on its own runner) or package (only
+# steps 3-4, from the libraries already staged there).
 #
 # Usage: tools/android/build.sh [--release] [arm64-v8a|armeabi-v7a|x86_64|x86 ...]   (default: all four)
 set -euo pipefail
@@ -25,8 +27,10 @@ API="${SH_ANDROID_API:-29}"
 JOBS="${JOBS:-$(nproc)}"
 GRADLE="${GRADLE:-gradle}"
 BUILD_TYPE="${SH_ANDROID_BUILD_TYPE:-Release}"
+STEP="${SH_ANDROID_STEP:-all}"
+[[ "$STEP" == all || "$STEP" == libs || "$STEP" == package ]] || { echo "android: SH_ANDROID_STEP is all, libs or package" >&2; exit 2; }
 TOOLCHAIN="$ANDROID_NDK_HOME/build/cmake/android.toolchain.cmake"
-[[ -f "$TOOLCHAIN" ]] || { echo "android: no NDK at $ANDROID_NDK_HOME (set ANDROID_NDK_HOME)" >&2; exit 2; }
+[[ "$STEP" == package || -f "$TOOLCHAIN" ]] || { echo "android: no NDK at $ANDROID_NDK_HOME (set ANDROID_NDK_HOME)" >&2; exit 2; }
 
 VARIANT=Debug
 [[ "${1:-}" == "--release" ]] && { VARIANT=Release; shift; }
@@ -51,8 +55,9 @@ triple() {
 # SDL's Java glue comes from the same pinned source as its library.
 "$ROOT/tools/win-deps/fetch.sh" SDL3
 
-rm -rf "$STAGE/jniLibs"
+[[ "$STEP" == all ]] && rm -rf "$STAGE/jniLibs" "$STAGE/deps-licenses"
 for abi in "${ABIS[@]}"; do
+    [[ "$STEP" == package ]] && break
     triple "$abi" >/dev/null
     deps="$ROOT/third_party/deps/android-$abi"
     if [[ ! -f "$deps/lib/libSDL3.so" || ! -f "$deps/lib/libjpeg.a" || ! -f "$deps/lib/libopus.a" ]]; then
@@ -71,7 +76,14 @@ for abi in "${ABIS[@]}"; do
     mkdir -p "$libs"
     cp "$build/libmain.so" "$deps/lib/libSDL3.so" "$libs/"
     cp "$SYSROOT_LIB/$(triple "$abi")/libc++_shared.so" "$libs/"
+    rm -rf "$STAGE/deps-licenses/$abi"
+    mkdir -p "$STAGE/deps-licenses/$abi"
+    cp -a "$deps/share/sh-licenses/." "$STAGE/deps-licenses/$abi/"
 done
+[[ "$STEP" == libs ]] && exit 0
+# Packaging takes every ABI staged, whichever runner built it.
+mapfile -t ABIS < <(cd "$STAGE/jniLibs" && ls)
+(( ${#ABIS[@]} )) || { echo "android: no libraries staged in $STAGE/jniLibs" >&2; exit 2; }
 
 echo "android: base data"
 root="$STAGE/root"
@@ -95,7 +107,7 @@ cp "$ROOT/COPYRIGHT.md" "$ROOT/README.md" "$root/"
 cp -a "$ROOT/licenses/." "$root/licenses/"
 cp -a "$ROOT/assets/licenses/." "$root/licenses/"
 for abi in "${ABIS[@]}"; do
-    cp -a "$ROOT/third_party/deps/android-$abi/share/sh-licenses/." "$root/licenses/"
+    cp -a "$STAGE/deps-licenses/$abi/." "$root/licenses/"
 done
 cp "$ROOT/third_party/fonts/jetbrains-mono/OFL.txt" "$root/licenses/LICENSE-JetBrainsMono-OFL.txt"
 cp "$ROOT/third_party/volk/LICENSE.md" "$root/licenses/LICENSE-volk.txt"
