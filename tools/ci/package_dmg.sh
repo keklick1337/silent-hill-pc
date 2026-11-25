@@ -118,7 +118,13 @@ echo "package_dmg: signed ${IDENTITY:-ad hoc}"
 ln -s /Applications "$STAGE/Applications"
 DMG="$OUT/$NAME.dmg"
 rm -f "$DMG"
-hdiutil create -quiet -volname "$APP_NAME" -srcfolder "$STAGE" -fs HFS+ -format UDZO -ov "$DMG"
+# hdiutil on hosted runners now and then fails with "Resource busy" while another disk image is attached.
+for attempt in 1 2 3 4 5; do
+    hdiutil create -volname "$APP_NAME" -srcfolder "$STAGE" -fs HFS+ -format UDZO -ov "$DMG" && break
+    [[ $attempt -lt 5 ]] || { echo "package_dmg: hdiutil create failed $attempt times" >&2; exit 1; }
+    echo "package_dmg: hdiutil create failed (attempt $attempt), retrying" >&2
+    sleep $((attempt * 5))
+done
 
 if [[ -n "$IDENTITY" ]]; then
     codesign --force --timestamp --sign "$IDENTITY" "$DMG"
