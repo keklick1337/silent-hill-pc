@@ -18,6 +18,17 @@ std::string upper(std::string_view text) {
     return out;
 }
 
+// A file name as its bare stem: "BG/THRF908.IPD" -> "THRF908".
+std::string_view bare_stem(std::string_view name) {
+    if (const auto slash = name.find_last_of("/\\"); slash != std::string_view::npos) {
+        name.remove_prefix(slash + 1);
+    }
+    if (const auto dot = name.rfind('.'); dot != std::string_view::npos) {
+        name = name.substr(0, dot);
+    }
+    return name;
+}
+
 }  // namespace
 
 std::string area_of_cell(std::string_view stem) {
@@ -144,8 +155,10 @@ const CellCollision* World::place(std::size_t slot, std::string_view stem, std::
     }
     std::int32_t shift_x = 0;
     std::int32_t shift_z = 0;
-    if (stem.size() >= 4) {
-        const std::string_view digits = stem.substr(stem.size() - 4);
+    // The cell digits end the stem, before the extension the file table's names carry ("THRF908.IPD").
+    const std::string_view bare = bare_stem(stem);
+    if (bare.size() >= 4) {
+        const std::string_view digits = bare.substr(bare.size() - 4);
         const std::optional<std::int32_t> file_x = parse_cell_digits(digits[0], digits[1]);
         const std::optional<std::int32_t> file_z = parse_cell_digits(digits[2], digits[3]);
         if (file_x && file_z) {

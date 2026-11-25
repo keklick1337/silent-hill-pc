@@ -392,6 +392,14 @@ SH_TEST(world_place_cells_in_slots) {
     world.place(5, "tst0102", 2, 0);
     p = world.placement(5);
     SH_CHECK(p != nullptr && p->origin_x == 1024 + 10240 && p->origin_z == 2048 - 2 * 10240);
+    // The file table's names carry an extension (and may carry a folder): the cell digits come before it.
+    world.place(6, "TST0102.IPD", 2, 0);
+    p = world.placement(6);
+    SH_CHECK(p != nullptr && p->origin_x == 1024 + 10240 && p->origin_z == 2048 - 2 * 10240);
+    world.place(6, "BG/TST0102.IPD", 1, 4);
+    p = world.placement(6);
+    SH_CHECK(p != nullptr && p->origin_x == 1024 && p->origin_z == 2048 + 2 * 10240);
+    world.unplace(6);
     // A new placement in a slot restarts its ledger from the stored one.
     p = world.placement(3);
     p->pass = 7;
