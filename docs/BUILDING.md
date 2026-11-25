@@ -199,7 +199,7 @@ Without a certificate the app is signed ad hoc and not notarized: macOS refuses 
 
 ## 5. Android
 
-The APK is built on Linux with the Android NDK; one APK holds all four ABIs (`arm64-v8a`, `armeabi-v7a`, `x86_64`, `x86`), Android 10 (API 29) or newer, the first release that requires Vulkan 1.1 on every new 64-bit device. The game is `libmain.so`, started by SDL's Java activity (`android/`, `SilentHillActivity` on SDL's `SDLActivity`, whose Java sources come from the pinned SDL3 source tree, not copied into the repository).
+The APK is built on Linux with the Android NDK; it makes one APK per ABI (`arm64-v8a`, `armeabi-v7a`, `x86_64`, `x86`: `app-<abi>-debug.apk`) and a universal one with all four (`app-universal-debug.apk`), for Android 10 (API 29) or newer, the first release that requires Vulkan 1.1 on every new 64-bit device. The game is `libmain.so`, started by SDL's Java activity (`android/`, `SilentHillActivity` on SDL's `SDLActivity`, whose Java sources come from the pinned SDL3 source tree, not copied into the repository).
 
 ### 5.1 Requirements
 
@@ -211,7 +211,7 @@ The APK is built on Linux with the Android NDK; one APK holds all four ABIs (`ar
 
 ```sh
 tools/android/build.sh                 # all four ABIs; or name some: tools/android/build.sh x86_64
-adb install -r android/app/build/outputs/apk/debug/app-debug.apk
+adb install -r android/app/build/outputs/apk/debug/app-universal-debug.apk
 ```
 
 The script builds the dependencies of an ABI the first time (`tools/android-deps/build.sh`: SDL3 shared, libjpeg-turbo and Opus static, from the pinned sources of `tools/win-deps/fetch.sh`, into `third_party/deps/android-<abi>/`), the game for each ABI in `build-android/<abi>/`, stages the native libraries (`libmain.so`, `libSDL3.so`, the NDK's `libc++_shared.so`), the base data and the launcher icon in `android/app/build/sh/`, and runs `gradle assembleDebug` in `android/` (`--release` runs `assembleRelease`, unsigned). The debug APK is signed with the debug key of the machine.

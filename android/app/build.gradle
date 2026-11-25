@@ -53,6 +53,18 @@ android {
         noCompress += 'zip'
     }
 
+    // One APK per ABI staged (a phone needs only its own: arm64-v8a is a quarter of the native code) and the
+    // universal one with all of them.
+    splits {
+        abi {
+            def staged = new File(shStage, 'jniLibs').listFiles()?.findAll { it.isDirectory() }*.name ?: []
+            enable = !staged.isEmpty()
+            reset()
+            include(*staged)
+            universalApk = true
+        }
+    }
+
     packaging {
         jniLibs {
             // Uncompressed and page-aligned in the APK, loaded in place.
