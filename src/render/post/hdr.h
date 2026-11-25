@@ -59,7 +59,7 @@ int bloomLevels(int width, int height);
 // target out to memory. The levels past kMobileBloomLevels are the widest, faintest haze (tens of texels of the
 // screen each); their share of the light goes to the last level kept, so the narrower glow keeps its strength and
 // the sum of light stays the same. `lastWeight` is that last level's share in levels (1 when nothing was left out).
-constexpr int kMobileBloomLevels = 5;
+constexpr int kMobileBloomLevels = 4;
 struct BloomChain {
     int levels = 0;
     float lastWeight = 1.f;

@@ -11,6 +11,7 @@
 #include "render/rhi/rhi.h"
 
 #include <array>
+#include <functional>
 #include <cstdint>
 
 namespace sh::gpu {
@@ -144,8 +145,38 @@ public:
     // bracket starts on an empty depth buffer.
     void clear_depth(rhi::CommandList& cmd);
     // A clear of the whole target waits (clear) until the target is next drawn into or read: begin_draw, resolved,
-    // clear_depth and a direct user of scene_color() (the movie's present) call this first.
+    // clear_depth and a direct user of scene_color() (the movie's present) call this first. On a phone a clear of
+    // the depth only waits for the next draw (resolved leaves it owed).
     void flush_clear(rhi::CommandList& cmd);
+
+    // Phones: the end of the world layer left owed. The temporal pass's result in its history image
+    // (rhi::Temporal::result) still to be drawn over the target, then the atmosphere composite as a layer
+    // (rhi::Atmosphere::layer). The next draw into the target or read of it (begin_draw, resolved; wrote_resolved
+    // drops them) applies them first through `apply_result` and `apply`, unless PostPass folds them into the HDR
+    // resolve (resolved_unfinished, world_layer): then they stay owed for a later reader of the same picture (a
+    // freeze-frame capture at the start of the next frame) and a whole clear drops them.
+    struct WorldLayer {
+        rhi::TextureH layer;    // RGBA16F, one texel per `step` pixels each way from the viewport's corner
+        rhi::TextureH layer_z;  // R32F, the view z of each texel (rhi::Atmosphere::layerDepth)
+        int step = 4;
+        rhi::Viewport view;   // the world's viewport in the target
+        float sz_max = 0.f;   // view depth at window depth 1
+        rhi::TextureH depth;  // the scene depth it was made from (sampled)
+        std::function<void()> apply;
+        rhi::TextureH result;  // the temporal result, the whole target's size (rgb)
+        float sharpness = 0.f;
+        std::function<void()> apply_result;
+    };
+    // The atmosphere's part (layer, layer_z, step, view, sz_max, depth, apply) and the temporal pass's (result,
+    // sharpness, apply_result).
+    void set_world_layer(WorldLayer layer);
+    void set_world_result(rhi::TextureH result, float sharpness, std::function<void()> apply);
+    // What is owed, or null; it stays owed.
+    const WorldLayer* world_layer() const {
+        return world_layer_.layer || world_layer_.result ? &world_layer_ : nullptr;
+    }
+    // resolved() leaving an owed layer owed: the caller folds it in or reads the target later through resolved().
+    rhi::TextureH resolved_unfinished(rhi::CommandList& cmd);
 
     // Picture rect inside the scene target, top-left origin.
     void picture_rect(int* x, int* y, int* w, int* h) const;
@@ -213,6 +244,8 @@ private:
     bool clear_pending_ = false;  // flush_clear: a whole clear, or only the depth
     bool depth_clear_pending_ = false;
     std::array<float, 4> pending_colour_{};
+    WorldLayer world_layer_;
+    void flush_world_layer();
     int width_ = 0, height_ = 0;
     int present_w_ = 0, present_h_ = 0;
     float applied_scale_ = 1.0f;  // view_.render_scale the scene target was last sized with

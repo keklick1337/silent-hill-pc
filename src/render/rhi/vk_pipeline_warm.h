@@ -58,6 +58,9 @@ struct GraphicsRecipe {
     std::uint32_t writeMask = 0xF;
     VkFormat color = VK_FORMAT_UNDEFINED;
     VkFormat depth = VK_FORMAT_UNDEFINED;
+    // Drawn into a turned swapchain image: the specialisation constant kPreRotate (id 20) of the vertex and fragment
+    // stages, 1 or 3 quarter turns. Encoded only when set, so the recipes without it keep their bytes and keys.
+    std::uint32_t preRotate = 0;
 
     std::vector<std::uint8_t> encode() const;
     // Nothing for bytes no encode() wrote.

@@ -19,7 +19,8 @@ using namespace sh::rhi;
 
 const std::string_view kSrcSamplers[] = {"s_src"};
 const std::string_view kBloomUpSamplers[] = {"s_src", "s_base"};
-const std::string_view kResolveSamplers[] = {"s_scene", "s_bloom", "s_bloom2"};
+const std::string_view kResolveSamplers[] = {"s_scene", "s_bloom",  "s_bloom2", "s_layer",
+                                             "s_depth", "s_layerZ", "s_result"};
 const std::string_view kBloomBlocks[] = {"BloomFs"};
 const std::string_view kBloomUpBlocks[] = {"BloomUpFs"};
 const std::string_view kResolveBlocks[] = {"ResolveFs"};
@@ -39,13 +40,6 @@ struct alignas(16) BloomUpUniforms {
     std::array<float, 4> texel{};  // xy: 1 / size of the level below
 };
 static_assert(sizeof(BloomUpUniforms) == 32);
-
-struct alignas(16) ResolveUniforms {
-    std::array<float, 4> mode{};   // x: operator, y: bloom share, z: threshold, w: flip v
-    std::array<float, 4> out{};    // x: white, y: 1 / bloom levels, z: 1 = phone chain, w: weight of s_bloom2
-    std::array<float, 4> texel{};  // xy: 1 / size of s_bloom2, zw: 1 / size of the first bloom level
-};
-static_assert(sizeof(ResolveUniforms) == 48);
 
 struct alignas(16) EncodeUniforms {
     std::array<float, 4> p{};  // x: paper white nits, y: peak nits, z: flip v
@@ -85,6 +79,8 @@ void HdrPass::release() {
         *s = {};
     }
     if (linear_) dev.destroy(linear_);
+    if (nearest_) dev.destroy(nearest_);
+    nearest_ = {};
     if (triangle_) dev.destroy(triangle_);
     linear_ = {};
     triangle_ = {};
@@ -158,6 +154,10 @@ bool HdrPass::ensure_pipelines() {
         dev.createSampler({Filter::Linear, Filter::Linear, AddressMode::ClampToEdge, AddressMode::ClampToEdge});
     if (!sampler) return fail(sampler.error());
     linear_ = sampler.value();
+    auto nearest =
+        dev.createSampler({Filter::Nearest, Filter::Nearest, AddressMode::ClampToEdge, AddressMode::ClampToEdge});
+    if (!nearest) return fail(nearest.error());
+    nearest_ = nearest.value();
     auto tri = dev.createBuffer({BufferUsage::Vertex, sizeof(kTriangle), "hdr triangle"});
     if (!tri) return fail(tri.error());
     triangle_ = tri.value();
@@ -185,9 +185,8 @@ void HdrPass::fullscreen(RenderPass& pass, PipelineH pipe, int w, int h) {
     pass.bindVertexBuffer(triangle_, 0);
 }
 
-TextureH HdrPass::resolve(CommandList& cmd, TextureH scene, int w, int h, const post::HdrResolvePlan& plan,
-                          float threshold) {
-    if (!plan.run || !scene || w <= 0 || h <= 0 || !ensure_pipelines()) return scene;
+HdrPass::Bloomed HdrPass::bloom(CommandList& cmd, TextureH scene, int w, int h, const post::HdrResolvePlan& plan,
+                                float threshold) {
     const float flip = spirvBackend(owner_.device().backend()) ? 1.f : 0.f;
     cmd.uploadBuffer(triangle_, 0, std::as_bytes(std::span(kTriangle)));
 
@@ -209,7 +208,7 @@ TextureH HdrPass::resolve(CommandList& cmd, TextureH scene, int w, int h, const 
         const Target& t = bloom_[std::size_t(dst)];
         RenderPassDesc rp;
         rp.color = {t.texture, mode == kUp ? LoadOp::Load : LoadOp::DontCare, StoreOp::Store, {0.f, 0.f, 0.f, 0.f}};
-        rp.name = "bloom";
+        rp.name = mode == kPrefilter || mode == kPrefilterBox ? "bloom prefilter" : "bloom";
         RenderPass* pass = cmd.beginRenderPass(rp);
         if (!pass) return;
         fullscreen(*pass, mode == kUp ? bloom_add_pipe_ : bloom_pipe_, t.w, t.h);
@@ -268,6 +267,47 @@ TextureH HdrPass::resolve(CommandList& cmd, TextureH scene, int w, int h, const 
         }
     }
 
+    Bloomed b;
+    b.u.mode = {float(int(plan.tonemap)), levels > 0 ? plan.bloom : 0.f, threshold, flip};
+    b.u.out = {plan.white, levels > 0 ? 1.f / float(levels) : 0.f, mobile_ ? 1.f : 0.f, second ? second_weight : 0.f};
+    if (levels > 0) b.u.texel = {0.f, 0.f, 1.f / float(bloom_[0].w), 1.f / float(bloom_[0].h)};
+    if (second) {
+        b.u.texel[0] = 1.f / float(second->w);
+        b.u.texel[1] = 1.f / float(second->h);
+    }
+    b.bloom = levels > 0 ? bloom_[0].texture : scene;
+    b.bloom2 = second ? second->texture : scene;
+    return b;
+}
+
+void HdrPass::draw_resolve(RenderPass& pass, TextureH scene, Bloomed& b, SamplerH scene_sampler,
+                           const Targets::WorldLayer* fold) {
+    if (fold && fold->layer) {
+        b.u.layer = {1.f, float(fold->step), fold->sz_max, 0.f};
+        b.u.world = {fold->view.x, fold->view.y, fold->view.w, fold->view.h};
+    }
+    if (fold && fold->result) b.u.result = {1.f, fold->sharpness, 0.f, 0.f};
+    pass.pushUniforms(ShaderStage::Fragment, 0, std::as_bytes(std::span(&b.u, 1)));
+    pass.bindSampler(ShaderStage::Fragment, 0, scene, scene_sampler ? scene_sampler : linear_);
+    pass.bindSampler(ShaderStage::Fragment, 1, b.bloom, linear_);
+    pass.bindSampler(ShaderStage::Fragment, 2, b.bloom2, linear_);
+    if (fold) {
+        // Unbound slots read the backend's dummy texture; only the parts the uniforms name are read.
+        pass.bindSampler(ShaderStage::Fragment, 3, fold->layer, linear_);
+        pass.bindSampler(ShaderStage::Fragment, 4, fold->depth, nearest_);
+        pass.bindSampler(ShaderStage::Fragment, 5, fold->layer_z, nearest_);
+        pass.bindSampler(ShaderStage::Fragment, 6, fold->result, nearest_);
+    }
+    pass.draw(3, 0);
+    // The scene target is drawn into next frame: no sampler slot may keep it.
+    for (std::uint32_t slot = 0; slot < (fold ? 7u : 3u); ++slot) pass.bindSampler(ShaderStage::Fragment, slot, {}, {});
+}
+
+TextureH HdrPass::resolve(CommandList& cmd, TextureH scene, int w, int h, const post::HdrResolvePlan& plan,
+                          float threshold, const Targets::WorldLayer* fold) {
+    if (!plan.run || !scene || w <= 0 || h <= 0 || !ensure_pipelines()) return scene;
+    // The bloom spreads the picture the resolve shows: the temporal result where it stands for the scene.
+    Bloomed b = bloom(cmd, fold && fold->result ? fold->result : scene, w, h, plan, threshold);
     const TextureFormat format = plan.white > 1.f ? TextureFormat::RGBA16F : TextureFormat::RGBA8;
     if (!ensure(out_, w, h, format, "hdr resolve")) return scene;
     RenderPassDesc rp;
@@ -276,25 +316,31 @@ TextureH HdrPass::resolve(CommandList& cmd, TextureH scene, int w, int h, const 
     RenderPass* pass = cmd.beginRenderPass(rp);
     if (!pass) return scene;
     fullscreen(*pass, resolve_pipe_, w, h);
-    ResolveUniforms u;
-    u.mode = {float(int(plan.tonemap)), levels > 0 ? plan.bloom : 0.f, threshold, flip};
-    u.out = {plan.white, levels > 0 ? 1.f / float(levels) : 0.f, mobile_ ? 1.f : 0.f, second ? second_weight : 0.f};
-    if (levels > 0) u.texel = {0.f, 0.f, 1.f / float(bloom_[0].w), 1.f / float(bloom_[0].h)};
-    if (second) {
-        u.texel[0] = 1.f / float(second->w);
-        u.texel[1] = 1.f / float(second->h);
-    }
-    pass->bindSampler(ShaderStage::Fragment, 0, scene, linear_);
-    pass->bindSampler(ShaderStage::Fragment, 1, levels > 0 ? bloom_[0].texture : scene, linear_);
-    pass->bindSampler(ShaderStage::Fragment, 2, second ? second->texture : scene, linear_);
-    pass->pushUniforms(ShaderStage::Fragment, 0, std::as_bytes(std::span(&u, 1)));
-    pass->draw(3, 0);
-    // The scene target is drawn into next frame: no sampler slot may keep it.
-    pass->bindSampler(ShaderStage::Fragment, 0, {}, {});
-    pass->bindSampler(ShaderStage::Fragment, 1, {}, {});
-    pass->bindSampler(ShaderStage::Fragment, 2, {}, {});
+    draw_resolve(*pass, scene, b, {}, fold);
     cmd.endRenderPass();
     return out_.texture;
+}
+
+bool HdrPass::present(CommandList& cmd, TextureH scene, int w, int h, const post::HdrResolvePlan& plan, float threshold,
+                      TextureH window, int win_w, int win_h, const rhi::Rect& src, const rhi::Rect& dst, bool covered,
+                      SamplerH scene_sampler, const Targets::WorldLayer* fold) {
+    if (!plan.run || !scene || w <= 0 || h <= 0 || !ensure_pipelines()) return false;
+    Bloomed b = bloom(cmd, fold && fold->result ? fold->result : scene, w, h, plan, threshold);
+    b.u.src = {float(src.x), float(src.y), float(src.w), float(src.h)};
+    b.u.dst = {float(dst.x), float(dst.y), float(dst.w), float(dst.h)};
+    b.u.win = {float(win_w), float(win_h), 0.f, 0.f};
+    RenderPassDesc rp;
+    // As PostPass::draw_present: black bars where the picture does not cover the window.
+    rp.color = {window, covered ? LoadOp::DontCare : LoadOp::Clear, StoreOp::Store, {0.f, 0.f, 0.f, 1.f}};
+    rp.name = "present";
+    RenderPass* pass = cmd.beginRenderPass(rp);
+    if (!pass) return false;
+    pass->bindPipeline(resolve_pipe_);
+    pass->setScissor(dst);
+    pass->bindVertexBuffer(triangle_, 0);
+    draw_resolve(*pass, scene, b, scene_sampler, fold);
+    cmd.endRenderPass();
+    return true;
 }
 
 TextureH HdrPass::compose_target(int w, int h) {

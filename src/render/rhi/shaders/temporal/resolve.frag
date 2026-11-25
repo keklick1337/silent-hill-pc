@@ -51,17 +51,29 @@ void main() {
     // The sample of texel t lies at t + 0.5 - jitter.
     ivec2 ri = ivec2(floor(rp + u_jitter.xy));
 
-    // The nearest surface around the pixel decides its motion, so edges of near things move with them.
+    // The nearest surface around the pixel decides its motion, so edges of near things move with them. Away from the
+    // picture's edges four gathers read the 3 x 3 depths (nine fetches otherwise); the same order picks the same one.
+    float nd[9];
+    if (all(greaterThanEqual(ri, ivec2(1))) && all(lessThan(ri, ivec2(u_src.zw) - 2))) {
+        vec2 inv = 1.0 / vec2(textureSize(t_depth, 0));
+        vec2 c = vec2(ri + ivec2(u_src.xy));
+        // A gather at the corner between texels x - 1 and x returns (x - 1, y), (x, y), (x, y - 1), (x - 1, y - 1).
+        vec4 a = textureGather(t_depth, c * inv, 0);
+        vec4 b = textureGather(t_depth, (c + vec2(2.0, 0.0)) * inv, 0);
+        vec4 e = textureGather(t_depth, (c + vec2(0.0, 2.0)) * inv, 0);
+        vec4 f = textureGather(t_depth, (c + vec2(2.0, 2.0)) * inv, 0);
+        nd[0] = a.w; nd[1] = a.z; nd[2] = b.w;
+        nd[3] = a.x; nd[4] = a.y; nd[5] = b.x;
+        nd[6] = e.w; nd[7] = e.z; nd[8] = f.w;
+    } else {
+        for (int i = 0; i < 9; ++i) nd[i] = DepthAt(Clamped(ri + ivec2(i % 3 - 1, i / 3 - 1)));
+    }
     float bestD = 2.0;
     ivec2 bt = ri;
-    for (int dy = -1; dy <= 1; ++dy)
-        for (int dx = -1; dx <= 1; ++dx) {
-            ivec2 t = Clamped(ri + ivec2(dx, dy));
-            float d = DepthAt(t);
-            if (d < bestD) {
-                bestD = d;
-                bt = t;
-            }
+    for (int i = 0; i < 9; ++i)
+        if (nd[i] < bestD) {
+            bestD = nd[i];
+            bt = Clamped(ri + ivec2(i % 3 - 1, i / 3 - 1));
         }
     bool drawn = u_params.w > 0.5;
     vec4 m = drawn ? texelFetch(t_motion, bt, 0) : vec4(0.0);
@@ -133,5 +145,5 @@ void main() {
         if (reactive) alpha = max(alpha, 0.5);
         result = mix(FromYCoCg(h), cur, alpha);
     }
-    o_history = vec4(Expand(max(result, vec3(0.0))), min(min(DepthAt(ri), 1.0) * u_jitter.z, kHalfMax));
+    o_history = vec4(Expand(max(result, vec3(0.0))), min(min(nd[4], 1.0) * u_jitter.z, kHalfMax));
 }

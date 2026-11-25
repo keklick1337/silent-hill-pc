@@ -17,6 +17,19 @@ layout(location = 2) in vec4 a_color;
 SH_VARYING(0) out vec2 v_uv;
 SH_VARYING(1) out vec4 v_color;
 
+// The window's pre-rotation (rhi_vulkan.cpp, VkTexture::rotation): set for draws into a swapchain image made in the
+// screen's own orientation, a quarter turn of NDC; 0 everywhere else.
+#ifdef SH_RHI_VULKAN
+layout(constant_id = 20) const int kPreRotate = 0;
+#else
+const int kPreRotate = 0;
+#endif
+vec4 PreRotate(vec4 p) {
+    if (kPreRotate == 1) return vec4(p.y, -p.x, p.zw);
+    if (kPreRotate == 3) return vec4(-p.y, p.x, p.zw);
+    return p;
+}
+
 SH_UBO(0) uniform OverlayVs {
     vec4 u_target;  // xy: target size in pixels
 };
@@ -24,5 +37,5 @@ SH_UBO(0) uniform OverlayVs {
 void main() {
     v_uv = a_uv;
     v_color = a_color;
-    gl_Position = vec4(a_pos.x / u_target.x * 2.0 - 1.0, 1.0 - a_pos.y / u_target.y * 2.0, 0.0, 1.0);
+    gl_Position = PreRotate(vec4(a_pos.x / u_target.x * 2.0 - 1.0, 1.0 - a_pos.y / u_target.y * 2.0, 0.0, 1.0));
 }

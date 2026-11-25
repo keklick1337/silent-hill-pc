@@ -8,6 +8,9 @@
 #include "render/gpu/renderer.h"
 #include "render/gpu/targets.h"
 
+#include <algorithm>
+#include <cmath>
+
 namespace sh::render {
 
 AtmosphereSettings& atmosphere() {
@@ -66,7 +69,30 @@ void AtmospherePass::apply() {
     in.volumetric = s.volumetric_fog != 0;
     in.scatter = s.fog_scatter;
     in.anisotropy = s.fog_anisotropy;
-    if (auto r = impl_->apply(in); !r && failures_++ < 4) SH_WARN("[GPU] %s", r.error().c_str());
+    // A phone's HDR frame: the composite is left to the HDR resolve, which folds it in without a pass that loads
+    // and stores the whole scene target. The temporal pass, if it runs, then resolves the picture without it, and
+    // the atmosphere goes over its result.
+    Targets& targets = owner_.targets();
+    in.layer =
+        phone_gpu() && in.color == targets.scene_color() && targets.scene_format() == rhi::TextureFormat::RGBA16F;
+    if (auto r = impl_->apply(in); !r) {
+        if (failures_++ < 4) SH_WARN("[GPU] %s", r.error().c_str());
+        return;
+    }
+    if (const rhi::TextureH layer = in.layer ? impl_->layer() : rhi::TextureH{}) {
+        Targets::WorldLayer owed;
+        owed.layer = layer;
+        owed.layer_z = impl_->layerDepth();
+        owed.step = rhi::kLayerStep;
+        owed.view = {std::max(0.f, std::floor(in.viewport_x)), std::max(0.f, std::floor(in.viewport_y)),
+                     std::floor(in.viewport_w), std::floor(in.viewport_h)};
+        owed.sz_max = in.sz_max;
+        owed.depth = in.depth;
+        owed.apply = [this]() {
+            if (auto r = impl_->applyLayer(); !r && failures_++ < 4) SH_WARN("[GPU] %s", r.error().c_str());
+        };
+        targets.set_world_layer(std::move(owed));
+    }
 }
 
 }  // namespace sh::gpu

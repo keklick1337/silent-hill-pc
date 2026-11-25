@@ -203,8 +203,38 @@ void Targets::make_multisampled(int samples)
     ms_failed_ = 0;
 }
 
+void Targets::set_world_layer(WorldLayer layer)
+{
+    layer.result = world_layer_.result;
+    layer.sharpness = world_layer_.sharpness;
+    layer.apply_result = std::move(world_layer_.apply_result);
+    world_layer_ = std::move(layer);
+}
+
+void Targets::set_world_result(rhi::TextureH result, float sharpness, std::function<void()> apply)
+{
+    world_layer_.result = result;
+    world_layer_.sharpness = sharpness;
+    world_layer_.apply_result = std::move(apply);
+}
+
+void Targets::flush_world_layer()
+{
+    if (!world_layer())
+        return;
+    WorldLayer owed = std::move(world_layer_);
+    world_layer_ = {};
+    // The temporal result first: the atmosphere was left to go over it.
+    if (owed.result && owed.apply_result)
+        owed.apply_result();
+    if (owed.layer && owed.apply)
+        owed.apply();
+}
+
 void Targets::begin_draw(rhi::CommandList& cmd)
 {
+    // The owed end of the world reads the depth a depth-only clear still owed would wipe; a whole clear dropped it.
+    flush_world_layer();
     flush_clear(cmd);
     if (samples_ <= 1)
         return;
@@ -217,7 +247,13 @@ void Targets::begin_draw(rhi::CommandList& cmd)
 
 rhi::TextureH Targets::resolved(rhi::CommandList& cmd)
 {
-    flush_clear(cmd);
+    // On a phone a read of the colour waits for a whole clear, not for one of the depth only: that one stays owed
+    // until the next draw, so the end of a frame has no pass that only clears the depth (on a tile-based GPU a load
+    // and store of the whole target). A computer clears it here: the ray tracer reads the scene depth before the
+    // next frame's first draw.
+    if (clear_pending_ || !phone_gpu())
+        flush_clear(cmd);
+    flush_world_layer();
     if (samples_ > 1 && ms_dirty_) {
         cmd.resolveTexture(ms_color_, scene_color_);
         ms_dirty_ = false;
@@ -225,8 +261,18 @@ rhi::TextureH Targets::resolved(rhi::CommandList& cmd)
     return scene_color_;
 }
 
+rhi::TextureH Targets::resolved_unfinished(rhi::CommandList& cmd)
+{
+    WorldLayer owed = std::move(world_layer_);
+    world_layer_ = {};
+    const rhi::TextureH t = resolved(cmd);
+    world_layer_ = std::move(owed);
+    return t;
+}
+
 void Targets::wrote_resolved()
 {
+    world_layer_ = {};
     // Callers resolve before they write (or overwrite the whole picture), so nothing drawn is lost.
     ms_dirty_ = false;
     if (samples_ > 1)
@@ -686,6 +732,8 @@ void Targets::flush_clear(rhi::CommandList& cmd)
 void Targets::clear(rhi::CommandList& cmd, const Rect& vram_rect, std::uint8_t r, std::uint8_t g, std::uint8_t b)
 {
     (void)vram_rect;
+    // The whole picture is replaced: an atmosphere layer still owed has nothing left to go over.
+    world_layer_ = {};
     if (!scene_color_)
         return;
     const std::array<float, 4> colour{r / 255.0f, g / 255.0f, b / 255.0f, 1.0f};

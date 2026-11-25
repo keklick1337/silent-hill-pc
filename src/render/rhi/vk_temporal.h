@@ -45,6 +45,9 @@ struct TemporalInputs {
     bool reset = false;                       // the history does not belong to this picture
     float sharpness = 0.0f;                   // 0..1
     std::span<const TemporalVertex> dynamic;  // triangle list
+    // A tiler's result is left in its history image for the frame's resolve (result(), applyResult()) instead of
+    // being drawn over `dst` of the scene target.
+    bool fold = false;
 };
 
 class Temporal {
@@ -55,6 +58,11 @@ public:
     virtual Result<void> apply(const TemporalInputs& in) = 0;
     // Drops the history (the next apply starts from its own frame).
     virtual void reset() = 0;
+    // After an apply with `fold`: the result as a sampled RHI texture (RGBA16F at `dst`'s size, colour in rgb), and
+    // the pass that draws it over `dst` of the scene target as the apply would have (sharpened by `sharpness`),
+    // for a frame whose resolve does not read it there. Until the next apply; applyResult() at most once.
+    virtual TextureH result() const { return {}; }
+    virtual Result<void> applyResult() { return Result<void>::fail("temporal: no result"); }
 };
 
 // Empty `reason` and a working object, or null and why not. `tiler`: the passes are laid out for a tile-based phone

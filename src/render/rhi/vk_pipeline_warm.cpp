@@ -67,6 +67,10 @@ private:
 
 }  // namespace
 
+// The specialisation constant id of the window's pre-rotation in post.vert, overlay.vert, present.frag and
+// hdr_resolve.frag.
+constexpr std::uint32_t kPreRotateConstant = 20;
+
 std::vector<std::uint8_t> GraphicsRecipe::encode() const {
     Bytes b;
     b.u32(kRecipeFormat);
@@ -108,6 +112,7 @@ std::vector<std::uint8_t> GraphicsRecipe::encode() const {
     b.u32(writeMask);
     b.u32(static_cast<std::uint32_t>(color));
     b.u32(static_cast<std::uint32_t>(depth));
+    if (preRotate) b.u32(preRotate);
     return std::move(b.out);
 }
 
@@ -155,6 +160,7 @@ std::optional<GraphicsRecipe> GraphicsRecipe::decode(std::span<const std::uint8_
     r.writeMask = p.u32();
     r.color = static_cast<VkFormat>(p.u32());
     r.depth = static_cast<VkFormat>(p.u32());
+    if (p.ok && !p.done()) r.preRotate = p.u32();
     if (!p.done() || !r.shader[kFragment] || (!r.shader[kVertex] && !r.shader[kMesh])) return std::nullopt;
     return r;
 }
@@ -185,6 +191,14 @@ VkResult buildGraphicsPipeline(VkDevice device, VkPipelineCache cache, const Gra
         st.stage = kStageBits[s];
         st.module = modules[s];
         st.pName = r.entry[s].c_str();
+    }
+    const std::uint32_t turn = r.preRotate;
+    const VkSpecializationMapEntry turnEntry{kPreRotateConstant, 0, sizeof(turn)};
+    const VkSpecializationInfo turnInfo{1, &turnEntry, sizeof(turn), &turn};
+    if (turn) {
+        for (std::uint32_t i = 0; i < stageCount; ++i)
+            if (stages[i].stage == VK_SHADER_STAGE_VERTEX_BIT || stages[i].stage == VK_SHADER_STAGE_FRAGMENT_BIT)
+                stages[i].pSpecializationInfo = &turnInfo;
     }
     const bool mesh = modules[GraphicsRecipe::kMesh] != VK_NULL_HANDLE;
     const bool tess = modules[GraphicsRecipe::kTessEval] != VK_NULL_HANDLE;

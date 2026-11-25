@@ -48,8 +48,12 @@ struct AtmosphereInputs {
     std::array<float, 4> sunDir{};
     std::array<float, 4> sunColor{};
     std::array<float, 16> sunMatrix{};
+    // Phones: the composite is left to the frame's resolve (hdr_resolve.frag) or to applyLayer(): the terms are
+    // written at each occlusion estimate's pixel into the layer instead (kLayerStep pixels apart each way).
+    bool layer = false;
 };
 inline constexpr int kAtmosphereLights = 8;
+inline constexpr int kLayerStep = 4;
 
 class Atmosphere {
 public:
@@ -58,6 +62,14 @@ public:
     // call in the same frame does nothing); the profiler lists their GPU time as "atmosphere". An error leaves the
     // image as it was.
     virtual Result<void> apply(const AtmosphereInputs& in) = 0;
+    // After an apply with `layer`: the layer as a sampled RHI texture (RGBA16F, per estimate the scattered light and
+    // k), and the composite drawn from it over the scene colour, as the
+    // resolve folds it in (for a frame whose resolve does not: more is drawn into it, or it is captured). Until the
+    // next apply; applyLayer() at most once.
+    virtual TextureH layer() const { return {}; }
+    // Its view z per estimate (R32F, negative where nothing wrote depth), beside layer().
+    virtual TextureH layerDepth() const { return {}; }
+    virtual Result<void> applyLayer() { return Result<void>::fail("atmosphere: no layer"); }
 };
 
 // Empty `reason` and a working object, or null and why not (another backend, no compute on the queue, a format

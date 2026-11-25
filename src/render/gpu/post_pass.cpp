@@ -30,6 +30,7 @@ const std::string_view kPresentBlocks[] = {"PresentFs"};
 struct PresentUniforms {
     float src[4];
     float dst[4];
+    float win[4];  // xy: the window's size (a turned swapchain image, rhi_vulkan.cpp)
 };
 
 constexpr VertexAttribute kAttributes[] = {{0, VertexFormat::Float2, 0}};
@@ -196,7 +197,8 @@ bool PostPass::ensure_present_pipeline() {
     return true;
 }
 
-bool PostPass::draw_present(CommandList& cmd, TextureH src, const BlitStep& step, TextureH out, bool covered) {
+bool PostPass::draw_present(CommandList& cmd, TextureH src, const BlitStep& step, TextureH out, bool covered,
+                            std::uint32_t win_w, std::uint32_t win_h) {
     if (!ensure_present_pipeline()) return false;
     if (!present_uploaded_) {
         cmd.uploadBuffer(present_triangle_, 0, std::as_bytes(std::span(kTriangle)));
@@ -209,7 +211,8 @@ bool PostPass::draw_present(CommandList& cmd, TextureH src, const BlitStep& step
     RenderPass* pass = cmd.beginRenderPass(rp);
     if (!pass) return false;
     PresentUniforms u{{float(step.src.x), float(step.src.y), float(step.src.w), float(step.src.h)},
-                      {float(step.dst.x), float(step.dst.y), float(step.dst.w), float(step.dst.h)}};
+                      {float(step.dst.x), float(step.dst.y), float(step.dst.w), float(step.dst.h)},
+                      {float(win_w), float(win_h), 0.f, 0.f}};
     pass->bindPipeline(present_pipeline_);
     pass->setScissor(step.dst);
     pass->bindVertexBuffer(present_triangle_, 0);
@@ -246,10 +249,8 @@ void PostPass::present(CommandList& cmd) {
     Device& dev = owner_.device();
     Targets& targets = owner_.targets();
     const int w = targets.width(), h = targets.height();
-    TextureH scene = targets.resolved(cmd);
     shown_post_ = false;
     shown_hdr_ = {};
-    if (!scene || w <= 0 || h <= 0) return;
 
     // The HDR frame (hdr.h): bloom and the tonemapper first, so the post chain sees the display's range.
     const post::HdrSettings& hs = post::hdr();
@@ -257,15 +258,31 @@ void PostPass::present(CommandList& cmd) {
     rhi::vulkanSetHdrOutput(dev, {hs.output && hdr_frame, hs.paper_white, hs.peak});
     const bool hdr10 = hdr_frame && rhi::vulkanHdrStatus(dev).active;
     post::HdrResolvePlan hdr_plan;
+    if (hdr_frame) hdr_plan = post::planResolve(hs, sh::render::graphics().scene_frame != 0, hdr10, w, h);
+    // A phone's resolve draws the atmosphere the world left owed (Targets::world_layer) instead of a pass of its own.
+    const Targets::WorldLayer* fold = nullptr;
+    TextureH scene;
+    if (hdr_frame && hdr_plan.run && phone_gpu() && targets.world_layer()) {
+        scene = targets.resolved_unfinished(cmd);
+        fold = targets.world_layer();
+    } else {
+        scene = targets.resolved(cmd);
+    }
+    if (!scene || w <= 0 || h <= 0) return;
+    PostInputs in = live_inputs();
+    // A phone draws the resolve straight into the window when nothing comes between it and the present (below).
+    bool hdr_direct = false;
     if (hdr_frame) {
-        hdr_plan = post::planResolve(hs, sh::render::graphics().scene_frame != 0, hdr10, w, h);
-        const TextureH mapped = hdr_->resolve(cmd, scene, w, h, hdr_plan, hs.bloom_threshold);
-        if (mapped != scene) shown_hdr_ = scene = mapped;
+        hdr_direct = hdr_plan.run && !hdr10 && phone_gpu() && dev.backend() == Backend::Vulkan &&
+                     !post::needsPostPass(in.settings);
+        if (!hdr_direct) {
+            const TextureH mapped = hdr_->resolve(cmd, scene, w, h, hdr_plan, hs.bloom_threshold, fold);
+            if (mapped != scene) shown_hdr_ = scene = mapped;
+        }
     }
     const TextureFormat post_format = hdr10 ? TextureFormat::RGBA16F : TextureFormat::RGBA8;
 
-    PostInputs in = live_inputs();
-    if (post::needsPostPass(in.settings) && ensure_pipeline() &&
+    if (!hdr_direct && post::needsPostPass(in.settings) && ensure_pipeline() &&
         ensure_texture(post_, post_w_, post_h_, w, h, "post", post_format)) {
         in.width = w;
         in.height = h;
@@ -291,8 +308,6 @@ void PostPass::present(CommandList& cmd) {
             shown_post_ = true;
         }
     }
-    const TextureH shown = shown_post_ ? post_ : scene;
-
     std::uint32_t sw = 0, sh = 0;
     const TextureH swap = cmd.acquireSwapchainTexture(&sw, &sh);
     if (!swap) return;  // minimised or no window
@@ -327,6 +342,20 @@ void PostPass::present(CommandList& cmd) {
     // the window is written once instead of being copied into, stored and loaded again.
     const bool draw_last = phone_gpu() && dev.backend() == Backend::Vulkan && last && !last->to_intermediate &&
                            ensure_present_pipeline();
+    if (hdr_direct) {
+        // One step at the scene's own size: the tonemapped frame goes into the window without a target of its own.
+        // A scaled step keeps the resolve at the scene's size (fewer pixels to tonemap and spread the bloom over).
+        const bool one_to_one = last && last->src.w == last->dst.w && last->src.h == last->dst.h;
+        if (draw_last && plan.count == 1 && out == swap && one_to_one &&
+            hdr_->present(cmd, scene, w, h, hdr_plan, hs.bloom_threshold, out, int(sw), int(sh), last->src, last->dst,
+                          covered, last->filter == Filter::Linear ? present_linear_ : present_nearest_, fold)) {
+            if (after_present_) after_present_(cmd, out, sw, sh);
+            return;
+        }
+        const TextureH mapped = hdr_->resolve(cmd, scene, w, h, hdr_plan, hs.bloom_threshold, fold);
+        if (mapped != scene) shown_hdr_ = scene = mapped;
+    }
+    const TextureH shown = shown_post_ ? post_ : scene;
     if (!covered && !draw_last) {
         RenderPassDesc clear;
         clear.color = {out, LoadOp::Clear, StoreOp::Store, {0.f, 0.f, 0.f, 1.f}};
@@ -337,7 +366,7 @@ void PostPass::present(CommandList& cmd) {
         const BlitStep& s = plan.steps[std::size_t(i)];
         cmd.blitTexture(s.from_intermediate ? sharp_ : shown, s.src, s.to_intermediate ? sharp_ : out, s.dst, s.filter);
     }
-    if (draw_last && !draw_present(cmd, last->from_intermediate ? sharp_ : shown, *last, out, covered)) {
+    if (draw_last && !draw_present(cmd, last->from_intermediate ? sharp_ : shown, *last, out, covered, sw, sh)) {
         if (!covered) {
             RenderPassDesc clear;
             clear.color = {out, LoadOp::Clear, StoreOp::Store, {0.f, 0.f, 0.f, 1.f}};

@@ -329,6 +329,9 @@ struct VkTexture {
     // without a transition inside the render pass.
     VkImageLayout rest = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
     bool swapchain = false;
+    // A swapchain image made in the display's own orientation (createSwapchain): desc keeps the window's size, the
+    // image is turned a quarter, 1 clockwise (VK_SURFACE_TRANSFORM_ROTATE_90), 3 the other way.
+    int rotation = 0;
     bool external = false;  // vulkanAdoptImage: the image is its owner's
     std::uint64_t bytes = 0;
     std::uint64_t usedIn = 0;  // the last submission whose main command buffer refers to the image
@@ -412,6 +415,7 @@ struct VkPipe {
         VkFormat depth = VK_FORMAT_UNDEFINED;
         VkPipeline pipeline = VK_NULL_HANDLE;
         std::uint64_t key = 0;  // the recipe's (VulkanDevice::shared_)
+        int rotation = 0;       // drawn into a turned swapchain image (VkTexture::rotation)
     };
     std::vector<Variant> variants;
 };
@@ -643,9 +647,9 @@ private:
     VkPipelineLayout pipelineLayout(const std::array<std::uint32_t, kSetKinds>& counts,
                                     const std::array<VkDescriptorSetLayout, kSetKinds>& layouts);
     VkDescriptorSet allocSet(VkDescriptorSetLayout layout);
-    VkPipeline variant(VkPipe& p, VkFormat color, VkFormat depth);
+    VkPipeline variant(VkPipe& p, VkFormat color, VkFormat depth, int rotation = 0);
     Result<VkPipe> makePipe(const PipelineDesc& desc);
-    vkn::GraphicsRecipe recipeFor(const VkPipe& p, VkFormat color, VkFormat depth) const;
+    vkn::GraphicsRecipe recipeFor(const VkPipe& p, VkFormat color, VkFormat depth, int rotation = 0) const;
     vkn::BuildTarget buildTarget(const vkn::GraphicsRecipe& recipe);
     // The pipeline cache on disk and the manifest of the pipelines made (RENDER.md section 2.2d).
     void loadPipelineStore();
@@ -750,6 +754,9 @@ private:
     // Remaking the swapchain would change nothing but cost a wait for the idle device each frame; a new size still
     // remakes it (acquireSwapchainTexture compares the window's).
     bool swapRotated_ = false;
+    // The swapchain is made in the display's own orientation instead (pre-rotation, VkTexture::rotation): the
+    // compositor then has nothing to turn. Only with SH_VK_PRE_ROTATE=1 in the environment (createSwapchain).
+    int swapRotation_ = 0;
     VulkanHdrOutput hdr_;                            // what the engine asks for
     bool hdrActive_ = false;                         // the swapchain is HDR10 (ST 2084, BT.2020)
     VulkanHdrBlock hdrBlock_ = VulkanHdrBlock::Off;  // why not, while it is not
@@ -779,9 +786,16 @@ private:
     VkRenderingAttachmentInfo pendColor_{}, pendDepth_{};
     bool pendDepthOn_ = false, pendStencil_ = false;
     VkExtent2D pendExtent_{};
+    // The open pass draws into a turned swapchain image: viewports, scissors and clears are turned with it.
+    int passRotation_ = 0;
+    std::uint32_t passW_ = 0, passH_ = 0;  // the target's size as callers see it
+    VkRect2D turned(std::int32_t x, std::int32_t y, std::int32_t w, std::int32_t h) const;
     // The pass merging, the late begin, the hoisted uploads and buffer cycling; SH_VK_NO_MERGE=1 turns them off (a
     // comparison of the picture and the counts).
     bool restructure_ = true;
+    // Image barriers name the stages and accesses of the layouts they leave and enter (barrier()); off with
+    // SH_VK_NO_MERGE as well.
+    bool precise_ = true;
     std::vector<HoistedCopy> hoisted_;
     std::uint64_t recordingSerial() const { return submitted_ + 1; }
     void beginRendering();
@@ -1446,7 +1460,10 @@ Result<void> VulkanDevice::init() {
     if (flag) std::fclose(flag);
     if (flag || (plain && plain[0] != '\0' && plain[0] != '0')) {
         restructure_ = false;
-        shader_log(0, "vulkan: SH_VK_NO_MERGE: one GPU pass per render pass, uploads where they are asked for");
+        precise_ = false;
+        shader_log(0,
+                   "vulkan: SH_VK_NO_MERGE: one GPU pass per render pass, uploads where they are asked for, "
+                   "full barriers");
     }
 
     TextureDesc d;
@@ -1497,6 +1514,20 @@ Result<void> VulkanDevice::createSwapchain() {
     }
     vkDeviceWaitIdle(device_);
     completed_ = submitted_;
+    // SH_VK_PRE_ROTATE=1: a screen whose own orientation is not the window's (a phone held sideways) gets the image
+    // in the screen's orientation, drawn turned, so the compositor has nothing to turn. Off by default: on a Galaxy
+    // S21 the picture came out turned and stretched once the display's rotation was locked to landscape.
+    int rotation = 0;
+    if (const char* env = std::getenv("SH_VK_PRE_ROTATE"); env && env[0] == '1') {
+        const bool fits = extent.height >= sc.minImageExtent.width && extent.height <= sc.maxImageExtent.width &&
+                          extent.width >= sc.minImageExtent.height && extent.width <= sc.maxImageExtent.height;
+        if (fits && sc.currentTransform == VK_SURFACE_TRANSFORM_ROTATE_90_BIT_KHR &&
+            (sc.supportedTransforms & VK_SURFACE_TRANSFORM_ROTATE_90_BIT_KHR))
+            rotation = 1;
+        else if (fits && sc.currentTransform == VK_SURFACE_TRANSFORM_ROTATE_270_BIT_KHR &&
+                 (sc.supportedTransforms & VK_SURFACE_TRANSFORM_ROTATE_270_BIT_KHR))
+            rotation = 3;
+    }
     VkSwapchainKHR old = swapchain_;
     swapchain_ = VK_NULL_HANDLE;
     for (TextureH h : swapTextures_) {
@@ -1593,14 +1624,14 @@ Result<void> VulkanDevice::createSwapchain() {
     info.minImageCount = images;
     info.imageFormat = chosen.format;
     info.imageColorSpace = chosen.colorSpace;
-    info.imageExtent = extent;
+    info.imageExtent = rotation ? VkExtent2D{extent.height, extent.width} : extent;
     info.imageArrayLayers = 1;
     info.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT |
                       (sc.supportedUsageFlags & (VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT));
     info.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
-    info.preTransform = (sc.supportedTransforms & VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR)
-                            ? VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR
-                            : sc.currentTransform;
+    info.preTransform = rotation || !(sc.supportedTransforms & VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR)
+                            ? sc.currentTransform
+                            : VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR;
     info.compositeAlpha = alpha;
     info.presentMode = mode;
     info.clipped = VK_TRUE;
@@ -1614,6 +1645,7 @@ Result<void> VulkanDevice::createSwapchain() {
     swapFormat_ = chosen.format;
     swapExtent_ = extent;
     swapRotated_ = info.preTransform != sc.currentTransform;
+    swapRotation_ = rotation;
     {
         auto modeName = [](VkPresentModeKHR m) {
             switch (m) {
@@ -1649,6 +1681,7 @@ Result<void> VulkanDevice::createSwapchain() {
         t.image = image;
         t.format = chosen.format;
         t.swapchain = true;
+        t.rotation = rotation;
         t.desc.width = extent.width;
         t.desc.height = extent.height;
         t.desc.usage = kUsageColorTarget;
@@ -1991,7 +2024,7 @@ Result<PipelineH> VulkanDevice::createPipeline(const PipelineDesc& desc) {
     return Result<PipelineH>::ok(pipelines_.add(std::move(p)));
 }
 
-vkn::GraphicsRecipe VulkanDevice::recipeFor(const VkPipe& p, VkFormat color, VkFormat depth) const {
+vkn::GraphicsRecipe VulkanDevice::recipeFor(const VkPipe& p, VkFormat color, VkFormat depth, int rotation) const {
     using R = vkn::GraphicsRecipe;
     R r;
     auto stage = [&](R::Stage st, const std::shared_ptr<ShaderModule>& m, const std::string& entry) {
@@ -2051,6 +2084,7 @@ vkn::GraphicsRecipe VulkanDevice::recipeFor(const VkPipe& p, VkFormat color, VkF
     r.writeMask = b.writeMask & 0xF;
     r.color = color;
     r.depth = depth;
+    r.preRotate = static_cast<std::uint32_t>(rotation);
     return r;
 }
 
@@ -2063,17 +2097,17 @@ vkn::BuildTarget VulkanDevice::buildTarget(const vkn::GraphicsRecipe& recipe) {
     return t;
 }
 
-VkPipeline VulkanDevice::variant(VkPipe& p, VkFormat color, VkFormat depth) {
+VkPipeline VulkanDevice::variant(VkPipe& p, VkFormat color, VkFormat depth, int rotation) {
     for (const VkPipe::Variant& v : p.variants)
-        if (v.color == color && v.depth == depth) return v.pipeline;
+        if (v.color == color && v.depth == depth && v.rotation == rotation) return v.pipeline;
 
-    const vkn::GraphicsRecipe recipe = recipeFor(p, color, depth);
+    const vkn::GraphicsRecipe recipe = recipeFor(p, color, depth, rotation);
     std::vector<std::uint8_t> bytes = recipe.encode();
     const std::uint64_t key = pipeline_store::hash64(bytes);
     // Two callers asking for the same pipeline share one.
     if (auto it = shared_.find(key); it != shared_.end()) {
         ++it->second.refs;
-        p.variants.push_back({color, depth, it->second.pipeline, key});
+        p.variants.push_back({color, depth, it->second.pipeline, key, rotation});
         return it->second.pipeline;
     }
     double waited = 0.0;
@@ -2113,7 +2147,7 @@ VkPipeline VulkanDevice::variant(VkPipe& p, VkFormat color, VkFormat depth) {
     }
     notePipeline(key, std::move(bytes), recipe, p);
     shared_[key] = {pipeline, 1};
-    p.variants.push_back({color, depth, pipeline, key});
+    p.variants.push_back({color, depth, pipeline, key, rotation});
     return pipeline;
 }
 
@@ -2492,6 +2526,44 @@ VkDescriptorSet VulkanDevice::allocSet(VkDescriptorSetLayout layout) {
 
 // Coarse but simple: every dependency is all commands to all commands. The game's frame is small; later stages that
 // need overlap can narrow the stages per use.
+namespace {
+
+// What a layout's last use wrote or read and where (src), and what its next use reads and writes where (dst), for
+// the layouts whose users are known: attachments, sampled reads and copies. The general layout (storage images, the
+// native passes' own) and the swapchain's acquire (whose semaphore waits at a stage of the submit's) stay full.
+bool layoutUse(VkImageLayout layout, bool src, VkPipelineStageFlags2* stage, VkAccessFlags2* access) {
+    switch (layout) {
+        case VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL:
+            *stage = VK_PIPELINE_STAGE_2_COLOR_ATTACHMENT_OUTPUT_BIT;
+            *access = src ? VK_ACCESS_2_COLOR_ATTACHMENT_WRITE_BIT
+                          : VK_ACCESS_2_COLOR_ATTACHMENT_READ_BIT | VK_ACCESS_2_COLOR_ATTACHMENT_WRITE_BIT;
+            return true;
+        case VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL:
+            *stage = VK_PIPELINE_STAGE_2_EARLY_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_2_LATE_FRAGMENT_TESTS_BIT;
+            *access =
+                src ? VK_ACCESS_2_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT
+                    : VK_ACCESS_2_DEPTH_STENCIL_ATTACHMENT_READ_BIT | VK_ACCESS_2_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+            return true;
+        case VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL:
+            *stage = VK_PIPELINE_STAGE_2_VERTEX_SHADER_BIT | VK_PIPELINE_STAGE_2_FRAGMENT_SHADER_BIT |
+                     VK_PIPELINE_STAGE_2_COMPUTE_SHADER_BIT;
+            *access = src ? VK_ACCESS_2_NONE : VK_ACCESS_2_SHADER_SAMPLED_READ_BIT;
+            return true;
+        case VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL:
+            *stage = VK_PIPELINE_STAGE_2_ALL_TRANSFER_BIT;
+            *access = src ? VK_ACCESS_2_NONE : VK_ACCESS_2_TRANSFER_READ_BIT;
+            return true;
+        case VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL:
+            *stage = VK_PIPELINE_STAGE_2_ALL_TRANSFER_BIT;
+            *access = VK_ACCESS_2_TRANSFER_WRITE_BIT;
+            return true;
+        default:
+            return false;
+    }
+}
+
+}  // namespace
+
 void VulkanDevice::barrier(VkCommandBuffer cmd, VkImage image, VkImageAspectFlags aspect, VkImageLayout from,
                            VkImageLayout to) {
     VkImageMemoryBarrier2 b{VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER_2};
@@ -2499,6 +2571,16 @@ void VulkanDevice::barrier(VkCommandBuffer cmd, VkImage image, VkImageAspectFlag
     b.srcAccessMask = VK_ACCESS_2_MEMORY_WRITE_BIT;
     b.dstStageMask = VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT;
     b.dstAccessMask = VK_ACCESS_2_MEMORY_READ_BIT | VK_ACCESS_2_MEMORY_WRITE_BIT;
+    // A tile-based GPU may start the next pass's vertex and binning work before the last pass's fragments are done
+    // when the barrier names the stages; a full one drains it between every two passes.
+    VkPipelineStageFlags2 srcStage = 0, dstStage = 0;
+    VkAccessFlags2 srcAccess = 0, dstAccess = 0;
+    if (precise_ && layoutUse(from, true, &srcStage, &srcAccess) && layoutUse(to, false, &dstStage, &dstAccess)) {
+        b.srcStageMask = srcStage;
+        b.srcAccessMask = srcAccess;
+        b.dstStageMask = dstStage;
+        b.dstAccessMask = dstAccess;
+    }
     b.oldLayout = from;
     b.newLayout = to;
     b.srcQueueFamilyIndex = b.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
@@ -3089,6 +3171,13 @@ void VulkanList::blitTexture(TextureH src, const Rect& srcIn, TextureH dst, cons
     VkTexture* s = dev_.textures_.get(src);
     VkTexture* d = dev_.textures_.get(dst);
     if (!s || !d || srcIn.w <= 0 || srcIn.h <= 0 || dstIn.w <= 0 || dstIn.h <= 0) return;
+    if (d->rotation) {
+        // A blit cannot turn the picture; the present draws into a turned swapchain image (post_pass.cpp).
+        static bool s_said = false;
+        if (!s_said) shader_log(1, "vulkan: a blit into the turned swapchain image is skipped");
+        s_said = true;
+        return;
+    }
     Rect srcRect = srcIn, dstRect = dstIn;
     if (!clipBlitAxis(srcRect.x, srcRect.w, dstRect.x, dstRect.w, static_cast<int>(s->desc.width),
                       static_cast<int>(d->desc.width)) ||
@@ -3189,7 +3278,7 @@ RenderPass* VulkanList::beginRenderPass(const RenderPassDesc& desc) {
                 ++n;
             }
             if (n > 0) {
-                const VkClearRect rect{{{0, 0}, {c->desc.width, c->desc.height}}, 0, 1};
+                const VkClearRect rect{{{0, 0}, dev_.pendExtent_}, 0, 1};
                 vkCmdClearAttachments(cmd, n, clears, 1, &rect);
                 ++dev_.counts_.inPassClears;
             }
@@ -3234,7 +3323,11 @@ RenderPass* VulkanList::beginRenderPass(const RenderPassDesc& desc) {
     }
     dev_.pendDepthOn_ = d != nullptr;
     dev_.pendStencil_ = d && hasStencil(d->format);
-    dev_.pendExtent_ = {c->desc.width, c->desc.height};
+    dev_.pendExtent_ =
+        c->rotation ? VkExtent2D{c->desc.height, c->desc.width} : VkExtent2D{c->desc.width, c->desc.height};
+    dev_.passRotation_ = c->rotation;
+    dev_.passW_ = c->desc.width;
+    dev_.passH_ = c->desc.height;
     if (dev_.tracing_)
         dev_.note("pass %.*s %ux%u: colour %s/%s%s, depth %s/%s", static_cast<int>(nameLength), name, c->desc.width,
                   c->desc.height, loadName(desc.color.load), desc.color.store == StoreOp::Store ? "store" : "-",
@@ -3326,6 +3419,7 @@ void VulkanDevice::closePass() {
     if (d && d->rest != d->layout) transition(*d, d->rest);
     passColor_ = {};
     passDepth_ = {};
+    passRotation_ = 0;
     endSpan();
 }
 
@@ -3404,8 +3498,30 @@ void VulkanPass::bindPipeline(PipelineH pipeline) {
     dev_.boundPipeH_ = pipeline;
 }
 
+// A rect of the window as callers see it (top-left origin) in a turned swapchain image. Turned 90 degrees
+// clockwise, window pixel (x, y) is image pixel (H - y, x); the other way (y, W - x). The vertex stage turns NDC
+// to match (post.vert, overlay.vert: kPreRotate).
+VkRect2D VulkanDevice::turned(std::int32_t x, std::int32_t y, std::int32_t w, std::int32_t h) const {
+    if (passRotation_ == 1)
+        return {{static_cast<std::int32_t>(passH_) - y - h, x},
+                {static_cast<std::uint32_t>(std::max(h, 0)), static_cast<std::uint32_t>(std::max(w, 0))}};
+    if (passRotation_ == 3)
+        return {{y, static_cast<std::int32_t>(passW_) - x - w},
+                {static_cast<std::uint32_t>(std::max(h, 0)), static_cast<std::uint32_t>(std::max(w, 0))}};
+    return {{x, y}, {static_cast<std::uint32_t>(std::max(w, 0)), static_cast<std::uint32_t>(std::max(h, 0))}};
+}
+
 // The SDL3 GPU flip: a negative height makes NDC +Y point up as in GL (VK_KHR_maintenance1, core since 1.1).
 void VulkanPass::setViewport(const Viewport& v) {
+    if (dev_.passRotation_) {
+        // The same flip over the turned rect; the vertex stage has turned NDC already.
+        const float x = v.x, y = v.y, w = v.w, h = v.h;
+        const float W = static_cast<float>(dev_.passW_), H = static_cast<float>(dev_.passH_);
+        const float rx = dev_.passRotation_ == 1 ? H - y - h : y, ry = dev_.passRotation_ == 1 ? x : W - x - w;
+        const VkViewport vp{rx, ry + w, h, -w, v.minDepth, v.maxDepth};
+        vkCmdSetViewport(dev_.frame().cmd, 0, 1, &vp);
+        return;
+    }
     const VkViewport vp{v.x, v.y + v.h, v.w, -v.h, v.minDepth, v.maxDepth};
     vkCmdSetViewport(dev_.frame().cmd, 0, 1, &vp);
 }
@@ -3419,6 +3535,14 @@ void VulkanPass::setScissor(const Rect& r) {
     if (y < 0) {
         h += y;
         y = 0;
+    }
+    if (dev_.passRotation_) {
+        // Clipped to the window first, so the turned rect stays inside the image.
+        w = std::min(w, static_cast<std::int32_t>(dev_.passW_) - x);
+        h = std::min(h, static_cast<std::int32_t>(dev_.passH_) - y);
+        const VkRect2D sc = dev_.turned(x, y, std::max(w, 0), std::max(h, 0));
+        vkCmdSetScissor(dev_.frame().cmd, 0, 1, &sc);
+        return;
     }
     const VkRect2D sc{{x, y}, {static_cast<std::uint32_t>(std::max(w, 0)), static_cast<std::uint32_t>(std::max(h, 0))}};
     vkCmdSetScissor(dev_.frame().cmd, 0, 1, &sc);
@@ -3503,7 +3627,7 @@ bool VulkanDevice::flushDraw() {
     Frame& f = frame();
     const std::uint64_t serial = recordingSerial();
     VkPipe& p = *boundPipe_;
-    const VkPipeline pipeline = variant(p, passColorFormat_, passDepthFormat_);
+    const VkPipeline pipeline = variant(p, passColorFormat_, passDepthFormat_, passRotation_);
     if (!pipeline) return false;
     if (pipeline != boundVk_) {
         vkCmdBindPipeline(f.cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);

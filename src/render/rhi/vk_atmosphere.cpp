@@ -42,6 +42,11 @@ constexpr float kHazePerUnit = 0.05f / 256.0f;
 
 constexpr VkFormat kVolumeFormat = VK_FORMAT_R16G16B16A16_SFLOAT;
 constexpr VkFormat kAoFormat = VK_FORMAT_R32_SFLOAT;
+constexpr VkFormat kLayerFormat = VK_FORMAT_R16G16B16A16_SFLOAT;
+constexpr VkFormat kLayerZFormat = VK_FORMAT_R32_SFLOAT;
+
+// composite.frag's kMode: over the scene colour, the layer, the layer over the scene colour.
+enum CompositeMode : std::int32_t { kOverScene = 0, kWriteLayer = 1, kLayerOverScene = 2 };
 
 enum Binding : std::uint32_t {
     kUniforms = 0,
@@ -52,7 +57,9 @@ enum Binding : std::uint32_t {
     kVolume = 5,
     kVolumeSampled = 6,
     kSunShadow = 7,
-    kBindingCount = 8
+    kLayer = 8,
+    kLayerZ = 9,
+    kBindingCount = 10
 };
 
 // std140 Atmosphere block of shaders/atmosphere/common.glsl.
@@ -117,6 +124,9 @@ public:
 
     Result<void> init();
     Result<void> apply(const AtmosphereInputs& in) override;
+    TextureH layer() const override { return layerPending_ ? layerTex_ : TextureH{}; }
+    TextureH layerDepth() const override { return layerPending_ ? layerZTex_ : TextureH{}; }
+    Result<void> applyLayer() override;
 
 private:
     VkShaderModule module(const embedded::Shader& s);
@@ -125,7 +135,8 @@ private:
     void releaseImage(GpuImage& img);
     Result<void> ensureImages(VkCommandBuffer cmd, std::uint32_t aoW, std::uint32_t aoH, std::uint32_t gx,
                               std::uint32_t gy);
-    VkPipeline compositePipeline(VkFormat color);
+    VkPipeline compositePipeline(VkFormat color, CompositeMode mode = kOverScene);
+    Result<void> ensureLayer(VkCommandBuffer cmd, std::uint32_t w, std::uint32_t h);
     void computeBarrier(VkCommandBuffer cmd, VkPipelineStageFlags2 dst);
 
     Device& device_;
@@ -149,6 +160,7 @@ private:
     VkShaderModule compositeVs_ = VK_NULL_HANDLE, compositeFs_ = VK_NULL_HANDLE;
     struct Variant {
         VkFormat color;
+        CompositeMode mode;
         VkPipeline pipeline;
     };
     std::vector<Variant> composites_;
@@ -156,6 +168,13 @@ private:
     std::vector<Slot> slots_;
     GpuImage aoImage_, injectImage_, volumeImage_;
     std::uint64_t appliedSerial_ = 0;
+    // Phones (AtmosphereInputs::layer): the layer, adopted as an RHI texture, and what applyLayer() draws it with.
+    GpuImage layerImage_, layerZImage_;
+    TextureH layerTex_, layerZTex_;
+    bool layerPending_ = false;
+    VkDescriptorSet layerSet_ = VK_NULL_HANDLE;
+    TextureH layerColor_, layerDepth_;
+    VkRect2D layerArea_{};
 };
 
 VulkanAtmosphere::~VulkanAtmosphere() {
@@ -164,7 +183,9 @@ VulkanAtmosphere::~VulkanAtmosphere() {
     // The device may still run the last frames that used these: release them with that frame's other garbage.
     std::vector<VkPipeline> pipes{ao_, inject_, integrate_};
     for (const Variant& v : composites_) pipes.push_back(v.pipeline);
-    std::vector<GpuImage> images{aoImage_, injectImage_, volumeImage_};
+    std::vector<GpuImage> images{aoImage_, injectImage_, volumeImage_, layerImage_, layerZImage_};
+    if (layerTex_) device_.destroy(layerTex_);
+    if (layerZTex_) device_.destroy(layerZTex_);
     std::vector<Slot> slots = slots_;
     VkShaderModule vs = compositeVs_, fs = compositeFs_;
     VkSampler nearest = nearest_, linear = linear_;
@@ -207,6 +228,7 @@ Result<void> VulkanAtmosphere::init() {
         VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,         VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
         VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_DESCRIPTOR_TYPE_STORAGE_IMAGE,
         VK_DESCRIPTOR_TYPE_STORAGE_IMAGE,          VK_DESCRIPTOR_TYPE_STORAGE_IMAGE,
+        VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
         VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER};
     for (std::uint32_t i = 0; i < kBindingCount; ++i) {
         b[i].binding = i;
@@ -269,7 +291,7 @@ Result<void> VulkanAtmosphere::init() {
             return Result<void>::fail(vkFail("uniform buffer", r));
         slot.mapped = info.pMappedData;
         const VkDescriptorPoolSize sizes[] = {{VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1},
-                                              {VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 4},
+                                              {VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 6},
                                               {VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, 3}};
         VkDescriptorPoolCreateInfo pi{VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO};
         pi.maxSets = 1;
@@ -363,9 +385,37 @@ Result<void> VulkanAtmosphere::ensureImages(VkCommandBuffer cmd, std::uint32_t a
     return Result<void>::ok();
 }
 
-VkPipeline VulkanAtmosphere::compositePipeline(VkFormat color) {
+Result<void> VulkanAtmosphere::ensureLayer(VkCommandBuffer cmd, std::uint32_t w, std::uint32_t h) {
+    (void)cmd;
+    if (layerImage_.image && layerImage_.w == w && layerImage_.h == h) return Result<void>::ok();
+    for (TextureH* t : {&layerTex_, &layerZTex_}) {
+        if (*t) device_.destroy(*t);
+        *t = {};
+    }
+    releaseImage(layerImage_);
+    releaseImage(layerZImage_);
+    constexpr VkImageUsageFlags usage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT;
+    if (auto r = makeImage(layerImage_, VK_IMAGE_TYPE_2D, kLayerFormat, w, h, 1, usage); !r) return r;
+    if (auto r = makeImage(layerZImage_, VK_IMAGE_TYPE_2D, kLayerZFormat, w, h, 1, usage); !r) return r;
+    layerTex_ = vulkanAdoptImage(device_, layerImage_.image, layerImage_.view, kLayerFormat, w, h);
+    layerZTex_ = vulkanAdoptImage(device_, layerZImage_.image, layerZImage_.view, kLayerZFormat, w, h);
+    if (!layerTex_ || !layerZTex_) return Result<void>::fail("atmosphere: the layer was not adopted");
+    return Result<void>::ok();
+}
+
+VkPipeline VulkanAtmosphere::compositePipeline(VkFormat color, CompositeMode mode) {
     for (const Variant& v : composites_)
-        if (v.color == color) return v.pipeline;
+        if (v.color == color && v.mode == mode) return v.pipeline;
+    // The phone's constants and the mode (composite.frag kMode, id 2).
+    struct Constants {
+        VkBool32 phone;
+        std::int32_t aoTaps;
+        std::int32_t mode;
+    } constants{phone_ ? VK_TRUE : VK_FALSE, phone_ ? kPhoneAoTaps : 12, mode};
+    const VkSpecializationMapEntry entries[3] = {{0, offsetof(Constants, phone), sizeof(VkBool32)},
+                                                 {1, offsetof(Constants, aoTaps), sizeof(std::int32_t)},
+                                                 {2, offsetof(Constants, mode), sizeof(std::int32_t)}};
+    const VkSpecializationInfo modeSpec{3, entries, sizeof(Constants), &constants};
     VkPipelineShaderStageCreateInfo stages[2]{};
     stages[0] = {VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO};
     stages[0].stage = VK_SHADER_STAGE_VERTEX_BIT;
@@ -375,7 +425,7 @@ VkPipeline VulkanAtmosphere::compositePipeline(VkFormat color) {
     stages[1].stage = VK_SHADER_STAGE_FRAGMENT_BIT;
     stages[1].module = compositeFs_;
     stages[1].pName = "main";
-    stages[1].pSpecializationInfo = spec();
+    stages[1].pSpecializationInfo = phone_ || mode != kOverScene ? &modeSpec : spec();
     VkPipelineVertexInputStateCreateInfo vin{VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO};
     VkPipelineInputAssemblyStateCreateInfo ia{VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO};
     ia.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
@@ -391,7 +441,7 @@ VkPipeline VulkanAtmosphere::compositePipeline(VkFormat color) {
     VkPipelineDepthStencilStateCreateInfo ds{VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO};
     // dst' = src + dst * src.a; the target's alpha is kept.
     VkPipelineColorBlendAttachmentState att{};
-    att.blendEnable = VK_TRUE;
+    att.blendEnable = mode == kWriteLayer ? VK_FALSE : VK_TRUE;
     att.srcColorBlendFactor = VK_BLEND_FACTOR_ONE;
     att.dstColorBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA;
     att.colorBlendOp = VK_BLEND_OP_ADD;
@@ -400,16 +450,21 @@ VkPipeline VulkanAtmosphere::compositePipeline(VkFormat color) {
     att.alphaBlendOp = VK_BLEND_OP_ADD;
     att.colorWriteMask =
         VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
+    // The layer: (scattered light, k) and the view z, both written whole.
+    VkPipelineColorBlendAttachmentState atts[2] = {att, att};
+    atts[1].colorWriteMask = VK_COLOR_COMPONENT_R_BIT;
+    const std::uint32_t outputs = mode == kWriteLayer ? 2 : 1;
+    const VkFormat formats[2] = {color, kLayerZFormat};
     VkPipelineColorBlendStateCreateInfo cb{VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO};
-    cb.attachmentCount = 1;
-    cb.pAttachments = &att;
+    cb.attachmentCount = outputs;
+    cb.pAttachments = atts;
     const VkDynamicState dyn[] = {VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR};
     VkPipelineDynamicStateCreateInfo dy{VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO};
     dy.dynamicStateCount = 2;
     dy.pDynamicStates = dyn;
     VkPipelineRenderingCreateInfo ri{VK_STRUCTURE_TYPE_PIPELINE_RENDERING_CREATE_INFO};
-    ri.colorAttachmentCount = 1;
-    ri.pColorAttachmentFormats = &color;
+    ri.colorAttachmentCount = outputs;
+    ri.pColorAttachmentFormats = formats;
     VkGraphicsPipelineCreateInfo ci{VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO};
     ctx_.rendering->pipeline(ci, ri);
     ci.stageCount = 2;
@@ -426,7 +481,7 @@ VkPipeline VulkanAtmosphere::compositePipeline(VkFormat color) {
     VkPipeline p = VK_NULL_HANDLE;
     if (vkCreateGraphicsPipelines(ctx_.device, ctx_.pipelineCache, 1, &ci, nullptr, &p) != VK_SUCCESS)
         return VK_NULL_HANDLE;
-    composites_.push_back({color, p});
+    composites_.push_back({color, mode, p});
     return p;
 }
 
@@ -452,6 +507,7 @@ float fogEnd(const FogRampUniforms& fog) {
 }
 
 Result<void> VulkanAtmosphere::apply(const AtmosphereInputs& in) {
+    layerPending_ = false;
     if (!in.ao && !in.volumetric) return Result<void>::ok();
     const std::uint64_t serial = vkn::frameSerial(device_);
     if (serial == appliedSerial_) return Result<void>::ok();
@@ -481,7 +537,15 @@ Result<void> VulkanAtmosphere::apply(const AtmosphereInputs& in) {
     const std::uint32_t gy =
         in.volumetric ? std::clamp(static_cast<std::uint32_t>(vh) / froxelPixels_, 9u, kMaxGridY) : 1;
     if (auto r = ensureImages(cmd, aoW, aoH, gx, gy); !r) return r;
-    const VkPipeline composite = compositePipeline(color.format);
+    // The layer has one texel per estimate of the occlusion at kLayerStep (composite.frag LayerStep).
+    const bool layered = in.layer && phone_;
+    const std::uint32_t lw = (static_cast<std::uint32_t>(vw) + kLayerStep - 1) / kLayerStep;
+    const std::uint32_t lh = (static_cast<std::uint32_t>(vh) + kLayerStep - 1) / kLayerStep;
+    if (layered) {
+        if (auto r = ensureLayer(cmd, lw, lh); !r) return r;
+    }
+    const VkPipeline composite =
+        layered ? compositePipeline(kLayerFormat, kWriteLayer) : compositePipeline(color.format);
     if (!composite) return Result<void>::fail("atmosphere: no composite pipeline for the scene format");
 
     Block blk{};
@@ -511,6 +575,7 @@ Result<void> VulkanAtmosphere::apply(const AtmosphereInputs& in) {
     std::memcpy(blk.scatter, scatter, sizeof scatter);
     const int lights = std::clamp(in.lights, 0, kAtmosphereLights);
     blk.lightInfo[0] = static_cast<float>(lights);
+    blk.lightInfo[1] = static_cast<float>(kLayerStep);
     for (int i = 0; i < lights; ++i) {
         std::memcpy(blk.lightPos[i], in.lightPos[static_cast<std::size_t>(i)].data(), sizeof blk.lightPos[i]);
         std::memcpy(blk.lightColor[i], in.lightColor[static_cast<std::size_t>(i)].data(), sizeof blk.lightColor[i]);
@@ -545,13 +610,20 @@ Result<void> VulkanAtmosphere::apply(const AtmosphereInputs& in) {
     const VkDescriptorImageInfo injectInfo{VK_NULL_HANDLE, injectImage_.view, VK_IMAGE_LAYOUT_GENERAL};
     const VkDescriptorImageInfo volumeInfo{VK_NULL_HANDLE, volumeImage_.view, VK_IMAGE_LAYOUT_GENERAL};
     const VkDescriptorImageInfo volumeSampled{linear_, volumeImage_.view, VK_IMAGE_LAYOUT_GENERAL};
+    // Read only by applyLayer(), once the layer rests in the shader-read layout; else any image of the right kind.
+    const VkDescriptorImageInfo layerInfo{linear_, layered ? layerImage_.view : depth.sampledView,
+                                          VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL};
+    const VkDescriptorImageInfo layerZInfo{nearest_, layered ? layerZImage_.view : depth.sampledView,
+                                           VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL};
     std::array<VkWriteDescriptorSet, kBindingCount> w{};
     const VkDescriptorImageInfo* images[kBindingCount] = {nullptr,     &depthInfo,  &shadowInfo,    &aoInfo,
-                                                          &injectInfo, &volumeInfo, &volumeSampled, &sunInfo};
+                                                          &injectInfo, &volumeInfo, &volumeSampled, &sunInfo,
+                                                          &layerInfo,  &layerZInfo};
     const VkDescriptorType types[kBindingCount] = {
         VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,         VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
         VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_DESCRIPTOR_TYPE_STORAGE_IMAGE,
         VK_DESCRIPTOR_TYPE_STORAGE_IMAGE,          VK_DESCRIPTOR_TYPE_STORAGE_IMAGE,
+        VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
         VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER};
     for (std::uint32_t i = 0; i < kBindingCount; ++i) {
         w[i] = {VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET};
@@ -583,7 +655,73 @@ Result<void> VulkanAtmosphere::apply(const AtmosphereInputs& in) {
         vkCmdDispatch(cmd, (gx + 7) / 8, (gy + 7) / 8, 1);
     }
     computeBarrier(cmd, VK_PIPELINE_STAGE_2_FRAGMENT_SHADER_BIT);
+    vkn::endSpan(device_);
 
+    if (layered) {
+        vkn::beginSpan(device_, "atmosphere layer");
+        auto layerBarrier = [&](VkImageLayout from, VkImageLayout to, VkPipelineStageFlags2 srcStage,
+                                VkAccessFlags2 srcAccess, VkPipelineStageFlags2 dstStage, VkAccessFlags2 dstAccess) {
+            VkImageMemoryBarrier2 b[2]{};
+            const VkImage images[2] = {layerImage_.image, layerZImage_.image};
+            for (int i = 0; i < 2; ++i) {
+                b[i] = {VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER_2};
+                b[i].srcStageMask = srcStage;
+                b[i].srcAccessMask = srcAccess;
+                b[i].dstStageMask = dstStage;
+                b[i].dstAccessMask = dstAccess;
+                b[i].oldLayout = from;
+                b[i].newLayout = to;
+                b[i].srcQueueFamilyIndex = b[i].dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+                b[i].image = images[i];
+                b[i].subresourceRange = {VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1};
+            }
+            VkDependencyInfo dep{VK_STRUCTURE_TYPE_DEPENDENCY_INFO};
+            dep.imageMemoryBarrierCount = 2;
+            dep.pImageMemoryBarriers = b;
+            ctx_.rendering->barrier(cmd, dep);
+        };
+        // The last frame's reads of the layer are over before it is written again.
+        layerBarrier(VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
+                     VK_PIPELINE_STAGE_2_FRAGMENT_SHADER_BIT, 0, VK_PIPELINE_STAGE_2_COLOR_ATTACHMENT_OUTPUT_BIT,
+                     VK_ACCESS_2_COLOR_ATTACHMENT_WRITE_BIT);
+        VkRenderingAttachmentInfo att[2]{};
+        const VkImageView views[2] = {layerImage_.view, layerZImage_.view};
+        for (int i = 0; i < 2; ++i) {
+            att[i] = {VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO};
+            att[i].imageView = views[i];
+            att[i].imageLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+            att[i].loadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+            att[i].storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+        }
+        VkRenderingInfo ri{VK_STRUCTURE_TYPE_RENDERING_INFO};
+        const VkRect2D area{{0, 0}, {lw, lh}};
+        ri.renderArea = area;
+        ri.layerCount = 1;
+        ri.colorAttachmentCount = 2;
+        ri.pColorAttachments = att;
+        const VkFormat layerFormats[2] = {kLayerFormat, kLayerZFormat};
+        ctx_.rendering->begin(cmd, ri, layerFormats, VK_FORMAT_UNDEFINED);
+        const VkViewport viewport{0.0f, 0.0f, static_cast<float>(lw), static_cast<float>(lh), 0.0f, 1.0f};
+        vkCmdSetViewport(cmd, 0, 1, &viewport);
+        vkCmdSetScissor(cmd, 0, 1, &area);
+        vkCmdBindPipeline(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, composite);
+        vkCmdBindDescriptorSets(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, layout_, 0, 1, &set, 0, nullptr);
+        vkCmdDraw(cmd, 3, 1, 0, 0);
+        ctx_.rendering->end(cmd);
+        layerBarrier(VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+                     VK_PIPELINE_STAGE_2_COLOR_ATTACHMENT_OUTPUT_BIT, VK_ACCESS_2_COLOR_ATTACHMENT_WRITE_BIT,
+                     VK_PIPELINE_STAGE_2_FRAGMENT_SHADER_BIT, VK_ACCESS_2_SHADER_SAMPLED_READ_BIT);
+        vkn::endSpan(device_);
+        layerPending_ = true;
+        layerSet_ = set;
+        layerColor_ = in.color;
+        layerDepth_ = in.depth;
+        layerArea_ = {{static_cast<std::int32_t>(vx), static_cast<std::int32_t>(vy)},
+                      {static_cast<std::uint32_t>(vw), static_cast<std::uint32_t>(vh)}};
+        return Result<void>::ok();
+    }
+
+    vkn::beginSpan(device_, "atmosphere composite");
     vkn::transition(device_, in.color, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
     VkRenderingAttachmentInfo att{VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO};
     att.imageView = color.view;
@@ -607,6 +745,46 @@ Result<void> VulkanAtmosphere::apply(const AtmosphereInputs& in) {
     vkCmdDraw(cmd, 3, 1, 0, 0);
     ctx_.rendering->end(cmd);
     vkn::transition(device_, in.color, color.rest);
+    vkn::endSpan(device_);
+    return Result<void>::ok();
+}
+
+Result<void> VulkanAtmosphere::applyLayer() {
+    if (!layerPending_) return Result<void>::fail("atmosphere: no layer");
+    layerPending_ = false;
+    vkn::Image color;
+    if (!vkn::image(device_, layerColor_, &color)) return Result<void>::fail("atmosphere: no scene target");
+    const VkPipeline pipe = compositePipeline(color.format, kLayerOverScene);
+    if (!pipe) return Result<void>::fail("atmosphere: no composite pipeline for the scene format");
+    VkCommandBuffer cmd = vkn::record(device_);
+    if (!cmd) return Result<void>::fail("atmosphere: no frame is being recorded");
+    vkn::beginSpan(device_, "atmosphere composite");
+    vkn::transition(device_, layerDepth_, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+    vkn::transition(device_, layerColor_, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
+    VkRenderingAttachmentInfo att{VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO};
+    att.imageView = color.view;
+    att.imageLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+    att.loadOp = VK_ATTACHMENT_LOAD_OP_LOAD;
+    att.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+    VkRenderingInfo ri{VK_STRUCTURE_TYPE_RENDERING_INFO};
+    ri.renderArea = layerArea_;
+    ri.layerCount = 1;
+    ri.colorAttachmentCount = 1;
+    ri.pColorAttachments = &att;
+    ctx_.rendering->begin(cmd, ri, &color.format, VK_FORMAT_UNDEFINED);
+    const VkViewport viewport{static_cast<float>(layerArea_.offset.x),
+                              static_cast<float>(layerArea_.offset.y),
+                              static_cast<float>(layerArea_.extent.width),
+                              static_cast<float>(layerArea_.extent.height),
+                              0.0f,
+                              1.0f};
+    vkCmdSetViewport(cmd, 0, 1, &viewport);
+    vkCmdSetScissor(cmd, 0, 1, &layerArea_);
+    vkCmdBindPipeline(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, pipe);
+    vkCmdBindDescriptorSets(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, layout_, 0, 1, &layerSet_, 0, nullptr);
+    vkCmdDraw(cmd, 3, 1, 0, 0);
+    ctx_.rendering->end(cmd);
+    vkn::transition(device_, layerColor_, color.rest);
     vkn::endSpan(device_);
     return Result<void>::ok();
 }

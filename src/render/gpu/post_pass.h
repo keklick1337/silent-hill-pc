@@ -93,7 +93,8 @@ private:
     bool ensure_pipeline();
     // The present as a draw (phones): the last step of `plan` drawn into `out` in a render pass the overlay continues.
     bool ensure_present_pipeline();
-    bool draw_present(rhi::CommandList& cmd, rhi::TextureH src, const BlitStep& step, rhi::TextureH out, bool covered);
+    bool draw_present(rhi::CommandList& cmd, rhi::TextureH src, const BlitStep& step, rhi::TextureH out, bool covered,
+                      std::uint32_t win_w, std::uint32_t win_h);
     bool ensure_texture(rhi::TextureH& tex, int& tw, int& th, int w, int h, const char* name,
                         rhi::TextureFormat format = rhi::TextureFormat::RGBA8);
     void release();

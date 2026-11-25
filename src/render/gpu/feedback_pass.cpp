@@ -177,7 +177,9 @@ void FeedbackPass::store_frame(CommandList& cmd) {
 
 void FeedbackPass::capture_last_frame(CommandList& cmd) {
     Targets& t = owner_.targets();
-    gpu_.capture_last_frame(cmd, t.resolved(cmd), t.scene_format(), t.width(), t.height(),
+    // A phone notes the frame here and copies it at the start of the next one (settle_capture, through resolved()):
+    // an atmosphere layer still owed is drawn then, not now (Targets::resolved_unfinished).
+    gpu_.capture_last_frame(cmd, t.resolved_unfinished(cmd), t.scene_format(), t.width(), t.height(),
                             logic_.settings().freeze_capture_hold);
 }
 

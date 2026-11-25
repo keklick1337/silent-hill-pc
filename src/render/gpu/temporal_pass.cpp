@@ -295,7 +295,19 @@ void TemporalPass::apply() {
         in.reproject = post::reprojection(now_.pose, now_.pose);
     }
     in.dynamic = motion_;
-    if (auto r = impl_->apply(in); !r && failures_++ < 4) SH_WARN("[GPU] %s", r.error().c_str());
+    // A phone's result over the whole target is left to the HDR resolve, which reads it from the history instead of
+    // a pass that loads and stores the scene target (Targets::world_layer).
+    in.fold = phone_gpu() && in.mode == rhi::TemporalMode::Taa &&
+              targets.scene_format() == rhi::TextureFormat::RGBA16F && in.dst[0] == 0.f && in.dst[1] == 0.f &&
+              in.dst[2] == float(targets.width()) && in.dst[3] == float(targets.height());
+    if (auto r = impl_->apply(in); !r) {
+        if (failures_++ < 4) SH_WARN("[GPU] %s", r.error().c_str());
+        return;
+    }
+    if (const rhi::TextureH result = in.fold ? impl_->result() : rhi::TextureH{})
+        targets.set_world_result(result, in.sharpness, [this]() {
+            if (auto r = impl_->applyResult(); !r && failures_++ < 4) SH_WARN("[GPU] %s", r.error().c_str());
+        });
 }
 
 }  // namespace sh::gpu

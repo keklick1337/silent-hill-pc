@@ -108,6 +108,8 @@ public:
     Result<void> init();
     Result<void> apply(const TemporalInputs& in) override;
     void reset() override { historyValid_ = false; }
+    TextureH result() const override { return resultPending_ ? historyTex_[resultIndex_] : TextureH{}; }
+    Result<void> applyResult() override;
 
 private:
     VkShaderModule module(const embedded::Shader& s);
@@ -121,6 +123,8 @@ private:
     void barrier(VkCommandBuffer cmd);
     void recordTiler(VkCommandBuffer cmd, VkDescriptorSet set, const Slot& slot, const TemporalInputs& in,
                      const vkn::Image& color, const float src[4], const float dst[4], VkPipeline composite);
+    void recordComposite(VkCommandBuffer cmd, VkDescriptorSet set, TextureH colorTex, const vkn::Image& color,
+                         const float dst[4], VkPipeline composite);
 
     Device& device_;
     vkn::Context ctx_;
@@ -143,6 +147,14 @@ private:
     GpuImage motionImage_, motionDepth_, result_;
     GpuImage history_[2], historyDepth_[2];
     int current_ = 0;  // the history written by the next apply
+    // A tiler's histories as RHI textures (Temporal::result) and the composite a folded apply left owed.
+    TextureH historyTex_[2];
+    bool historyAdopted_[2] = {false, false};  // historyTex_ stands for the history image made last
+    bool resultPending_ = false;
+    int resultIndex_ = 0;
+    VkDescriptorSet resultSet_ = VK_NULL_HANDLE;
+    TextureH resultColor_;
+    float resultDst_[4] = {};
     bool historyValid_ = false;
     std::uint64_t appliedSerial_ = 0;
 };
@@ -154,6 +166,8 @@ VulkanTemporal::~VulkanTemporal() {
     for (const Variant& v : composites_) pipes.push_back(v.pipeline);
     std::vector<GpuImage> images{motionImage_, motionDepth_,     result_,         history_[0],
                                  history_[1],  historyDepth_[0], historyDepth_[1]};
+    for (TextureH t : historyTex_)
+        if (t) device_.destroy(t);
     std::vector<Slot> slots = slots_;
     std::vector<VkShaderModule> modules{motionVs_, motionFs_, compositeVs_, compositeFs_};
     VkSampler nearest = nearest_, linear = linear_;
@@ -365,6 +379,7 @@ Result<void> VulkanTemporal::ensureImages(VkCommandBuffer cmd, std::uint32_t sw,
     if (!tiler_)
         if (auto r = want(result_, kHistoryFormat, dw, dh, store); !r) return r;
     for (int i = 0; i < 2; ++i) {
+        if (!history_[i].image || history_[i].w != dw || history_[i].h != dh) historyAdopted_[i] = false;
         if (auto r = want(history_[i], kHistoryFormat, dw, dh, tiler_ ? drawn : store); !r) return r;
         if (!tiler_)
             if (auto r = want(historyDepth_[i], kHistoryDepthFormat, dw, dh, store); !r) return r;
@@ -374,6 +389,14 @@ Result<void> VulkanTemporal::ensureImages(VkCommandBuffer cmd, std::uint32_t sw,
         dep.imageMemoryBarrierCount = static_cast<std::uint32_t>(barriers.size());
         dep.pImageMemoryBarriers = barriers.data();
         ctx_.rendering->barrier(cmd, dep);
+    }
+    // A tiler's histories rest in the shader-read layout, as an adopted RHI texture must.
+    for (int i = 0; tiler_ && i < 2; ++i) {
+        if (historyAdopted_[i]) continue;
+        if (historyTex_[i]) device_.destroy(historyTex_[i]);
+        historyTex_[i] = vulkanAdoptImage(device_, history_[i].image, history_[i].view, kHistoryFormat, dw, dh);
+        historyAdopted_[i] = true;
+        resultPending_ = false;
     }
     return Result<void>::ok();
 }
@@ -606,8 +629,24 @@ void VulkanTemporal::recordTiler(VkCommandBuffer cmd, VkDescriptorSet set, const
     images.clear();
     imageBarrier(images, histOut.image, att, ro, output, written, fragment, read);
     dependency(nullptr, images);
+    vkn::endSpan(device_);
+    if (in.fold) {
+        resultPending_ = true;
+        resultIndex_ = current_;
+        resultSet_ = set;
+        resultColor_ = in.color;
+        std::memcpy(resultDst_, dst, sizeof resultDst_);
+        return;
+    }
+    recordComposite(cmd, set, in.color, color, dst, composite);
+}
 
-    vkn::transition(device_, in.color, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
+// The tiler's result over `dst` of the scene target, sharpened on the way (composite_sharpen.frag).
+void VulkanTemporal::recordComposite(VkCommandBuffer cmd, VkDescriptorSet set, TextureH colorTex,
+                                     const vkn::Image& color, const float dst[4], VkPipeline composite) {
+    const VkImageLayout att = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+    vkn::beginSpan(device_, "temporal composite");
+    vkn::transition(device_, colorTex, att);
     const auto dw = static_cast<std::uint32_t>(dst[2]), dh = static_cast<std::uint32_t>(dst[3]);
     VkRenderingAttachmentInfo a{VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO};
     a.imageView = color.view;
@@ -628,9 +667,25 @@ void VulkanTemporal::recordTiler(VkCommandBuffer cmd, VkDescriptorSet set, const
     vkCmdBindDescriptorSets(cmd, VK_PIPELINE_BIND_POINT_GRAPHICS, layout_, 0, 1, &set, 0, nullptr);
     vkCmdDraw(cmd, 3, 1, 0, 0);
     ctx_.rendering->end(cmd);
+    vkn::transition(device_, colorTex, color.rest);
+    vkn::endSpan(device_);
+}
+
+Result<void> VulkanTemporal::applyResult() {
+    if (!resultPending_) return Result<void>::fail("temporal: no result");
+    resultPending_ = false;
+    vkn::Image color;
+    if (!vkn::image(device_, resultColor_, &color)) return Result<void>::fail("temporal: no scene target");
+    const VkPipeline composite = graphicsPipeline(color.format, false);
+    if (!composite) return Result<void>::fail("temporal: no composite pipeline for the scene format");
+    VkCommandBuffer cmd = vkn::record(device_);
+    if (!cmd) return Result<void>::fail("temporal: no frame is being recorded");
+    recordComposite(cmd, resultSet_, resultColor_, color, resultDst_, composite);
+    return Result<void>::ok();
 }
 
 Result<void> VulkanTemporal::apply(const TemporalInputs& in) {
+    resultPending_ = false;
     const std::uint64_t serial = vkn::frameSerial(device_);
     if (serial == appliedSerial_) return Result<void>::ok();
     vkn::Image color, depth;
@@ -736,7 +791,6 @@ Result<void> VulkanTemporal::apply(const TemporalInputs& in) {
     if (tiler_) {
         recordTiler(cmd, set, slot, in, color, src, dst, composite);
         vkn::transition(device_, in.color, color.rest);
-        vkn::endSpan(device_);
         historyValid_ = in.mode == TemporalMode::Taa;
         current_ = 1 - current_;
         return Result<void>::ok();
