@@ -25,6 +25,7 @@ How the engine is put together is in [ARCHITECTURE.md](../ARCHITECTURE.md); the 
 ## In short
 
 - A mod is `mods/<folder>/` beside the game's executable, with a `mod.json` in it. Only `id` and `version` are required.
+- *Options > Mods > Import mods* installs mods from a folder or a `.zip` the player picks (or drops on the window): it finds every mod in it, shows what importing does and copies the chosen ones into `mods/` ([getting-started.md](getting-started.md#installing-a-mod)).
 - Paths inside a mod repeat the paths of `gamedata/`. A file at a path the game has replaces or patches the game's file, depending on its kind; a file at a new path is added. Letter case does not matter and `\` equals `/`.
 - A newly installed mod is **off**. The player switches mods on and off and orders them in *Options > Mods* on the title screen (or with the console command `mods`); the set changes after a restart.
 - Mods load in order, and the later mod has the last word. Mods are meant to stack: many are active at once, each with its own Lua environment and its own event handlers.
@@ -44,7 +45,7 @@ Two conventions run through all data and the whole Lua API.
 
 - Load native code: `.so`, `.dll` and `.dylib` files in a mod folder do nothing.
 - Read or write files, load code or touch the system from Lua ([the sandbox](scripting.md#the-sandbox)).
-- Come as an archive: a mod is a folder.
+- Load from an archive: a mod is a folder. A `.zip` is unpacked into `mods/` by *Import mods*.
 - Replace textures by the hash of a picture (DuckStation-style texture packs): a picture is replaced by its name.
 
 Game files are never part of this project, and a mod you publish is your own responsibility: ship only what you may distribute ([COPYRIGHT.md](../../COPYRIGHT.md), section 4).

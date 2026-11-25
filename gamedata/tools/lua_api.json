@@ -2149,6 +2149,10 @@
       "signature": "sh.input.tick30(site)",
       "description": ""
     },
+    "sh.input.touch_prompt": {
+      "signature": "sh.input.touch_prompt(control[, icon])",
+      "description": "Asks a touch screen for an on-screen control this tick (\"struggle\", or \"attack\" shown with the weapon down), with the picture of gamedata/ui/touch/<icon>.svg; renewed every tick the moment lasts. Only the touch controls read it."
+    },
     "sh.input_action": {
       "signature": "sh.input_action(action[, mode]) -> bool",
       "description": "A control of the layout (enter, cancel, skip, action, aim, light, run, view, stepLeft, stepRight, pause, item, map, option): mode 0 held, 1 pressed this tick, 2 released, 3 pressed or repeating."
@@ -2702,8 +2706,12 @@
       "description": "Menu scripts: closes the open menu."
     },
     "sh.menu.define": {
-      "signature": "sh.menu.define{ id, title, rows[, on_open, leave_confirm, on_leave] }",
-      "description": "Menu scripts: describes a menu; a second define with the same id replaces it."
+      "signature": "sh.menu.define{ id, title, rows[, on_open, on_update, leave_confirm, on_leave] }",
+      "description": "Menu scripts: describes a menu; a second define with the same id replaces it. on_update runs every frame while the menu is the current one."
+    },
+    "sh.menu.focus": {
+      "signature": "sh.menu.focus(menu_id, row_id)",
+      "description": "Menu scripts: brings the row row_id of the menu menu_id to the top of the window once that menu is the current one, and selects the first row from there that can be selected (a page that defined itself again shows its new start)."
     },
     "sh.menu.is_open": {
       "signature": "sh.menu.is_open() -> bool",
@@ -4212,6 +4220,42 @@
     "wait_until": {
       "signature": "wait_until(fn)",
       "description": "In a coroutine: waits until fn() returns true."
+    },
+    "sh.mods.import_can": {
+      "signature": "sh.mods.import_can(kind) -> bool",
+      "description": "Menu scripts: whether the system has a dialog to pick a mod \"folder\" or \"zip\"."
+    },
+    "sh.mods.import_clear": {
+      "signature": "sh.mods.import_clear()",
+      "description": "Menu scripts: forgets the scanned pick and the last import's report."
+    },
+    "sh.mods.import_found": {
+      "signature": "sh.mods.import_found() -> {source, zip, error, detail, mods}",
+      "description": "Menu scripts: the mods found in the pick, each with id, name, version, status (new, update, same, older, invalid), reason, notes ({kind, detail, need, have}: the parts of ui.mods.import.note.<kind>) and selected."
+    },
+    "sh.mods.import_last": {
+      "signature": "sh.mods.import_last() -> report, error",
+      "description": "Menu scripts: the last import's {added, replaced} ids or nil, and its error (\"\" none)."
+    },
+    "sh.mods.import_pick": {
+      "signature": "sh.mods.import_pick(kind) -> bool",
+      "description": "Menu scripts: opens the system's dialog for a mod \"folder\" or \"zip\"; the answer arrives later through import_poll."
+    },
+    "sh.mods.import_poll": {
+      "signature": "sh.mods.import_poll() -> state, changed",
+      "description": "Menu scripts: every frame of the import page; scans a picked or dropped folder or .zip. state is idle, picking or ready."
+    },
+    "sh.mods.import_run": {
+      "signature": "sh.mods.import_run() -> ok, report|error",
+      "description": "Menu scripts: copies the chosen mods of the pick into the mods folder (all or nothing) and lists them; new mods are switched off."
+    },
+    "sh.mods.import_scan": {
+      "signature": "sh.mods.import_scan(path) -> state",
+      "description": "Menu scripts: scans a folder or .zip for mods now."
+    },
+    "sh.mods.import_select": {
+      "signature": "sh.mods.import_select(index, on) -> bool",
+      "description": "Menu scripts: chooses whether the found mod at index is imported; false for an invalid one."
     }
   }
 }

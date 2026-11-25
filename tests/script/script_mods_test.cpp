@@ -263,11 +263,17 @@ SH_TEST(script_mods_screen_texts_are_translated) {
         keys.insert(std::string("ui.mods.state.") + state);
         keys.insert(std::string("ui.mods.row.") + state);
     }
-    keys.erase("ui.mods.state.");
-    keys.erase("ui.mods.row.");
+    // The import page builds its keys from what the scan says (engine/mods/mod_import.h).
+    for (const char* k : {"status.new", "status.update", "status.same", "status.older", "status.invalid",
+                          "invalid.manifest", "invalid.duplicate", "invalid.link", "invalid.unsafe_path",
+                          "invalid.too_big", "invalid.unreadable", "note.engine", "note.dependency", "error.not_found",
+                          "error.broken_zip", "error.no_mods", "error.unreadable"}) {
+        keys.insert(std::string("ui.mods.import.") + k);
+    }
+    std::erase_if(keys, [](const std::string& k) { return k.ends_with('.'); });
     SH_CHECK(keys.size() > 20);
     keys.insert("ui.mods.restart_now");
-    for (const char* lang : {"en", "ru", "pl", "pt", "de", "fr", "es", "it"}) {
+    for (const char* lang : {"en", "ru", "pl", "pt", "de", "fr", "es", "it", "tr", "ar", "ja", "ko", "zh"}) {
         const std::string text = read_file(root / "text" / lang / "mods_menu.json");
         for (const std::string& k : keys) {
             if (text.find("\"" + k + "\":") == std::string::npos) {

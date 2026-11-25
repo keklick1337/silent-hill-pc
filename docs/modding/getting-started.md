@@ -4,13 +4,13 @@
 
 ## Installing a mod
 
-1. Copy the mod's folder into `mods/` beside the game's executable, so that `mods/<folder>/mod.json` exists.
-2. Start the game. On the title screen open *Options > Mods*, pick the mod and switch it on. A newly installed mod is off until you do.
+1. On the title screen open *Options > Mods > Import mods* and pick *From a folder* or *From a .zip file*. The folder or archive may hold one mod or several (a mod is a folder with a `mod.json`; it may sit at the top or a few folders down, also in an archive whose single top folder holds several mods). On a desktop you can also drop the folder or `.zip` onto the window while the page is open. The game lists what it found: each mod with its version and what importing does (new, update from the installed version, the same version, an older one, or why it cannot be imported: a broken `mod.json`, links, unsafe paths in the archive) and what it still needs (a newer engine, a missing mod). New mods and newer versions are ticked; *Import* copies the ticked ones into `mods/` beside the executable (made when missing; on Android the game's own folder), replacing an installed copy whole. A failed import leaves `mods/` as it was. Or copy the mod's folder into `mods/` yourself, so that `mods/<folder>/mod.json` exists.
+2. In *Options > Mods* pick the mod and switch it on. On the title screen open *Options > Mods*, pick the mod and switch it on. A newly installed mod is off until you do.
 3. Leave the page and answer "Yes" to the restart question. The set of mods changes when the game starts.
 
-The same from the console (`` ` ``): `mods` lists the mods with their state, `mods enable <id>` and `mods disable <id>` switch one, `mods up <id>` and `mods down <id>` move it in the load order. Mods can be changed only from the title screen's *Options*; in the pause menu the page is read-only, because a running game keeps the set it started with.
+The same from the console (`` ` ``): `modimport <folder or .zip>` lists what an import would do and `modimport <path> install` does it, `mods` lists the mods with their state, `mods enable <id>` and `mods disable <id>` switch one, `mods up <id>` and `mods down <id>` move it in the load order. Mods can be changed only from the title screen's *Options*; in the pause menu the page is read-only, because a running game keeps the set it started with.
 
-To try the examples of the repository, copy any folder of [`examples/mods/`](../../examples/mods/) into `mods/`.
+To try the examples of the repository, import [`examples/mods/`](../../examples/mods/) (or the release's `SilentHillPC-<version>-example-mods.zip`), or copy any of its folders into `mods/`.
 
 ## Before you start: look at the game's data
 

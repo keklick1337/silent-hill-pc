@@ -1,5 +1,6 @@
 #include "engine/mods/mods_console.h"
 
+#include "engine/mods/mod_import.h"
 #include "engine/mods/mods_admin.h"
 
 #include <string>
@@ -78,6 +79,50 @@ Result<void> run(Context& ctx, const Args& args) {
     return Result<void>::ok();
 }
 
+Result<void> run_import(Context& ctx, const Args& args) {
+    const std::string path = args.str(0);
+    const std::string what = args.str(1);
+    if (path.empty()) {
+        return Result<void>::fail("usage: modimport <folder or .zip> [install]");
+    }
+    ImportSession& session = import_session();
+    session.scan(std::filesystem::path(std::u8string(path.begin(), path.end())));
+    const ImportScan& scan = session.result();
+    if (scan.error != ImportError::None) {
+        return Result<void>::fail(std::string(import_error_name(scan.error)) + ": " + scan.detail);
+    }
+    for (const FoundMod& m : scan.mods) {
+        std::string line = std::string(m.selected ? "[x] " : "[ ] ") + (m.id.empty() ? "?" : m.id) + " " + m.version +
+                           "  " + found_status_name(m.status);
+        if (!m.installed_version.empty()) {
+            line += " (installed " + m.installed_version + ")";
+        }
+        if (m.status == FoundStatus::Invalid) {
+            line += ": " + std::string(invalid_reason_name(m.reason)) + " " + m.detail;
+        }
+        for (const ImportNote& n : m.notes) {
+            line += "; needs " + n.kind + " " + n.detail;
+        }
+        line += "  <" + (m.location.empty() ? std::string(".") : m.location) + ">";
+        ctx.out.info(line);
+    }
+    if (what != "install") {
+        ctx.out.info("'modimport <path> install' imports the marked mods");
+        return Result<void>::ok();
+    }
+    Result<ImportReport> done = session.run(admin_registry());
+    if (!done) {
+        return Result<void>::fail("import failed: " + done.error());
+    }
+    for (const std::string& id : done.value().added) {
+        ctx.out.info("added " + id + " (switched off: mods enable " + id + ")");
+    }
+    for (const std::string& id : done.value().replaced) {
+        ctx.out.info("replaced " + id);
+    }
+    return Result<void>::ok();
+}
+
 }  // namespace
 
 void register_console_commands(sh::console::Registry& console) {
@@ -107,6 +152,21 @@ void register_console_commands(sh::console::Registry& console) {
     };
     spec.run = run;
     (void)console.add(std::move(spec));
+
+    sh::console::CommandSpec imp;
+    imp.name = "modimport";
+    imp.group = "mods";
+    imp.help = "import mods from a folder or a .zip into the mods folder";
+    imp.details =
+        "modimport <path>           lists the mods found in a folder or .zip and what importing does\n"
+        "                           ([x] = imported: new mods and newer versions)\n"
+        "modimport <path> install   imports them into the mods folder (new mods start switched off)";
+    imp.args = {
+        ArgSpec{"path", ArgType::String, false, "folder or .zip", {}, {}},
+        ArgSpec{"install", ArgType::Enum, true, "install", {"install"}, {}},
+    };
+    imp.run = run_import;
+    (void)console.add(std::move(imp));
 }
 
 }  // namespace sh::mods

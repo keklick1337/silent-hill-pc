@@ -132,7 +132,7 @@ Address names (`func_800…`, `sharedFunc_…`, `D_800…`) are refused by the c
 
 | Function | What it does |
 | --- | --- |
-| `sh.menu.define{ id, title, rows, on_open?, leave_confirm?, on_leave? }` | describes a menu. A second `define` with the same `id` replaces it |
+| `sh.menu.define{ id, title, rows, on_open?, on_update?, leave_confirm?, on_leave? }` | describes a menu. A second `define` with the same `id` replaces it. `on_update` runs every frame while the menu is the current one: a page that waits for something (the Import page waits for the file dialog) checks there and may `define` itself again |
 | `sh.menu.append_rows(id, rows)` | adds rows to an existing menu; `false` when there is no such menu. Rows whose `id` is `tail` or begins with `tail.` stay last |
 | `sh.menu.add_page{ parent, id, title, rows, label?, help? }` | describes a page and puts a link to it into the menu `parent`. With `parent = "options"` the link goes onto the page *Options > Mod Options* |
 | `sh.menu.open(id)`, `sh.menu.close()`, `sh.menu.is_open()` | open a menu as a screen, close it, ask |
@@ -150,9 +150,32 @@ A row is a table with `kind`, `id`, `label`, `help`, and optionally `visible` an
 | `dropdown` | confirm opens a scrolling list | `choices`, `get`, `set` |
 | `submenu` | confirm opens another menu | `submenu` |
 | `setting` | the game does the step itself and the value is ready text (rows of the engine's own settings) | `step`, `text` |
-| `info` | a read-only line | `text` or `get` |
+| `info` | a read-only line | `text` or `get`, `small` (a note), `cut`, `args` |
 
 `choices` is a list of `{ value = "x", label = "key" }` or of plain strings. A row with `config = "<mod>.<key>"` is bound to a [setting](#mod-settings-shconfig) and needs no `get` and `set`. A row can be shown by condition: `visible_if = { key = "<mod>.<key>", is = "value" }` (also `any = {...}`, `none = {...}`).
+
+Read-only lines that explain the rows around them (a version, a path, a count, a long description) are notes: an `info` row with `small = true` is drawn in smaller, dimmer text about two thirds of a row, with a tighter pitch, left-aligned with the labels; its label and its value (`text` or `get`) read as one line, and it takes no part in the value column, so a page of notes neither shrinks nor scrolls more than it must. How a text that is too long for its room is shown is the row's `cut`: `"pan"` scrolls it to its end and back (the default of a full row), `"end"` ends it in "..." (the default of a note), `"middle"` keeps its start and its end with "..." between, `"path"` shows only the last component of a path (a picked file's name rather than where it lies), `"wrap"` breaks a note into as many lines as it needs. `cut` works on any row: a `toggle` or `choice` whose label is data (a mod's name) and has `cut = "end"` ends in "..." where it meets the value column, and a page with such rows moves its value column as far right as the values let it, so the labels get the room. `args = { name = "value" }` puts data text into the label's text where it has `{name}`, after it is translated, so every language orders the parts itself (`gamedata/text/<lang>/*.json`: `"mymod.found": "{count} found in {place}"`). After a page defines itself again, `sh.menu.focus(menu_id, row_id)` brings one of its rows to the top of the window (the first row from there that can be selected is selected): the Import mods page of `gamedata/menus/mods.lua` shows what an import did that way.
+
+```lua
+rows = {
+    { kind = "toggle", id = "pack", label = pack.name, cut = "end", get = pack_on, set = set_pack },
+    { kind = "info", small = true, label = "mymod.version_line", args = { version = pack.version } },
+    { kind = "info", small = true, label = "mymod.source", text = pack.path, cut = "path" },
+    { kind = "info", small = true, label = pack.description, cut = "wrap" },
+}
+```
+
+Phones and tablets have two row flags of their own. `mobile = false` hides a row there (the pause menu's Controls row, the Options rows of the window and the keyboard), `mobile = true` shows it only there (the same as `visible_if` on the key `mobile`, which is 1 on a phone or tablet). `advanced = true` moves a row, on a phone or tablet only, to its page's Advanced page: the engine makes the page `<page id>.advanced` (title `ui.menu.advanced`) from the page's advanced rows and its group headers, in their order, and adds a row at the page's end (before the `tail.*` rows) that opens it there; on a desktop the row stays where it is and no such row shows. So a page keeps the settings most players change in front on a small screen, and nothing is lost: the Options pages of `gamedata/menus/options.lua` mark every other row so. Rows added later with `sh.menu.append_rows` follow the same flags. A row can carry both (`mobile = true, advanced = true`: on the Advanced page, and only on a phone or tablet).
+
+```lua
+rows = {
+    { kind = "toggle", id = "speed", label = "mymod.speed", config = "mymod.speed" },
+    { kind = "slider", id = "fine", label = "mymod.fine", config = "mymod.fine", advanced = true },
+    { kind = "action", id = "keys", label = "mymod.keys", native = "options.edit_keybinds", mobile = false },
+}
+```
+
+On a touch screen every row works by the finger without anything more in its definition: the list follows a drag and glides on, a tap picks the row, a tap on a `toggle`, `choice` or `setting` row (one whose `texts` lists its values) opens the list of its values to pick from, a `slider` or a bar of a `setting` is set where it is tapped or dragged sideways.
 
 An option page with settings:
 

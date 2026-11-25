@@ -3,8 +3,10 @@
 
 #include "engine/script/bind_mods.h"
 
+#include "engine/mods/mod_import.h"
 #include "engine/mods/mods_admin.h"
 
+#include <filesystem>
 #include <string>
 #include <vector>
 
@@ -160,6 +162,123 @@ int l_dir(lua_State* L) {
     return 1;
 }
 
+// ---- importing mods (engine/mods/mod_import.h)
+
+sh::mods::PickKind pick_kind(lua_State* L, int idx) {
+    const std::string kind = luaL_checkstring(L, idx);
+    if (kind == "folder") return sh::mods::PickKind::Folder;
+    if (kind == "zip") return sh::mods::PickKind::Zip;
+    luaL_argerror(L, idx, "\"folder\" or \"zip\"");
+    return sh::mods::PickKind::Zip;
+}
+
+int l_import_can(lua_State* L) {
+    lua_pushboolean(L, sh::mods::import_session().can_pick(pick_kind(L, 1)) ? 1 : 0);
+    return 1;
+}
+
+int l_import_pick(lua_State* L) {
+    lua_pushboolean(L, sh::mods::import_session().pick(pick_kind(L, 1)) ? 1 : 0);
+    return 1;
+}
+
+int l_import_poll(lua_State* L) {
+    auto& s = sh::mods::import_session();
+    const bool changed = s.poll();
+    lua_pushstring(L, sh::mods::import_state_name(s.state()));
+    lua_pushboolean(L, changed ? 1 : 0);
+    return 2;
+}
+
+int l_import_scan(lua_State* L) {
+    auto& s = sh::mods::import_session();
+    const std::string path = luaL_checkstring(L, 1);
+    s.scan(std::filesystem::path(std::u8string(path.begin(), path.end())));
+    lua_pushstring(L, sh::mods::import_state_name(s.state()));
+    return 1;
+}
+
+int l_import_found(lua_State* L) {
+    const sh::mods::ImportScan& scan = sh::mods::import_session().result();
+    lua_newtable(L);
+    const std::u8string source = scan.source.u8string();
+    set_string(L, "source", std::string(source.begin(), source.end()));
+    set_bool(L, "zip", scan.zip);
+    set_string(L, "error", sh::mods::import_error_name(scan.error));
+    set_string(L, "detail", scan.detail);
+    lua_createtable(L, static_cast<int>(scan.mods.size()), 0);
+    for (std::size_t i = 0; i < scan.mods.size(); ++i) {
+        const sh::mods::FoundMod& m = scan.mods[i];
+        lua_newtable(L);
+        set_int(L, "index", static_cast<lua_Integer>(i + 1));
+        set_string(L, "location", m.location);
+        set_string(L, "id", m.id);
+        set_string(L, "name", m.name.empty() ? (m.location.empty() ? std::string("?") : m.location) : m.name);
+        set_string(L, "version", m.version);
+        set_string(L, "status", sh::mods::found_status_name(m.status));
+        set_string(L, "reason", sh::mods::invalid_reason_name(m.reason));
+        set_string(L, "detail", m.detail);
+        set_string(L, "installed_version", m.installed_version);
+        set_int(L, "files", static_cast<lua_Integer>(m.files));
+        set_int(L, "bytes", static_cast<lua_Integer>(m.bytes));
+        set_bool(L, "selected", m.selected);
+        lua_createtable(L, static_cast<int>(m.notes.size()), 0);
+        for (std::size_t n = 0; n < m.notes.size(); ++n) {
+            lua_newtable(L);
+            set_string(L, "kind", m.notes[n].kind);
+            set_string(L, "detail", m.notes[n].detail);
+            set_string(L, "need", m.notes[n].need);
+            set_string(L, "have", m.notes[n].have);
+            lua_rawseti(L, -2, static_cast<lua_Integer>(n + 1));
+        }
+        lua_setfield(L, -2, "notes");
+        lua_rawseti(L, -2, static_cast<lua_Integer>(i + 1));
+    }
+    lua_setfield(L, -2, "mods");
+    return 1;
+}
+
+int l_import_select(lua_State* L) {
+    const lua_Integer index = luaL_checkinteger(L, 1);
+    const bool on = lua_toboolean(L, 2) != 0;
+    const bool done = index >= 1 && sh::mods::import_session().select(static_cast<std::size_t>(index - 1), on);
+    lua_pushboolean(L, done ? 1 : 0);
+    return 1;
+}
+
+void push_report(lua_State* L, const sh::mods::ImportReport& report) {
+    lua_newtable(L);
+    set_list(L, "added", report.added);
+    set_list(L, "replaced", report.replaced);
+}
+
+int l_import_run(lua_State* L) {
+    const Result<sh::mods::ImportReport> done = sh::mods::import_session().run(sh::mods::admin_registry());
+    lua_pushboolean(L, done ? 1 : 0);
+    if (done) {
+        push_report(L, done.value());
+    } else {
+        lua_pushlstring(L, done.error().data(), done.error().size());
+    }
+    return 2;
+}
+
+int l_import_last(lua_State* L) {
+    const auto& s = sh::mods::import_session();
+    if (s.last_report()) {
+        push_report(L, *s.last_report());
+    } else {
+        lua_pushnil(L);
+    }
+    lua_pushlstring(L, s.last_error().data(), s.last_error().size());
+    return 2;
+}
+
+int l_import_clear(lua_State*) {
+    sh::mods::import_session().clear();
+    return 0;
+}
+
 }  // namespace
 
 void open_mods_api(lua_State* L) {
@@ -173,6 +292,15 @@ void open_mods_api(lua_State* L) {
                                    {"restart", l_restart},
                                    {"reload", l_reload},
                                    {"dir", l_dir},
+                                   {"import_can", l_import_can},
+                                   {"import_pick", l_import_pick},
+                                   {"import_poll", l_import_poll},
+                                   {"import_scan", l_import_scan},
+                                   {"import_found", l_import_found},
+                                   {"import_select", l_import_select},
+                                   {"import_run", l_import_run},
+                                   {"import_last", l_import_last},
+                                   {"import_clear", l_import_clear},
                                    {nullptr, nullptr}};
     luaL_newlib(L, fns);
     lua_setfield(L, -2, "mods");

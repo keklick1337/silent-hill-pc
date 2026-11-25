@@ -141,4 +141,5 @@ Mods can be changed only in the *Options* opened from the title screen.
 | `mods files <id>` | the files of an active mod: `replace` (the game has that path) or `add` (a new one), and `overridden; also in ...` when a later mod has the same file |
 | `mods enable <id>`, `mods disable <id>` | switch a mod; saved at once, effective after a restart |
 | `mods up <id>`, `mods down <id>` | move a mod earlier or later |
+| `modimport <path>`, `modimport <path> install` | list the mods a folder or `.zip` holds and what importing does; import them (as *Options > Mods > Import mods*) |
 | `mods reload` | read the files of the active mods again ([tools.md](tools.md#reloading-a-mod-while-the-game-runs)) |

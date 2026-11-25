@@ -121,6 +121,7 @@ The name and the description are text, not item data: the keys `item.<Name>.name
 - `attacks`: the rows `tap`, `hold` and `multitap` with damage (`power`), reach, the hit window (`keyframe_start`, `keyframe_length`) and more; a shot is the `tap` row of a `gun`, and `pellets` makes it a shotgun blast;
 - `rig`: Harry's animation block for the weapon.
 - `muzzle_light`: a gun's muzzle flash as a light of the modern lighting (colour, intensity, range, fade); rendering only.
+- `touch_icon`: the picture of the touch screen's attack button while the weapon is in hand, a file of `gamedata/ui/touch/` without `.svg` (`attack_pistol`, `attack_shotgun`, `attack_rifle`, `attack_blaster`, `attack_blade`, `attack_blunt`, `attack_axe`, `attack_chainsaw`, `attack_drill`, or a mod's own); without it a gun shows `attack_pistol`, a melee weapon `attack_blunt`.
 
 What a mod's file does:
 

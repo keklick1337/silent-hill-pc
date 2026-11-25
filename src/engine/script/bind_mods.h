@@ -16,6 +16,18 @@
 //   sh.mods.restart_pending()    -> true when the saved choice loads another set or order
 //   sh.mods.reload()             -> { "line", ... } what the hot reload did
 //   sh.mods.dir()                -> the folder mods go into (<exe>/mods), "" when none
+//   sh.mods.import_can(kind)     -> true when the system has a dialog for kind "folder" | "zip"
+//   sh.mods.import_pick(kind)    -> true when the dialog opened (it answers later: import_poll)
+//   sh.mods.import_poll()        -> state "idle"|"picking"|"ready", changed: every frame of the import page; a
+//                                   picked path (or one dropped on the window meanwhile) is scanned here
+//   sh.mods.import_scan(path)    -> state: scans a folder or .zip now
+//   sh.mods.import_found()       -> {source, zip, error, detail, mods = {{index, id, name, version, status =
+//                                      "new"|"update"|"same"|"older"|"invalid", reason, detail, installed_version,
+//                                      notes = {{kind, detail}}, files, bytes, selected}, ...}}
+//   sh.mods.import_select(i, on) -> true when mod i can be chosen
+//   sh.mods.import_run()         -> true, {added = {ids}, replaced = {ids}} | false, error
+//   sh.mods.import_last()        -> the last run's report or nil, its error ("" none)
+//   sh.mods.import_clear()       -> forgets the scan and the last report
 #pragma once
 
 struct lua_State;

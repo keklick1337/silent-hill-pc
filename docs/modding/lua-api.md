@@ -6,7 +6,7 @@ Every function a script can call, by table. The same text is what the in-game Lu
 
 **Units.** Positions and lengths are Q12 integers (4096 = 1 m, Y grows downwards), angles Q12 (4096 = a full turn), times Q12 seconds, health Q12 (409600 = 100), unless a line says otherwise. A character is its slot number: 0 the player, 1 and up the others. Items, flags, characters, sounds and messages are given by name.
 
-**Coverage.** 1053 functions are listed, 763 of them described. The rest are listed by signature under "Not described yet": they exist and can be called, but nobody has written down what they do; nearly all of them are helpers of the base game's own map and character scripts, and reading those scripts (`gamedata/maps/*/events.lua`, `gamedata/chara/*/behavior.lua`) is the way to learn them. `...` in a signature means the arguments have not been written down either.
+**Coverage.** 1064 functions are listed, 774 of them described. The rest are listed by signature under "Not described yet": they exist and can be called, but nobody has written down what they do; nearly all of them are helpers of the base game's own map and character scripts, and reading those scripts (`gamedata/maps/*/events.lua`, `gamedata/chara/*/behavior.lua`) is the way to learn them. `...` in a signature means the arguments have not been written down either.
 
 ## Contents
 
@@ -28,7 +28,7 @@ Every function a script can call, by table. The same text is what the in-game Lu
 - [`sh.flag`](#shflag) — 4 of 4 described
 - [`sh.game`](#shgame) — 29 of 30 described
 - [`sh.hooks`](#shhooks) — 5 of 5 described
-- [`sh.input`](#shinput) — 12 of 14 described
+- [`sh.input`](#shinput) — 13 of 15 described
 - [`sh.item`](#shitem) — 4 of 4 described
 - [`sh.item_view`](#shitem_view) — 11 of 13 described
 - [`sh.light`](#shlight) — 20 of 21 described
@@ -36,8 +36,8 @@ Every function a script can call, by table. The same text is what the in-game Lu
 - [`sh.map`](#shmap) — 25 of 47 described
 - [`sh.map6_s02`](#shmap6_s02) — 1 of 1 described
 - [`sh.math`](#shmath) — 9 of 10 described
-- [`sh.menu`](#shmenu) — 13 of 13 described
-- [`sh.mods`](#shmods) — 11 of 11 described
+- [`sh.menu`](#shmenu) — 14 of 14 described
+- [`sh.mods`](#shmods) — 20 of 20 described
 - [`sh.msg`](#shmsg) — 5 of 9 described
 - [`sh.music`](#shmusic) — 5 of 5 described
 - [`sh.npc`](#shnpc) — 81 of 86 described
@@ -622,6 +622,7 @@ Controls as the game reads them.
 | `sh.input.set_control(name, v)` | Overrides a control of this tick. |
 | `sh.input.set_player_flag(name, v)` | Sets one of the controller's output flags for this tick. |
 | `sh.input.stick_zone() -> outside, turn_left, turn_right, forward, back` | Where the movement stick is. |
+| `sh.input.touch_prompt(control[, icon])` | Asks a touch screen for an on-screen control this tick ("struggle", or "attack" shown with the weapon down), with the picture of gamedata/ui/touch/<icon>.svg; renewed every tick the moment lasts. Only the touch controls read it. |
 
 Not described yet: `sh.input.hyper_blaster_mode()`, `sh.input.tick30(site)`.
 
@@ -771,7 +772,8 @@ Menus ([scripting.md](scripting.md#menus-and-option-pages)); only in menu script
 | `sh.menu.after_load(fn)` | Menu scripts: fn runs once when all menu files, the base and the mods, have run. |
 | `sh.menu.append_rows(id, rows) -> bool` | Menu scripts: adds rows to an existing menu, before its tail rows; false when there is no such menu. |
 | `sh.menu.close() -> bool` | Menu scripts: closes the open menu. |
-| `sh.menu.define{ id, title, rows[, on_open, leave_confirm, on_leave] }` | Menu scripts: describes a menu; a second define with the same id replaces it. |
+| `sh.menu.define{ id, title, rows[, on_open, on_update, leave_confirm, on_leave] }` | Menu scripts: describes a menu; a second define with the same id replaces it. on_update runs every frame while the menu is the current one. |
+| `sh.menu.focus(menu_id, row_id)` | Menu scripts: brings the row row_id of the menu menu_id to the top of the window once that menu is the current one, and selects the first row from there that can be selected (a page that defined itself again shows its new start). |
 | `sh.menu.is_open() -> bool` | Menu scripts: whether a menu is open. |
 | `sh.menu.list(name, fn)` | Menu scripts: registers a native list of choices that rows refer to with native = name. |
 | `sh.menu.native_visible(name) -> bool` | Menu scripts: the answer of the engine's visibility predicate `name` (the one rows name in `native`); false when there is none. |
@@ -790,6 +792,15 @@ Other mods ([scripting.md](scripting.md#talking-to-other-mods)).
 | `sh.mods.dir() -> path` | Menu scripts: the mods folder beside the executable; "" when there is none. |
 | `sh.mods.editable() -> bool` | Menu scripts: whether mods can be changed now (only in the Options of the title screen). |
 | `sh.mods.get(id) -> {id, name, version, api}` | An active mod and the table it published with mod.export; nil when the mod is not active. |
+| `sh.mods.import_can(kind) -> bool` | Menu scripts: whether the system has a dialog to pick a mod "folder" or "zip". |
+| `sh.mods.import_clear()` | Menu scripts: forgets the scanned pick and the last import's report. |
+| `sh.mods.import_found() -> {source, zip, error, detail, mods}` | Menu scripts: the mods found in the pick, each with id, name, version, status (new, update, same, older, invalid), reason, notes ({kind, detail, need, have}: the parts of ui.mods.import.note.<kind>) and selected. |
+| `sh.mods.import_last() -> report, error` | Menu scripts: the last import's {added, replaced} ids or nil, and its error ("" none). |
+| `sh.mods.import_pick(kind) -> bool` | Menu scripts: opens the system's dialog for a mod "folder" or "zip"; the answer arrives later through import_poll. |
+| `sh.mods.import_poll() -> state, changed` | Menu scripts: every frame of the import page; scans a picked or dropped folder or .zip. state is idle, picking or ready. |
+| `sh.mods.import_run() -> ok, report\|error` | Menu scripts: copies the chosen mods of the pick into the mods folder (all or nothing) and lists them; new mods are switched off. |
+| `sh.mods.import_scan(path) -> state` | Menu scripts: scans a folder or .zip for mods now. |
+| `sh.mods.import_select(index, on) -> bool` | Menu scripts: chooses whether the found mod at index is imported; false for an invalid one. |
 | `sh.mods.list() -> mods` | Menu scripts: the installed mods in the pending order, each a table with id, name, version, state, enabled and more. |
 | `sh.mods.move(id, delta) -> bool` | Menu scripts: moves a mod in the pending order; a negative delta is earlier. |
 | `sh.mods.reload() -> lines` | Menu scripts: reloads the files of the active mods; returns what was done. |

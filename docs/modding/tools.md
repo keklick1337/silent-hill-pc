@@ -105,7 +105,7 @@ Switching mods on and off and their order always need a restart.
 
 | Command | What it does |
 | --- | --- |
-| `mods`, `mods files <id>`, `mods enable <id>`, `mods disable <id>`, `mods up <id>`, `mods down <id>`, `mods reload` | the mod system ([mod-json.md](mod-json.md#the-mods-screen-and-the-console)) |
+| `mods`, `mods files <id>`, `mods enable <id>`, `mods disable <id>`, `mods up <id>`, `mods down <id>`, `mods reload`, `modimport <path> [install]` | the mod system ([mod-json.md](mod-json.md#the-mods-screen-and-the-console)) |
 | `hooks [event]` | the handlers of every event in call order, and how often the event happened |
 | `hooks_trace [on\|off]` | write every event with its fields to the log |
 | `debugmenu <menu id>` | open any menu (`options`, `options.mods`, a mod's page) |
