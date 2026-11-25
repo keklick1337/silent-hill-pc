@@ -363,6 +363,12 @@ std::string preset_label(int preset)
 // The presets the row offers. The Ultra RTX ones need a GPU that traces rays; mobile is a phone's or tablet's. A
 // phone has neither the AI-upscaled presets nor the ray-traced ones (RenderPreset_PlatformLimits): there they would
 // read as plain ultra anyway.
+// The order the preset row shows them in, lightest first; the numbers stay those of render_preset.h.
+constexpr std::array<int, pr::kPresetCount> kPresetMenuOrder = {
+    pr::kOriginal, pr::kMobile, pr::kEnhanced, pr::kHigh, pr::kUltra, pr::kUltraUpscaled, pr::kUltraRtx,
+    pr::kUltraRtxUpscaled,
+};
+
 bool preset_offered(int p)
 {
     if (Sh_IsMobile() != 0) return !pr::preset_upscales(p) && !pr::preset_traces_rays(p);
@@ -396,15 +402,22 @@ void register_grouped(sh::menu::Registry& reg)
     sh::menu::NativeSetting preset;
     // The step and the touch screen's list of values (texts) offer the same presets.
     preset.step = [](int dir) {
-        int next = pr::step_choice(detect_preset(), pr::kPresetCount, dir);
-        for (int tries = 0; tries < pr::kPresetCount && !preset_offered(next); ++tries)
+        // Stepped in the menu's order (lightest first), not the preset numbers that config.cfg names.
+        const int current = detect_preset();
+        int at = pr::kPresetCount - 1;  // Custom steps on from the heaviest (right) or the lightest (left)
+        for (int i = 0; i < pr::kPresetCount; ++i)
+            if (kPresetMenuOrder[static_cast<std::size_t>(i)] == current) at = i;
+        if (current < 0 || current >= pr::kPresetCount) at = dir > 0 ? pr::kPresetCount - 1 : 0;
+        int next = pr::step_choice(at, pr::kPresetCount, dir);
+        for (int tries = 0; tries < pr::kPresetCount && !preset_offered(kPresetMenuOrder[static_cast<std::size_t>(next)]);
+             ++tries)
             next = pr::step_choice(next, pr::kPresetCount, dir);
-        apply_preset(next, false);
+        apply_preset(kPresetMenuOrder[static_cast<std::size_t>(next)], false);
     };
     preset.text = []() { return preset_label(detect_preset()); };
     preset.texts = []() {
         std::vector<std::string> out;
-        for (int p = 0; p < pr::kPresetCount; ++p)
+        for (int p : kPresetMenuOrder)
             if (preset_offered(p)) out.push_back(preset_label(p));
         out.push_back(value_label("custom"));
         return out;
