@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 #include "input/sdl_pad.h"
 
+#include "engine/config/pc_config.h"
 #include "engine/log/sh_log.h"
 #include "input/pad.h"
 
@@ -420,6 +421,8 @@ void PadSystem::update()
     if (!updatesEnabled_)
         return;
 
+    // The touch screen first: its controls hold actions the keyboard word below reads.
+    const TouchStick touch = touchSource_ ? touchSource_() : TouchStick{};
     const std::uint16_t keyboard = keyboardWord();
     for (int port = 0; port < kPorts; ++port)
     {
@@ -431,14 +434,12 @@ void PadSystem::update()
         if (port == 0)
         {
             attached = mergePads(*block);
-            if (rumbleTable_[0] && rumbleLength_[0] > 0)
-            {
-                int target = activeSlot_;
-                if (target < 0 || target >= kPorts || !live(target))
-                    target = 0;
-                if (live(target))
-                    rumble(target, rumbleTable_[0], rumbleLength_[0]);
-            }
+            int target = activeSlot_;
+            if (target < 0 || target >= kPorts || !live(target))
+                target = 0;
+            if (rumbleTable_[0] && rumbleLength_[0] > 0 && live(target))
+                rumble(target, rumbleTable_[0], rumbleLength_[0]);
+            phoneRumble(target);
         }
         else
         {
@@ -462,10 +463,23 @@ void PadSystem::update()
         if (attached)
             block->kind = bindings().movement == Movement::Dpad ? 0x41 : 0x73;
 
+        const bool touchStick = port == 0 && touch.active;
+        if (touchStick)
+        {
+            block->status = 0;
+            block->kind = 0x73;
+            block->left_x = touch.x;
+            block->left_y = touch.y;
+        }
+        else if (port == 0 && touchStickWas_ && !attached)
+            block->kind = 0x41;
+        if (port == 0)
+            touchStickWas_ = touchStick;
+
         if ((bindings().keyboardPorts & (1 << port)) && keyboard != kNone)
         {
             block->status = 0;
-            block->kind = 0x41;  // the keyboard is digital only
+            block->kind = touchStick ? 0x73 : 0x41;  // the keyboard is digital only; the touch stick is not
             storeWord(*block, loadWord(*block) & keyboard);
         }
     }
@@ -503,9 +517,73 @@ void PadSystem::rumble(int pad, const std::uint8_t* table, int length)
         SDL_RumbleGamepad(slots_[pad].gamepad, low, high, 200);
 }
 
+#if defined(SDL_PLATFORM_ANDROID)
+namespace {
+
+// SDL's Java side lists the phone's own motor as a haptic device of this name (SDLHapticHandler.pollHapticDevices).
+SDL_Haptic* openPhoneVibrator()
+{
+    int count = 0;
+    SDL_HapticID* ids = SDL_GetHaptics(&count);
+    SDL_Haptic* found = nullptr;
+    for (int i = 0; ids && i < count && !found; ++i)
+    {
+        const char* name = SDL_GetHapticNameForID(ids[i]);
+        if (!name || std::strcmp(name, "VIBRATOR_SERVICE") != 0)
+            continue;
+        found = SDL_OpenHaptic(ids[i]);
+        if (found && !SDL_InitHapticRumble(found))
+        {
+            SH_LOG_WARN(INPUT, "the phone's vibrator does not rumble: %s", SDL_GetError());
+            SDL_CloseHaptic(found);
+            found = nullptr;
+        }
+    }
+    SDL_free(ids);
+    if (found)
+        SH_LOG_INFO(INPUT, "rumble on the phone's vibrator while no pad with motors is in use");
+    else
+        SH_LOG_INFO(INPUT, "no phone vibrator; the rumble plays only on pads");
+    return found;
+}
+
+} // namespace
+#endif
+
+void PadSystem::phoneRumble(int target)
+{
+#if defined(SDL_PLATFORM_ANDROID)
+    bool padMotors = false;
+    if (live(target))
+        padMotors = SDL_GetBooleanProperty(SDL_GetGamepadProperties(slots_[target].gamepad),
+                                           SDL_PROP_GAMEPAD_CAP_RUMBLE_BOOLEAN, false);
+    // The buffer is empty while the game's Vibration option is off or the vibration is paused.
+    const float amplitude = padMotors ? 0.0f
+                                      : phone_amplitude(rumbleTable_[0], rumbleLength_[0], g_PcConfig.phoneVibration);
+    if (!phoneVibrator_)
+    {
+        if (amplitude <= 0.0f || phoneVibratorLooked_)
+            return;
+        phoneVibratorLooked_ = true;
+        phoneVibrator_ = openPhoneVibrator();
+        if (!phoneVibrator_)
+            return;
+    }
+    const PhoneVibration v = phoneRumble_.frame(amplitude, static_cast<std::uint32_t>(SDL_GetTicks()));
+    if (v.kind == PhoneVibration::Kind::Play)
+        SDL_PlayHapticRumble(phoneVibrator_, v.amplitude, v.length_ms);
+    else if (v.kind == PhoneVibration::Kind::Stop)
+        SDL_StopHapticRumble(phoneVibrator_);
+#else
+    (void)target;
+#endif
+}
+
 // The skip action of blocking loops (FMV) follows the configured Action and Start binds.
 bool PadSystem::skipHeld() const
 {
+    if (touchSkip_ && touchSkip_())
+        return true;
     for (int i = 0; i < kPorts; ++i)
     {
         if (!slots_[i].gamepad)
@@ -590,6 +668,8 @@ void on_pad_added(std::uint32_t instance) { PadSystem::instance().onDeviceAdded(
 void on_pad_removed(std::uint32_t instance) { PadSystem::instance().onDeviceRemoved(SDL_JoystickID(instance)); }
 void update_pads() { PadSystem::instance().update(); }
 void set_keyboard_action_source(KeyboardActionSource source) { PadSystem::instance().setActionSource(source); }
+void set_touch_source(TouchSource source) { PadSystem::instance().setTouchSource(source); }
+void set_touch_skip(TouchSkip skip) { PadSystem::instance().setTouchSkip(skip); }
 
 bool skip_held() { return PadSystem::instance().skipHeld(); }
 bool controller_button_held(int sdlButton) { return PadSystem::instance().buttonHeld(sdlButton); }

@@ -9,6 +9,8 @@
 #include <cstdint>
 
 #include "engine/game_state/raw_pad.h"
+#include "input/pad.h"
+#include "input/phone_rumble.h"
 
 namespace sh::input {
 
@@ -55,6 +57,8 @@ public:
 
     const std::uint8_t* keyboardState() const { return keys_; }
     void setActionSource(std::uint16_t (*source)()) { actionSource_ = source; }
+    void setTouchSource(TouchSource source) { touchSource_ = source; }
+    void setTouchSkip(TouchSkip skip) { touchSkip_ = skip; }
 
 private:
     struct Slot
@@ -73,6 +77,8 @@ private:
     // Button word and sticks of one pad; returns true when the pad is in use.
     bool readPad(int slot, std::uint16_t& word, short axes[4]);
     bool mergePads(PadPortBlock& block);
+    // Android: port 0's rumble on the phone's own vibrator while the pad in use (`target`) has no motors.
+    void phoneRumble(int target);
 
     std::array<Slot, kPorts> slots_{};
     std::array<PadPortBlock*, kPorts> blocks_{};
@@ -82,6 +88,14 @@ private:
     bool updatesEnabled_ = false;
     const std::uint8_t* keys_ = nullptr;
     std::uint16_t (*actionSource_)() = nullptr;
+    TouchSource touchSource_ = nullptr;
+    TouchSkip touchSkip_ = nullptr;
+    bool touchStickWas_ = false;
+#if defined(SDL_PLATFORM_ANDROID)
+    SDL_Haptic* phoneVibrator_ = nullptr;
+    bool phoneVibratorLooked_ = false;
+    PhoneRumble phoneRumble_;
+#endif
 };
 
 } // namespace sh::input
