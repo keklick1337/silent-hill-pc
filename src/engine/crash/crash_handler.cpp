@@ -87,7 +87,7 @@ void remember(char* out, std::size_t capacity, std::string_view value) {
     out[n] = '\0';
 }
 
-constexpr int kMaxFrames = 64;
+[[maybe_unused]] constexpr int kMaxFrames = 64;  // unused where no backtrace is available (Android before API 33)
 
 #ifndef _WIN32
 

@@ -18,7 +18,8 @@ static_assert(sizeof(Matrix) == 32);
 static_assert(sizeof(PackedAngles) == 8);
 
 bool FrameRecords::canonical(const void* p) {
-    const std::uintptr_t a = reinterpret_cast<std::uintptr_t>(p);
+    // Widened so a 32-bit build compares the same bounds (there the upper one always holds).
+    const std::uint64_t a = reinterpret_cast<std::uintptr_t>(p);
     return a >= 0x10000ULL && a < 0x0000800000000000ULL;
 }
 
