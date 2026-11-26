@@ -163,6 +163,8 @@ Result<void> run_setflag(Context& ctx, const Args& args) {
         flag = whole(typed);
     } else if (const auto known = flags_by_name().find(typed); known != flags_by_name().end()) {
         flag = known->second;
+    } else {
+        flag = sh::ids::flag_number(args.str(0).c_str());  // a mod's full id ("mymod:door_opened")
     }
     if (flag < 0) {
         ctx.out.error("unknown flag '" + args.str(0) + "'");
