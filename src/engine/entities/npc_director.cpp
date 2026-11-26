@@ -80,7 +80,7 @@ NpcReview NpcDirector::review(NpcHost& host, int slot, const NpcView& npc) {
     const std::uint32_t dist = tracked_distance_sq(npc.x, npc.z, player_x_, player_z_);
     const bool chunked = host.chunked_interior();
 
-    if (slot < kSlotCapacity && npc.health >= 0 && !npc.no_radio_static) { // radio masks are 32-bit
+    if (npc.health >= 0 && !npc.no_radio_static) {
         bool same_cell = true;
         if (chunked) {
             same_cell = (npc.x + kCellSize * 4) / kCellSize == (player_x_ + kCellSize * 4) / kCellSize &&
@@ -127,12 +127,12 @@ int NpcDirector::end_tick(NpcHost& host, bool radio_on, std::array<RadioChannel,
     if (!radio_on) {
         return pitch;
     }
-    std::uint32_t taken = 0;
+    RadioSlotSet taken;
     for (RadioChannel& ch : channels) {
         int idx = ch.target == kNoSlot ? kNoSlot : radio_.index_of(ch.target);
         if (idx >= 0) {
             ch.entry = idx;
-            taken |= 1u << ch.target;
+            taken.set(static_cast<std::size_t>(ch.target));
         } else {
             ch.target = kNoSlot;
         }

@@ -11,6 +11,7 @@
 #pragma once
 
 #include <array>
+#include <bitset>
 #include <cstdint>
 #include <string>
 #include <string_view>
@@ -100,6 +101,9 @@ bool saved_kill_persists(const NpcRules& r, bool above_normal, Roll&& roll) {
 constexpr int kRadioEntries = 3;
 constexpr int kRadioSlots = 2;
 constexpr int kNoSlot = -1;
+// A set of NPC slots for the radio's channels: every slot a character can stand in (the room spawner's 32 and the
+// ones a script spawns into above them).
+using RadioSlotSet = std::bitset<128>;
 
 struct RadioEntry {
     std::int32_t slot = kNoSlot;  // the NPC slot
@@ -119,8 +123,8 @@ public:
     int pitch_state() const;
     // The entry index of NPC `slot`, or kNoSlot.
     int index_of(int slot) const;
-    // Takes the first free entry whose NPC is not in `taken` (a bit set of NPC slots), marks it; kNoSlot if none.
-    int take_free(std::uint32_t& taken) const;
+    // Takes the first free entry whose NPC is not in `taken`, marks it; kNoSlot if none.
+    int take_free(RadioSlotSet& taken) const;
 
 private:
     std::uint32_t range_sq_;

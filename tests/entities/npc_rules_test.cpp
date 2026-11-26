@@ -98,8 +98,9 @@ SH_TEST(npc_rules_radio_tracker_keeps_three_nearest) {
     SH_CHECK(t.entry(0).slot == 6 && t.entry(1).slot == 7 && t.entry(2).slot == 8);
     SH_CHECK(t.pitch_state() == 3);
     SH_CHECK(t.index_of(7) == 1 && t.index_of(8) == ent::kNoSlot);  // only two are heard
-    std::uint32_t taken = 1u << 6;
-    SH_CHECK(t.take_free(taken) == 1 && taken == ((1u << 6) | (1u << 7)));
+    ent::RadioSlotSet taken;
+    taken.set(6);
+    SH_CHECK(t.take_free(taken) == 1 && taken.test(6) && taken.test(7) && taken.count() == 2);
     t.reset();
     SH_CHECK(t.pitch_state() == 0);
 }
@@ -197,6 +198,19 @@ SH_TEST(npc_director_radio_channels) {
     d.begin_tick(h);  // nobody near any more
     SH_CHECK(d.end_tick(h, true, ch) == 0);
     SH_CHECK(ch[0].target == ent::kNoSlot && h.radio.back() == "stop1");
+}
+
+// A monster a script spawned above the room spawner's 32 slots is heard on the radio as well.
+SH_TEST(npc_director_radio_hears_script_slots) {
+    ent::NpcDirector d(shipped(), ent::NpcCharaIds{0, 29, 24});
+    FakeHost h;
+    std::array<ent::RadioChannel, 2> ch{};
+    d.begin_tick(h);
+    d.review(h, 32, ent::NpcView{5, 6 * kM, 0, 0, false});
+    d.review(h, 100, ent::NpcView{5, 3 * kM, 0, 0, false});
+    SH_CHECK(d.end_tick(h, true, ch) == 2);
+    SH_CHECK(ch[0].target == 100 && ch[1].target == 32);
+    SH_CHECK(h.radio.size() == 2 && h.radio[0] == "start0" && h.radio[1] == "start1");
 }
 
 namespace {

@@ -195,14 +195,14 @@ int RadioTracker::index_of(int slot) const {
     return kNoSlot;
 }
 
-int RadioTracker::take_free(std::uint32_t& taken) const {
+int RadioTracker::take_free(RadioSlotSet& taken) const {
     for (int i = 0; i < 2; ++i) {
         const std::int32_t slot = entries_[static_cast<std::size_t>(i)].slot;
         if (slot == kNoSlot) {
             break;
         }
-        if ((taken & (1u << slot)) == 0) {
-            taken |= 1u << slot;
+        if (!taken.test(static_cast<std::size_t>(slot))) {
+            taken.set(static_cast<std::size_t>(slot));
             return i;
         }
     }
