@@ -16,11 +16,13 @@
 
 #include "engine/save/save_file.h"
 #include "engine/save/save_game.h"
+#include "engine/save/saved_mods.h"
 #include "formats/common/status.h"
 
 #include <cstdint>
 #include <filesystem>
 #include <functional>
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -44,7 +46,8 @@ struct SlotDescription {
     double play_time_seconds = 0;
     bool next_fear = false;
     int save_count = 0;
-    std::vector<std::string> mods;
+    // The mods the save was made with; none: the save does not say (it keeps the "mods" key out of META).
+    std::optional<std::vector<SavedMod>> mods;
 };
 
 struct SlotRecord {
@@ -58,6 +61,9 @@ struct SlotRecord {
     std::string legacy_names;
     // The RMNS chunk as stored (empty: none).
     std::string remains;
+    // META "mods" (META format 3): the mods the save was made with, written as they are on every rewrite. None: a
+    // save of an older build, which does not say.
+    std::optional<std::vector<SavedMod>> mods;
 };
 
 enum class SlotState { Empty, Ok, Damaged };
@@ -83,6 +89,7 @@ struct SaveEntry {
     std::string difficulty_name;
     std::int64_t saved_at = 0;  // UTC, seconds since 1970; 0 when unknown
     double play_time_seconds = 0;
+    std::optional<std::vector<SavedMod>> mods;  // as SlotRecord::mods
     std::string error;  // Damaged: why
 };
 
@@ -153,6 +160,10 @@ private:
 
 // The META JSON of a save (number > 0) or a quick save (quick_index >= 0).
 std::string describe(const SlotDescription& description, int number, int quick_index);
+
+// The mods of a META JSON: its "mods" list when the META is of format 3 or later (an older META's "mods" was always
+// empty and says nothing); nothing otherwise.
+std::optional<std::vector<SavedMod>> mods_of_meta(std::string_view meta_json);
 
 // "2026-11-06T14:30:00Z" -> seconds since 1970 (UTC); 0 when it does not parse.
 std::int64_t parse_utc(const std::string& text);

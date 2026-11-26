@@ -1,4 +1,4 @@
-add_library(sh_mods STATIC semver.cpp manifest.cpp load_order.cpp registry.cpp mods.cpp mods_c.cpp asset_names.cpp
+add_library(sh_mods STATIC semver.cpp manifest.cpp load_order.cpp registry.cpp mods.cpp mods_c.cpp asset_names.cpp save_mods_check.cpp
     asset_files_c.cpp mods_admin.cpp json_merge.cpp data_merge.cpp data_reload.cpp mod_import.cpp)
 target_compile_features(sh_mods PUBLIC cxx_std_20)
 target_include_directories(sh_mods PUBLIC ${PROJECT_SOURCE_DIR}/src)

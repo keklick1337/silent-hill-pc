@@ -10,4 +10,8 @@ namespace sh::save {
 
 SaveStore& active_store();
 
+// The mods the next save writes into its META (GameSaves sets them from its host before each write); nothing: the
+// save does not say.
+void set_outgoing_mods(std::optional<std::vector<SavedMod>> mods);
+
 }  // namespace sh::save

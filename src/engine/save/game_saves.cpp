@@ -8,6 +8,7 @@
 #include "engine/log/sh_log.h"
 #include "engine/save/console_records.h"
 #include "engine/save/save_c.h"
+#include "engine/save/save_service.h"
 
 #include <cstdio>
 #include <cstring>
@@ -138,6 +139,7 @@ int GameSaves::save(int number) {
 
     game::GameBlock& block = game::session().game;
     ShSave_SetRemains(host_ != nullptr ? host_->remains_text().c_str() : "");
+    set_outgoing_mods(host_ != nullptr ? host_->active_mods() : std::nullopt);
     const int written = ShSave_Write(number, &summary, &record, &block.settings);
     if (written > 0) {
         block.autosave = block.save;
@@ -193,6 +195,7 @@ int GameSaves::quick_save(int index) {
 
     game::GameBlock& block = game::session().game;
     ShSave_SetRemains(host_ != nullptr ? host_->remains_text().c_str() : "");
+    set_outgoing_mods(host_ != nullptr ? host_->active_mods() : std::nullopt);
     const int written = ShSave_QuickWrite(index, &summary, &record, &block.settings);
     if (written <= 0) {
         // Nothing was written, so the running game must not count a save either.
@@ -231,6 +234,7 @@ int GameSaves::save_file(const std::string& path) {
     summary.extra_hours = (mode >> 1) & 3u;
     summary.special_items = mode >> 3;
     ShSave_SetRemains(host_ != nullptr ? host_->remains_text().c_str() : "");
+    set_outgoing_mods(host_ != nullptr ? host_->active_mods() : std::nullopt);
     return ShSave_FileWrite(path.c_str(), &summary, &record, &game::session().game.settings) > 0 ? 1 : -1;
 }
 

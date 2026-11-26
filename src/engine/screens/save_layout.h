@@ -19,6 +19,7 @@ struct SaveScreenColors {
     int no_saves = 7, new_save = 7, row = 7, row_next_fear = 0, damaged = 1, difficulty = 6;
     int question = 7, answer = 7;
     int info_label = 7, info_value = 7, date = 6;
+    int mods_warn = 4, mods_note = 6;  // the line about a save's mods: red when it asks before loading
 };
 
 // Text keys (strings_*.json) the screen shows.
@@ -36,6 +37,10 @@ struct SaveScreenTexts {
     std::string new_save_info = "ui.save.new_save_info";
     std::string data = "ui.save.data", time = "ui.save.time", save_count = "ui.save.save_count";
     std::string delete_hint = "ui.save.delete_hint";
+    // A save's mods against this run's (engine/mods/save_mods_check.h): the line under the list, the question.
+    std::string mods_line = "ui.save.mods_line", mod_missing = "ui.save.mod_missing",
+                mod_disabled = "ui.save.mod_disabled", mod_older = "ui.save.mod_older", mod_newer = "ui.save.mod_newer",
+                mod_added = "ui.save.mod_added", confirm_mods = "ui.save.confirm_mods";
 };
 
 struct SaveScreenLayout {

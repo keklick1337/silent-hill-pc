@@ -19,6 +19,7 @@
 #include "ui/screens/save_screen_game.h"
 #include "ui/menu/nm_draw.h"
 #include "engine/mods/data_reload.h"
+#include "engine/mods/save_mods_check.h"
 
 #include <algorithm>
 #include <cstdio>
@@ -69,11 +70,12 @@ const sh::screens::SaveScreenColors& C() { return L().colors; }
 const sh::screens::SaveScreenTexts& T() { return L().texts; }
 
 enum class Step { List, Confirm, Message, AutoLoad, QuickLoad, Starting, Leaving, Done };
-enum class Ask { Save, Overwrite, Delete };
+enum class Ask { Save, Overwrite, Delete, LoadMods };
 
 struct Row {
     bool is_new = false;  // "New save" (the save screen's first row)
     SaveEntry entry;
+    sh::mods::ModCheck mods;  // the save's mods against this run's
 };
 
 struct Screen {
@@ -121,8 +123,10 @@ void refresh_rows(int select_number) {
         row.is_new = true;
         s.rows.push_back(row);
     }
+    const std::vector<sh::mods::InstalledMod> installed = sh::mods::installed_mods();
     for (SaveEntry& e : sh::save::active_store().list()) {
         Row row;
+        row.mods = sh::mods::check_save_mods(e.mods, installed);
         row.entry = std::move(e);
         s.rows.push_back(std::move(row));
     }
@@ -175,6 +179,12 @@ void leave(bool boot) {
 }
 
 void load(int number) {
+    for (const Row& row : s_screen.rows) {
+        if (!row.is_new && row.entry.number == number && !row.mods.empty()) {
+            SH_LOG_WARN(SAVE, "save %d was made with other mods: %s", number,
+                        sh::mods::describe_check(row.mods).c_str());
+        }
+    }
     const int result = sh::save::game_saves().load(number);
     if (result > 0) {
         sound(gs::sfx::kMenuConfirm);
@@ -216,6 +226,12 @@ void activate() {
     if (row->entry.state != SlotState::Ok) {
         sound(gs::sfx::kMenuError);
         show_message(T().damaged.c_str(), Step::List);
+        return;
+    }
+    // Made with mods that are not active (or older now): asked first, in the screen's own question.
+    if (row->mods.warn) {
+        sound(gs::sfx::kMenuConfirm);
+        open_confirm(Ask::LoadMods);
         return;
     }
     load(row->entry.number);
@@ -280,6 +296,10 @@ int answer_at(const nm::Input& in) {
 void confirmed() {
     Screen& s = s_screen;
     const int number = selected_number();
+    if (s.ask == Ask::LoadMods) {
+        load(number);
+        return;
+    }
     if (s.ask == Ask::Delete) {
         if (ShSave_Delete(number) > 0) {
             refresh_rows(0);
@@ -435,6 +455,10 @@ void rows_draw() {
         // Next Fear saves are gold, as on the original screen.
         const int color = e.summary.next_fear ? C().row_next_fear : C().row;
         text_draw(L().row_text_x, y, color, text(location_key(e)));
+        if (row.mods.warn) {
+            // a save made with mods that are not active: marked in the list, the line below says which
+            verbatim_draw(L().row_text_x + nm::text_width(text(location_key(e))) + 6, y, C().mods_warn, "!");
+        }
         if (const char* key = difficulty_key(e)) {
             const char* word = text(key);
             nm::text_right(L().row_text_right, y, C().difficulty, word);
@@ -454,6 +478,7 @@ void info_draw() {
     if (s.step == Step::Confirm) {
         const std::string& question = s.ask == Ask::Save        ? T().confirm_save
                                       : s.ask == Ask::Overwrite ? T().confirm_overwrite
+                                      : s.ask == Ask::LoadMods  ? T().confirm_mods
                                                                 : T().confirm_delete;
         nm::text_centred(L().center_x, L().info_line1, C().question, text(question.c_str()));
         nm::text_centred(L().yes_cx, L().info_line2, C().answer, text(T().yes.c_str()));
@@ -506,6 +531,36 @@ void info_draw() {
     }
 }
 
+// "Mods: Cybil: The Other Side (not enabled), ..." in the game font, cut to the list's width ("+N" for the rest).
+std::string mods_line(const sh::mods::ModCheck& check) {
+    using sh::mods::ModChange;
+    const auto word = [](ModChange c) -> const std::string& {
+        switch (c) {
+        case ModChange::Missing: return T().mod_missing;
+        case ModChange::NotEnabled: return T().mod_disabled;
+        case ModChange::OlderNow: return T().mod_older;
+        case ModChange::NewerNow: return T().mod_newer;
+        case ModChange::AddedNow: break;
+        }
+        return T().mod_added;
+    };
+    const std::string head = sh::i18n::ui_text(T().mods_line.c_str());
+    const int width = L().list_w - 16;
+    std::string line;
+    for (std::size_t i = 0; i < check.differences.size(); ++i) {
+        const sh::mods::ModDifference& d = check.differences[i];
+        std::string next = (line.empty() ? head + " " : line + ", ") + d.name + " (" +
+                           sh::i18n::ui_text(word(d.change).c_str()) + ")";
+        const std::size_t rest = check.differences.size() - i - 1;
+        const std::string shown = nm::font_text(rest > 0 ? next + " +" + std::to_string(rest) : next);
+        if (!line.empty() && sh::i18n::text_width(shown.c_str()) > width) {
+            return nm::font_text(line + " +" + std::to_string(check.differences.size() - i));
+        }
+        line = std::move(next);
+    }
+    return nm::font_text(line);
+}
+
 void draw() {
     const Screen& s = s_screen;
     PcSaveGame_BackgroundDraw(s.kind);
@@ -517,7 +572,13 @@ void draw() {
         return;
     }
     rows_draw();
-    if (s.step == Step::List && selected_number() > 0) {
+    const Row* sel = selected_row();
+    if ((s.step == Step::List || s.step == Step::Confirm) && sel != nullptr && !sel->is_new && !sel->mods.empty()) {
+        // in place of the delete hint: what differs in the save's mods
+        const std::string line = mods_line(sel->mods);
+        verbatim_draw(L().center_x - sh::i18n::text_width(line.c_str()) / 2, L().hint_y,
+                      sel->mods.warn ? C().mods_warn : C().mods_note, line.c_str());
+    } else if (s.step == Step::List && selected_number() > 0) {
         nm::text_centred(L().center_x, L().hint_y, C().hint, text(T().delete_hint.c_str()));
     }
     info_draw();

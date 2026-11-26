@@ -15,6 +15,7 @@
 #include <SDL3/SDL_keyboard.h>
 
 #include "engine/app/gameflow/game_flow.h"
+#include "engine/mods/save_mods_check.h"
 #include "engine/entities/game/remains_host.h"
 #include "engine/app/loader/game_files.h"
 #include "engine/game_state/game_state.h"
@@ -58,6 +59,7 @@ public:
     // Number 0: the save came from a file outside the lists (a state dump).
     void file_loaded() override { sh::hooks::game_load(0, true); }
     std::string remains_text() override { return sh::entities::game::remains::save_text(); }
+    std::optional<std::vector<sh::save::SavedMod>> active_mods() override { return sh::mods::active_mods_for_save(); }
     void remains_loaded(const char* text) override {
         sh::entities::game::remains::load_text(text != nullptr ? text : "");
     }

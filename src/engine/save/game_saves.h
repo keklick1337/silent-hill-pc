@@ -11,9 +11,12 @@
 
 #include "engine/save/boot_check.h"
 #include "engine/save/save_catalog.h"
+#include "engine/save/saved_mods.h"
 
 #include <cstdint>
+#include <optional>
 #include <string>
+#include <vector>
 
 namespace sh::save {
 
@@ -34,6 +37,8 @@ public:
     // What `persistent_remains` keeps (JSON of the RMNS chunk; empty: nothing), and a loaded save's (empty: none).
     virtual std::string remains_text() { return {}; }
     virtual void remains_loaded(const char* text) { (void)text; }
+    // The mods a save records it was made with (the run's active mods); nothing: the save does not say.
+    virtual std::optional<std::vector<SavedMod>> active_mods() { return std::nullopt; }
     // The blood colour the loaded settings hold (it re-palettes effects loaded later).
     virtual void blood_color_loaded(std::uint8_t color) { (void)color; }
 };

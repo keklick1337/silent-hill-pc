@@ -88,6 +88,12 @@ void log_warnings(const Warnings& warnings, const char* what) {
     }
 }
 
+// The mods of the next write.
+std::optional<std::vector<sh::save::SavedMod>>& outgoing_mods() {
+    static std::optional<std::vector<sh::save::SavedMod>> mods;
+    return mods;
+}
+
 // The record the store writes for the game's running state.
 bool record_of(const ShSaveSummary* summary, const sh::game::SaveRecord* state, const sh::game::Settings* options,
                SlotRecord& record) {
@@ -100,6 +106,7 @@ bool record_of(const ShSaveSummary* summary, const sh::game::SaveRecord* state, 
     }
     record.summary = from_c(*summary);
     record.state = to_json(game);
+    record.mods = outgoing_mods();
     return true;
 }
 
@@ -324,3 +331,5 @@ extern "C" void ShSave_SetRemains(const char* text) { outgoing_remains() = text 
 extern "C" const char* ShSave_LoadedRemains(void) { return incoming_remains().c_str(); }
 
 sh::save::SaveStore& sh::save::active_store() { return store(); }
+
+void sh::save::set_outgoing_mods(std::optional<std::vector<SavedMod>> mods) { outgoing_mods() = std::move(mods); }

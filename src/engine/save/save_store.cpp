@@ -7,6 +7,7 @@
 #include <algorithm>
 #include <optional>
 #include <cstdio>
+#include <cstdlib>
 #include <ctime>
 #include <system_error>
 
@@ -187,6 +188,9 @@ SlotRead SaveStore::read_file(const fs::path& path, FileKind kind) const {
     if (const Chunk* remains = d.file.find(kTagRemains)) {
         out.record.remains = text_of(*remains);
     }
+    if (const Chunk* meta = d.file.find(kTagMeta)) {
+        out.record.mods = mods_of_meta(text_of(*meta));
+    }
     if (const Chunk* state = d.file.find(kTagState)) {
         out.record.state = text_of(*state);
         if (auto game = from_json(out.record.state); !game) {
@@ -223,7 +227,9 @@ Result<void> SaveStore::write_file(const fs::path& path, FileKind kind, const Sl
     if (!game) {
         return Result<void>::fail(game.error());
     }
-    const std::string meta = describe(describe_state(game.value()), number, quick_index);
+    SlotDescription description = describe_state(game.value());
+    description.mods = record.mods;
+    const std::string meta = describe(description, number, quick_index);
     // Always the current format (a state read from an older one is written anew).
     const std::string text = game.value().old_format ? to_json(game.value()) : state.value();
     SaveFile file;
@@ -297,6 +303,8 @@ std::vector<SaveEntry> SaveStore::list() const {
                 if (const json::Value* t = doc.value().find("play_time_seconds"); t != nullptr && t->is_number()) {
                     e.play_time_seconds = t->number();
                 }
+                e.mods = mods_of_meta(std::string_view(reinterpret_cast<const char*>(meta->data.data()),
+                                                       meta->data.size()));
             }
         }
         out.push_back(std::move(e));
@@ -412,10 +420,45 @@ SlotRead SaveStore::read_legacy_slot(int card, int file, int slot) const {
     return out;
 }
 
+std::optional<std::vector<SavedMod>> mods_of_meta(std::string_view meta_json) {
+    auto doc = json::parse(meta_json);
+    if (!doc || !doc.value().is_object()) {
+        return std::nullopt;
+    }
+    // "sh-save-meta/N": the list means something from format 3 on.
+    const std::string format = string_member(doc.value(), "format");
+    const std::size_t slash = format.rfind('/');
+    if (!format.starts_with("sh-save-meta/") || slash == std::string::npos ||
+        std::atoi(format.c_str() + slash + 1) < 3) {
+        return std::nullopt;
+    }
+    const json::Value* list = doc.value().find("mods");
+    if (list == nullptr || !list->is_array()) {
+        return std::nullopt;
+    }
+    std::vector<SavedMod> out;
+    for (const json::Value& m : list->array()) {
+        if (!m.is_object()) {
+            continue;
+        }
+        SavedMod mod;
+        mod.id = string_member(m, "id");
+        if (mod.id.empty()) {
+            continue;
+        }
+        mod.name = string_member(m, "name");
+        mod.version = string_member(m, "version");
+        const json::Value* gameplay = m.find("gameplay");
+        mod.gameplay = gameplay != nullptr && gameplay->is_bool() && gameplay->boolean();
+        out.push_back(std::move(mod));
+    }
+    return out;
+}
+
 std::string describe(const SlotDescription& d, int number, int quick_index) {
     json::Writer w(true);
     w.begin_object();
-    w.member("format", "sh-save-meta/2");
+    w.member("format", "sh-save-meta/3");
     if (quick_index >= 0) {
         w.member("quick", quick_index + 1);
     } else {
@@ -442,11 +485,18 @@ std::string describe(const SlotDescription& d, int number, int quick_index) {
     w.key("play_time_seconds").value_shortest(d.play_time_seconds);
     w.member("save_count", d.save_count);
     w.member("next_fear", d.next_fear);
-    w.key("mods").inline_next().begin_array();
-    for (const std::string& mod : d.mods) {
-        w.value(mod);
+    if (d.mods) {
+        w.key("mods").begin_array();
+        for (const SavedMod& mod : *d.mods) {
+            w.inline_next().begin_object();
+            w.member("id", mod.id);
+            w.member("name", mod.name);
+            w.member("version", mod.version);
+            w.member("gameplay", mod.gameplay);
+            w.end_object();
+        }
+        w.end_array();
     }
-    w.end_array();
     w.end_object();
     return w.take();
 }

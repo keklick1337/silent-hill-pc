@@ -381,6 +381,35 @@ SH_TEST(save_store_keeps_the_remains_chunk) {
     SH_CHECK(store.read_quick(0).record.remains == with.remains);
 }
 
+// The mods a save was made with go into META and come back with the save and in the list; a save that does not say
+// (an older build's, or a META before format 3 with its always empty list) has none.
+SH_TEST(save_store_records_the_mods) {
+    const fs::path dir = fresh_dir("sh_save_mods");
+    SaveStore store(dir / ".savegames");
+    SH_CHECK(store.write(0, record_of(7, 3)));
+    SH_CHECK(!store.read(1).record.mods.has_value());
+    SH_CHECK(!store.list().front().mods.has_value());
+
+    SlotRecord with = record_of(7, 4);
+    with.mods = std::vector<sh::save::SavedMod>{{"cybil_story", "Cybil: The Other Side", "1.2.0", true},
+                                                {"hd_harry", "HD Harry", "0.3", false}};
+    SH_CHECK(store.write(0, with));
+    const SlotRead back = store.read(2);
+    SH_CHECK(back.record.mods == with.mods);
+    SH_CHECK(store.list().front().number == 2 && store.list().front().mods == with.mods);
+    // Rewritten (an overwrite of the same record): the list stays the save's own.
+    SH_CHECK(store.write(2, back.record));
+    SH_CHECK(store.read(2).record.mods == with.mods);
+    // Made with no mods: an empty list, which is not the same as none.
+    SlotRecord none = record_of(7, 5);
+    none.mods = std::vector<sh::save::SavedMod>{};
+    SH_CHECK(store.write(0, none));
+    SH_CHECK(store.read(3).record.mods.has_value() && store.read(3).record.mods->empty());
+
+    SH_CHECK(!sh::save::mods_of_meta(R"({"format": "sh-save-meta/2", "mods": []})").has_value());
+    SH_CHECK(sh::save::mods_of_meta(R"({"format": "sh-save-meta/3", "mods": []})").has_value());
+}
+
 SH_TEST(save_store_many_saves) {
     const fs::path dir = fresh_dir("sh_save_many");
     SaveStore store(dir / ".savegames");
