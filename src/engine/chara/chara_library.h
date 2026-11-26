@@ -107,6 +107,14 @@ struct CharacterDef {
     // The clip tables the type plays from, the first its default: a table of gamedata/tables/anim ("cybil") or a
     // clip file of gamedata/chara ("AirScreamer/clips.json").
     std::vector<std::string> clip_tables;
+    // "portrait": the picture this character shows as the player's portrait on the inventory screen, a path below
+    // the game data ("convert/textures/ITEM/HEROPIC2.png"); the player's type names it, so it can be swapped.
+    std::string portrait;
+    // "as_player": how the type is worn by the player (sh.player.set_character): "model", a glb or a derive manifest
+    // below convert/models/ bound to the player's skeleton; "portrait", a picture of a mod that stands in for the
+    // player's portrait. Empty: the type cannot be worn.
+    std::string player_model;
+    std::string player_portrait;
 
     // Per-type traits. The defaults are
     // what a type the original never named got, so a mod's character only sets what differs.

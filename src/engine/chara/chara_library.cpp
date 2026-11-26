@@ -417,6 +417,11 @@ void merge_character(const Value& entry, CharacterDef& def, const audio::SoundRe
     merge_preview(entry, def);
     merge_strings(entry, "harry_reactions", def.harry_reactions);
     merge_strings(entry, "clip_tables", def.clip_tables);
+    merge_string(entry, "portrait", def.portrait);
+    if (const Value* as_player = entry.find("as_player"); as_player != nullptr && as_player->is_object()) {
+        merge_string(*as_player, "model", def.player_model);
+        merge_string(*as_player, "portrait", def.player_portrait);
+    }
     merge_traits(entry, def);
 }
 
@@ -531,7 +536,8 @@ bool patch_changes_look_only(std::string_view patch_text) {
     }
     for (const auto& [key, value] : doc.value().members()) {
         const bool look = key == "model" || key == "textures" || key == "shadow" || key == "blend_mode" ||
-                          key == "description" || key.starts_with("_") || key.starts_with("$");
+                          key == "portrait" || key == "as_player" || key == "description" || key.starts_with("_") ||
+                          key.starts_with("$");
         if (!look) {
             return false;
         }

@@ -548,3 +548,9 @@ SH_TEST(chara_file_row_bit_fields) {
         SH_CHECK(wrap_signed_bits(v, 14) == bits.f);
     }
 }
+
+// The keys of a character worn by the player (sh.player.set_character) are its look: no "gameplay" needed.
+SH_TEST(chara_as_player_keys_are_look_only) {
+    SH_CHECK(sh::chara::patch_changes_look_only(R"({"as_player": {"model": "models/m/A.glb"}, "portrait": "x.png"})"));
+    SH_CHECK(!sh::chara::patch_changes_look_only(R"({"as_player": {}, "params": {}})"));
+}

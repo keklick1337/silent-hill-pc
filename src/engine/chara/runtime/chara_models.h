@@ -81,6 +81,12 @@ public:
     // character.json "model" names while the type loads that model's skeleton file, else the glb of the file it
     // loads now ("CHARA/HERO.glb"). Empty: none (a mod's new type without a glb).
     static std::string model_glb(int chara);
+    // A script's glb for `chara` (sh.chara.model_override), below convert/models/ ("<mod>/CYBIL.glb"): model_glb
+    // gives it instead of the data's until it is set empty. It must be bound to the skeleton of the file the type
+    // loads (its manifest names that file); a glb that cannot be read is drawn from the disc model as always. Not
+    // saved: a script sets it again after a load.
+    static void set_model_override(int chara, std::string glb);
+    static const std::string& model_override(int chara);
 
 private:
     std::int32_t load_into(int chara, int slot, sh::world::LmHeader* lm, const sh::world::TextureImage& place);

@@ -10,6 +10,8 @@
 #include <cctype>
 #include <cmath>
 #include <fstream>
+#include <string>
+#include <iterator>
 #include <map>
 #include <optional>
 
@@ -252,8 +254,60 @@ void SkinModel::joint_shifts(const BoneRest* rest, int count, double unit,
     }
 }
 
+bool read_skin_derive(const fs::path& manifest, SkinDerive& out, std::string& error) {
+    std::ifstream in(manifest, std::ios::binary);
+    if (!in) {
+        error = "cannot be read";
+        return false;
+    }
+    const std::string text((std::istreambuf_iterator<char>(in)), std::istreambuf_iterator<char>());
+    const auto doc = sh::json::parse(text);
+    if (!doc) {
+        error = doc.error();
+        return false;
+    }
+    const sh::json::Value* derive = doc.value().is_object() ? doc.value().find("derive") : nullptr;
+    if (derive == nullptr || !derive->is_object()) {
+        error = "has no \"derive\" object";
+        return false;
+    }
+    const sh::json::Value* from = derive->find("from");
+    if (from == nullptr || !from->is_string() || from->string().empty() ||
+        from->string().find("..") != std::string::npos) {
+        error = "\"derive\" needs \"from\", a glb below convert/models/";
+        return false;
+    }
+    out = SkinDerive{};
+    out.from = from->string();
+    if (out.from.starts_with("models/")) {
+        out.from.erase(0, 7);
+    }
+    if (const sh::json::Value* p = derive->find("proportions"); p != nullptr && p->is_string()) {
+        out.own_proportions = p->string() == "model";
+    }
+    if (const sh::json::Value* parts = derive->find("parts"); parts != nullptr && parts->is_object()) {
+        for (const auto& [mesh, names] : parts->members()) {
+            std::vector<std::string> list;
+            if (names.is_string()) {
+                list.push_back(names.string());
+            } else if (names.is_array()) {
+                for (const sh::json::Value& n : names.array()) {
+                    if (n.is_string()) {
+                        list.push_back(n.string());
+                    }
+                }
+            } else if (!names.is_null()) {
+                error = "\"derive\" \"parts\": \"" + mesh + "\" is a part name, a list of them or null";
+                return false;
+            }
+            out.parts.emplace_back(mesh, std::move(list));
+        }
+    }
+    return true;
+}
+
 Result<SkinModel> load_skin_model(const fs::path& file, const TextureResolver& resolve,
-                                  std::vector<std::string>& warnings) {
+                                  std::vector<std::string>& warnings, const SkinDerive* derive) {
     using Out = Result<SkinModel>;
     auto gltf = sh::gltf::read_skinned_gltf(file);
     if (!gltf) {
@@ -291,7 +345,7 @@ Result<SkinModel> load_skin_model(const fs::path& file, const TextureResolver& r
     }
 
     SkinModel model;
-    if (extras_is(g.asset_extras, "proportions", "model")) {
+    if (extras_is(g.asset_extras, "proportions", "model") || (derive != nullptr && derive->own_proportions)) {
         model.own_proportions = true;
         for (std::size_t j = 0; j < nj; ++j) {
             int p = g.joints[j].parent;
@@ -411,6 +465,25 @@ Result<SkinModel> load_skin_model(const fs::path& file, const TextureResolver& r
             group.indices.push_back(base + i);
         }
         model.groups.push_back(std::move(group));
+    }
+    if (derive != nullptr) {
+        // The part numbers are the ones of the model the file was made for: the wearer's parts go by name.
+        std::vector<SkinGroup> groups;
+        for (SkinGroup& group : model.groups) {
+            group.part = -1;
+            const auto named = std::find_if(derive->parts.begin(), derive->parts.end(),
+                                            [&](const auto& entry) { return entry.first == group.node; });
+            if (named == derive->parts.end()) {
+                groups.push_back(std::move(group));
+                continue;
+            }
+            for (const std::string& part : named->second) {
+                SkinGroup copy = group;
+                copy.node = part;
+                groups.push_back(std::move(copy));
+            }
+        }
+        model.groups = std::move(groups);
     }
     return Out::ok(std::move(model));
 }

@@ -560,3 +560,27 @@ SH_TEST(SkinModelWithItsOwnProportionsMovesTheJointsOfRestBones) {
     std::error_code ec;
     fs::remove_all(dir, ec);
 }
+
+// A manifest that dresses a character in another model of the import: "derive" read, malformed ones refused.
+SH_TEST(SkinDeriveManifest) {
+    const fs::path dir = fs::path(SH_PROJECT_ROOT) / ".tmp" / "skin_derive";
+    std::error_code ec;
+    fs::create_directories(dir, ec);
+    auto write = [&](const char* name, const char* text) {
+        std::ofstream(dir / name) << text;
+        return dir / name;
+    };
+    sh::assets::SkinDerive d;
+    std::string error;
+    SH_CHECK(sh::assets::read_skin_derive(
+        write("ok.model.json", R"({"derive": {"from": "models/CHARA/SIBYL.glb", "proportions": "model",
+            "parts": {"10RHAND": ["10RHAND", "10RHAND2"], "10RGUN": [], "06LGUN": null, "01CHEST_": "01CHEST_"}}})"),
+        d, error));
+    SH_CHECK(d.from == "CHARA/SIBYL.glb" && d.own_proportions && d.parts.size() == 4);
+    SH_CHECK(d.parts[0].second.size() == 2 && d.parts[1].second.empty() && d.parts[2].second.empty());
+    SH_CHECK(!sh::assets::read_skin_derive(write("none.model.json", R"({"source": {}})"), d, error));
+    SH_CHECK(!sh::assets::read_skin_derive(write("up.model.json", R"({"derive": {"from": "../x.glb"}})"), d, error));
+    SH_CHECK(!sh::assets::read_skin_derive(
+        write("bad.model.json", R"({"derive": {"from": "a.glb", "parts": {"x": 1}}})"), d, error));
+    fs::remove_all(dir, ec);
+}

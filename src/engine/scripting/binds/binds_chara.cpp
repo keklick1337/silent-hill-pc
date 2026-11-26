@@ -24,6 +24,10 @@
 //   chara.model_load(type, model_slot, buffer, page, u, v, palette_x, palette_y): the type's model from a file
 //       buffer ("lm:2": the second model buffer), its texture at the place given.
 //   chara.model_loads_process(): the queued model loads finished.
+//   chara.model_override(type, glb): the type is drawn from another glb below convert/models/ (nil or "": its own).
+//   player.set_character(name): the player wears that type's "as_player" model and portrait (nil: the player's own).
+//   assets.replace(path, file) / assets.restore([path]): while set, a game data path ("convert/textures/ITEM/X.png")
+//       is read from another file of the active mods; restore clears one or all.
 //   load.tim_at(file, buffer, page, u, v, palette_x, palette_y): a TIM file through file buffer 0..2 onto the place.
 //   load.loading_screen_image(file): a TIM file as the loading screen's background image.
 //   player.map_anim_infos_set(first, table, count) / player.map_anim_ranges_set(first, array, count): Harry's map
@@ -32,9 +36,13 @@
 #include "engine/scripting/binds/binds.h"
 
 #include <cstring>
+#include <string>
 
+#include "engine/chara/runtime/chara_data.h"
 #include "engine/chara/runtime/chara_models.h"
+#include "engine/chara/chara_library.h"
 #include "engine/maps/map_runtime.h"
+#include "engine/mods/registry.h"
 #include "engine/scripting/binds/game_links.h"
 
 namespace sh::script::binds {
@@ -315,6 +323,70 @@ int map_anim_ranges_set(Call& c) {
     }
 }
 
+int model_override(Call& c) {
+    int type = -1;
+    if (c.is_int(0)) {
+        type = static_cast<int>(c.integer(0));
+    } else if (c.is_text(0)) {
+        type = Pc_CharaIdFind(c.text(0));
+    }
+    if (c.argc() < 1 || c.argc() > 2 || !chara_type(type) || (c.argc() == 2 && !c.is_text(1) && !c.is_nil_or_zero(1))) {
+        return c.fail("%s takes a character type and a glb path (nil for the type's own)", c.name());
+    }
+    const char* glb = c.argc() == 2 ? c.text(1) : nullptr;
+    if (glb != nullptr && std::strstr(glb, "..") != nullptr) {
+        return c.fail("%s: the glb path may not leave convert/models/", c.name());
+    }
+    sh::chara::CharaModels::set_model_override(type, glb != nullptr ? std::string(glb) : std::string());
+    return 0;
+}
+
+int set_character(Call& c) {
+    const int player = sh::chara::kPlayerChara;
+    const sh::chara::CharacterDef* own = sh::chara::type_def(player);
+    const std::string portrait = own != nullptr ? own->portrait : std::string();
+    if (c.argc() == 0 || c.is_nil_or_zero(0)) {
+        sh::chara::CharaModels::set_model_override(player, {});
+        if (!portrait.empty()) {
+            sh::mods::registry().clear_override(portrait);
+        }
+        return 0;
+    }
+    if (!c.is_text(0)) {
+        return c.fail("%s takes a character name (nil: the player's own)", c.name());
+    }
+    const int type = Pc_CharaIdFind(c.text(0));
+    const sh::chara::CharacterDef* worn = type > 0 ? sh::chara::type_def(type) : nullptr;
+    if (worn == nullptr) {
+        return c.fail("%s: unknown character '%s'", c.name(), c.text(0));
+    }
+    if (worn->player_model.empty()) {
+        return c.fail("%s: %s has no \"as_player\" model in its character.json", c.name(), c.text(0));
+    }
+    sh::chara::CharaModels::set_model_override(player, worn->player_model);
+    if (!portrait.empty()) {
+        if (worn->player_portrait.empty() || !sh::mods::registry().set_override(portrait, worn->player_portrait)) {
+            sh::mods::registry().clear_override(portrait);
+        }
+    }
+    return 0;
+}
+
+int assets_replace(Call& c) {
+    if (c.argc() != 2 || !c.is_text(0) || !c.is_text(1)) {
+        return c.fail("%s takes a game data path and the file of a mod that stands in for it", c.name());
+    }
+    return c.reply({sh::mods::registry().set_override(c.text(0), c.text(1)) ? 1 : 0});
+}
+
+int assets_restore(Call& c) {
+    if (c.argc() > 1 || (c.argc() == 1 && !c.is_text(0) && !c.is_nil_or_zero(0))) {
+        return c.fail("%s takes a game data path, or nothing for all", c.name());
+    }
+    const char* path = c.argc() == 1 ? c.text(0) : nullptr;
+    return c.reply({sh::mods::registry().clear_override(path != nullptr ? path : "") ? 1 : 0});
+}
+
 const named::Bind kBinds[] = {
     {"npc.anim_duration", anim_duration},
     {"npc.anim_start_keyframe", anim_start_keyframe},
@@ -336,6 +408,10 @@ const named::Bind kBinds[] = {
     {"chara.anim_data_alloc", anim_data_alloc},
     {"chara.model_load", model_load},
     {"chara.model_loads_process", model_loads_process},
+    {"chara.model_override", model_override},
+    {"player.set_character", set_character},
+    {"assets.replace", assets_replace},
+    {"assets.restore", assets_restore},
     {"load.tim_at", tim_at},
     {"load.loading_screen_image", loading_screen_image},
     {"player.map_anim_infos_set", map_anim_infos_set},

@@ -128,8 +128,24 @@ int bone_of_joint_name(std::string_view name);
 // The picture of `tex` read again from its file (texture_upscale: a better one arrived); false leaves it as it was.
 bool reload_skin_texture(SkinTexture& tex);
 
-// A texture that does not decode is dropped (the material draws untextured) and named in `warnings`.
+// A model worn on the skeleton of another character than the one it was made for, described by a manifest
+// `<NAME>.model.json` without a glb of its own (docs/modding/assets.md, "A model of the import on another
+// skeleton"): its "derive" object names the glb below convert/models/ to read ("from"), whether that glb keeps its
+// own bone lengths ("proportions": "model"), and which of its meshes are drawn as which parts of the wearer
+// ("parts": {"10RHAND": ["10RHAND", "10RHAND2"], "10RGUN": []}; a mesh not named stays under its own name). Its
+// meshes are matched to the wearer's parts by name, never by the part numbers of the model they came from. So a mod
+// dresses one character in another's imported model without shipping a file of the game.
+struct SkinDerive {
+    std::string from;  // below convert/models/: "CHARA/SIBYL.glb"
+    bool own_proportions = false;
+    std::vector<std::pair<std::string, std::vector<std::string>>> parts;
+};
+// The "derive" object of a manifest; false with `error` set when the file has none or it is malformed.
+bool read_skin_derive(const std::filesystem::path& manifest, SkinDerive& out, std::string& error);
+
+// A texture that does not decode is dropped (the material draws untextured) and named in `warnings`. With `derive`,
+// the file is read as that description says.
 Result<SkinModel> load_skin_model(const std::filesystem::path& file, const TextureResolver& resolve,
-                                  std::vector<std::string>& warnings);
+                                  std::vector<std::string>& warnings, const SkinDerive* derive = nullptr);
 
 }  // namespace sh::assets

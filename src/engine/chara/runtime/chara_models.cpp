@@ -3,6 +3,7 @@
 
 #include "engine/chara/runtime/chara_models.h"
 
+#include <array>
 #include <cstdint>
 #include <cstring>
 #include <string>
@@ -359,9 +360,35 @@ std::int32_t CharaModels::model_file(int chara) {
     return chara >= 0 && chara < kCharaModelTypes ? files(chara).model : -1;
 }
 
+namespace {
+std::array<std::string, sh::game_state::chara::kMaxTypes>& model_overrides() {
+    static std::array<std::string, sh::game_state::chara::kMaxTypes> overrides;
+    return overrides;
+}
+}  // namespace
+
+void CharaModels::set_model_override(int chara, std::string glb) {
+    if (chara < 0 || chara >= sh::game_state::chara::kMaxTypes) {
+        return;
+    }
+    constexpr std::string_view kModels = "models/";
+    if (std::string_view(glb).starts_with(kModels)) {
+        glb.erase(0, kModels.size());
+    }
+    model_overrides()[chara] = std::move(glb);
+}
+
+const std::string& CharaModels::model_override(int chara) {
+    static const std::string kNone;
+    return chara >= 0 && chara < sh::game_state::chara::kMaxTypes ? model_overrides()[chara] : kNone;
+}
+
 std::string CharaModels::model_glb(int chara) {
     if (chara < 0 || chara >= sh::game_state::chara::kMaxTypes) {
         return {};
+    }
+    if (const std::string& chosen = model_override(chara); !chosen.empty()) {
+        return chosen;
     }
     const CharacterDef* def = type_def(chara);
     const std::string_view data_model = def != nullptr ? std::string_view(def->model) : std::string_view();

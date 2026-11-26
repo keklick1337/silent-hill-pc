@@ -229,6 +229,7 @@ void Registry::configure(RegistryConfig config) {
         std::unique_lock lock(mutex_);
         config_ = std::move(config);
         configured_ = true;
+        overrides_.clear();
     }
     rescan();
 }
@@ -372,12 +373,48 @@ Registry::FileStamps Registry::file_stamps() const {
     return stamps_;
 }
 
+bool Registry::set_override(std::string_view relative, std::string_view replacement) {
+    std::unique_lock lock(mutex_);
+    const std::string target = lower(normal(replacement));
+    if (index_.find(target) == index_.end()) {
+        return false;
+    }
+    overrides_[lower(normal(relative))] = target;
+    ++override_generation_;
+    return true;
+}
+
+bool Registry::clear_override(std::string_view relative) {
+    std::unique_lock lock(mutex_);
+    bool cleared = false;
+    if (relative.empty()) {
+        cleared = !overrides_.empty();
+        overrides_.clear();
+    } else {
+        cleared = overrides_.erase(lower(normal(relative))) > 0;
+    }
+    if (cleared) {
+        ++override_generation_;
+    }
+    return cleared;
+}
+
+std::uint32_t Registry::override_generation() const {
+    std::shared_lock lock(mutex_);
+    return override_generation_;
+}
+
 std::optional<fs::path> Registry::find(std::string_view relative) const {
     std::shared_lock lock(mutex_);
     if (index_.empty()) {
         return std::nullopt;
     }
-    const std::string key = lower(normal(relative));
+    std::string key = lower(normal(relative));
+    if (!overrides_.empty()) {
+        if (const auto it = overrides_.find(key); it != overrides_.end()) {
+            key = it->second;
+        }
+    }
     const Hit* top = nullptr;
     if (const auto it = index_.find(key); it != index_.end() && !it->second.empty()) {
         top = &it->second.back();

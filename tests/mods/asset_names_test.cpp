@@ -215,3 +215,30 @@ SH_TEST(mods_assets_hd_texture_mod_cfg) {
     SH_CHECK(ShModAsset_Open("CHARA/HERO.TIM", "rb") == nullptr);  // the disc TIM itself still loads
     registry().configure(RegistryConfig{});
 }
+
+// sh.assets.replace: while set, a game data path is answered with another file of the active mods; cleared, the
+// path is the mods' own again (here: none).
+SH_TEST(mods_assets_runtime_override) {
+    Scratch dir("override");
+    dir.write("mods/story/mod.json", R"({"id": "story", "version": "1.0.0"})");
+    dir.write("mods/story/portraits/story/HEROPIC2.png", "portrait");
+    RegistryConfig config;
+    config.dirs = {dir.path() / "mods"};
+    registry().configure(config);
+    const std::uint32_t before = registry().override_generation();
+    SH_CHECK(!ShModAsset_TimHasImage("ITEM/HEROPIC2.TIM"));
+    SH_CHECK(!registry().set_override("convert/textures/ITEM/HEROPIC2.png", "portraits/story/missing.png"));
+    SH_CHECK(registry().set_override("convert/textures/ITEM/HEROPIC2.png", "Portraits/Story/heropic2.png"));
+    SH_CHECK(registry().override_generation() != before);
+    char out[1024];
+    int dds = -1;
+    SH_CHECK(ShModAsset_TimWhole("ITEM/HEROPIC2.TIM", out, sizeof out, &dds) && dds == 0);
+    std::FILE* f = std::fopen(out, "rb");
+    SH_CHECK(f != nullptr && read_all(f) == "portrait");
+    SH_CHECK(registry().clear_override("convert/textures/ITEM/HEROPIC2.png"));
+    SH_CHECK(!registry().clear_override("convert/textures/ITEM/HEROPIC2.png"));
+    SH_CHECK(!ShModAsset_TimHasImage("ITEM/HEROPIC2.TIM"));
+    SH_CHECK(registry().set_override("a/b.png", "portraits/story/HEROPIC2.png") && registry().clear_override(""));
+    SH_CHECK(!registry().find("a/b.png"));
+    registry().configure(RegistryConfig{});
+}

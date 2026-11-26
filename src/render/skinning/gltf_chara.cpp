@@ -139,13 +139,36 @@ fs::path resolve_converted(const fs::path& resolved) {
 std::unique_ptr<sh::assets::SkinModel> load(const std::string& key, std::string& host_path, bool& from_mod) {
     const std::string rel = "models/" + key;
     char host[1024];
+    sh::assets::SkinDerive derive;
+    bool derived = false;
     if (!ShVfs_FindConverted(rel.c_str(), host, sizeof host)) {
-        return nullptr;
+        // No glb: a manifest that dresses the character in another model of the import (skin_model.h SkinDerive).
+        const std::size_t dot = rel.rfind('.');
+        const std::string manifest = rel.substr(0, dot) + ".model.json";
+        if (dot == std::string::npos || !ShVfs_FindConverted(manifest.c_str(), host, sizeof host)) {
+            return nullptr;
+        }
+        std::string error;
+        if (!sh::assets::read_skin_derive(host, derive, error)) {
+            warn_once(host, std::string(host) + ": " + error + "; the character is drawn from its disc model");
+            return nullptr;
+        }
+        // The mesh is the import's own, so model upscaling treats it like the game's.
+        from_mod = false;
+        const std::string from = "models/" + derive.from;
+        if (!ShVfs_FindConverted(from.c_str(), host, sizeof host)) {
+            warn_once(manifest, manifest + ": the model it derives from, " + from + ", is not there");
+            return nullptr;
+        }
+        derived = true;
     }
     host_path = host;
-    from_mod = ShVfs_FindModConverted(rel.c_str(), host, sizeof host) != 0;
+    if (!derived) {
+        from_mod = ShVfs_FindModConverted(rel.c_str(), host, sizeof host) != 0;
+        std::memcpy(host, host_path.c_str(), host_path.size() + 1);
+    }
     std::vector<std::string> warnings;
-    auto loaded = sh::assets::load_skin_model(host, resolve_converted, warnings);
+    auto loaded = sh::assets::load_skin_model(host, resolve_converted, warnings, derived ? &derive : nullptr);
     for (const std::string& w : warnings) {
         warn_once(host_path + w, host_path + ": " + w);
     }

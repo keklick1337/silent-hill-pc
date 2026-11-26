@@ -86,6 +86,15 @@ public:
     // The id of the mod `find` would answer with, "" for none.
     std::string owner_of(std::string_view relative) const;
 
+    // A script's runtime replacement (sh.assets.replace): while it is set, `find(relative)` answers with the active
+    // mods' file `replacement` (another path of the mods, "cybil_story/portrait.png"). False when no active mod has
+    // `replacement`. Not saved: it lasts until cleared or the game exits, so a mod sets it again after a load.
+    bool set_override(std::string_view relative, std::string_view replacement);
+    // Clears one replacement (true when there was one), or all of them with an empty path.
+    bool clear_override(std::string_view relative);
+    // Counts every change of the replacements, for the caches of what was read from a replaced file.
+    std::uint32_t override_generation() const;
+
     // The files of an active mod with what they do; empty for an unknown or inactive id.
     std::vector<ModFile> files(std::string_view id) const;
     // Startup / console summary: one line per mod, then problems and notices.
@@ -131,6 +140,8 @@ private:
         std::string path;
     };
     std::map<std::string, std::vector<Hit>, std::less<>> index_;
+    std::map<std::string, std::string, std::less<>> overrides_;  // lowered path -> lowered replacement path
+    std::uint32_t override_generation_ = 0;
     FileStamps stamps_;
     mutable std::shared_mutex mutex_;
 };
