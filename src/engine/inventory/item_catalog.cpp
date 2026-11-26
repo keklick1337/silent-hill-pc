@@ -92,6 +92,18 @@ DisplayTilt ItemCatalog::display_tilt(int number) const
     return {items::angle_q12(def->display_tilt_x), items::angle_q12(def->display_tilt_z)};
 }
 
+const std::array<double, 3>* ItemCatalog::display_center(int number) const
+{
+    const items::ItemDef* def = item(number);
+    return def != nullptr && def->display_center ? &*def->display_center : nullptr;
+}
+
+double ItemCatalog::display_scale(int number) const
+{
+    const items::ItemDef* def = item(number);
+    return def != nullptr ? def->display_scale : 1.0;
+}
+
 std::optional<int> ItemCatalog::results_item(int index) const
 {
     if (!library_ || index < 0 || index >= static_cast<int>(files_.results_items.size()))

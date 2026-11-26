@@ -125,6 +125,23 @@ void set_mod_file_query(ModFileQuery query) { store().mod_file_query = std::move
 
 void set_log(LogFn log) { store().log = std::move(log); }
 
+namespace {
+
+// A texture's picture: a gamedata file, or "<glb>#<n>", a picture embedded in a mod's glb.
+std::optional<std::vector<std::uint8_t>> texture_bytes(const std::string& path) {
+    Store& s = store();
+    if (!s.reader) return std::nullopt;
+    const std::size_t hash = path.rfind(".glb#");
+    if (hash == std::string::npos) return s.reader(path);
+    const std::optional<std::vector<std::uint8_t>> glb = s.reader(std::string_view(path).substr(0, hash + 4));
+    if (!glb) return std::nullopt;
+    return glb_embedded_image(*glb, std::atoi(path.c_str() + hash + 5));
+}
+
+bool embedded(const std::string& path) { return path.rfind(".glb#") != std::string::npos; }
+
+}  // namespace
+
 std::optional<std::vector<std::uint8_t>> read_scene_file(std::string_view relative) {
     Store& s = store();
     if (!s.reader) return std::nullopt;
@@ -192,9 +209,9 @@ void prefetch_textures(std::span<const std::pair<std::string, int>> wanted) {
         Job j;
         j.key = key;
         // The reader and the mipmap query keep state of their own: they run here, only the decoding is spread.
-        j.png = s.reader(key.first);
+        j.png = texture_bytes(key.first);
         if (!j.png) continue;
-        j.mipmapped = s.mipmap_query && s.mipmap_query(key.first);
+        j.mipmapped = embedded(key.first) || (s.mipmap_query && s.mipmap_query(key.first));
         if (const std::string tim_path = tim_json_path(key.first); !tim_path.empty()) j.tim = s.reader(tim_path);
         jobs.push_back(std::move(j));
     }
@@ -239,7 +256,7 @@ std::shared_ptr<const SceneTexture> find_texture(const std::string& path, int pa
     }
     std::shared_ptr<const SceneTexture> tex;
     std::optional<std::vector<std::uint8_t>> png;
-    if (s.reader) png = s.reader(path);
+    png = texture_bytes(path);
     if (png) {
         std::optional<std::vector<std::uint8_t>> tim;
         const std::string tim_path = tim_json_path(path);
@@ -247,7 +264,7 @@ std::shared_ptr<const SceneTexture> find_texture(const std::string& path, int pa
         auto decoded = decode_scene_texture(*png, tim ? std::span<const std::uint8_t>(*tim) : std::span<const std::uint8_t>(),
                                             palette);
         if (decoded) {
-            decoded.value().mipmapped = s.mipmap_query && s.mipmap_query(path);
+            decoded.value().mipmapped = embedded(path) || (s.mipmap_query && s.mipmap_query(path));
             tex = std::make_shared<const SceneTexture>(std::move(decoded.value()));
         } else {
             log(1, "[SCENE] " + path + ": " + decoded.error());

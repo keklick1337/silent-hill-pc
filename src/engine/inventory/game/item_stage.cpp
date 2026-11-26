@@ -5,7 +5,9 @@
 
 #include "engine/inventory/game/wide_screen.h"
 
+#include <algorithm>
 #include <array>
+#include <cmath>
 #include <span>
 #include <string>
 
@@ -111,7 +113,15 @@ void ItemStage::link(int index, const std::string& model, int object, int item) 
 
 bool ItemStage::link_from_pack(int index, int item) {
     const std::int32_t k = pack_index(pack, item);
-    if (k < 0) return false;
+    if (k < 0) {
+        // A mod's item with a model of its own (a glb below convert/models/) is drawn from it on every screen.
+        const std::string& own = item_catalog().close_up_model(item);
+        if (own.size() > 4 && own.compare(own.size() - 4, 4, ".glb") == 0) {
+            link(index, own, 0, item);
+            return true;
+        }
+        return false;
+    }
     link(index, pack_model, k, pack[static_cast<std::size_t>(k)]);
     return true;
 }
@@ -181,6 +191,27 @@ void ItemStage::draw(int index, StageDraw mode) {
     for (int i = 0; i < 3; ++i) {
         for (int j = 0; j < 3; ++j) pose.m[i][j] = screen.m[i][j];
         pose.t[i] = screen.t[i];
+    }
+    // A mod's model can be drawn larger or smaller, and name the point of it that sits at the middle of its place (a
+    // radio by its body, not by its antenna): the pose moves by the rest of the way, turned as the model is.
+    if (mesh->own_scale > 0.0f) {
+        const double size = item_catalog().display_scale(p.item);
+        if (size != 1.0)
+            for (auto& row : pose.m)
+                for (std::int16_t& v : row)
+                    v = static_cast<std::int16_t>(std::clamp<long>(std::lround(v * size), -32768, 32767));
+        if (const std::array<double, 3>* centre = item_catalog().display_center(p.item)) {
+            // The file's +X and +Y are the mesh's -X and -Y.
+            constexpr double kTurn[3] = {-1.0, -1.0, 1.0};
+            double d[3];
+            for (int c = 0; c < 3; ++c) {
+                const std::size_t k = static_cast<std::size_t>(c);
+                d[c] = kTurn[c] * ((*centre)[k] - mesh->own_middle[k]) * mesh->own_scale;
+            }
+            for (int r = 0; r < 3; ++r)
+                pose.t[r] -= static_cast<std::int32_t>(
+                    std::lround((pose.m[r][0] * d[0] + pose.m[r][1] * d[1] + pose.m[r][2] * d[2]) / 4096.0));
+        }
     }
     const camera::ScreenProjection proj = camera::projection_now();
     const scene::ItemProjection projection{static_cast<float>(proj.h), static_cast<float>(proj.ofx) / 65536.0f,

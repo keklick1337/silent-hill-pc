@@ -107,8 +107,13 @@ struct LibraryModel {
 };
 
 // The libraries of a glb: the "<CELL>/models" group of each cell root of an area file, and every root naming a
-// source file without a cell (a PLM: BG_ITEM, the global PLM of an area, ITEM/HANDGUN.glb). `path` only names errors.
+// source file without a cell (a PLM: BG_ITEM, the global PLM of an area, ITEM/HANDGUN.glb). A glb with neither (a
+// mod's own model: metres, +Y up, front +Z) is one model of all its meshes, "<FILE STEM>/#0"; a picture embedded in
+// it is named "<path>#<image index>" (glb_embedded_image). `path` names the file.
 Result<std::vector<LibraryModel>> read_glb_models(std::span<const std::uint8_t> glb, std::string_view path);
+
+// The bytes of picture `index` embedded in a glb (its buffer view); nullopt when there is none.
+std::optional<std::vector<std::uint8_t>> glb_embedded_image(std::span<const std::uint8_t> glb, int index);
 
 // Decodes a material texture. `png` is the image, `tim_json` its TIM description (may be empty: no STP).
 Result<SceneTexture> decode_scene_texture(std::span<const std::uint8_t> png, std::span<const std::uint8_t> tim_json,

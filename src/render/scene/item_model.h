@@ -41,6 +41,10 @@ struct ItemMaterial {
     // The picture the import resolved; none for a page whose TIM depends on the running game (the key items' sheet
     // every map group fills with its own TIM): the caller's resolver names it.
     std::optional<ItemSheet> sheet;
+    // A mod's model with a picture of its own (the glb's embedded base colour, RGBA): drawn with the faces' float
+    // texture coordinates instead of page texels.
+    std::shared_ptr<const std::vector<std::uint8_t>> own_rgba;
+    int own_width = 0, own_height = 0;
 };
 
 struct ItemFace {
@@ -51,6 +55,7 @@ struct ItemFace {
     std::array<std::array<float, 3>, 3> position{};
     std::array<std::array<std::uint8_t, 2>, 3> texel{};  // texture page texels
     std::array<std::uint8_t, 3> color{128, 128, 128};    // untextured faces: the packet colour
+    std::array<std::array<float, 2>, 3> uv{};            // faces of an own picture: its coordinates
 };
 
 struct ItemMesh {
@@ -59,6 +64,10 @@ struct ItemMesh {
     bool drawable = true;
     std::vector<ItemMaterial> materials;
     std::vector<ItemFace> faces;
+    // A mod's own model (centred and scaled on load): drawn units per metre of the file and the middle of its bounds
+    // in the file's metres (+Y up); the faces are turned 180 degrees about Z from the file. own_scale 0: a game model.
+    float own_scale = 0.0f;
+    std::array<float, 3> own_middle{};
 };
 
 // Rewrites an object's packets in place (the recorded packets one after the other); returns whether it changed them.
@@ -72,7 +81,9 @@ Result<ItemMesh> read_item_mesh(std::span<const std::uint8_t> glb, std::span<con
                                 const ItemPacketFix* fix, std::string_view path);
 
 // The item model files of game file `model` ("ITEM/IT_001.TMD"): "convert/models/ITEM/IT_001.glb" and
-// "convert/models/ITEM/IT_001.model.json".
+// "convert/models/ITEM/IT_001.model.json". A mod's own model is named by its glb below convert/models/
+// ("cybil_story/RADIO.glb" in an item's "close_up_model"): a glb with its own embedded picture, any node, metres,
+// +Y up, front +Z; it is scaled to the size of the game's item models (the mean of its two largest sides 440 units).
 std::string item_glb_path(std::string_view model);
 std::string item_sidecar_path(std::string_view model);
 

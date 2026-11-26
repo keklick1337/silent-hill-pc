@@ -96,6 +96,11 @@ struct ItemDef {
     // Tilt of the 3d model on the item screen and in the pickup animation, degrees about the
     // X and Z axes.
     double display_tilt_x = 0.0, display_tilt_z = 0.0;
+    // A mod's own close-up model (a glb): the point of the model, in its metres, put at the middle of the item's
+    // place ("display_center"); unset: the middle of its bounds.
+    std::optional<std::array<double, 3>> display_center;
+    // A mod's own close-up model: its size on the item screens times this ("display_scale").
+    double display_scale = 1.0;
     // The 3d model is shaded by the item screen's lights; false: drawn with its own colours.
     bool display_lit = false;
     // Run-time number (the original's item id for base items); 0: none could be given.

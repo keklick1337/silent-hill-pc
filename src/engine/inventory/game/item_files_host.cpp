@@ -48,7 +48,9 @@ constexpr std::uint8_t kNoLink = 0xFF;
 std::int32_t file_number(const std::string& name)
 {
     const std::int32_t file = name.empty() ? -1 : sh::loader::disc_files().find(name.c_str());
-    if (file < 0 && !name.empty())
+    // A mod's own model (a glb below convert/models/) is no game file: the scene reads it itself.
+    const bool own_model = name.size() > 4 && name.compare(name.size() - 4, 4, ".glb") == 0;
+    if (file < 0 && !name.empty() && !own_model)
         SH_ERR("[ITEMS] no game file %s", name.c_str());
     return file;
 }

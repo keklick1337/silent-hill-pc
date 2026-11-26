@@ -239,6 +239,13 @@ void merge_item(const Value& entry, ItemDef& item) {
         item.display_tilt_x = opt_double(*tilt, "x", item.display_tilt_x);
         item.display_tilt_z = opt_double(*tilt, "z", item.display_tilt_z);
     }
+    if (const Value* centre = entry.find("display_center"); centre && centre->is_object()) {
+        item.display_center = std::array<double, 3>{opt_double(*centre, "x", 0.0), opt_double(*centre, "y", 0.0),
+                                                    opt_double(*centre, "z", 0.0)};
+    }
+    if (const Value* scale = entry.find("display_scale"); scale && scale->is_number() && scale->number() > 0.0) {
+        item.display_scale = scale->number();
+    }
     if (const Value* model = entry.find("model"); model && model->is_string()) {
         item.model_file = model->string();
     }

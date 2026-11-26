@@ -8,6 +8,7 @@
 
 #pragma once
 
+#include <array>
 #include <cstdint>
 #include <filesystem>
 #include <optional>
@@ -56,6 +57,10 @@ public:
     bool display_lit(int item) const;
     // items/<Name>.json "display_tilt"; zero for an unknown item.
     DisplayTilt display_tilt(int item) const;
+    // items/<Name>.json "display_center" (a mod's own glb, its metres); nullptr: the middle of the model's bounds.
+    const std::array<double, 3>* display_center(int item) const;
+    // items/<Name>.json "display_scale" (a mod's own glb); 1 otherwise.
+    double display_scale(int item) const;
     // The item number of the index-th award of the results screen; nullopt when there is none.
     std::optional<int> results_item(int index) const;
     // Units of `ammo` one pickup gives (1 without data); rounds per magazine of a gun (0 without data).

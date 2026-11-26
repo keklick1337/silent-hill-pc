@@ -52,7 +52,7 @@ int int_member(const json::Value& v, std::string_view key, int fallback) {
     return (m != nullptr && m->is_number()) ? static_cast<int>(m->number()) : fallback;
 }
 
-CellMaterial material_of(const cgltf_data* data, const cgltf_material* m) {
+CellMaterial material_of(const cgltf_data* data, const cgltf_material* m, std::string_view file = {}) {
     CellMaterial out;
     if (m == nullptr) return out;
     if (auto e = parse_extras(data, m->extras)) {
@@ -83,6 +83,9 @@ CellMaterial material_of(const cgltf_data* data, const cgltf_material* m) {
             std::string uri = t->image->uri;
             while (uri.rfind("../", 0) == 0) uri.erase(0, 3);
             out.texture = uri;
+        } else if (t != nullptr && t->image != nullptr && t->image->buffer_view != nullptr && !file.empty()) {
+            // A picture inside a mod's glb: read from the file again when the texture is wanted.
+            out.texture = std::string(file) + "#" + std::to_string(t->image - data->images);
         }
     }
     if (out.texture.empty() == false && m->alpha_mode == cgltf_alpha_mode_blend) out.semi_transparent = true;
@@ -99,6 +102,7 @@ struct MaterialTriangles {
 };
 
 struct MeshBuild {
+    std::string file;  // the glb read (names its embedded pictures)
     std::map<const cgltf_material*, int> material_index;
     std::map<int, MaterialTriangles> by_material;
     std::map<const cgltf_mesh*, int> models;
@@ -131,7 +135,7 @@ void append_node(const cgltf_data* data, const cgltf_node* node, CellMesh& cell,
             const cgltf_accessor* uv = attribute(p, cgltf_attribute_type_texcoord);
 
             auto [it, added] = material_index.try_emplace(p.material, static_cast<int>(cell.materials.size()));
-            if (added) cell.materials.push_back(material_of(data, p.material));
+            if (added) cell.materials.push_back(material_of(data, p.material, build.file));
             const int mat = it->second;
 
             const std::uint32_t base = static_cast<std::uint32_t>(cell.vertices.size());
@@ -619,7 +623,37 @@ Result<std::vector<LibraryModel>> read_glb_models(std::span<const std::uint8_t> 
             add_library(data, root, root_name, out);
         }
     }
+    bool importer = asset && asset->find("source") != nullptr;
+    for (cgltf_size ni = 0; ni < scene->nodes_count && !importer; ++ni)
+        importer = parse_extras(data, scene->nodes[ni]->extras).has_value();
+    if (out.empty() && !importer) {
+        // A mod's own model: every mesh of the scene, one model named by the file's stem.
+        std::string stem(path);
+        if (const std::size_t slash = stem.find_last_of('/'); slash != std::string::npos) stem.erase(0, slash + 1);
+        if (const std::size_t dot = stem.find_last_of('.'); dot != std::string::npos) stem.erase(dot);
+        LibraryModel m;
+        m.name = upper(stem) + "/#0";
+        m.mesh.stem = m.name;
+        MeshBuild build;
+        build.file = std::string(path);
+        for (cgltf_size ni = 0; ni < scene->nodes_count; ++ni) append_node(data, scene->nodes[ni], m.mesh, build);
+        if (!build.by_material.empty()) {
+            finish_mesh(m.mesh, build);
+            out.push_back(std::move(m));
+        }
+    }
     return R::ok(std::move(out));
+}
+
+std::optional<std::vector<std::uint8_t>> glb_embedded_image(std::span<const std::uint8_t> glb, int index) {
+    auto parsed = parse_glb(glb, "");
+    if (!parsed) return std::nullopt;
+    const cgltf_data* data = parsed.value().data.get();
+    if (index < 0 || static_cast<cgltf_size>(index) >= data->images_count) return std::nullopt;
+    const cgltf_buffer_view* view = data->images[index].buffer_view;
+    if (view == nullptr || view->buffer == nullptr || view->buffer->data == nullptr) return std::nullopt;
+    const auto* bytes = static_cast<const std::uint8_t*>(view->buffer->data) + view->offset;
+    return std::vector<std::uint8_t>(bytes, bytes + view->size);
 }
 
 std::vector<SceneTexture> mip_levels(const SceneTexture& t) {

@@ -3,6 +3,7 @@
 #include "formats/common/json.h"
 #include "formats/gltf/cgltf_prefixed.h"
 #include "formats/png/sh_png.h"
+#include "formats/png/stb_png.h"
 #include "render/scene/scene.h"
 
 #include <algorithm>
@@ -67,7 +68,26 @@ GlbMaterial material_of(const cgltf_data* data, const cgltf_material* m) {
     if (m == nullptr) return out;
     out.double_sided = m->double_sided != 0;
     const auto e = extras_of(data, m->extras);
-    if (!e) return out;
+    if (!e || e->find("tim") == nullptr) {
+        // A mod's model: the picture embedded in the glb, sampled with the file's coordinates.
+        const cgltf_texture* tex =
+            m->has_pbr_metallic_roughness ? m->pbr_metallic_roughness.base_color_texture.texture : nullptr;
+        const cgltf_image* img = tex != nullptr ? tex->image : nullptr;
+        const cgltf_buffer_view* view = img != nullptr ? img->buffer_view : nullptr;
+        if (view != nullptr && view->buffer != nullptr && view->buffer->data != nullptr) {
+            const auto* bytes = static_cast<const unsigned char*>(view->buffer->data) + view->offset;
+            int w = 0, h = 0;
+            if (unsigned char* px = sh_png_stb_load_rgba(bytes, static_cast<int>(view->size), &w, &h)) {
+                out.material.own_rgba =
+                    std::make_shared<const std::vector<std::uint8_t>>(px, px + std::size_t(w) * h * 4);
+                out.material.own_width = w;
+                out.material.own_height = h;
+                out.material.textured = true;
+                sh_png_stb_free(px);
+            }
+        }
+        if (!e) return out;
+    }
     out.material.textured = bool_of(*e, "textured");
     out.semi = bool_of(*e, "semi_transparent");
     out.material.tpage = static_cast<std::uint16_t>(int_of(*e, "tpage", 0));
@@ -122,6 +142,7 @@ constexpr std::array<std::array<int, 3>, 2> kPacketCorners = {{{0, 2, 1}, {1, 2,
 }  // namespace
 
 std::string item_glb_path(std::string_view model) {
+    if (model.size() > 4 && model.substr(model.size() - 4) == ".glb") return "convert/models/" + std::string(model);
     std::string stem(model);
     if (const std::size_t dot = stem.find_last_of('.'); dot != std::string::npos && stem.find('/', dot) == std::string::npos)
         stem.erase(dot);
@@ -149,6 +170,9 @@ Result<ItemMesh> read_item_mesh(std::span<const std::uint8_t> glb, std::span<con
     const cgltf_node* node = nullptr;
     for (cgltf_size i = 0; i < raw->nodes_count; ++i)
         if (raw->nodes[i].name != nullptr && node_name == raw->nodes[i].name) node = &raw->nodes[i];
+    // A mod's own model: its first node with a mesh.
+    for (cgltf_size i = 0; node == nullptr && object == 0 && sidecar.empty() && i < raw->nodes_count; ++i)
+        if (raw->nodes[i].mesh != nullptr) node = &raw->nodes[i];
     if (node == nullptr) return R::fail(std::string(path) + ": no node " + node_name);
 
     // The object's scale exponent: the PS1 drawer used the stored vertices as they are.
@@ -224,7 +248,8 @@ Result<ItemMesh> read_item_mesh(std::span<const std::uint8_t> glb, std::span<con
         for (int k = 0; k < 3; ++k) {
             const int pc = corners[static_cast<std::size_t>(k)] - first_corner;
             f.position[static_cast<std::size_t>(pc)] = t.position[static_cast<std::size_t>(k)];
-            if (gm.material.textured) {
+            f.uv[static_cast<std::size_t>(pc)] = t.uv[static_cast<std::size_t>(k)];
+            if (gm.material.textured && !gm.material.own_rgba) {
                 const int w = gm.material.sheet ? gm.tim_width : 256, h = gm.material.sheet ? gm.tim_height : 256;
                 const int u0 = gm.material.sheet ? gm.material.sheet->u0 : 0;
                 const int v0 = gm.material.sheet ? gm.material.sheet->v0 : 0;
@@ -238,12 +263,40 @@ Result<ItemMesh> read_item_mesh(std::span<const std::uint8_t> glb, std::span<con
     const json::Value* packets = side_object != nullptr ? side_object->find("primitives") : nullptr;
     if (packets == nullptr || !packets->is_array()) {
         // No face map: the glb's triangles as they are, in file order.
+        bool own = false;
         for (const auto& tris : primitives)
             for (const GlbTriangle& t : tris) {
                 mesh.faces.push_back(face_of(t, kPacketCorners[0], 0));
                 const GlbMaterial& gm = materials[static_cast<std::size_t>(t.material)];
                 if (!gm.material.textured && gm.semi) mesh.drawable = false;
+                own = own || gm.material.own_rgba != nullptr;
             }
+        if (own && !mesh.faces.empty()) {
+            // A mod's model in metres: centred and scaled so its longest side matches the game's item models.
+            constexpr float kItemSize = 440.0f;
+            float lo[3] = {1e30f, 1e30f, 1e30f}, hi[3] = {-1e30f, -1e30f, -1e30f};
+            for (const ItemFace& f : mesh.faces)
+                for (const auto& p : f.position)
+                    for (int c = 0; c < 3; ++c) {
+                        lo[c] = std::min(lo[c], p[static_cast<std::size_t>(c)]);
+                        hi[c] = std::max(hi[c], p[static_cast<std::size_t>(c)]);
+                    }
+            // By its face, not its longest side: the two largest extents' mean, so a thin model fills its slot as
+            // the game's items do.
+            float ext[3] = {hi[0] - lo[0], hi[1] - lo[1], hi[2] - lo[2]};
+            std::sort(ext, ext + 3);
+            const float face = std::sqrt(ext[1] * ext[2]);
+            const float k = face > 0.0f ? kItemSize / face : 1.0f;
+            // In the file's metres: the faces above are turned 180 degrees about Z (x and y negated).
+            const float per_metre = static_cast<float>(kUnitsPerMetre * unscale);
+            mesh.own_scale = k * per_metre;
+            mesh.own_middle = {-(lo[0] + hi[0]) * 0.5f / per_metre, -(lo[1] + hi[1]) * 0.5f / per_metre,
+                               (lo[2] + hi[2]) * 0.5f / per_metre};
+            for (ItemFace& f : mesh.faces)
+                for (auto& p : f.position)
+                    for (int c = 0; c < 3; ++c)
+                        p[static_cast<std::size_t>(c)] = (p[static_cast<std::size_t>(c)] - (lo[c] + hi[c]) * 0.5f) * k;
+        }
         return R::ok(std::move(mesh));
     }
 
@@ -457,6 +510,24 @@ ItemModelDraw add_item_model(const ItemMesh& model, const ItemModelPose& pose, c
     for (std::size_t i = 0; i < model.materials.size(); ++i) {
         const ItemMaterial& m = model.materials[i];
         if (!m.textured) continue;
+        if (m.own_rgba) {
+            // The model's own picture: registered once, keyed by the picture's address.
+            static std::map<const void*, SheetTexture> s_own;
+            static std::uint32_t s_own_generation = asset_generation();
+            if (s_own_generation != asset_generation()) {
+                s_own.clear();
+                s_own_generation = asset_generation();
+            }
+            auto [it, added] = s_own.try_emplace(m.own_rgba.get());
+            if (added) {
+                it->second.width = m.own_width;
+                it->second.height = m.own_height;
+                it->second.key = (reinterpret_cast<std::uintptr_t>(m.own_rgba.get()) * 1099511628211ull) | (1ull << 63);
+                add_prelit_texture(it->second.key, m.own_width, m.own_height, m.own_rgba->data());
+            }
+            bound[i].texture = it->second;
+            continue;
+        }
         std::optional<ItemSheet> sheet = m.sheet;
         if (!sheet && resolve) sheet = resolve(m.tpage, m.clut);
         if (!sheet) return out;
@@ -498,7 +569,24 @@ ItemModelDraw add_item_model(const ItemMesh& model, const ItemModelPose& pose, c
         const bool double_sided = m.textured && f.double_sided;
         const double nclip = (sx[1] - sx[0]) * (sy[2] - sy[0]) - (sx[2] - sx[0]) * (sy[1] - sy[0]);
         if (!visible || !(double_sided || nclip > 0.0)) continue;
-        if (m.textured) {
+        if (m.textured && m.own_rgba) {
+            t.texture = b.texture.key;
+            float bu0 = 1, bv0 = 1, bu1 = 0, bv1 = 0;
+            for (const auto& uv : f.uv) {
+                bu0 = std::min(bu0, uv[0]), bv0 = std::min(bv0, uv[1]), bu1 = std::max(bu1, uv[0]),
+                bv1 = std::max(bv1, uv[1]);
+            }
+            for (int k = 0; k < 3; k++) {
+                PrelitVertex& o = t.v[k];
+                o.u = f.uv[static_cast<std::size_t>(k)][0];
+                o.v = f.uv[static_cast<std::size_t>(k)][1];
+                o.r = o.g = o.b = shade(0x80);
+                o.box_u0 = bu0;
+                o.box_v0 = bv0;
+                o.box_u1 = bu1;
+                o.box_v1 = bv1;
+            }
+        } else if (m.textured) {
             t.texture = b.texture.key;
             if (f.semi) t.blend = blend_of_abr(b.abr);
             const float w = static_cast<float>(b.texture.width), hh = static_cast<float>(b.texture.height);
