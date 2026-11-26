@@ -86,8 +86,15 @@ public:
         return p;
     }
     gf::ArrivalPoint door_point() const override {
-        const gf::MapPointRecord d = link::map_point(event().point);
         gf::ArrivalPoint p;
+        // A map change a script asked for (load_map, sh.map_event_set: its event record requires flag -1) has no
+        // door: the player keeps no offset from one, and lands on the point itself.
+        if (event().required_flag == -1) {
+            p.x = player_x();
+            p.z = player_z();
+            return p;
+        }
+        const gf::MapPointRecord d = link::map_point(event().point);
         p.x = d.x;
         p.z = d.z;
         return p;
