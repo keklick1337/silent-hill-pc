@@ -94,6 +94,8 @@ public:
 
     virtual bool message_set() const { return sh::game::session().system.flow.message_shown != 0; }
     virtual void clear_message_set() { sh::game::session().system.flow.message_shown = 0; }
+    // A script's message shows over play (sh.world.say): gameplay keeps its message box set up.
+    virtual bool soft_message_active() const { return false; }
 
     virtual void run_gameplay() = 0;
     // A state the game still runs itself (the room and map load and the game over have their own modules).

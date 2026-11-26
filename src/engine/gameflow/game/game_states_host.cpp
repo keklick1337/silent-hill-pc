@@ -19,6 +19,7 @@
 #include "engine/gameflow/game/step_hosts.h"
 #include "engine/gameflow/game_states.h"
 #include "engine/gameflow/map_event_state.h"
+#include "engine/world/runtime_pickups.h"
 #include "engine/gameflow/menu_states.h"
 #include "engine/gameflow/world_frame.h"
 #include "engine/ids/game_numbers.h"
@@ -296,6 +297,7 @@ public:
     }
 
     gf::RunningEvent running_event() const override { return running_event_now(); }
+    bool soft_message_active() const override { return sh::world::soft_message() >= 0; }
 
     gf::GameState scan_events() override {
         Event_Update(true);

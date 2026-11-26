@@ -45,7 +45,9 @@ void StateMachine::frame(StateHost& host) {
     saved_delta_ = delta != 0 ? delta : host.raw_delta();
 
     if (host.state() == GameState::Gameplay) {
-        host.clear_message_set();
+        if (!host.soft_message_active()) {
+            host.clear_message_set();
+        }
         host.run_gameplay();
         return;
     }

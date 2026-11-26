@@ -69,6 +69,13 @@ struct MapEventState {
     // page shown is a re-display of the line that already finished.
     std::int32_t voice_dropped = 0;
     std::int32_t redisplay_setup = 0;
+
+    // An event a script queued while none was running (load_map or fmv from the game's own script, a mod's
+    // main.lua): the trigger scan rewrites the event of every frame, so the next scan that finds nothing of its own
+    // starts this one instead (map_events_host.cpp Event_Update). Null for none.
+    void* queued_event = nullptr;
+    std::int32_t queued_sys_state = 0;
+    std::uint32_t queued_param = 0;
 };
 
 namespace detail {

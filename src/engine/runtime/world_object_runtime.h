@@ -40,6 +40,8 @@ public:
     void init(std::string_view map);
     // The script's update(dt), the selection and the draws of this frame.
     void draw();
+    // A tool's draws after the map's objects of each frame (the modding tools' placement try-out); nullptr: none.
+    static void set_tool_draw(void (*fn)());
 
     // sh.world_object.*: getters work for every object, setters only for "script" objects.
     Result<void> set_position(std::string_view name, std::int32_t x, std::int32_t y, std::int32_t z);

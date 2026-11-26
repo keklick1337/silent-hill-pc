@@ -275,6 +275,7 @@ int hook_item_given(int item, int count, const char* source);
 bool script_map_handler(int param);
 bool runtime_pickups_run_event();
 void runtime_pickups_draw();
+bool runtime_pickups_start(std::string_view id);
 bool runtime_pickups_try_start(std::int32_t x, std::int32_t y, std::int32_t z,
                                const std::function<bool(std::int32_t, std::int32_t)>& facing);
 bool pick_npc_tick(int slot);

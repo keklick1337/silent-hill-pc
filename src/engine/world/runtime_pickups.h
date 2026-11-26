@@ -35,6 +35,9 @@ struct PickupSpec {
     std::array<std::int32_t, 3> position{};
     std::array<std::int16_t, 3> rotation{};
     bool ground = false;  // position[1] is not given: the resolver puts the pickup on the ground at (x, z)
+    // model = false in the script: nothing is drawn for it (the mod shows the thing itself, a world object of its own
+    // model); it is still taken up where it lies.
+    bool unseen = false;
 };
 
 // What the game made of the names (filled by the Resolver); the bridge uses these numbers every frame.
@@ -92,6 +95,8 @@ public:
     // The first pickup (creation order) not taken, on the player's storey, that `in_reach` accepts; null: none.
     const Pickup* reachable(const std::array<std::int32_t, 3>& player, const FlagQuery& flag_set,
                             const std::function<bool(const Pickup&)>& in_reach) const;
+    // Pickup `id` if it lies on the map now (not taken, on the ground); null otherwise.
+    const Pickup* present(std::string_view id, const FlagQuery& flag_set) const;
 
 private:
     std::string map_;
@@ -110,5 +115,35 @@ PickupRegistry& pickups();
 void request_script_message(int message);
 int pending_script_message();
 void clear_script_message();
+
+// A place a script makes something happen at (a trigger zone of its own, a save point, a door it shuts): only the
+// modding tools' overlay draws it, so the editor shows a mod's live story (sh.world.mark). Gone at a map change.
+struct ScriptMark {
+    std::string owner;  // mod id
+    std::string id;     // unique per owner
+    std::string label;
+    std::string kind;   // free text the overlay shows ("trigger", "save", "door")
+    std::int32_t x = 0, z = 0;  // Q12
+    std::int32_t radius = 0;    // Q12
+};
+void set_script_mark(ScriptMark mark);
+// Removes one mark of `owner` (or all of them with an empty id); true when one went.
+bool clear_script_marks(std::string_view owner, std::string_view id);
+const std::vector<ScriptMark>& script_marks();
+
+// A script asks for pickup `id`'s prompt as if the player had taken it up (sh.world.pickup_take): it starts when no
+// map event runs and the player is free. Empty when none waits.
+void request_pickup_take(std::string id);
+const std::string& pending_pickup_take();
+void clear_pickup_take();
+
+// A map message shown over play (sh.world.say): drawn every frame of free gameplay while the world goes on, advanced
+// or closed by the confirm button like any message. A map event that takes over drops it. -1 when none shows.
+void request_soft_message(int message);
+int soft_message();
+// The message box set the soft message up (its first frame is done).
+bool soft_message_started();
+void set_soft_message_started();
+void clear_soft_message();
 
 }  // namespace sh::world

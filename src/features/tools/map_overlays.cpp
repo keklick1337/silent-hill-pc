@@ -37,6 +37,8 @@
 #include "engine/game_state/game_state_world.h"
 #include "engine/ids/game_numbers.h"
 #include "engine/log/sh_log.h"
+#include "engine/chara/chara_library.h"
+#include "engine/chara/runtime/chara_data.h"
 #include "engine/maps/map_runtime.h"
 #include "engine/mods/load_order.h"
 #include "engine/mods/registry.h"
@@ -44,6 +46,7 @@
 #include "engine/script/sh_script.h"
 #include "engine/vfs/vfs_data_json.h"
 #include "engine/world/collision_triggers.h"
+#include "engine/world/runtime_pickups.h"
 #include "engine/world/world_objects.h"
 #include "formats/common/json.h"
 #include "formats/convert/mapdata/mapdata.h"
@@ -56,11 +59,11 @@ namespace gs = sh::game_state;
 namespace dt = sh::devtools;
 namespace cam = sh::camera;
 
-enum class Kind : std::uint8_t { Event, Door, Spawn, Object, Camera, Collision, Room, Count };
+enum class Kind : std::uint8_t { Event, Door, Spawn, Object, Camera, Collision, Room, Live, Count };
 
-constexpr const char* kKindNames[] = {"event", "door", "spawn", "object", "camera", "collision", "room"};
+constexpr const char* kKindNames[] = {"event", "door", "spawn", "object", "camera", "collision", "room", "live"};
 constexpr const char* kOverlayIds[] = {"map.events", "map.doors", "map.spawns", "map.objects",
-                                       "map.cameras", "map.collision", "map.rooms"};
+                                       "map.cameras", "map.collision", "map.rooms", "map.live"};
 constexpr double kPi = std::numbers::pi;
 constexpr double kFacingReach = 0.8;  // FacingPoint reach outside first person (event_triggers.h)
 constexpr double kOrientedBoxDepth = 4.0;
@@ -164,7 +167,20 @@ struct Settings {
     float distance = 40.0f;      // markers farther from the camera are not drawn
     float label_distance = 20.0f;
     bool labels = true;
+    // What runs now rather than what the files hold: events whose flags shut them, world objects not drawn now are
+    // left out; the scripts' pickups, marks and live characters are shown (the "live" kind).
+    bool live = true;
 };
+
+// The scripts' things of the "live" kind, rebuilt with the markers: pickups, marks, characters.
+struct LiveThing {
+    std::string label;
+    std::string detail;
+    Vec3 pos;
+    double radius = 0;
+    int type = 0;  // 0 pickup, 1 mark, 2 character
+};
+std::vector<LiveThing> s_live;
 Settings s_settings;
 
 struct Selection {
@@ -353,6 +369,11 @@ std::vector<Marker> collect_markers() {
     const int events = event_count();
     for (int i = 0; i < events; ++i) {
         const sh::maps::MapEventRecord& e = rt().events()[i];
+        // Live: an event a flag shuts now (its condition unmet, or done) cannot run.
+        if (s_settings.live && ((e.required_flag > 0 && !gs::event_flag(e.required_flag)) ||
+                                (e.done_flag > 0 && gs::event_flag(e.done_flag)))) {
+            continue;
+        }
         Marker m;
         m.kind = is_door(e) ? Kind::Door : Kind::Event;
         m.index = i;
@@ -380,6 +401,7 @@ std::vector<Marker> collect_markers() {
         const auto objects = wo.describe();
         for (std::size_t i = 0; i < objects.size(); ++i) {
             const auto& o = objects[i];
+            if (s_settings.live && !o.queued) continue;  // not drawn now (its cells or flags)
             Marker m;
             m.kind = Kind::Object;
             m.index = static_cast<int>(i);
@@ -426,6 +448,49 @@ std::vector<Marker> collect_markers() {
         std::snprintf(text, sizeof(text), "trigger %zu h %.1f m", i, b.height_steps * 0.5);
         m.label = text;
         m.search = lower(m.label + " collision");
+        out.push_back(std::move(m));
+    }
+    // The scripts' live things: their pickups (not taken), their marks, the characters in the world now.
+    s_live.clear();
+    for (const sh::world::Pickup& p : sh::world::pickups().all()) {
+        if (p.resolved.flag > 0 && gs::event_flag(p.resolved.flag)) continue;
+        LiveThing t;
+        t.type = 0;
+        t.pos = {metres(p.spec.position[0]), p.spec.ground ? y : metres(p.spec.position[1]),
+                 metres(p.spec.position[2])};
+        t.label = "pickup " + p.spec.id + " (" + p.spec.item + ")";
+        t.detail = "flag " + p.spec.flag + (p.spec.unseen ? ", drawn by a world object" : ", model " + p.spec.model);
+        s_live.push_back(std::move(t));
+    }
+    for (const sh::world::ScriptMark& k : sh::world::script_marks()) {
+        LiveThing t;
+        t.type = 1;
+        t.pos = {metres(k.x), y, metres(k.z)};
+        t.radius = metres(k.radius);
+        t.label = k.label + (k.kind.empty() ? std::string() : " [" + k.kind + "]");
+        t.detail = k.owner + ":" + k.id;
+        s_live.push_back(std::move(t));
+    }
+    for (int slot = 1; slot <= gs::kNpcSlots; ++slot) {
+        const int id = gs::chara_id(slot);
+        if (id <= 0) continue;
+        const sh::entities::Vec3 q = gs::chara_position(slot);
+        LiveThing t;
+        t.type = 2;
+        t.pos = {metres(q.x), metres(q.y), metres(q.z)};
+        const sh::chara::CharaLibrary* lib = Pc_CharaData_Library();
+        const sh::chara::CharacterDef* def = lib != nullptr ? lib->find(id) : nullptr;
+        t.label = (def != nullptr ? def->folder : std::string("chara")) + " #" + std::to_string(slot);
+        t.detail = "character slot " + std::to_string(slot);
+        s_live.push_back(std::move(t));
+    }
+    for (std::size_t i = 0; i < s_live.size(); ++i) {
+        Marker m;
+        m.kind = Kind::Live;
+        m.index = static_cast<int>(i);
+        m.pos = s_live[i].pos;
+        m.label = s_live[i].label;
+        m.search = lower(m.label + " " + s_live[i].detail + " live");
         out.push_back(std::move(m));
     }
     if (s_rooms.map == rt().name() && s_rooms.size > 0) {
@@ -812,6 +877,27 @@ void draw_rooms(Draw3D& d) {
     });
 }
 
+void draw_live(Draw3D& d) {
+    each_visible(Kind::Live, [&](const Marker& m, double dist) {
+        if (m.index < 0 || static_cast<std::size_t>(m.index) >= s_live.size()) return;
+        const LiveThing& t = s_live[static_cast<std::size_t>(m.index)];
+        const bool sel = is_selected(m.kind, m.index);
+        static const Color kTypes[] = {
+            {1.0f, 0.95f, 0.3f, 1.0f}, {0.85f, 0.4f, 1.0f, 1.0f}, {1.0f, 0.25f, 0.25f, 1.0f}};
+        const Color c = sel ? kSelected : kTypes[std::clamp(t.type, 0, 2)];
+        if (t.type == 1) {
+            d.circle_xz(m.pos, t.radius > 0.05 ? t.radius : 0.4, c, 28, sel ? 3.0f : 1.5f);
+            d.line(m.pos, {m.pos.x, m.pos.y - 1.0, m.pos.z}, c, 1.5f);
+        } else if (t.type == 0) {
+            d.cross(m.pos, 0.25, c, sel ? 3.0f : 2.0f);
+        } else {
+            d.circle_xz(m.pos, 0.45, c, 16, 2.0f);
+            d.line(m.pos, {m.pos.x, m.pos.y - 1.7, m.pos.z}, c, 1.5f);
+        }
+        maybe_label(d, m, dist, {m.pos.x, m.pos.y - 1.2, m.pos.z}, c);
+    });
+}
+
 // --- selection ---
 
 std::optional<Marker> find_marker(Kind k, int index) {
@@ -1114,6 +1200,11 @@ void draw_inspector() {
     ImGui::SliderFloat("labels within (m)", &s_settings.label_distance, 0.0f, 100.0f, "%.0f");
     ImGui::Checkbox("labels", &s_settings.labels);
     ImGui::SameLine();
+    ImGui::Checkbox("live", &s_settings.live);
+    if (ImGui::IsItemHovered())
+        ImGui::SetTooltip("What runs now: events and world objects the flags shut are left out;\n"
+                          "the scripts' pickups, marks (sh.world.mark) and the characters in the world are shown.");
+    ImGui::SameLine();
     if (ImGui::SmallButton("Reload names")) {
         const std::string map = rt().name();
         defer([map] { load_extras(map); });
@@ -1168,6 +1259,14 @@ void draw_inspector() {
         case Kind::Camera: inspect_camera(m->index); break;
         case Kind::Collision: inspect_collision(m->index); break;
         case Kind::Room: inspect_room(m->index); break;
+        case Kind::Live:
+            if (m->index >= 0 && static_cast<std::size_t>(m->index) < s_live.size()) {
+                const LiveThing& t = s_live[static_cast<std::size_t>(m->index)];
+                ImGui::TextUnformatted(t.label.c_str());
+                ImGui::TextDisabled("%s", t.detail.c_str());
+                ImGui::Text("at %.2f, %.2f, %.2f", t.pos.x, t.pos.y, t.pos.z);
+            }
+            break;
         case Kind::Count: break;
     }
 }
@@ -1238,6 +1337,7 @@ struct Install {
         register_overlay({kOverlayIds[4], "Camera zones", &draw_cameras, false});
         register_overlay({kOverlayIds[5], "Collision triggers", &draw_collision, false});
         register_overlay({kOverlayIds[6], "Rooms", &draw_rooms, false});
+        register_overlay({kOverlayIds[7], "Scripts: pickups, marks, characters", &draw_live, true});
         register_selection_handler("map.inspector", 100, &on_pick);
         register_command();
     }

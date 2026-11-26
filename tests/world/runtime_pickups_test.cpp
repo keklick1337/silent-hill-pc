@@ -338,3 +338,34 @@ SH_TEST(runtime_pickups_script_api_units) {
     reg.begin_map("");
     reg.set_resolver(nullptr);
 }
+
+// A pickup a mod draws itself (model = false) needs no world model; present() finds it until it is taken; a script's
+// take request and its marks for the tools live until the next map.
+SH_TEST(runtime_pickups_unseen_take_and_marks) {
+    FakeResolver names;
+    names.items["mod:Key"] = 200;
+    names.flags["mod:key_taken"] = 1700;
+    sw::PickupRegistry reg;
+    reg.set_resolver(&names);
+    reg.begin_map("map2_s00");
+    sw::PickupSpec key = spec("mod:key", "mod:Key", "mod:key_taken", 1, 2, 0);
+    key.message = "mod:take_key";
+    SH_CHECK(!reg.create(key));  // no world model and none given
+    key.unseen = true;
+    SH_CHECK(reg.create(key));
+    bool taken = false;
+    const auto flag_set = [&](int flag) { return taken && flag == 1700; };
+    SH_CHECK(reg.present("mod:key", flag_set) != nullptr && reg.present("mod:other", flag_set) == nullptr);
+    taken = true;
+    SH_CHECK(reg.present("mod:key", flag_set) == nullptr);
+
+    sw::request_pickup_take("mod:key");
+    SH_CHECK(sw::pending_pickup_take() == "mod:key");
+    sw::set_script_mark({"mod", "lever", "the lever", "action", m(1), m(2), m(1.5)});
+    sw::set_script_mark({"mod", "lever", "the lever moved", "action", m(3), m(2), m(1.5)});
+    sw::set_script_mark({"other", "lever", "", "", 0, 0, 0});
+    SH_CHECK(sw::script_marks().size() == 2 && sw::script_marks()[0].label == "the lever moved");
+    SH_CHECK(sw::clear_script_marks("other", "") && sw::script_marks().size() == 1);
+    reg.begin_map("map2_s02");
+    SH_CHECK(sw::pending_pickup_take().empty() && sw::script_marks().empty());
+}

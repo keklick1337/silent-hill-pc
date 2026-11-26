@@ -243,6 +243,12 @@ std::vector<std::size_t> WorldObjectRuntime::update_and_select() {
     return out;
 }
 
+namespace {
+void (*g_tool_draw)() = nullptr;
+}  // namespace
+
+void WorldObjectRuntime::set_tool_draw(void (*fn)()) { g_tool_draw = fn; }
+
 void WorldObjectRuntime::draw() {
     if (!table_) {
         return;
@@ -250,6 +256,9 @@ void WorldObjectRuntime::draw() {
     const std::vector<std::size_t> selected = update_and_select();
     for (const std::size_t i : selected) {
         gs::world_object_record_draw(i);
+    }
+    if (g_tool_draw != nullptr) {
+        g_tool_draw();
     }
     queued_ = selected;
     if (!shadow_enabled()) {

@@ -24,6 +24,9 @@ void runtime_pickups_draw();
 // `facing` (x, z) accepts. True when one started.
 bool runtime_pickups_try_start(const std::array<std::int32_t, 3>& player,
                                const std::function<bool(std::int32_t x, std::int32_t z)>& facing);
+// Starts the prompt of pickup `id` wherever the player stands (a script's sh.world.pickup_take). True when it
+// started: the pickup lies on the map and is not taken.
+bool runtime_pickups_start(std::string_view id);
 // A runtime pickup's prompt is the current map event: its id and where it lies.
 bool runtime_pickups_active(std::string* id, std::array<std::int32_t, 3>* position);
 // The map event step of a running prompt; false when the current event is not one.

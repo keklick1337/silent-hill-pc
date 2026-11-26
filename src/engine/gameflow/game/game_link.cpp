@@ -681,6 +681,7 @@ int hook_item_given(int item, int count, const char* source) {
 bool script_map_handler(int param) { return ShScript_CallMapHandler(param) != 0; }
 bool runtime_pickups_run_event() { return sh::world::runtime_pickups_run_event(); }
 void runtime_pickups_draw() { sh::world::runtime_pickups_draw(); }
+bool runtime_pickups_start(std::string_view id) { return sh::world::runtime_pickups_start(id); }
 bool runtime_pickups_try_start(std::int32_t x, std::int32_t y, std::int32_t z,
                                const std::function<bool(std::int32_t, std::int32_t)>& facing) {
     return sh::world::runtime_pickups_try_start({x, y, z}, facing);

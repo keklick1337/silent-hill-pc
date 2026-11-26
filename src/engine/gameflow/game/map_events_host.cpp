@@ -253,6 +253,38 @@ extern "C" void Event_Update(unsigned int disableButtonEvents) {
                                             return triggers().facing_point(frame, p);
                                         });
     }
+    // A pickup a script takes up for the player (sh.world.pickup_take), when nothing else runs.
+    if (!sh::world::pending_pickup_take().empty() && !frame.player_busy &&
+        gf::map_event_state().sys_state == static_cast<std::int32_t>(gf::GameState::None)) {
+        const std::string id = sh::world::pending_pickup_take();
+        sh::world::clear_pickup_take();
+        link::runtime_pickups_start(id);
+    }
+    // An event a script queued outside a running event starts when the scan picked none (map_event_state.h).
+    if (gf::MapEventState& s = gf::map_event_state(); s.queued_event != nullptr && !frame.player_busy &&
+                                                      s.sys_state == static_cast<std::int32_t>(gf::GameState::None)) {
+        s.event = s.queued_event;
+        s.sys_state = s.queued_sys_state;
+        s.param = s.queued_param;
+        s.queued_event = nullptr;
+        return;
+    }
+    // A message a script shows over play (sh.world.say): drawn here, where map events draw theirs, while nothing
+    // else holds the player; a map event that starts drops it.
+    if (const int soft = sh::world::soft_message(); soft >= 0) {
+        const std::int32_t now = gf::map_event_state().sys_state;
+        if (now != static_cast<std::int32_t>(gf::GameState::None) &&
+            now != static_cast<std::int32_t>(gf::GameState::Gameplay)) {
+            sh::world::clear_soft_message();
+        } else {
+            const int state = link::map_message_draw(soft);
+            if (!sh::world::soft_message_started()) {
+                sh::world::set_soft_message_started();
+            } else if (state != 0) {
+                sh::world::clear_soft_message();
+            }
+        }
+    }
     if (const int message = sh::world::pending_script_message();
         message >= 0 && !frame.player_busy &&
         gf::map_event_state().sys_state == static_cast<std::int32_t>(gf::GameState::None)) {

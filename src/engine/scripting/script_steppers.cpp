@@ -14,6 +14,7 @@
 #include "engine/game_state/game_state_script.h"
 #include "engine/game_state/session.h"
 #include "engine/gameflow/game/game_link.h"
+#include "engine/gameflow/event_triggers.h"
 #include "engine/gameflow/map_event_state.h"
 #include "engine/app/game_view.h"
 #include "engine/runtime/game_hooks.h"
@@ -202,6 +203,14 @@ void map_event_set(int sys_state, int param, int map, int complete_flag) {
                             ((static_cast<std::uint32_t>(param) & 0xFF) << 5) |
                             ((static_cast<std::uint32_t>(map) & 0x3F) << 25);
     sh::gameflow::MapEventState& state = sh::gameflow::map_event_state();
+    if (state.sys_state == static_cast<std::int32_t>(sh::gameflow::GameState::None) ||
+        state.sys_state == static_cast<std::int32_t>(sh::gameflow::GameState::Gameplay)) {
+        // No event is running (the game's own script, a coroutine): the next trigger scan would overwrite it.
+        state.queued_event = &g_SyntheticEvent;
+        state.queued_sys_state = sys_state;
+        state.queued_param = static_cast<std::uint32_t>(param);
+        return;
+    }
     state.event = &g_SyntheticEvent;
     state.sys_state = sys_state;
     state.param = static_cast<std::uint32_t>(param);

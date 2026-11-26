@@ -162,6 +162,15 @@ int l_pickup_create(lua_State* L) {
                                    {"flag", &spec.flag},
                                    {"message", &spec.message},
                                    {"model", &spec.model}}) {
+        if (std::string_view(key) == "model") {
+            lua_getfield(L, 1, "model");
+            const bool none = lua_isboolean(L, -1) && !lua_toboolean(L, -1);
+            lua_pop(L, 1);
+            if (none) {
+                spec.unseen = true;
+                continue;
+            }
+        }
         if (!opt_string(L, 1, key, *out)) {
             return fail(L, std::string(key) + " must be a string");
         }
@@ -260,6 +269,82 @@ int l_message(lua_State* L) {
     return 1;
 }
 
+// sh.world.say(key) -> true | nil, err: the map message `key` shown over play, the world going on; the confirm
+// button advances it. sh.world.saying() -> bool: it still shows.
+int l_say(lua_State* L) {
+    int index = -1;
+    if (lua_type(L, 1) == LUA_TSTRING) {
+        const auto find = host_of(L)->game_api().msg_index;
+        index = find != nullptr ? find(lua_tostring(L, 1)) : -1;
+    } else {
+        index = static_cast<int>(luaL_checkinteger(L, 1));
+    }
+    if (index < 0 || index > 255) {
+        lua_pushnil(L);
+        lua_pushfstring(L, "no message '%s' on this map", luaL_tolstring(L, 1, nullptr));
+        return 2;
+    }
+    sw::request_soft_message(index);
+    lua_pushboolean(L, 1);
+    return 1;
+}
+
+int l_saying(lua_State* L) {
+    lua_pushboolean(L, sw::soft_message() >= 0);
+    return 1;
+}
+
+// sh.world.hush(): the message of sh.world.say ends now (a script skips it on a button).
+int l_hush(lua_State*) {
+    sw::clear_soft_message();
+    return 0;
+}
+
+// sh.world.pickup_take(id) -> bool: the pickup's prompt starts as if the player had taken it up (once nothing else
+// runs); false when no such pickup lies on the map.
+int l_pickup_take(lua_State* L) {
+    const std::string id = id_arg(L, 1);
+    const sw::Pickup* p = sw::pickups().find(id);
+    const bool ok = p != nullptr;
+    if (ok) sw::request_pickup_take(id);
+    lua_pushboolean(L, ok);
+    return 1;
+}
+
+// sh.world.mark(id, {x, z, r, label, kind}) / sh.world.unmark([id]): a place of the script's story the modding tools'
+// overlay draws (x, z, r in metres); gone at a map change.
+int l_mark(lua_State* L) {
+    sw::ScriptMark mark;
+    mark.owner = caller_mod(L);
+    mark.id = id_arg(L, 1);
+    luaL_checktype(L, 2, LUA_TTABLE);
+    auto num = [&](const char* k) {
+        lua_getfield(L, 2, k);
+        const double v = lua_isnumber(L, -1) ? lua_tonumber(L, -1) : 0.0;
+        lua_pop(L, 1);
+        return static_cast<std::int32_t>(v * 4096.0);  // metres
+    };
+    auto str = [&](const char* k, std::string& out) {
+        lua_getfield(L, 2, k);
+        if (lua_isstring(L, -1)) out = lua_tostring(L, -1);
+        lua_pop(L, 1);
+    };
+    mark.x = num("x");
+    mark.z = num("z");
+    mark.radius = num("r");
+    str("label", mark.label);
+    str("kind", mark.kind);
+    if (mark.label.empty()) mark.label = mark.id;
+    sw::set_script_mark(std::move(mark));
+    return 0;
+}
+
+int l_unmark(lua_State* L) {
+    const std::string id = lua_isnoneornil(L, 1) ? std::string() : id_arg(L, 1);
+    lua_pushboolean(L, sw::clear_script_marks(caller_mod(L), id));
+    return 1;
+}
+
 int l_pickup_remove(lua_State* L) {
     lua_pushboolean(L, sw::pickups().remove(id_arg(L, 1)));
     return 1;
@@ -337,8 +422,14 @@ void install_world_pickup_family(lua_State* L, Host* host) {
     }
     for (const auto& f : {std::pair<const char*, lua_CFunction>{"pickup_create", l_pickup_create},
                           {"pickup_remove", l_pickup_remove},
+                          {"pickup_take", l_pickup_take},
+                          {"mark", l_mark},
+                          {"unmark", l_unmark},
                           {"pickups", l_pickups},
-                          {"message", l_message}}) {
+                          {"message", l_message},
+                          {"say", l_say},
+                          {"saying", l_saying},
+                          {"hush", l_hush}}) {
         lua_pushlightuserdata(L, host);
         lua_pushcclosure(L, f.second, 1);
         lua_setfield(L, -2, f.first);

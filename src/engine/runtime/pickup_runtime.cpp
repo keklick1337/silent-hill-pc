@@ -74,6 +74,9 @@ void sync_records() {
     rec.revision = reg.revision();
     std::map<std::string, gs::PickupRecord> next;
     for (const Pickup& p : reg.all()) {
+        if (p.spec.unseen) {
+            continue;  // drawn by nobody here
+        }
         auto it = rec.live.find(p.spec.id);
         gs::PickupRecord record = nullptr;
         if (it != rec.live.end()) {
@@ -169,6 +172,23 @@ bool runtime_pickups_try_start(const std::array<std::int32_t, 3>& player,
     r.position = p->spec.position;
     gs::start_pickup_event();
     SH_LOG("[PICKUP] %s: %s taken up (%s)", reg.map().c_str(), r.id.c_str(), p->spec.item.c_str());
+    return true;
+}
+
+bool runtime_pickups_start(std::string_view id) {
+    const PickupRegistry& reg = pickups();
+    const Pickup* p = reg.present(id, flag_set);
+    if (p == nullptr) {
+        return false;
+    }
+    Running& r = running();
+    r.active = true;
+    r.id = p->spec.id;
+    r.resolved = p->resolved;
+    r.count = p->spec.count;
+    r.position = p->spec.position;
+    gs::start_pickup_event();
+    SH_LOG("[PICKUP] %s: %s taken up by its script (%s)", reg.map().c_str(), r.id.c_str(), p->spec.item.c_str());
     return true;
 }
 

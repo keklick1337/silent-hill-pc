@@ -7,6 +7,8 @@
 
 namespace sh::world {
 
+std::vector<ScriptMark>& script_marks_store();
+
 namespace {
 
 std::int64_t abs64(std::int64_t v) { return v < 0 ? -v : v; }
@@ -37,6 +39,8 @@ bool absent(const Pickup& p, const PickupRegistry::FlagQuery& flag_set) {
 void PickupRegistry::begin_map(std::string_view map) {
     // A waiting message is a number of the map being left.
     clear_script_message();
+    clear_pickup_take();
+    script_marks_store().clear();
     map_ = std::string(map);
     map_loaded_ = !map_.empty();
     if (!pickups_.empty()) {
@@ -82,8 +86,8 @@ Result<std::string> PickupRegistry::create(PickupSpec spec) {
             return Result<std::string>::fail(ok.error());
         }
     }
-    if (spec.model.empty()) {
-        return Result<std::string>::fail("no world model for item '" + spec.item + "' (give model=)");
+    if (spec.model.empty() && !spec.unseen) {
+        return Result<std::string>::fail("no world model for item '" + spec.item + "' (give model=, or model=false)");
     }
     if (spec.model.size() > 8) {
         return Result<std::string>::fail("model name '" + spec.model + "' is longer than 8 characters");
@@ -163,13 +167,64 @@ const Pickup* PickupRegistry::reachable(const std::array<std::int32_t, 3>& playe
     return nullptr;
 }
 
+const Pickup* PickupRegistry::present(std::string_view id, const FlagQuery& flag_set) const {
+    const Pickup* p = find(id);
+    return p != nullptr && !absent(*p, flag_set) ? p : nullptr;
+}
+
 namespace {
 int g_script_message = -1;
+std::string g_pickup_take;
 }  // namespace
+
+std::vector<ScriptMark>& script_marks_store() {
+    static std::vector<ScriptMark> m;
+    return m;
+}
+
+void set_script_mark(ScriptMark mark) {
+    for (ScriptMark& m : script_marks_store()) {
+        if (m.owner == mark.owner && m.id == mark.id) {
+            m = std::move(mark);
+            return;
+        }
+    }
+    script_marks_store().push_back(std::move(mark));
+}
+
+bool clear_script_marks(std::string_view owner, std::string_view id) {
+    const std::size_t before = script_marks_store().size();
+    std::erase_if(script_marks_store(),
+                  [&](const ScriptMark& m) { return m.owner == owner && (id.empty() || m.id == id); });
+    return script_marks_store().size() != before;
+}
+
+const std::vector<ScriptMark>& script_marks() { return script_marks_store(); }
+
+void request_pickup_take(std::string id) { g_pickup_take = std::move(id); }
+const std::string& pending_pickup_take() { return g_pickup_take; }
+void clear_pickup_take() { g_pickup_take.clear(); }
 
 void request_script_message(int message) { g_script_message = message; }
 int pending_script_message() { return g_script_message; }
 void clear_script_message() { g_script_message = -1; }
+
+namespace {
+int g_soft_message = -1;
+bool g_soft_started = false;
+}  // namespace
+
+void request_soft_message(int message) {
+    g_soft_message = message;
+    g_soft_started = false;
+}
+int soft_message() { return g_soft_message; }
+bool soft_message_started() { return g_soft_started; }
+void set_soft_message_started() { g_soft_started = true; }
+void clear_soft_message() {
+    g_soft_message = -1;
+    g_soft_started = false;
+}
 
 PickupRegistry& pickups() {
     static PickupRegistry registry;
