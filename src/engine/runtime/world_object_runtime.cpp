@@ -11,6 +11,7 @@
 #include "engine/vfs/vfs_data_json.h"
 #include "engine/world/disc_poses.h"
 #include "engine/world/object_queue.h"
+#include "engine/world/solid_objects.h"
 #include "formats/convert/gamefiles/game_files.h"
 
 #include <algorithm>
@@ -190,6 +191,7 @@ void WorldObjectRuntime::init(std::string_view map) {
         std::atexit(log_summary_at_exit);
     }
     log_summary("map change");
+    solid_cylinders().clear();
     if (!load(map)) {
         return;
     }
@@ -261,6 +263,21 @@ void WorldObjectRuntime::draw() {
         g_tool_draw();
     }
     queued_ = selected;
+    // The solid parts of what is drawn now, for the movement pass (the list is empty on a map without any).
+    std::vector<SolidCylinder>& solid = solid_cylinders();
+    solid.clear();
+    for (const std::size_t i : selected) {
+        const WorldObjectState& state = states_[i];
+        for (const WorldObjectCollider& c : table_->objects[i].collision) {
+            SolidCylinder s;
+            s.x = state.position[0] + c.offset[0];
+            s.z = state.position[2] + c.offset[2];
+            s.bottom = state.position[1] + c.offset[1];
+            s.top = s.bottom - c.height;
+            s.radius = c.radius;
+            solid.push_back(s);
+        }
+    }
     if (!shadow_enabled()) {
         return;
     }

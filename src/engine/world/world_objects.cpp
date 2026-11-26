@@ -147,6 +147,39 @@ Result<void> read_object(const Value& v, WorldObjectDef& out) {
             }
             out.item_model = file->string();
             out.item_model_scale = scale != nullptr ? scale->number() : 1.0;
+        } else if (key == "collision") {
+            if (!e.is_array()) {
+                return fail_at(e, "\"collision\" must be an array of cylinders");
+            }
+            for (const Value& c : e.array()) {
+                const Value* offset = c.is_object() ? c.find("offset") : nullptr;
+                const Value* radius = c.is_object() ? c.find("radius") : nullptr;
+                const Value* height = c.is_object() ? c.find("height") : nullptr;
+                const bool offset_ok = offset == nullptr || (offset->is_array() && offset->array().size() == 3 &&
+                                                             offset->array()[0].is_number() &&
+                                                             offset->array()[1].is_number() &&
+                                                             offset->array()[2].is_number());
+                if (radius == nullptr || height == nullptr || !radius->is_number() || !height->is_number() ||
+                    radius->number() <= 0.0 || height->number() <= 0.0 || !offset_ok) {
+                    return fail_at(c, "a collision cylinder is {\"offset\": [x, y, z], \"radius\": > 0, "
+                                      "\"height\": > 0} in metres");
+                }
+                for (const Value::Member& part : c.members()) {
+                    if (part.first != "offset" && part.first != "radius" && part.first != "height" &&
+                        part.first != "description" && part.first.rfind('_', 0) != 0) {
+                        return fail_at(part.second, "unknown collision key \"" + part.first + "\"");
+                    }
+                }
+                WorldObjectCollider collider;
+                if (offset != nullptr) {
+                    for (std::size_t axis = 0; axis < 3; ++axis) {
+                        collider.offset[axis] = world_metres_to_q12(offset->array()[axis].number());
+                    }
+                }
+                collider.radius = world_metres_to_q12(radius->number());
+                collider.height = world_metres_to_q12(height->number());
+                out.collision.push_back(collider);
+            }
         } else if (key == "pose") {
             has_pose = true;
             out.pose = WorldObjectPoseRef{};

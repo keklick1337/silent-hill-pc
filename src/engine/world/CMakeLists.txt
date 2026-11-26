@@ -46,6 +46,7 @@ add_library(sh_world STATIC
     ../math/precise_capture.cpp
     world.cpp
     world_objects.cpp
+    solid_objects.cpp
     disc_poses.cpp
     runtime_pickups.cpp
     world_script.cpp

@@ -37,6 +37,15 @@ struct WorldObjectPoseRef {
     std::uint32_t disc_address = 0;
 };
 
+// A solid part of an object: an upright cylinder characters cannot walk through. `offset` is the middle of its foot
+// from the object's position along the world's axes (it does not turn with the object); it stands `height` up from
+// there. Q19.12.
+struct WorldObjectCollider {
+    std::array<std::int32_t, 3> offset{};
+    std::int32_t radius = 0;
+    std::int32_t height = 0;
+};
+
 struct WorldObjectDef {
     std::string name;                        // readable id within the map ("SavePad")
     std::string model;                       // model name in the map's or the item models (<= 8 chars)
@@ -58,6 +67,9 @@ struct WorldObjectDef {
     // the model `model` names in the map's libraries; `model` is then only the object's own model name.
     std::string item_model;
     double item_model_scale = 1.0;
+    // Port addition: while the object is drawn, characters are stopped by these cylinders ("collision"). The game's
+    // own objects have none: what blocks the way there is the map's collision.
+    std::vector<WorldObjectCollider> collision;
 };
 
 struct WorldObjectTable {

@@ -25,6 +25,7 @@
 #include "engine/world/collision_triggers.h"
 #include "engine/world/line_of_sight.h"
 #include "engine/world/move_query.h"
+#include "engine/world/solid_objects.h"
 #include "engine/world/mover_setup.h"
 #include "engine/world/wall_detect.h"
 #include "engine/world/world.h"
@@ -174,6 +175,9 @@ struct MoveInputs {
     std::vector<CeilingBox> ceilings;
 };
 
+// Above every state a character has: a mover is never let 15 units into a world object's solid part.
+constexpr std::uint8_t kSolidObjectState = 15;
+
 MoveObstacle part_obstacle(ColliderPart& p) {
     MoveObstacle o;
     o.x = p.position.x >> 4;
@@ -225,6 +229,19 @@ void build_move_inputs(MoveInputs& in, int mover_state, std::span<CharacterRecor
         b.radius = c->collision.cylinder.radius;
         b.max_slowdown = mover_rules(c->model.chara_id).crowd_slowdown;
         in.slowdown.push_back(b);
+    }
+    // The solid parts of world objects ("collision" in world_objects.json): bodies of the highest state, so nothing
+    // pushes through them.
+    for (SolidCylinder& s : solid_cylinders()) {
+        MoveBody body;
+        body.main.x = s.x >> 4;
+        body.main.z = s.z >> 4;
+        body.main.low = static_cast<std::int16_t>(s.top >> 4);
+        body.main.high = static_cast<std::int16_t>(s.bottom >> 4);
+        body.main.other_radius = static_cast<std::int16_t>(s.radius >> 4);
+        body.main.collision_state = kSolidObjectState;
+        body.main.mark = &s.pass_stamp;
+        in.bodies.push_back(body);
     }
     const ActiveTriggers& active = active_triggers();
     for (int i = 0; i < active.count; ++i) {

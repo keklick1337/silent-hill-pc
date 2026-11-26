@@ -597,6 +597,34 @@ SH_TEST(world_objects_gamedata_all_version2_parse) {
     SH_CHECK(version2 >= 6);
 }
 
+// "collision": upright cylinders in metres from the object's position; the game's own objects have none.
+SH_TEST(world_objects_collision) {
+    const auto parsed = sw::parse_world_objects(doc(
+        R"({"name":"Bike","model":"BIKE","position":[1,0,1],"collision":[)"
+        R"({"offset":[0.5,-0.25,-1],"radius":0.25,"height":0.5,"description":"the tank"},{"radius":1,"height":2}]},)"
+        R"({"name":"Plain","model":"KEY_HIDE","position":[1,0,1]})"));
+    SH_CHECK(static_cast<bool>(parsed));
+    if (!parsed) {
+        return;
+    }
+    const sw::WorldObjectTable& t = parsed.value();
+    SH_CHECK(t.objects[0].collision.size() == 2 && t.objects[1].collision.empty());
+    if (t.objects[0].collision.size() == 2) {
+        const sw::WorldObjectCollider& a = t.objects[0].collision[0];
+        SH_CHECK(a.offset[0] == 2048 && a.offset[1] == -1024 && a.offset[2] == -4096);
+        SH_CHECK(a.radius == 1024 && a.height == 2048);
+        const sw::WorldObjectCollider& b = t.objects[0].collision[1];
+        SH_CHECK(b.offset[0] == 0 && b.offset[1] == 0 && b.offset[2] == 0 && b.radius == 4096 && b.height == 8192);
+    }
+    SH_CHECK(!sw::parse_world_objects(doc(R"({"name":"A","model":"M","position":[0,0,0],"collision":{"radius":1}})")));
+    SH_CHECK(!sw::parse_world_objects(
+        doc(R"({"name":"A","model":"M","position":[0,0,0],"collision":[{"radius":0,"height":1}]})")));
+    SH_CHECK(!sw::parse_world_objects(
+        doc(R"({"name":"A","model":"M","position":[0,0,0],"collision":[{"radius":1,"height":1,"size":2}]})")));
+    SH_CHECK(!sw::parse_world_objects(
+        doc(R"({"name":"A","model":"M","position":[0,0,0],"collision":[{"radius":1,"height":1,"offset":[0,0]}]})")));
+}
+
 // "item_model": the object is drawn from an item model file at a scale; "description" is a note.
 SH_TEST(world_objects_item_model) {
     const auto parsed = sw::parse_world_objects(doc(
