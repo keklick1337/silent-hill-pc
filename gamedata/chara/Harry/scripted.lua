@@ -359,8 +359,8 @@ end
 
 -- The scripted walk along points (an event's waypoints): Harry turns to the first point, walks or runs
 -- `state` through them while his upper body leans into the next one, then turns to the end heading.
--- Called once per tick by the event until it answers 1; h.path_step is the step (0 starts a walk).
-local PATH_WALK_MAPS = maps({ "map0_s00", "map1_s02", "map3_s05", "map4_s05", "map7_s00", "map7_s01" })
+-- Called once per tick by the event until it answers 1; h.path_step is the step (0 starts a walk). The original had
+-- it only in the overlays of the maps whose events walk Harry; here any map's event (a mod's too) may.
 local FACING_CLOSE = 64             -- 5.625 degrees: close enough to snap
 local LEAN_LIMIT = 512              -- 45 degrees
 local SLOW_TURN, FAST_TURN = 32, 256 -- 2.9 and 22.5 degrees per 30 fps tick
@@ -426,9 +426,6 @@ end
 local point_index, facing, next_facing, last_distance = 0, 0, 0, 0
 
 function path_walk(state, count)
-    if not PATH_WALK_MAPS[sh.map_name()] then
-        return 0
-    end
     local final = angle_abs(sh.entity.harry_path_angle())
     h.flex_rot_y = 0
     local step = h.path_step
