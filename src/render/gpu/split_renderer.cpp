@@ -439,15 +439,22 @@ void SplitRenderer::trace_frame(rhi::CommandList& cmd, const scene::View& view) 
             rt_frame_.draw_ofs_y = view.draw_ofs_y;
         }
     }
+    // The numbers once in the log when ray tracing starts; the periodic lines only in a debug log.
     static std::uint64_t s_frames = 0;
     if (s_frames++ % 600 == 0) {
         const rhi::RayTracer::Stats& s = rt_->stats();
-        SH_LOG(
-            "[RT] %u instances, %llu triangles; %u kept BLAS (%u compacted, %llu KB), TLAS %llu KB, scratch %llu KB; "
-            "built %u, waiting %u",
-            s.instances, static_cast<unsigned long long>(s.triangles), s.blas, s.compacted,
-            static_cast<unsigned long long>(s.blasBytes >> 10), static_cast<unsigned long long>(s.tlasBytes >> 10),
-            static_cast<unsigned long long>(s.scratchBytes >> 10), s.built, s.pending);
+#define SH_RT_STATS_LINE(LOG)                                                                                         \
+    LOG("[RT] %u instances, %llu triangles; %u kept BLAS (%u compacted, %llu KB), TLAS %llu KB, scratch %llu KB; "   \
+        "built %u, waiting %u",                                                                                      \
+        s.instances, static_cast<unsigned long long>(s.triangles), s.blas, s.compacted,                              \
+        static_cast<unsigned long long>(s.blasBytes >> 10), static_cast<unsigned long long>(s.tlasBytes >> 10),      \
+        static_cast<unsigned long long>(s.scratchBytes >> 10), s.built, s.pending)
+        if (s_frames == 1) {
+            SH_RT_STATS_LINE(SH_LOG);
+        } else {
+            SH_RT_STATS_LINE(SH_DBG);
+        }
+#undef SH_RT_STATS_LINE
     }
 }
 
