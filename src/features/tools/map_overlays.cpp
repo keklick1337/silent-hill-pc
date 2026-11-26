@@ -468,7 +468,8 @@ std::vector<Marker> collect_markers() {
         t.pos = {metres(k.x), y, metres(k.z)};
         t.radius = metres(k.radius);
         t.label = k.label + (k.kind.empty() ? std::string() : " [" + k.kind + "]");
-        t.detail = k.owner + ":" + k.id;
+        // The id of a mark already carries its mod's prefix (the script API adds it to a short name).
+        t.detail = k.owner.empty() || k.id.rfind(k.owner + ":", 0) == 0 ? k.id : k.owner + ":" + k.id;
         s_live.push_back(std::move(t));
     }
     for (int slot = 1; slot <= gs::kNpcSlots; ++slot) {
