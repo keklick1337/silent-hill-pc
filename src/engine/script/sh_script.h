@@ -540,6 +540,29 @@ int ShScript_RunTestFile(int target, const char* harness, const char* code, cons
 
 #ifdef __cplusplus
 }
+
+#include <filesystem>
+#include <string>
+#include <vector>
+
+namespace sh::script {
+
+/* One slot of a map's handler table (maps/<map>/handlers.json): the readable name an events.lua defines, and the
+ * slot's symbol as the fallback name. */
+struct MapHandlerSlot {
+    int index = 0;
+    std::string name;
+    std::string symbol;
+};
+
+/* maps/<map>/handlers.json of `gamedata_dir` with the patches of the active mods of `mods_dir` merged over it by
+ * "index" (a mod that adds a slot keeps the game's). Empty when there is none or it does not parse; `error` (optional)
+ * says why. */
+std::vector<MapHandlerSlot> read_map_handlers(const std::filesystem::path& gamedata_dir,
+                                              const std::filesystem::path& mods_dir, const std::string& map,
+                                              std::string* error = nullptr);
+
+}  // namespace sh::script
 #endif
 
 #endif /* SH_ENGINE_SCRIPT_SH_SCRIPT_H */

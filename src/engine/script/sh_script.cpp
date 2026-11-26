@@ -5,6 +5,7 @@
 
 #include "engine/log/sh_log.h"
 #include "engine/hooks/hook_bus.h"
+#include "engine/mods/data_merge.h"
 #include "engine/mods/mods.h"
 #include "engine/mods/registry.h"
 #include "engine/menu/menu_model.h"
@@ -60,47 +61,17 @@ std::map<int, std::unique_ptr<sh::script::Host>>& chara_behaviors() {
 // handler name an events.lua port defines as a Lua function. The slot's "symbol", a readable
 // name too, is the fallback lookup for scripts written before the names existed.
 void script_log(int level, const std::string& message);  // defined below
-struct MapHandler {
-    int index;
-    std::string name;    // readable name, the preferred Lua global
-    std::string symbol;  // the slot's own name, the fallback Lua global
-};
+using MapHandler = sh::script::MapHandlerSlot;
 std::vector<MapHandler>& map_handlers() {
     static std::vector<MapHandler> table;
     return table;
 }
 
-void load_map_handlers(const std::filesystem::path& handlers_json) {
-    map_handlers().clear();
-    std::error_code ec;
-    if (!std::filesystem::is_regular_file(handlers_json, ec)) {
-        return;  // no table: every param stays on the C++ handler
-    }
-    std::ifstream in(handlers_json, std::ios::binary);
-    const std::string text((std::istreambuf_iterator<char>(in)), std::istreambuf_iterator<char>());
-    const auto parsed = sh::json::parse(text);
-    if (!parsed || !parsed.value().is_object()) {
-        script_log(1, handlers_json.generic_string() + ": cannot parse; the C++ handlers stay");
-        return;
-    }
-    const sh::json::Value* list = parsed.value().find("handlers");
-    if (list == nullptr || !list->is_array()) {
-        script_log(1, handlers_json.generic_string() + ": no handlers array; the C++ handlers stay");
-        return;
-    }
-    for (const sh::json::Value& entry : list->array()) {
-        if (!entry.is_object()) {
-            continue;
-        }
-        const sh::json::Value* index = entry.find("index");
-        const sh::json::Value* symbol = entry.find("symbol");
-        if (index == nullptr || !index->is_integer() || symbol == nullptr || !symbol->is_string()) {
-            continue;  // NULL slots and unknown entries are simply not Lua handlers
-        }
-        const sh::json::Value* name = entry.find("name");
-        map_handlers().push_back({static_cast<int>(index->integer()),
-                                  (name != nullptr && name->is_string()) ? name->string() : std::string(),
-                                  symbol->string()});
+void load_map_handlers(const std::string& map) {
+    std::string error;
+    map_handlers() = sh::script::read_map_handlers(g_gamedata_dir, g_mods_dir, map, &error);
+    if (!error.empty()) {
+        script_log(1, error + "; the C++ handlers stay");
     }
 }
 
@@ -115,17 +86,6 @@ sh::script::HostConfig make_config() {
     config.game = g_game_api;
     config.log = script_log;
     return config;
-}
-
-// A mod's copy of `relative` (under the mod's root) replaces the base one; the last mod in load order wins, and
-// a .lua copy counts only from a mod that may run scripts.
-std::filesystem::path layered(const std::filesystem::path& relative) {
-    std::vector<std::string> warnings;
-    const auto mod = sh::mods::find_in(g_mods_dir, relative.generic_string(), warnings);
-    for (const std::string& w : warnings) {
-        script_log(1, "mods: " + w);
-    }
-    return mod ? *mod : std::filesystem::path(g_gamedata_dir) / relative;
 }
 
 // A layered Lua file (Host::run_layered): the base, or the copy of a mod that replaces it, plus the extensions.
@@ -522,7 +482,7 @@ void load_map_script(const std::string& map) {
         host->on_boot();  // the map script's own entry hook, after the chunk ran
         map_host() = std::move(host);
     }
-    load_map_handlers(layered(std::filesystem::path("maps") / map / "handlers.json"));
+    load_map_handlers(map);
     // A handler is a Lua function named in handlers.json (a mod names its own the same way); a name no script
     // defines is reported once here, the slot then does nothing when its event runs.
     for (const MapHandler& handler : map_handlers()) {
@@ -876,4 +836,37 @@ extern "C" void ShScript_OnUpdate(void) {
     if (map_host()) {
         map_host()->on_update();
     }
+}
+
+std::vector<sh::script::MapHandlerSlot> sh::script::read_map_handlers(const std::filesystem::path& gamedata_dir,
+                                                                      const std::filesystem::path& mods_dir,
+                                                                      const std::string& map, std::string* error) {
+    std::vector<MapHandlerSlot> out;
+    const std::string relative = "maps/" + map + "/handlers.json";
+    const auto text = sh::mods::read_data_text(gamedata_dir, mods_dir, relative);
+    if (!text) {
+        return out;  // no table: every param stays on the C++ handler
+    }
+    const auto parsed = sh::json::parse(text.value());
+    const sh::json::Value* list = parsed && parsed.value().is_object() ? parsed.value().find("handlers") : nullptr;
+    if (list == nullptr || !list->is_array()) {
+        if (error != nullptr) {
+            *error = relative + (parsed ? ": no handlers array" : ": cannot parse");
+        }
+        return out;
+    }
+    for (const sh::json::Value& entry : list->array()) {
+        if (!entry.is_object()) {
+            continue;
+        }
+        const sh::json::Value* index = entry.find("index");
+        const sh::json::Value* symbol = entry.find("symbol");
+        if (index == nullptr || !index->is_integer() || symbol == nullptr || !symbol->is_string()) {
+            continue;  // NULL slots and unknown entries are simply not Lua handlers
+        }
+        const sh::json::Value* name = entry.find("name");
+        out.push_back({static_cast<int>(index->integer()),
+                       (name != nullptr && name->is_string()) ? name->string() : std::string(), symbol->string()});
+    }
+    return out;
 }

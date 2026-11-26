@@ -877,6 +877,28 @@ SH_TEST(map_handler_dispatch) {
     SH_CHECK(ShScript_CallMapHandler(2) == 0);
 }
 
+// A mod's handlers.json adds a slot to the map's table and keeps the game's: the file is merged by "index", as the
+// map loader reads it, not used in place of the game's.
+SH_TEST(map_handlers_merged_with_mods) {
+    Scratch dir("handlers_mod");
+    dir.write("base/maps/testmap/handlers.json",
+              R"({"map": "testmap", "handlers": [{"index": 2, "symbol": "MapEvent_Game", "shape": "script"},)"
+              R"({"index": 3, "symbol": null, "shape": null}]})");
+    dir.write("mods/addmod/mod.json", R"({"id": "addmod", "version": "1.0.0", "scripts": true})");
+    dir.write("mods/addmod/maps/testmap/handlers.json",
+              R"({"handlers": [{"index": 5, "symbol": "AddedHandler", "name": "AddedHandler", "shape": "script"}]})");
+
+    std::string error;
+    const auto slots = sh::script::read_map_handlers(dir.root / "base", dir.root / "mods", "testmap", &error);
+    SH_CHECK(error.empty());
+    SH_CHECK(slots.size() == 2);  // the NULL slot is not a Lua handler
+    SH_CHECK(slots.size() == 2 && slots[0].index == 2 && slots[0].symbol == "MapEvent_Game");
+    SH_CHECK(slots.size() == 2 && slots[1].index == 5 && slots[1].name == "AddedHandler");
+    // Without mods: the game's table alone.
+    SH_CHECK(sh::script::read_map_handlers(dir.root / "base", "", "testmap").size() == 1);
+    SH_CHECK(sh::script::read_map_handlers(dir.root / "base", "", "nomap").empty());
+}
+
 SH_TEST(game_api_functions) {
     Scratch dir("api");
     // A flag store the test drives through the binding: the values are visible both ways.
