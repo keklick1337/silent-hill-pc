@@ -85,6 +85,7 @@ constexpr ColorKey kColorKeys[] = {
     {"date", &SaveScreenColors::date},
     {"mods_warn", &SaveScreenColors::mods_warn},
     {"mods_note", &SaveScreenColors::mods_note},
+    {"newer_version", &SaveScreenColors::newer_version},
 };
 
 struct TextKey {
@@ -124,6 +125,9 @@ const TextKey kTextKeys[] = {
     {"mod_newer", &SaveScreenTexts::mod_newer},
     {"mod_added", &SaveScreenTexts::mod_added},
     {"confirm_mods", &SaveScreenTexts::confirm_mods},
+    {"newer_line", &SaveScreenTexts::newer_line},
+    {"newer_refused", &SaveScreenTexts::newer_refused},
+    {"newer_data", &SaveScreenTexts::newer_data},
 };
 
 template <class K, std::size_t N>

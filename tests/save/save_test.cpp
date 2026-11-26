@@ -11,6 +11,7 @@
 #include "engine/save/save_file.h"
 #include "engine/save/save_game.h"
 #include "engine/save/save_store.h"
+#include "engine/save/save_version.h"
 
 #include <cstdlib>
 #include <cstring>
@@ -417,6 +418,107 @@ SH_TEST(save_store_records_the_mods) {
 
     SH_CHECK(!sh::save::mods_of_meta(R"({"format": "sh-save-meta/2", "mods": []})").has_value());
     SH_CHECK(sh::save::mods_of_meta(R"({"format": "sh-save-meta/3", "mods": []})").has_value());
+}
+
+// Versions compare by their numbers; what follows the numbers does not count; a save that does not say is older
+// than everything, a version that does not parse is taken for a newer game's.
+SH_TEST(save_version_comparison) {
+    using V = std::vector<int>;
+    SH_CHECK(parse_game_version("1.3.0") == V({1, 3, 0}));
+    SH_CHECK(parse_game_version("1.10.0-rc1+2890.1a2b3c") == V({1, 10, 0}));
+    SH_CHECK(parse_game_version("2") == V({2}) && parse_game_version("1.3.") == V({1, 3}));
+    SH_CHECK(parse_game_version("1.3.0.7") == V({1, 3, 0, 7}));
+    SH_CHECK(!parse_game_version("") && !parse_game_version("v1.3.0") && !parse_game_version("?") &&
+             !parse_game_version(".1") && !parse_game_version("12345678901.0"));
+    SH_CHECK(compare_game_versions({1, 10, 0}, {1, 9, 0}) > 0 && compare_game_versions({1, 9, 9}, {1, 10}) < 0);
+    SH_CHECK(compare_game_versions({1, 3}, {1, 3, 0}) == 0 && compare_game_versions({1, 3, 0, 1}, {1, 3}) > 0);
+
+    SH_CHECK(from_newer_game("1.10.0", "1.9.0") && from_newer_game("1.3.1", "1.3.0") && from_newer_game("2", "1.3.0"));
+    SH_CHECK(!from_newer_game("1.3.0", "1.3.0") && !from_newer_game("1.2.9", "1.3.0") &&
+             !from_newer_game("1.9.0", "1.10.0"));
+    // The suffix is not compared: a build of the same numbers loads.
+    SH_CHECK(!from_newer_game("1.3.0-beta", "1.3.0") && !from_newer_game("1.3.0+99.abc", "1.3.0") &&
+             from_newer_game("1.3.1-beta", "1.3.0"));
+    SH_CHECK(!from_newer_game("", "1.3.0"));                                    // every save before the key
+    SH_CHECK(from_newer_game("?", "1.3.0") && from_newer_game("next", "1.3.0"));  // not a version: refused
+    SH_CHECK(!from_newer_game("9.9.9", ""));                                    // a store without a version
+}
+
+// META "game_version": written when the record has one, back with the save and in the list, kept by a rewrite
+// and by the conversion of an old save; a save without it stays without it.
+SH_TEST(save_store_records_the_game_version) {
+    const fs::path dir = fresh_dir("sh_save_version");
+    SaveStore store(dir / ".savegames");
+    store.set_game_version("1.3.0");
+    const auto meta_of = [&store](int number) {
+        const auto file = decode(read_whole_file(store.save_path(number)).value()).value();
+        return std::string(file.find(kTagMeta)->data.begin(), file.find(kTagMeta)->data.end());
+    };
+    const auto make_old = [&store](int number) {  // the file as format 2 ("sh-savegame/1"), its META kept
+        auto file = decode(read_whole_file(store.save_path(number)).value()).value();
+        std::string text(file.find(kTagState)->data.begin(), file.find(kTagState)->data.end());
+        text.replace(text.find(kSaveGameFormat), std::string(kSaveGameFormat).size(), kSaveGameFormatV1);
+        file.version = 2;
+        file.put(kTagState, std::vector<std::uint8_t>(text.begin(), text.end()));
+        SH_CHECK(write_file_atomic(store.save_path(number), encode(file)));
+    };
+    SaveGame cafe;
+    cafe.map = Ref::of_number(5);
+    cafe.location = Ref::of_name("Cafe");
+    cafe.options = GameOptions{};
+    SlotRecord plain;
+    plain.summary = record_of(9, 1).summary;
+    plain.state = to_json(cafe);
+
+    SH_CHECK(store.write(0, plain));  // 1: does not say
+    SH_CHECK(meta_of(1).find("game_version") == std::string::npos);
+    SH_CHECK(store.read(1).record.game_version.empty() && store.list().front().game_version.empty());
+
+    SlotRecord made = plain;
+    made.summary.sequence = 2;
+    made.game_version = "1.2.0";
+    SH_CHECK(store.write(0, made));  // 2: an older game's
+    SH_CHECK(meta_of(2).find("\"game_version\": \"1.2.0\"") != std::string::npos);
+    SH_CHECK(store.read(2).record.game_version == "1.2.0");
+    SH_CHECK(store.list().front().number == 2 && store.list().front().game_version == "1.2.0");
+    SH_CHECK(!store.from_newer_game("1.2.0") && !store.from_newer_game("") && store.from_newer_game("1.3.1"));
+
+    made.summary.sequence = 3;
+    made.game_version = "9.9.9";
+    SH_CHECK(store.write(0, made));  // 3: a newer game's
+    SH_CHECK(store.read(3).state == SlotState::Ok && store.from_newer_game(store.read(3).record.game_version));
+
+    // The conversion: 1 stays without a version, 2 keeps 1.2.0, 3 is not touched at all.
+    for (int n : {1, 2, 3}) make_old(n);
+    const auto newer_bytes = read_whole_file(store.save_path(3)).value();
+    std::vector<std::string> lines;
+    SH_CHECK(store.convert_old_saves(lines) == 2 && lines.size() == 3);
+    SH_CHECK(meta_of(1).find("game_version") == std::string::npos);
+    SH_CHECK(store.read(2).record.game_version == "1.2.0");
+    SH_CHECK(read_whole_file(store.save_path(3)).value() == newer_bytes);
+    SH_CHECK(!fs::exists(dir / ".savegames" / "old_format_backup" / "save_0003.sav"));
+    for (int n : {1, 2}) {
+        SH_CHECK(decode(read_whole_file(store.save_path(n)).value()).value().version == kFormatVersion);
+    }
+
+    // A value that is not a version text reads as one that does not parse.
+    SH_CHECK(game_version_of_meta(R"({"format": "sh-save-meta/3"})").empty());
+    SH_CHECK(game_version_of_meta(R"({"format": "sh-save-meta/3", "game_version": 7})") == "?");
+    SH_CHECK(game_version_of_meta(R"({"format": "sh-save-meta/3", "game_version": ""})") == "?");
+
+    // A file of a later save format: not read, known for a newer game's, left as it is.
+    auto later = read_whole_file(store.save_path(2)).value();
+    later[8] = static_cast<std::uint8_t>(kFormatVersion + 1);
+    SH_CHECK(write_file_atomic(store.save_path(4), later));
+    lines.clear();
+    SH_CHECK(store.convert_old_saves(lines) == 0);
+    SH_CHECK(read_whole_file(store.save_path(4)).value() == later);
+    bool seen = false;
+    for (const SaveEntry& e : store.list()) {
+        if (e.number == 4) seen = e.state == SlotState::Damaged && e.newer_format;
+        if (e.number != 4) SH_CHECK(!e.newer_format);
+    }
+    SH_CHECK(seen);
 }
 
 SH_TEST(save_store_many_saves) {

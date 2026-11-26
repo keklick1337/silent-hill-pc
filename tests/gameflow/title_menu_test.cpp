@@ -40,6 +40,8 @@ public:
     bool autosave_alive() const override { return autosave; }
     void poll_saves() override {}
     int save_count() const override { return saves; }
+    int loadable = -1;  // -1: every save loads
+    int loadable_save_count() const override { return loadable < 0 ? saves : loadable; }
     gf::TitlePad pad() const override { return p; }
     gf::TitleMouse mouse() const override { return m; }
     gf::ConfirmInput confirm_input() const override { return ci; }
@@ -114,7 +116,7 @@ bool has(const std::vector<std::string>& log, const std::string& s) {
     return false;
 }
 
-constexpr int kContinue = 1, kStart = 2, kOption = 3, kExit = 4;
+constexpr int kLoad = 0, kContinue = 1, kStart = 2, kOption = 3, kExit = 4;
 
 }  // namespace
 
@@ -155,6 +157,22 @@ SH_TEST(title_menu_save_shows_load_and_moves_to_continue) {
     h.saves = 0;
     t.frame(h);
     SH_CHECK(t.selected() == kStart);
+}
+
+// Saves of a newer version of the game are listed (LOAD) but none of them continues: CONTINUE shows only while a
+// save loads.
+SH_TEST(title_menu_newer_saves_show_load_without_continue) {
+    gf::TitleMenu t = menu();
+    Host h;
+    t.frame(h);
+    h.saves = 2;
+    h.loadable = 0;
+    t.frame(h);
+    SH_CHECK((t.visible() & (1u << kLoad)) != 0 && (t.visible() & (1u << kContinue)) == 0);
+    SH_CHECK(t.selected() != kContinue);
+    h.loadable = 1;
+    t.frame(h);
+    SH_CHECK(t.visible() == 0x1Fu);
 }
 
 SH_TEST(title_menu_selection_wraps_over_hidden_entries) {

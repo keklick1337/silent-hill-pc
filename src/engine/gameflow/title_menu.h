@@ -110,6 +110,9 @@ public:
     virtual bool autosave_alive() const = 0;
     virtual void poll_saves() = 0;
     virtual int save_count() const = 0;
+    // Saves the game can load; fewer than save_count() when some were made by a newer version of the game. LOAD
+    // shows while there is any save, CONTINUE while one of them loads.
+    virtual int loadable_save_count() const { return save_count(); }
 
     // Input.
     virtual TitlePad pad() const = 0;

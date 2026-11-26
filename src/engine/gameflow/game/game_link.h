@@ -93,7 +93,8 @@ bool saved_enemy_alive(int row);   // this map's enemy of the spawn row is not k
 void forget_saved_enemy(int row);  // ... is killed for good
 std::uint32_t item_toggle_flags();
 void poll_saves();
-int save_catalog_count();
+int save_catalog_count();  // saves CONTINUE can load
+int save_listed_count();   // saves the load list shows (those and the saves of a newer game, which it refuses)
 
 // --- The player's and the NPCs' character records ---
 void* player_record();

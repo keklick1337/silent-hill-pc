@@ -4,8 +4,9 @@
 #define ENGINE_SAVE_SAVE_C_H
 
 /* C facade of the save store (engine/save) for the game. Saves are numbered (save_NNNN.sav,
- * number >= 1), quick saves 0-based (0..9). Results: 1 done, 0 nothing there / not done, -1 damaged or failed (the
- * reason is in the journal, category save). Implemented in save_c.cpp (target sh_save_c); C++ code reaches the
+ * number >= 1), quick saves 0-based (0..9). Results: 1 done, 0 nothing there / not done, -1 damaged or failed, -2 a
+ * save made by a newer version of the game, which is never read into the game (the reason is in the journal,
+ * category save). Implemented in save_c.cpp (target sh_save_c); C++ code reaches the
  * store itself through save_service.h.
  *
  * A save is the engine's SaveGame (save_game.h, names only). The game hands over and takes back its running progress
@@ -57,8 +58,12 @@ void        ShSave_SetNames(const ShSaveNameTable* names);
  * card1/card2 layout (memory_card.h); returns the number of saves added. */
 int ShSave_MigrateLegacy(const char* const* dirs, int count);
 
-/* Numbers of the readable saves, newest first, at most `capacity` of them; returns how many there are. */
+/* Numbers of the saves this game can load (readable, not made by a newer version of the game), newest first, at
+ * most `capacity` of them; returns how many there are. */
 int     ShSave_ListNewest(int32_t* numbers, int capacity);
+/* The same; `listed` (may be NULL) gets the number of saves the load list has to offer: those and the saves of a
+ * newer game, which it shows and refuses. */
+int     ShSave_ListLoadable(int32_t* numbers, int capacity, int* listed);
 /* Highest sequence of the saves, 0 when there are none. */
 int32_t ShSave_NewestSequence(void);
 

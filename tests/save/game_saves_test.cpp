@@ -5,6 +5,9 @@
 
 #include "engine/game_state/session.h"
 #include "engine/save/game_saves.h"
+#include "engine/save/save_c.h"
+#include "engine/save/save_file.h"
+#include "engine/version/engine_version.h"
 #include "framework/sh_test.h"
 
 #include <cstdio>
@@ -39,6 +42,26 @@ public:
     std::vector<int> saves, loads;
     int blood = -1;
 };
+
+std::string meta_of(const fs::path& path) {
+    const auto file = sh::save::decode(sh::save::read_whole_file(path).value()).value();
+    const sh::save::Chunk* meta = file.find(sh::save::kTagMeta);
+    return std::string(meta->data.begin(), meta->data.end());
+}
+
+// The file's META "game_version" replaced, as a newer game would have written it.
+void set_version(const fs::path& path, const std::string& version) {
+    auto file = sh::save::decode(sh::save::read_whole_file(path).value()).value();
+    std::string meta = meta_of(path);
+    const std::string key = "\"game_version\": \"";
+    const std::size_t at = meta.find(key);
+    SH_CHECK(at != std::string::npos);
+    if (at == std::string::npos) return;
+    const std::size_t end = meta.find('"', at + key.size());
+    meta.replace(at + key.size(), end - at - key.size(), version);
+    file.put(sh::save::kTagMeta, std::vector<std::uint8_t>(meta.begin(), meta.end()));
+    SH_CHECK(static_cast<bool>(sh::save::write_file_atomic(path, sh::save::encode(file))));
+}
 
 }  // namespace
 
@@ -96,6 +119,52 @@ SH_TEST(game_saves_session_round_trip) {
         outcome = saves.boot_check();
     }
     SH_CHECK(outcome == 2);
+
+    // The save says which version of the game made it.
+    const fs::path first = dir / ".savegames" / "save_0001.sav";
+    const std::string version(sh::version::kText);
+    SH_CHECK(written == 1 && meta_of(first).find("\"game_version\": \"" + version + "\"") != std::string::npos);
+
+    // A second, newer save made by a later game: it is not loaded, the session stays, the file stays, and what
+    // CONTINUE and the options take is the newest save that loads.
+    save.map = 7;
+    const int second = saves.save(0);
+    SH_CHECK(second == 2);
+    const fs::path later = dir / ".savegames" / "save_0002.sav";
+    set_version(later, "9.9.9");
+    const auto later_bytes = sh::save::read_whole_file(later).value();
+    save.map = 9;
+    const std::uint32_t running = sh::save::GameSaves::fingerprint();
+    SH_CHECK(saves.load(second) == -2);
+    SH_CHECK(sh::save::GameSaves::fingerprint() == running && save.map == 9);
+    SH_CHECK(host.loads.size() == 1);
+    std::int32_t numbers[4] = {};
+    int listed = 0;
+    SH_CHECK(ShSave_ListLoadable(numbers, 4, &listed) == 1 && numbers[0] == 1 && listed == 2);
+    SH_CHECK(ShSave_ListNewest(numbers, 4) == 1 && numbers[0] == 1);
+    SH_CHECK(saves.load(numbers[0]) == 1 && save.map == 3);
+    SH_CHECK(sh::save::read_whole_file(later).value() == later_bytes);
+    // A version that does not parse is refused the same way; the same numbers with a suffix load.
+    set_version(later, "next");
+    SH_CHECK(saves.load(second) == -2);
+    set_version(later, version + "-test");
+    SH_CHECK(saves.load(second) == 1 && save.map == 7);
+    // The newer save can be saved over (the screen asks) and deleted.
+    set_version(later, "9.9.9");
+    SH_CHECK(saves.save(second) == second && saves.load(second) == 1);
+    set_version(later, "9.9.9");
+    SH_CHECK(ShSave_Delete(second) == 1 && !fs::exists(later));
+
+    // A quick save and a save file of a newer game are refused too.
+    SH_CHECK(saves.quick_save(0) == 1);
+    const fs::path quick = dir / ".savegames" / "quick" / "quick_01.sav";
+    SH_CHECK(meta_of(quick).find("\"game_version\": \"" + version + "\"") != std::string::npos);
+    set_version(quick, "9.9.9");
+    SH_CHECK(sh::save::GameSaves::quick_state(0) == -2 && saves.quick_load(0) == -2);
+    const fs::path file = dir / "state.sav";
+    SH_CHECK(saves.save_file(file.string()) == 1);
+    set_version(file, "10.0.0");
+    SH_CHECK(sh::save::GameSaves::file_state(file.string()) == -2 && saves.load_file(file.string()) == -2);
 
     game.save = sh::game::SaveRecord{};
     game.autosave = sh::game::SaveRecord{};

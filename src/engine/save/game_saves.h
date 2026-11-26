@@ -56,6 +56,9 @@ public:
     // The save list the title and the pause read (SaveCatalog).
     void poll_catalog() { catalog_.poll(); }
     int catalog_count() const { return catalog_.count(); }
+    // Saves the load list shows as of the last poll: the catalog's and the saves of a newer version of the game,
+    // which are listed and refused (the title offers LOAD for them, CONTINUE only for the catalog's).
+    int listed_count() const { return listed_ > catalog_.count() ? listed_ : catalog_.count(); }
 
     // The boot's check and the options of the newest save (BootCheck): 0 pending, 1 no save, 2 a save.
     int boot_check();
@@ -66,7 +69,8 @@ public:
     // goes up first, except at the Next Fear save point; a written save becomes the automatic copy.
     int save(int number);
     // The save's progress into the session (the session is untouched unless it returns 1), the settings of the
-    // newest save with it. 0 nothing there, -1 damaged or a map this build lacks.
+    // newest save with it. 0 nothing there, -1 damaged or a map this build lacks, -2 made by a newer version of
+    // the game (save_version.h; the same from quick_load, load_file and the two state checks).
     int load(int number);
 
     // Instant quick saves (quick_save_instant): the session's progress and settings into the
@@ -93,6 +97,7 @@ private:
 
     GameSavesHost* host_ = nullptr;
     bool opened_ = false;
+    int listed_ = 0;
     SaveCatalog catalog_{[](std::int32_t* numbers, int capacity) { return list_newest(numbers, capacity); }};
     // The original's card driver took 11 waits to read the options of the newest save (boot timing, replay dumps); the
     // card check itself never waited once the logos had run.

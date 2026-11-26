@@ -7,6 +7,7 @@
 #include "engine/save/save_game.h"
 #include "engine/save/save_service.h"
 #include "engine/save/save_store.h"
+#include "engine/version/engine_version.h"
 
 #include <algorithm>
 #include <cstring>
@@ -49,6 +50,7 @@ SaveStore& store() {
     if (!s) {
         s = std::make_unique<SaveStore>(fs::path(".savegames"));
         s->set_names(name_table());
+        s->set_game_version(std::string(sh::version::kText));
     }
     return *s;
 }
@@ -107,6 +109,7 @@ bool record_of(const ShSaveSummary* summary, const sh::game::SaveRecord* state, 
     record.summary = from_c(*summary);
     record.state = to_json(game);
     record.mods = outgoing_mods();
+    record.game_version = store().game_version();
     return true;
 }
 
@@ -136,9 +139,22 @@ std::string& incoming_remains() {
     return text;
 }
 
+// A save of a later game is refused before anything of it is taken (and whatever its state would convert to).
+bool refused_as_newer(const SlotRead& read, const char* what) {
+    if (read.state != SlotState::Ok || !store().from_newer_game(read.record.game_version)) {
+        return false;
+    }
+    SH_LOG_WARN(SAVE, "save %s was made with version %s, newer than this game (%s): not loaded", what,
+                read.record.game_version.c_str(), store().game_version().c_str());
+    return true;
+}
+
 int deliver(const SlotRead& read, ShSaveSummary* summary, sh::game::SaveRecord* state, const char* what) {
     if (read.state == SlotState::Empty) {
         return 0;
+    }
+    if (refused_as_newer(read, what)) {
+        return -2;
     }
     auto game = game_of(read, what);
     if (!game) {
@@ -178,6 +194,7 @@ extern "C" void ShSave_Open(const char* exe_dir, const char* setting) {
     }
     store_ptr() = std::make_unique<SaveStore>(root.lexically_normal());
     store_ptr()->set_names(name_table());
+    store_ptr()->set_game_version(std::string(sh::version::kText));
     root_text() = store().root().string();
     SH_LOG_INFO(SAVE, "saves: %s", root_text().c_str());
 }
@@ -221,10 +238,17 @@ extern "C" int ShSave_MigrateLegacy(const char* const* dirs, int count) {
     return report.saves;
 }
 
-extern "C" int ShSave_ListNewest(int32_t* numbers, int capacity) {
+extern "C" int ShSave_ListLoadable(int32_t* numbers, int capacity, int* listed) {
     int n = 0;
+    int all = 0;
     for (const SaveEntry& e : store().list()) {
-        if (e.state != SlotState::Ok) {
+        // A file of a later save format is a save too, though this build reads nothing of it.
+        const bool newer = e.newer_format || (e.state == SlotState::Ok && store().from_newer_game(e.game_version));
+        if (e.state != SlotState::Ok && !newer) {
+            continue;
+        }
+        ++all;
+        if (newer) {
             continue;
         }
         if (numbers != nullptr && n < capacity) {
@@ -232,7 +256,14 @@ extern "C" int ShSave_ListNewest(int32_t* numbers, int capacity) {
         }
         ++n;
     }
+    if (listed != nullptr) {
+        *listed = all;
+    }
     return n;
+}
+
+extern "C" int ShSave_ListNewest(int32_t* numbers, int capacity) {
+    return ShSave_ListLoadable(numbers, capacity, nullptr);
 }
 
 extern "C" int32_t ShSave_NewestSequence(void) { return store().newest_sequence(); }
@@ -247,6 +278,9 @@ extern "C" int ShSave_ReadOptions(int number, sh::game::Settings* options) {
     const SlotRead read = store().read(number);
     if (read.state == SlotState::Empty) {
         return 0;
+    }
+    if (refused_as_newer(read, what.c_str())) {
+        return -2;
     }
     auto game = game_of(read, what.c_str());
     if (!game) {

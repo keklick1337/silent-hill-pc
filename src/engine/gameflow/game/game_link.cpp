@@ -329,6 +329,7 @@ void forget_saved_enemy(int row) {
 std::uint32_t item_toggle_flags() { return save().item_toggles; }
 void poll_saves() { sh::save::game_saves().poll_catalog(); }
 int save_catalog_count() { return sh::save::game_saves().catalog_count(); }
+int save_listed_count() { return sh::save::game_saves().listed_count(); }
 
 // --- Character records ---
 void* player_record() { return &player_chara(); }

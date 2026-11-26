@@ -319,9 +319,10 @@ void TitleMenu::update_visible(TitleHost& host) {
     }
     const int saves = host.save_count();
     if (saves > 0) {
-        visible_ |= bit(load) | bit(cont);
+        const bool loadable = host.loadable_save_count() > 0;
+        visible_ |= bit(load) | (loadable ? bit(cont) : 0u);
         // A save that appeared (a memory card put in) moves the cursor to continue, unless it is on load.
-        if (previous_saves_ < saves && selected_ != load && cont >= 0) {
+        if (previous_saves_ < saves && selected_ != load && cont >= 0 && (loadable || host.autosave_alive())) {
             selected_ = cont;
         }
     } else if (previous_saves_ > 0) {

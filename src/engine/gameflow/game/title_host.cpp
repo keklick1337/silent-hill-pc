@@ -51,6 +51,7 @@ namespace gs = sh::game_state;
 namespace d2 = sh::draw2d;
 
 std::int32_t g_title_save_count = 0;
+std::int32_t g_title_loadable_count = 0;
 
 // Game state names of gamedata/menu/title_menu.json: their numbers are the index.
 constexpr std::string_view kGameStates[] = {
@@ -231,6 +232,7 @@ public:
     bool autosave_alive() const override { return link::autosave_health() > 0; }
     void poll_saves() override { TitleMenu_PollSaves(); }
     int save_count() const override { return g_title_save_count; }
+    int loadable_save_count() const override { return g_title_loadable_count; }
 
     gf::TitlePad pad() const override {
         const auto& binds = sh::game::session().game.settings.binds;
@@ -374,7 +376,8 @@ int g_warp_map = -1;
 // The saves the title menu offers come from the engine's save catalog.
 extern "C" void TitleMenu_PollSaves(void) {
     link::poll_saves();
-    g_title_save_count = link::save_catalog_count();
+    g_title_save_count = link::save_listed_count();
+    g_title_loadable_count = link::save_catalog_count();
 }
 
 // The console's `options` on the title: the title picks its OPTION entry itself.

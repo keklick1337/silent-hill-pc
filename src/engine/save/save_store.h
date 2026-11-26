@@ -50,6 +50,8 @@ struct SlotDescription {
     std::optional<std::vector<SavedMod>> mods;
     // When the save was made ("2026-11-06T14:30:00Z"); empty: now.
     std::string saved_at;
+    // The game that made the save ("1.3.0"); empty: the save does not say (it keeps "game_version" out of META).
+    std::string game_version;
 };
 
 struct SlotRecord {
@@ -69,6 +71,10 @@ struct SlotRecord {
     // META "saved_at" of a read save, written as it is on a rewrite (the conversion of an old save keeps the day it
     // was made); empty: the write is a new save, made now.
     std::string saved_at;
+    // META "game_version": the version of the game that made the save (save_version.h), written as it is. The game
+    // puts its own on a save it makes; a rewrite of a read save keeps the save's (the conversion of an old save
+    // does not make it a save of this game). Empty: a save from before the key, older than every version.
+    std::string game_version;
 };
 
 enum class SlotState { Empty, Ok, Damaged };
@@ -95,6 +101,10 @@ struct SaveEntry {
     std::int64_t saved_at = 0;  // UTC, seconds since 1970; 0 when unknown
     double play_time_seconds = 0;
     std::optional<std::vector<SavedMod>> mods;  // as SlotRecord::mods
+    std::string game_version;                   // as SlotRecord::game_version
+    // Damaged only: the file is of a save format later than this build reads, so a newer game made it. Nothing in
+    // it is read; the list says so instead of calling it damaged.
+    bool newer_format = false;
     std::string error;  // Damaged: why
 };
 
@@ -142,6 +152,13 @@ public:
     void set_names(NameTable names) { names_ = std::move(names); }
     const NameTable& names() const { return names_; }
 
+    // The version of the running game ("1.3.0", the game installs it); empty: none, and no save is newer.
+    void set_game_version(std::string version) { game_version_ = std::move(version); }
+    const std::string& game_version() const { return game_version_; }
+    // A save with this META "game_version" was made by a later game than the running one (save_version.h): it is
+    // not loaded and its file is never rewritten by the store on its own.
+    bool from_newer_game(const std::string& saved_version) const;
+
     // The STAT text of a record: its state, or its format 1 records converted (fails when they are damaged).
     Result<std::string> state_of(const SlotRecord& record, Warnings& warnings) const;
     // What META says about a state.
@@ -151,7 +168,8 @@ public:
     // quick save of an older format (file version < kFormatVersion or a STAT chunk of kSaveGameFormatV1) in the
     // current one. Each file is first copied to <root>/old_format_backup/ (never overwriting a copy there); the new
     // file must give the same game state as the old one, else the old file is put back. A file already in the
-    // current format is left alone. One line per file in `lines`; returns the number converted.
+    // current format is left alone, and so is a save of a newer game. One line per file in `lines`; returns the
+    // number converted.
     int convert_old_saves(std::vector<std::string>& lines);
 
 private:
@@ -161,6 +179,7 @@ private:
 
     std::filesystem::path root_;
     NameTable names_;
+    std::string game_version_;
 };
 
 // The META JSON of a save (number > 0) or a quick save (quick_index >= 0).
@@ -169,6 +188,10 @@ std::string describe(const SlotDescription& description, int number, int quick_i
 // The mods of a META JSON: its "mods" list when the META is of format 3 or later (an older META's "mods" was always
 // empty and says nothing); nothing otherwise.
 std::optional<std::vector<SavedMod>> mods_of_meta(std::string_view meta_json);
+
+// The "game_version" of a META JSON: empty when it has none; a value that is not a version text comes back as "?"
+// (it does not parse, so the save counts as a newer game's).
+std::string game_version_of_meta(std::string_view meta_json);
 
 // "2026-11-06T14:30:00Z" -> seconds since 1970 (UTC); 0 when it does not parse.
 std::int64_t parse_utc(const std::string& text);

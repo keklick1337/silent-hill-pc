@@ -9,6 +9,7 @@ add_library(sh_save STATIC
     save_file.cpp
     save_game.cpp
     save_store.cpp
+    save_version.cpp
     save_catalog.cpp
     boot_check.cpp
     memory_card.cpp
@@ -24,6 +25,6 @@ target_compile_options(sh_save PRIVATE
 add_library(sh_save_c STATIC save_c.cpp game_saves.cpp)
 target_compile_features(sh_save_c PRIVATE cxx_std_20)
 target_include_directories(sh_save_c PRIVATE ${PROJECT_SOURCE_DIR}/src)
-target_link_libraries(sh_save_c PRIVATE sh_save sh_log sh_ids)
+target_link_libraries(sh_save_c PRIVATE sh_save sh_log sh_ids sh_engine_version)
 target_compile_options(sh_save_c PRIVATE
     $<$<OR:$<CXX_COMPILER_ID:GNU>,$<CXX_COMPILER_ID:Clang>,$<CXX_COMPILER_ID:AppleClang>>:-Wall -Wextra -Wpedantic>)

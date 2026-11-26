@@ -40,7 +40,9 @@ const ShSaveNameTable kNames = {ids::item_name, ids::item_number, ids::flag_name
 
 }  // namespace
 
-int GameSaves::list_newest(std::int32_t* numbers, int capacity) { return ShSave_ListNewest(numbers, capacity); }
+int GameSaves::list_newest(std::int32_t* numbers, int capacity) {
+    return ShSave_ListLoadable(numbers, capacity, &game_saves().listed_);
+}
 
 void GameSaves::open(const char* exe_dir, const char* setting, const char* gamedata_dir) {
     if (opened_) {

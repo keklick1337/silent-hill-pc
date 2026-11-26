@@ -14,6 +14,7 @@
 #include "engine/app/pc_paths.h"
 #include "engine/save/save_c.h"
 #include "engine/screens/save_layout.h"
+#include "engine/text/game_text.h"
 #include "engine/save/save_service.h"
 #include "i18n/localization.h"
 #include "ui/screens/save_screen_game.h"
@@ -25,6 +26,7 @@
 #include <cstdio>
 #include <ctime>
 #include <string>
+#include <string_view>
 #include <vector>
 
 extern "C" const char* PcPort_GetGameDataPath(void);
@@ -76,6 +78,7 @@ struct Row {
     bool is_new = false;  // "New save" (the save screen's first row)
     SaveEntry entry;
     sh::mods::ModCheck mods;  // the save's mods against this run's
+    bool newer = false;       // made by a newer version of the game: marked, never loaded
 };
 
 struct Screen {
@@ -86,6 +89,8 @@ struct Screen {
     std::vector<Row> rows;
     sh::menu::ScrollWindow scroll;
     const char* message = nullptr;
+    // The message in the font's spelling, cut in two when it is long; empty: `message` is drawn as it is.
+    std::vector<std::string> message_lines;
     int message_ticks = 0;
     Step after_message = Step::List;
     int refresh = 0;
@@ -127,6 +132,8 @@ void refresh_rows(int select_number) {
     for (SaveEntry& e : sh::save::active_store().list()) {
         Row row;
         row.mods = sh::mods::check_save_mods(e.mods, installed);
+        row.newer = e.newer_format ||
+                    (e.state == SlotState::Ok && sh::save::active_store().from_newer_game(e.game_version));
         row.entry = std::move(e);
         s.rows.push_back(std::move(row));
     }
@@ -159,9 +166,63 @@ const Row* selected_row() {
 void show_message(const char* key, Step after) {
     Screen& s = s_screen;
     s.message = key;
+    s.message_lines.clear();
     s.message_ticks = L().message_ticks;
     s.after_message = after;
     s.step = Step::Message;
+}
+
+// The width a line of text under or in the panels may take.
+int line_width() { return L().list_w - 16; }
+
+// Interface text (UTF-8, reading order) wider than `max_w` in the game font as two lines of about the same length:
+// cut at the space nearest its middle, where it has none after the nearest comma (Japanese, Chinese),
+// else between two characters. The lines are in the font's spelling.
+std::vector<std::string> two_lines(const std::string& utf8, int max_w) {
+    if (sh::i18n::text_width(nm::font_text(utf8).c_str()) <= max_w) {
+        return {nm::font_text(utf8)};
+    }
+    // Where a second line may start, by preference: after a space, after a comma, at any character.
+    std::vector<std::size_t> cuts[3];
+    for (std::size_t i = 0; i < utf8.size();) {
+        std::size_t n = 1;
+        while (i + n < utf8.size() && (static_cast<unsigned char>(utf8[i + n]) & 0xC0) == 0x80) {
+            ++n;
+        }
+        const std::string_view ch(utf8.data() + i, n);
+        i += n;
+        if (i >= utf8.size()) {
+            break;
+        }
+        cuts[ch == " " ? 0 : (ch == "\xE3\x80\x81" || ch == "\xEF\xBC\x8C" || ch == ",") ? 1 : 2].push_back(i);
+    }
+    for (const std::vector<std::size_t>& set : cuts) {
+        if (set.empty()) {
+            continue;
+        }
+        const std::size_t middle = utf8.size() / 2;
+        std::size_t best = set.front();
+        for (const std::size_t cut : set) {
+            const auto away = [middle](std::size_t at) { return at > middle ? at - middle : middle - at; };
+            if (away(cut) < away(best)) {
+                best = cut;
+            }
+        }
+        std::string first = utf8.substr(0, best);
+        while (!first.empty() && first.back() == ' ') {
+            first.pop_back();
+        }
+        return {nm::font_text(first), nm::font_text(utf8.substr(best))};
+    }
+    return {nm::font_text(utf8)};
+}
+
+// A save of a newer version of the game was chosen: said in full, nothing is loaded and nothing asked.
+void show_newer_refusal() {
+    Screen& s = s_screen;
+    show_message(T().newer_refused.c_str(), Step::List);
+    s.message_lines = two_lines(sh::i18n::ui_text(T().newer_refused.c_str()), line_width());
+    s.message_ticks = L().message_ticks * 2;  // two lines to read
 }
 
 void open_confirm(Ask ask) {
@@ -194,6 +255,10 @@ void load(int number) {
         return;
     }
     sound(gs::sfx::kMenuError);
+    if (result == -2) {
+        show_newer_refusal();
+        return;
+    }
     show_message(T().load_failed.c_str(), Step::List);
 }
 
@@ -221,6 +286,15 @@ void activate() {
     if (s.kind == PcSaveScreen_Save) {
         sound(gs::sfx::kMenuConfirm);
         open_confirm(row->is_new ? Ask::Save : Ask::Overwrite);
+        return;
+    }
+    if (row->newer) {
+        const SaveEntry& e = row->entry;
+        SH_LOG_WARN(SAVE, "save %d was made with %s, newer than this game (%s): not loaded", e.number,
+                    e.newer_format ? "a later save format" : ("version " + e.game_version).c_str(),
+                    sh::save::active_store().game_version().c_str());
+        sound(gs::sfx::kMenuError);
+        show_newer_refusal();
         return;
     }
     if (row->entry.state != SlotState::Ok) {
@@ -365,13 +439,21 @@ void update_quick_load() {
         return;
     }
     SH_LOG_WARN(SAVE, "quick load %d failed, back to the game", s.quick_slot + 1);
-    SH_DBG_ECHO("%s", text(T().load_failed.c_str()));
+    SH_DBG_ECHO("%s", loaded == -2 ? sh::i18n::ui_text(T().newer_refused.c_str()) : text(T().load_failed.c_str()));
     leave(false);
 }
 
 void update_auto_load() {
     Screen& s = s_screen;
     for (const Row& row : s.rows) {
+        if (row.newer) {
+            // CONTINUE takes the newest save this game can load.
+            SH_LOG_WARN(SAVE, "continue: save %d was made with %s, newer than this game (%s): skipped",
+                        row.entry.number,
+                        row.entry.newer_format ? "a later save format" : ("version " + row.entry.game_version).c_str(),
+                        sh::save::active_store().game_version().c_str());
+            continue;
+        }
         if (row.entry.state == SlotState::Ok) {
             if (sh::save::game_saves().load(row.entry.number) > 0) {
                 PcSaveGame_Start();
@@ -449,15 +531,21 @@ void rows_draw() {
         }
         const SaveEntry& e = row.entry;
         if (e.state != SlotState::Ok) {
-            text_draw(L().row_text_x, y, C().damaged, text(T().damaged.c_str()));
+            const char* what = text((e.newer_format ? T().newer_data : T().damaged).c_str());
+            text_draw(L().row_text_x, y, C().damaged, what);
+            if (e.newer_format) {
+                verbatim_draw(L().row_text_x + nm::text_width(what) + 6, y, C().newer_version, "!");
+            }
             continue;
         }
         // Next Fear saves are gold, as on the original screen.
         const int color = e.summary.next_fear ? C().row_next_fear : C().row;
         text_draw(L().row_text_x, y, color, text(location_key(e)));
-        if (row.mods.warn) {
-            // a save made with mods that are not active: marked in the list, the line below says which
-            verbatim_draw(L().row_text_x + nm::text_width(text(location_key(e))) + 6, y, C().mods_warn, "!");
+        if (row.newer || row.mods.warn) {
+            // a save of a newer game, or made with mods that are not active: marked in the list, the line below
+            // says which
+            verbatim_draw(L().row_text_x + nm::text_width(text(location_key(e))) + 6, y,
+                          row.newer ? C().newer_version : C().mods_warn, "!");
         }
         if (const char* key = difficulty_key(e)) {
             const char* word = text(key);
@@ -469,6 +557,22 @@ void rows_draw() {
         nm::scroll_arrow(L().arrow_x, L().row_y + (L().visible_rows - 1) * L().row_pitch + L().arrow_down_dy, false,
                          s.scroll.can_scroll_down());
     }
+}
+
+// A line in the game font's spelling centred on the panels. One wider than they are is drawn smaller to fit, and
+// past the smallest size that still reads it pans inside their width. `sized_as` (optional): a wider line drawn
+// with this one, whose size both take.
+void fitted_centred(int y, int color, const std::string& line, const std::string* sized_as = nullptr) {
+    constexpr int kFull = 4096, kSmallest = 2662, kRowHeight = 16;
+    const int max_w = line_width();
+    const int w = sh::i18n::text_width(line.c_str());
+    const int widest = std::max(w, sized_as != nullptr ? sh::i18n::text_width(sized_as->c_str()) : 0);
+    const int scale = widest > max_w ? std::max(kSmallest, max_w * kFull / widest) : kFull;
+    const int shown = std::min(max_w, (w * scale) >> 12);
+    sh::text::game_text().set_scale(scale);
+    nm::text_fitted(L().center_x - shown / 2, y + (kRowHeight - ((kRowHeight * scale) >> 12)) / 2, color, line.c_str(),
+                    max_w, true);
+    sh::text::game_text().set_scale(kFull);
 }
 
 void info_draw() {
@@ -489,7 +593,12 @@ void info_draw() {
         return;
     }
     if (s.step == Step::Message || s.step == Step::Starting) {
-        if (s.message != nullptr) {
+        if (s.step == Step::Message && s.message_lines.size() == 2) {
+            fitted_centred(L().info_line1, C().message, s.message_lines[0], &s.message_lines[1]);
+            fitted_centred(L().info_line2, C().message, s.message_lines[1], &s.message_lines[0]);
+        } else if (s.step == Step::Message && s.message_lines.size() == 1) {
+            fitted_centred((L().info_line1 + L().info_line2) / 2, C().message, s.message_lines[0]);
+        } else if (s.message != nullptr) {
             nm::text_centred(L().center_x, (L().info_line1 + L().info_line2) / 2, C().message,
                                 text(s.message));
         }
@@ -511,7 +620,8 @@ void info_draw() {
         std::snprintf(buf, sizeof(buf), "%0*d", L().number_digits, e.number);
         text_draw(L().info_label_x, L().info_line1, C().info_label, text(T().data.c_str()));
         verbatim_draw(L().info_value_x, L().info_line1, C().info_value, buf);
-        text_draw(L().info_label_x, L().info_line2, C().damaged, text(T().damaged.c_str()));
+        text_draw(L().info_label_x, L().info_line2, C().damaged,
+                  text((e.newer_format ? T().newer_data : T().damaged).c_str()));
         return;
     }
     // Data (the save's number), Time (play time) on the first line; Save (its save count), the date on the second.
@@ -545,7 +655,7 @@ std::string mods_line(const sh::mods::ModCheck& check) {
         return T().mod_added;
     };
     const std::string head = sh::i18n::ui_text(T().mods_line.c_str());
-    const int width = L().list_w - 16;
+    const int width = line_width();
     std::string line;
     for (std::size_t i = 0; i < check.differences.size(); ++i) {
         const sh::mods::ModDifference& d = check.differences[i];
@@ -561,6 +671,19 @@ std::string mods_line(const sh::mods::ModCheck& check) {
     return nm::font_text(line);
 }
 
+// "Version 1.4.0: newer than this game (1.3.0)" in the game font.
+std::string newer_line(const SaveEntry& e) {
+    std::string line = sh::i18n::ui_text(T().newer_line.c_str());
+    const auto fill = [&line](std::string_view name, const std::string& value) {
+        if (const std::size_t at = line.find(name); at != std::string::npos) {
+            line.replace(at, name.size(), value);
+        }
+    };
+    fill("{saved}", e.game_version);
+    fill("{game}", sh::save::active_store().game_version());
+    return nm::font_text(line);
+}
+
 void draw() {
     const Screen& s = s_screen;
     PcSaveGame_BackgroundDraw(s.kind);
@@ -573,11 +696,13 @@ void draw() {
     }
     rows_draw();
     const Row* sel = selected_row();
-    if ((s.step == Step::List || s.step == Step::Confirm) && sel != nullptr && !sel->is_new && !sel->mods.empty()) {
+    const bool lists = s.step == Step::List || s.step == Step::Confirm;
+    if (lists && sel != nullptr && !sel->is_new && sel->newer && !sel->entry.newer_format) {
+        // in place of the delete hint: the version that made the save, which this game does not load
+        fitted_centred(L().hint_y, C().newer_version, newer_line(sel->entry));
+    } else if (lists && sel != nullptr && !sel->is_new && !sel->mods.empty()) {
         // in place of the delete hint: what differs in the save's mods
-        const std::string line = mods_line(sel->mods);
-        verbatim_draw(L().center_x - sh::i18n::text_width(line.c_str()) / 2, L().hint_y,
-                      sel->mods.warn ? C().mods_warn : C().mods_note, line.c_str());
+        fitted_centred(L().hint_y, sel->mods.warn ? C().mods_warn : C().mods_note, mods_line(sel->mods));
     } else if (s.step == Step::List && selected_number() > 0) {
         nm::text_centred(L().center_x, L().hint_y, C().hint, text(T().delete_hint.c_str()));
     }

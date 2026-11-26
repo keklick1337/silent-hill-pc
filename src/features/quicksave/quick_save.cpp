@@ -111,6 +111,11 @@ bool read_slot(bool from_console) {
         return false;
     }
     const int state = sh::save::GameSaves::quick_state(kSlot);
+    if (state == -2) {
+        // the store's journal line names the two versions
+        tell_player("ui.save.newer_refused");
+        return false;
+    }
     if (state <= 0) {
         const bool none = state == 0;
         SH_LOG_INFO(SAVE, "quick load: %s", none ? "no quick save" : "the quick save is damaged");

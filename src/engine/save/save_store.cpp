@@ -2,6 +2,7 @@
 // Copyright 2026 Vladislav Tislenko (keklick1337)
 #include "engine/save/save_store.h"
 
+#include "engine/save/save_version.h"
 #include "formats/common/json.h"
 
 #include <algorithm>
@@ -61,6 +62,7 @@ struct Decoded {
     SaveFile file;
     SlotSummary summary;
     std::string error;
+    bool newer_format = false;
 };
 
 Decoded decode_path(const fs::path& path, FileKind kind) {
@@ -77,6 +79,9 @@ Decoded decode_path(const fs::path& path, FileKind kind) {
     auto file = decode(bytes.value());
     if (!file) {
         out.error = file.error();
+        const std::vector<std::uint8_t>& b = bytes.value();
+        out.newer_format = b.size() >= kHeaderSize && std::equal(kMagic.begin(), kMagic.end(), b.begin()) &&
+                           (b[8] | (b[9] << 8)) > kFormatVersion;
         return out;
     }
     if (file.value().kind != kind) {
@@ -194,6 +199,7 @@ SlotRead SaveStore::read_file(const fs::path& path, FileKind kind) const {
             const std::string at = string_member(doc.value(), "saved_at");
             if (parse_utc(at) > 0) out.record.saved_at = at;
         }
+        out.record.game_version = game_version_of_meta(text_of(*meta));
     }
     if (const Chunk* state = d.file.find(kTagState)) {
         out.record.state = text_of(*state);
@@ -234,6 +240,7 @@ Result<void> SaveStore::write_file(const fs::path& path, FileKind kind, const Sl
     SlotDescription description = describe_state(game.value());
     description.mods = record.mods;
     description.saved_at = record.saved_at;
+    description.game_version = record.game_version;
     const std::string meta = describe(description, number, quick_index);
     // Always the current format (a state read from an older one is written anew).
     const std::string text = game.value().old_format ? to_json(game.value()) : state.value();
@@ -290,6 +297,7 @@ std::vector<SaveEntry> SaveStore::list() const {
         e.number = number;
         e.state = d.state;
         e.error = d.error;
+        e.newer_format = d.newer_format;
         e.summary = d.summary;
         e.location_id = d.summary.location;
         e.play_time_seconds = d.summary.play_time / 4096.0;
@@ -310,6 +318,8 @@ std::vector<SaveEntry> SaveStore::list() const {
                 }
                 e.mods = mods_of_meta(std::string_view(reinterpret_cast<const char*>(meta->data.data()),
                                                        meta->data.size()));
+                e.game_version = game_version_of_meta(
+                    std::string_view(reinterpret_cast<const char*>(meta->data.data()), meta->data.size()));
             }
         }
         out.push_back(std::move(e));
@@ -425,6 +435,22 @@ SlotRead SaveStore::read_legacy_slot(int card, int file, int slot) const {
     return out;
 }
 
+bool SaveStore::from_newer_game(const std::string& saved_version) const {
+    return sh::save::from_newer_game(saved_version, game_version_);
+}
+
+std::string game_version_of_meta(std::string_view meta_json) {
+    auto doc = json::parse(meta_json);
+    if (!doc || !doc.value().is_object()) {
+        return {};
+    }
+    const json::Value* v = doc.value().find("game_version");
+    if (v == nullptr) {
+        return {};
+    }
+    return v->is_string() && !v->string().empty() ? v->string() : std::string("?");
+}
+
 std::optional<std::vector<SavedMod>> mods_of_meta(std::string_view meta_json) {
     auto doc = json::parse(meta_json);
     if (!doc || !doc.value().is_object()) {
@@ -470,6 +496,9 @@ std::string describe(const SlotDescription& d, int number, int quick_index) {
         w.member("save", number);
     }
     w.member("saved_at", d.saved_at.empty() ? utc_now() : d.saved_at);
+    if (!d.game_version.empty()) {
+        w.member("game_version", d.game_version);
+    }
     if (!d.map_name.empty()) {
         w.member("map", d.map_name);
     }
@@ -544,6 +573,14 @@ int SaveStore::convert_old_saves(std::vector<std::string>& lines) {
             old = game && game.value().old_format;
         }
         if (!old) continue;
+        if (const Chunk* meta = file.value().find(kTagMeta)) {
+            // A newer game's save in an old format (a tool's, a hand's): not this build's to rewrite.
+            if (const std::string made = game_version_of_meta(text_of(*meta)); from_newer_game(made)) {
+                lines.push_back(path.filename().string() + ": not converted, made with version " + made +
+                                ", newer than this game (" + game_version_ + ")");
+                continue;
+            }
+        }
         const SlotRead before = id > 0 ? read(id) : read_quick(-1 - id);
         if (before.state != SlotState::Ok) {
             lines.push_back(path.filename().string() + ": not converted (" + before.error + ")");

@@ -1,5 +1,5 @@
 {
-    "description": "Layout of the PC save / load screen in the 320x224 text space: list position and row pitch, menu font colours (gold, dark_grey, green, red, light_grey, white), text keys of strings_*.json, and the save point names in save location order (location_keys). mods_warn / mods_note and the mods_* / mod_* texts: the line under the list about the selected save's mods against the active ones (red when the load asks first) and the question it asks. Keys left out keep the built-in values; an unknown key is an error.",
+    "description": "Layout of the PC save / load screen in the 320x224 text space: list position and row pitch, menu font colours (gold, dark_grey, green, red, light_grey, white), text keys of strings_*.json, and the save point names in save location order (location_keys). mods_warn / mods_note and the mods_* / mod_* texts: the line under the list about the selected save's mods against the active ones (red when the load asks first) and the question it asks. newer_version and the newer_* texts: a save made by a newer version of the game, which is marked in the list and not loaded: the line under the list ({saved} and {game} are the two versions), the answer to choosing it, and the row of a file in a save format this game does not read. Keys left out keep the built-in values; an unknown key is an error.",
     "visible_rows": 5,
     "heading_y": 14,
     "center_x": 160,
@@ -24,7 +24,7 @@
         "damaged": "dark_grey", "difficulty": "light_grey",
         "question": "white", "answer": "white",
         "info_label": "white", "info_value": "white", "date": "light_grey",
-        "mods_warn": "red", "mods_note": "light_grey"
+        "mods_warn": "red", "mods_note": "light_grey", "newer_version": "red"
     },
     "texts": {
         "heading_save": "ui.save.heading_save", "heading_load": "ui.save.heading_load",
@@ -42,7 +42,8 @@
         "delete_hint": "ui.save.delete_hint",
         "mods_line": "ui.save.mods_line", "mod_missing": "ui.save.mod_missing", "mod_disabled": "ui.save.mod_disabled",
         "mod_older": "ui.save.mod_older", "mod_newer": "ui.save.mod_newer", "mod_added": "ui.save.mod_added",
-        "confirm_mods": "ui.save.confirm_mods"
+        "confirm_mods": "ui.save.confirm_mods",
+        "newer_line": "ui.save.newer_line", "newer_refused": "ui.save.newer_refused", "newer_data": "ui.save.newer_data"
     },
     "location_keys": [
         "ui.save.location.anywhere", "ui.save.location.cafe", "ui.save.location.bus",

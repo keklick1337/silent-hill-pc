@@ -20,6 +20,7 @@ struct SaveScreenColors {
     int question = 7, answer = 7;
     int info_label = 7, info_value = 7, date = 6;
     int mods_warn = 4, mods_note = 6;  // the line about a save's mods: red when it asks before loading
+    int newer_version = 4;             // the mark and the line of a save made by a newer version of the game
 };
 
 // Text keys (strings_*.json) the screen shows.
@@ -41,6 +42,11 @@ struct SaveScreenTexts {
     std::string mods_line = "ui.save.mods_line", mod_missing = "ui.save.mod_missing",
                 mod_disabled = "ui.save.mod_disabled", mod_older = "ui.save.mod_older", mod_newer = "ui.save.mod_newer",
                 mod_added = "ui.save.mod_added", confirm_mods = "ui.save.confirm_mods";
+    // A save of a newer version of the game (engine/save/save_version.h): the line under the list ({saved} and
+    // {game} are the two versions), the answer to choosing it, the row of a file in a save format this game cannot
+    // read at all.
+    std::string newer_line = "ui.save.newer_line", newer_refused = "ui.save.newer_refused",
+                newer_data = "ui.save.newer_data";
 };
 
 struct SaveScreenLayout {

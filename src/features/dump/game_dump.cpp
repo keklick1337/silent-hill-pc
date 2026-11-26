@@ -448,9 +448,15 @@ Result<std::string> load(std::string_view id) {
     if (!restore) {
         return Result<std::string>::fail("dump.json: " + restore.error());
     }
-    if (restore.value().state_saved &&
-        sh::save::GameSaves::file_state((folder / "state.sav").string()) <= 0) {
-        return Result<std::string>::fail("state.sav of dump " + std::string(id) + " is missing or damaged");
+    if (restore.value().state_saved) {
+        const int state = sh::save::GameSaves::file_state((folder / "state.sav").string());
+        if (state == -2) {
+            return Result<std::string>::fail("state.sav of dump " + std::string(id) +
+                                             " was made by a newer version of the game");
+        }
+        if (state <= 0) {
+            return Result<std::string>::fail("state.sav of dump " + std::string(id) + " is missing or damaged");
+        }
     }
     if (restore.value().map.empty()) {
         return Result<std::string>::fail("dump " + std::string(id) + " was taken outside a map: nothing to restore");
