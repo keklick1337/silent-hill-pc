@@ -226,6 +226,8 @@ A text file is
 
 at `text/<language>/<any name>.json`. A mod's keys win over the game's and over those of earlier mods; a new key is added. The game's keys are in `gamedata/text/en/`: `ui.*` and `menu.*` for the interface, `item.<Name>.name` and `item.<Name>.desc` for items, `<map>.*` for the messages of a map (in `text/<language>/maps/<map>.json`). A mod's own keys carry its namespace: `mymod:ui.title`, `item.mymod:Crowbar.name`. In a script, `sh.text("mymod:ui.title")` returns the text in the current language.
 
+**Messages a script shows.** A message is shown by its key (`sh.world.say`, `sh.world.message`, the `message` of `sh.world.pickup_create`, `sh.msg_draw` and the message steps of a map event), and a key is looked up first in the messages of the loaded map — the game's, and those a mod adds to that map with a text file that names it, `"map": "map0_s01"` — then in the shared block `common.*`, then in the messages of no map: every string of `text/<language>/messages.json` (this name, directly in the language's folder; the same format, no `"map"`). Such a message can be shown on any map, so the lines of a story that crosses maps are written once per language. The English file of a mod (or of the game) says which messages there are; another language translates them by key, and a line it lacks, or a language without the file, shows the English. A message of the map itself with the same key wins on that map.
+
 The markup of messages (colours, waits, choices) is in [Message markup](#message-markup) below; adding a language and the translation workflow are in [translation.md](translation.md).
 
 ### Message markup

@@ -193,6 +193,13 @@ void TextLayers::add(const TextDoc& doc, int layer, std::vector<std::string>& wa
             give_slot(key);
         }
     }
+    if (doc.shared_messages && (((index_layers_ | extra_layers_) >> layer) & 1u)) {
+        for (const auto& [key, readable] : doc.strings) {
+            if (!key.empty() && std::find(shared_.begin(), shared_.end(), key) == shared_.end()) {
+                shared_.push_back(key);
+            }
+        }
+    }
     for (const auto& [key, readable] : doc.strings) {
         Entry e;
         e.text = readable;
@@ -284,6 +291,8 @@ void TextLayers::add_dir(const std::filesystem::path& dir, int layer, std::vecto
             warnings.push_back(doc.error());
             continue;
         }
+        doc.value().shared_messages = doc.value().map.empty() && file.parent_path() == dir &&
+                                      file.filename() == "messages.json";
         add(doc.value(), layer, warnings);
     }
 }
@@ -333,7 +342,8 @@ int TextLayers::map_total(std::string_view map) const {
         return 0;
     }
     const auto* extra = map_extras(map);
-    return own->first + static_cast<int>(own->keys.size()) + (extra != nullptr ? static_cast<int>(extra->size()) : 0);
+    return own->first + static_cast<int>(own->keys.size()) + (extra != nullptr ? static_cast<int>(extra->size()) : 0) +
+           static_cast<int>(shared_.size());
 }
 
 bool TextLayers::is_extra_slot(std::string_view map, int slot) const {
@@ -350,7 +360,10 @@ const std::string* TextLayers::map_key(std::string_view map, int slot) const {
     }
     if (is_extra_slot(map, slot)) {
         const TextIndex* own = map_index(map);
-        return &(*map_extras(map))[static_cast<std::size_t>(slot - own->first) - own->keys.size()];
+        const auto* extra = map_extras(map);
+        const std::size_t added = extra != nullptr ? extra->size() : 0;
+        const std::size_t at = static_cast<std::size_t>(slot - own->first) - own->keys.size();
+        return at < added ? &(*extra)[at] : &shared_[at - added];
     }
     return nullptr;
 }
@@ -371,6 +384,16 @@ int TextLayers::map_slot(std::string_view map, std::string_view key) const {
         for (std::size_t i = 0; i < extra->size(); ++i) {
             if ((*extra)[i] == key) {
                 return own->first + static_cast<int>(own->keys.size() + i);
+            }
+        }
+    }
+    // the shared messages last: a message of the map itself with the same key has been found above
+    if (const TextIndex* own = map_index(map)) {
+        const auto* extra = map_extras(map);
+        const std::size_t added = extra != nullptr ? extra->size() : 0;
+        for (std::size_t i = 0; i < shared_.size(); ++i) {
+            if (shared_[i] == key) {
+                return own->first + static_cast<int>(own->keys.size() + added + i);
             }
         }
     }

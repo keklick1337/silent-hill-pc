@@ -10,6 +10,7 @@ There are no languages in the engine's code: a language is a folder of text with
 | --- | --- |
 | `common.json` | the shared block of messages (keys `common.*`) |
 | `maps/<map>.json` | the messages of a map (43 maps, keys `<map>.*`) |
+| `messages.json` | messages of no map, which a script shows on any map by key (a mod's story lines; the game has none) |
 | `items.json` | names and descriptions of items (`item.<Name>.name`, `item.<Name>.desc`) |
 | `menu.json`, `ui.json`, `options_menu.json`, `pause_menu.json`, `mods_menu.json`, `debug_menu.json`, `menu_engine.json`, `controls_*.json`, `setup.json` | the interface |
 | `lang.json` | the descriptor that makes the folder a language |

@@ -27,7 +27,7 @@
     },
     "load_map": {
       "signature": "load_map(map, point[, complete_flag])",
-      "description": "Goes through a door to another map the game's usual way (fade, loading screen); point is a landing point of the current map's points. Works from a map event and from any other script (a mod's main.lua, a coroutine): there it starts once no map event runs."
+      "description": "Goes through a door to another map the game's usual way (fade, loading screen); point is a landing point of the current map's points; the player lands on the point itself (a point that keeps a door's sideways offset keeps none here: a script's map change has no door). Works from a map event and from any other script (a mod's main.lua, a coroutine): there it starts once no map event runs."
     },
     "math.abs": {
       "signature": "math.abs(x) -> number",
@@ -2827,11 +2827,11 @@
     },
     "sh.msg_draw": {
       "signature": "sh.msg_draw(msg) -> state",
-      "description": "Draws a map message for this tick: 0 still showing, -1 finished, 1..3 the chosen answer. Call once a tick; msg is a text key or number."
+      "description": "Draws a message for this tick: 0 still showing, -1 finished, 1..3 the chosen answer. Call once a tick; msg is a text key or number (a message of the loaded map, or of text/<lang>/messages.json on any map)."
     },
     "sh.msg_index": {
       "signature": "sh.msg_index(key) -> index",
-      "description": "The number of a message key in the current map's messages; -1 when the map has none."
+      "description": "The number of a message key on the current map: looked up in the map's own messages, then in the common block, then in the messages of no map (text/<lang>/messages.json); -1 when there is none. The number is this map's and this session's: keep the key."
     },
     "sh.music.channel_set": {
       "signature": "sh.music.channel_set()",
@@ -3903,7 +3903,7 @@
     },
     "sh.ui.msg_draw": {
       "signature": "sh.ui.msg_draw(msg) -> state",
-      "description": "Draws a map message for this tick: 0 still showing, -1 finished, 1..3 the chosen answer. Call once a tick; msg is a text key or number."
+      "description": "Draws a message for this tick: 0 still showing, -1 finished, 1..3 the chosen answer. Call once a tick; msg is a text key or number (a message of the loaded map, or of text/<lang>/messages.json on any map)."
     },
     "sh.vc_cam_target": {
       "signature": "sh.vc_cam_target(x, y, z, warp)",
@@ -4031,7 +4031,7 @@
     },
     "sh.world.pickup_create": {
       "signature": "sh.world.pickup_create{item, x, y, z, rot, id, flag, count, message, model, units} -> id or nil, err",
-      "description": "Puts a real pickup on the loaded map; flag (from the mod's flags.json) marks it taken. Call it at every map load. model is a world model name of the map (8 characters at most), the item's world_model by default, or false: nothing is drawn for it (the mod shows the thing as a world object of its own model) and it is still taken up there."
+      "description": "Puts a real pickup on the loaded map; flag (from the mod's flags.json) marks it taken. Call it at every map load. model is a world model name of the map (8 characters at most), the item's world_model by default, or false: nothing is drawn for it (the mod shows the thing as a world object of its own model) and it is still taken up there. message is the key of the prompt: a message of the map or of text/<lang>/messages.json."
     },
     "sh.world.mark": {
       "signature": "sh.world.mark(id, {x, z, r, label, kind})",
@@ -4039,7 +4039,7 @@
     },
     "sh.world.message": {
       "signature": "sh.world.message(key) -> true or nil, err",
-      "description": "Shows a map message (its text key or number) as soon as Harry is free, the world stopped, like the map's own message events. A mod adds messages to a map with a text file that has \"map\"."
+      "description": "Shows a message (its text key or number) as soon as Harry is free, the world stopped, like the map's own message events. The key is a message of the loaded map (a mod adds one with a text file that has \"map\") or a message of no map from text/<lang>/messages.json, which every map can show."
     },
     "sh.world.pickup_remove": {
       "signature": "sh.world.pickup_remove(id) -> bool",
@@ -4291,7 +4291,7 @@
     },
     "sh.world.say": {
       "signature": "sh.world.say(key) -> true or nil, err",
-      "description": "Shows a map message (its text key or number) over play: the world goes on and the player can move; the confirm button advances it, its own waits end it. One at a time: a new one replaces it, a map event that starts drops it."
+      "description": "Shows a message (its text key or number) over play: the world goes on and the player can move; the confirm button advances it, its own waits end it. One at a time: a new one replaces it, a map event that starts drops it. The key is a message of the loaded map or, on any map, a message of text/<lang>/messages.json."
     },
     "sh.world.saying": {
       "signature": "sh.world.saying() -> bool",

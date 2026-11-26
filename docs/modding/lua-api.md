@@ -73,7 +73,7 @@ Helpers the script hosts define beside the `sh` table, and the Lua library names
 | `fmv(param[, complete_flag])` | Plays a movie. |
 | `getmetatable(v) -> mt` | The metatable of a value. |
 | `ipairs(t) -> iterator` | Iterates over t[1], t[2], ... up to the first nil. |
-| `load_map(map, point[, complete_flag])` | Goes through a door to another map the game's usual way (fade, loading screen); point is a landing point of the current map's points. Works from a map event and from any other script (a mod's main.lua, a coroutine): there it starts once no map event runs. |
+| `load_map(map, point[, complete_flag])` | Goes through a door to another map the game's usual way (fade, loading screen); point is a landing point of the current map's points; the player lands on the point itself (a point that keeps a door's sideways offset keeps none here: a script's map change has no door). Works from a map event and from any other script (a mod's main.lua, a coroutine): there it starts once no map event runs. |
 | `next(t[, key]) -> key, value` | The entry of a table after key. |
 | `pairs(t) -> iterator` | Iterates over every key and value of a table. |
 | `pcall(f, ...) -> ok, results` | Calls f and catches an error: false and the message instead of raising it. |
@@ -220,8 +220,8 @@ Flat functions: the vocabulary the base game's map event scripts are written in.
 | `sh.math_cos(angle) -> q12` | Cosine of a Q12 angle from the game's table, Q12. |
 | `sh.math_sin(angle) -> q12` | Sine of a Q12 angle from the game's table, Q12. |
 | `sh.math_vec2_mag_q6(x, z) -> length` | The length of a 2D vector, computed in Q6 so large values do not overflow. |
-| `sh.msg_draw(msg) -> state` | Draws a map message for this tick: 0 still showing, -1 finished, 1..3 the chosen answer. Call once a tick; msg is a text key or number. |
-| `sh.msg_index(key) -> index` | The number of a message key in the current map's messages; -1 when the map has none. |
+| `sh.msg_draw(msg) -> state` | Draws a message for this tick: 0 still showing, -1 finished, 1..3 the chosen answer. Call once a tick; msg is a text key or number (a message of the loaded map, or of text/<lang>/messages.json on any map). |
+| `sh.msg_index(key) -> index` | The number of a message key on the current map: looked up in the map's own messages, then in the common block, then in the messages of no map (text/<lang>/messages.json); -1 when there is none. The number is this map's and this session's: keep the key. |
 | `sh.overlay_screen_hide(fade0, fade1)` | Hides the full-screen texture, fading it out. |
 | `sh.overlay_screen_show(file, fade0, fade1)` | Shows a full-screen texture (a clock face, a boiler panel), fading it in. |
 | `sh.pad_effect(idx, level)` | Runs a vibration effect this tick (config/pad_vibration.json). |
@@ -1101,7 +1101,7 @@ The game's timers.
 | --- | --- |
 | `sh.ui.fade(fade_in[, white])` | Starts a screen fade: in (true) or out, to white when white is true. |
 | `sh.ui.fade_done() -> bool` | True when the screen fade has finished. |
-| `sh.ui.msg_draw(msg) -> state` | Draws a map message for this tick: 0 still showing, -1 finished, 1..3 the chosen answer. Call once a tick; msg is a text key or number. |
+| `sh.ui.msg_draw(msg) -> state` | Draws a message for this tick: 0 still showing, -1 finished, 1..3 the chosen answer. Call once a tick; msg is a text key or number (a message of the loaded map, or of text/<lang>/messages.json on any map). |
 
 ## sh.vec
 
@@ -1137,18 +1137,18 @@ The loaded world: ground, rays, walkable points, pickups, effect slots.
 | `sh.world.hush()` | Ends the message of sh.world.say at once (a script that lets the player skip a line). |
 | `sh.world.light_flags()` | The flag byte of the current environment preset: bit 0 the dark set-up, bit 1 an area where the flashlight matters. |
 | `sh.world.mark(id, {x, z, r, label, kind})` | A place of the script's story (a trigger zone of its own, a save point, a door it shuts, a monster waiting to come) that the modding tools' overlay draws: x, z and the radius r in metres, a label and a free kind text. Nothing in the game sees it. Gone at a map change: mark the places again in a map.load hook. Example: sh.world.mark("lever", {x = 12.5, z = -3.0, r = 1.5, label = "the lever", kind = "action"}). |
-| `sh.world.message(key) -> true or nil, err` | Shows a map message (its text key or number) as soon as Harry is free, the world stopped, like the map's own message events. A mod adds messages to a map with a text file that has "map". |
+| `sh.world.message(key) -> true or nil, err` | Shows a message (its text key or number) as soon as Harry is free, the world stopped, like the map's own message events. The key is a message of the loaded map (a mod adds one with a text file that has "map") or a message of no map from text/<lang>/messages.json, which every map can show. |
 | `sh.world.nearest_walkable(x, z[, radius[, from_x, from_z]]) -> x, z, y` | The nearest point with ground within radius (default 2 m, at most 16 m); nil when there is none. |
 | `sh.world.object_add(...)` | Adds a world object of the map by name to this frame's objects. |
 | `sh.world.object_draw(name, x, y, z, rx, ry, rz)` | Draws a "script" world object once more this tick at another place. |
 | `sh.world.object_model_name_set(name, model)` | Gives a world object another model. |
-| `sh.world.pickup_create{item, x, y, z, rot, id, flag, count, message, model, units} -> id or nil, err` | Puts a real pickup on the loaded map; flag (from the mod's flags.json) marks it taken. Call it at every map load. model is a world model name of the map (8 characters at most), the item's world_model by default, or false: nothing is drawn for it (the mod shows the thing as a world object of its own model) and it is still taken up there. |
+| `sh.world.pickup_create{item, x, y, z, rot, id, flag, count, message, model, units} -> id or nil, err` | Puts a real pickup on the loaded map; flag (from the mod's flags.json) marks it taken. Call it at every map load. model is a world model name of the map (8 characters at most), the item's world_model by default, or false: nothing is drawn for it (the mod shows the thing as a world object of its own model) and it is still taken up there. message is the key of the prompt: a message of the map or of text/<lang>/messages.json. |
 | `sh.world.pickup_remove(id) -> bool` | Removes a pickup the script created. |
 | `sh.world.pickup_take(id) -> bool` | Opens the prompt of a pickup the script created as if the player had taken it up there, wherever the player stands (once no map event runs and the player is free): the end of a scene can hand the player its item with the game's own question. false when the map has no such pickup. Example: sh.world.pickup_create{item = "Key", x = 1.5, z = 2.0, id = "key", flag = "key_taken", message = "take_key", model = false}; sh.world.pickup_take("key"). |
 | `sh.world.pickups([units]) -> rows` | The script pickups of the map: {id, owner, item, model, flag, count, message, x, y, z, rot, taken}. |
 | `sh.world.ray(fx, fy, fz, tx, ty, tz[, mode[, exclude_slot]])` | Casts a ray; mode is "solid", "chara", "sight" or "probe"; slot is -1 when it hit geometry. |
 | `sh.world.ray_surface(x0, y0, z0, x1, y1, z1)` | Casts a ray against the collision surface. |
-| `sh.world.say(key) -> true or nil, err` | Shows a map message (its text key or number) over play: the world goes on and the player can move; the confirm button advances it, its own waits end it. One at a time: a new one replaces it, a map event that starts drops it. |
+| `sh.world.say(key) -> true or nil, err` | Shows a message (its text key or number) over play: the world goes on and the player can move; the confirm button advances it, its own waits end it. One at a time: a new one replaces it, a map event that starts drops it. The key is a message of the loaded map or, on any map, a message of text/<lang>/messages.json. |
 | `sh.world.saying() -> bool` | True while the message of sh.world.say still shows. |
 | `sh.world.script_call(name, a, b, c) -> 1 or 0` | Calls a global function of the map's world_objects.lua. |
 | `sh.world.speed_zone(x, z)` | The speed zone of a point: 0 slow, 1 normal, 2 fast. |

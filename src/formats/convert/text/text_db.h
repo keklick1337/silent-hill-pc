@@ -3,6 +3,7 @@
 // gamedata/text/<lang>/*.json ("sh-text" v1): the game's text by key, in
 // readable markup (text_markup.h). The base English files carry the original's text and index
 // tables, which tie keys to the numeric slots the engine addresses text by (map message index).
+// <lang>/messages.json holds messages that belong to no map: every map can show them by key.
 // add_disc_messages()/add_engine() put a disc's text tables (convert/text of an import with the
 // text converter) under the index's keys, which is how the tests compare the two. Layers stack:
 // the base, then a language pack, then mods; the last layer to name a key wins it.
@@ -29,6 +30,7 @@ struct TextIndex {
 struct TextDoc {
     std::string lang;
     std::string map;                                          // "map0_s01" for a map's file, else empty
+    bool shared_messages = false;                             // <lang>/messages.json: messages of every map
     std::map<std::string, TextIndex> index;                   // "map", "item_name", "item_desc"
     std::vector<std::pair<std::string, std::string>> strings; // key -> readable text, file order
     std::map<std::string, std::string> ws;                    // key -> exact layout record
@@ -67,6 +69,7 @@ public:
     int add_disc_messages(const std::filesystem::path& import_text, int layer, std::vector<std::string>& warnings);
 
     // Every *.json under `dir` except lang.json (the language's descriptor, i18n/core/language_set.h), in path order. A missing directory adds nothing.
+    // messages.json directly in `dir` is the language's file of shared messages (TextDoc::shared_messages).
     // Files of a directory sort by path; a mod's documents therefore add in a stable order.
     void add_dir(const std::filesystem::path& dir, int layer, std::vector<std::string>& warnings);
 
@@ -91,8 +94,14 @@ public:
     // Slots are handed out in add order and never reused.
     void set_index_layers(unsigned mask) { index_layers_ = mask; }
     void set_extra_layers(unsigned mask) { extra_layers_ = mask; }
-    // Slots the map's messages span: base table plus added messages (0 without a base table).
+    // Shared messages: every string of a document with `shared_messages` set, of a layer in `index_layers` or
+    // `extra_layers`, is a message of every map. A map's slots for them follow its own added messages, in add
+    // order; a key the map's own table, the common block or its added messages already number keeps that slot, so
+    // a map's own message wins over a shared one of the same key.
+    const std::vector<std::string>& shared_messages() const { return shared_; }
+    // Slots the map's messages span: base table, added messages, then the shared ones (0 without a base table).
     int map_total(std::string_view map) const;
+    // A slot past the map's base table: an added or a shared message.
     bool is_extra_slot(std::string_view map, int slot) const;
     const std::vector<std::string>* map_extras(std::string_view map) const;
 
@@ -104,6 +113,7 @@ private:
     std::map<std::string, TextIndex, std::less<>> maps_;   // "common" and "map0_s01"...
     std::map<std::string, TextIndex, std::less<>> items_;
     std::map<std::string, std::vector<std::string>, std::less<>> extras_;  // map -> added keys
+    std::vector<std::string> shared_;                                      // keys of the shared messages
     unsigned index_layers_ = 1u;
     unsigned extra_layers_ = 0u;
 };

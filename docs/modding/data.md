@@ -26,7 +26,7 @@ A mod repeats the paths of `gamedata/`. What a file of a mod does depends on its
 | Sound names | `sounds/<any>.json` | patches the sound registry | [assets.md](assets.md#sound) |
 | Sound files | `convert/audio/...` | replaces a file | [assets.md](assets.md#sound) |
 | Surfaces (footsteps) | `world/surfaces.json`; `maps/<map>/footsteps.json` | patches; merges (by `name`) | [assets.md](assets.md#an-example-footsteps) |
-| Text | `text/<language>/**/*.json` | patches by keys; new keys are added | [assets.md](assets.md#text) |
+| Text | `text/<language>/**/*.json` | patches by keys; new keys are added; `text/<language>/messages.json` holds messages a script shows on any map | [assets.md](assets.md#text) |
 | A language | `text/<code>/lang.json` and the translation beside it | adds a language to *Options > Language* | [translation.md](translation.md) |
 | Menus | `menus/*.lua` (needs `"scripts": true`) | run after the game's menus | [scripting.md](scripting.md#menus-and-option-pages) |
 | The mod's script | `scripts/main.lua` (needs `"scripts": true`) | the mod's own script in its own environment | [scripting.md](scripting.md) |

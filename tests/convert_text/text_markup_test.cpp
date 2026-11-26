@@ -301,3 +301,70 @@ SH_TEST(TextLayersModAddsMapMessages) {
     SH_CHECK(layers.map_total("map9_s01") == 5);
     fs::remove_all(dir);
 }
+
+SH_TEST(TextLayersSharedMessages) {
+    const fs::path dir = temp_dir("sh_text_shared_test");
+    write(dir / "en" / "common.json",
+          R"({"format":"sh-text","version":1,"lang":"en",
+              "index":{"map":{"first":0,"keys":["common.yes","common.no"]}},
+              "strings":{"common.yes":"Yes","common.no":"No"}})");
+    write(dir / "en" / "maps" / "map9_s01.json",
+          R"({"format":"sh-text","version":1,"lang":"en","map":"map9_s01",
+              "index":{"map":{"first":2,"keys":["map9_s01.hello"]}},
+              "strings":{"map9_s01.hello":"Hello.{end}"}})");
+    write(dir / "en" / "maps" / "map9_s02.json",
+          R"({"format":"sh-text","version":1,"lang":"en","map":"map9_s02",
+              "index":{"map":{"first":2,"keys":["map9_s02.a","map9_s02.b"]}},
+              "strings":{"map9_s02.a":"A.{end}","map9_s02.b":"B.{end}"}})");
+    // A mod: messages of no map (messages.json), one message of map9_s01 only, and the same key as a shared one
+    // given to map9_s01 itself.
+    write(dir / "mod" / "en" / "messages.json",
+          R"({"format":"sh-text","version":1,"lang":"en",
+              "strings":{"mymod:line":"A line.{end}","mymod:both":"Shared.{end}","map9_s01.hello":"Hi.{end}"}})");
+    write(dir / "mod" / "en" / "maps" / "map9_s01.json",
+          R"({"format":"sh-text","version":1,"lang":"en","map":"map9_s01",
+              "strings":{"mymod:here":"Only here.{end}","mymod:both":"Shared.{end}"}})");
+    // messages.json deeper in the tree is an ordinary text file.
+    write(dir / "mod" / "en" / "maps" / "messages.json",
+          R"({"format":"sh-text","version":1,"lang":"en","strings":{"mymod:not_a_message":"x"}})");
+    write(dir / "ru" / "messages.json",
+          R"({"format":"sh-text","version":1,"lang":"ru","strings":{"mymod:line":"Строка.{end}","mymod:ru_only":"x"}})");
+
+    std::vector<std::string> warnings;
+    txt::TextLayers layers;
+    layers.set_index_layers(1u);
+    layers.set_extra_layers(2u);
+    layers.add_dir(dir / "en", 0, warnings);
+    layers.add_dir(dir / "mod" / "en", 1, warnings);
+    layers.add_dir(dir / "ru", 2, warnings);
+    SH_CHECK(warnings.empty());
+    SH_CHECK(layers.shared_messages().size() == 3);
+
+    // The map's own messages first (base table, then the messages a mod added to it), the shared ones after them.
+    SH_CHECK(layers.map_slot("map9_s01", "map9_s01.hello") == 2);   // the base slot, though messages.json names it
+    SH_CHECK(layers.map_slot("map9_s01", "mymod:here") == 3);
+    SH_CHECK(layers.map_slot("map9_s01", "mymod:both") == 4);       // the map's own added message wins
+    const int line1 = layers.map_slot("map9_s01", "mymod:line");
+    SH_CHECK(line1 >= 5 && line1 < layers.map_total("map9_s01"));
+    SH_CHECK(layers.map_total("map9_s01") == 8);
+    SH_CHECK(layers.map_key("map9_s01", line1) != nullptr && *layers.map_key("map9_s01", line1) == "mymod:line");
+    SH_CHECK(layers.is_extra_slot("map9_s01", line1));
+    SH_CHECK(layers.map_key("map9_s01", 8) == nullptr);
+
+    // Every map with a table has them, at its own slots; a map's own message is not another map's.
+    const int line2 = layers.map_slot("map9_s02", "mymod:line");
+    SH_CHECK(line2 >= 4 && line2 < layers.map_total("map9_s02"));
+    SH_CHECK(layers.map_total("map9_s02") == 7);
+    SH_CHECK(*layers.map_key("map9_s02", line2) == "mymod:line");
+    SH_CHECK(layers.map_slot("map9_s02", "mymod:both") >= 4);
+    SH_CHECK(layers.map_slot("map9_s02", "mymod:here") == -1);
+    SH_CHECK(layers.map_slot("map9_s02", "mymod:not_a_message") == -1);
+    SH_CHECK(layers.map_slot("no_such_map", "mymod:line") == -1);
+
+    // A language translates a shared message by its key; a language layer adds no message of its own, and a
+    // language without the file leaves the English.
+    SH_CHECK(layers.map_slot("map9_s01", "mymod:ru_only") == -1);
+    SH_CHECK(layers.find("mymod:line", 0x4u) != nullptr && layers.find("mymod:line", 0x4u)->text == "Строка.{end}");
+    SH_CHECK(layers.find("mymod:both", 0x4u) == nullptr && layers.find("mymod:both", 0x3u) != nullptr);
+    fs::remove_all(dir);
+}
