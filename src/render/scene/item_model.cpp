@@ -262,8 +262,9 @@ Result<ItemMesh> read_item_mesh(std::span<const std::uint8_t> glb, std::span<con
 
     const json::Value* packets = side_object != nullptr ? side_object->find("primitives") : nullptr;
     if (packets == nullptr || !packets->is_array()) {
-        // No face map: the glb's triangles as they are, in file order.
-        bool own = false;
+        // No face map: the glb's triangles as they are, in file order. A file without the importer's manifest is a
+        // mod's own model, in metres, whether it embeds its picture or names a sheet of the game.
+        bool own = sidecar.empty();
         for (const auto& tris : primitives)
             for (const GlbTriangle& t : tris) {
                 mesh.faces.push_back(face_of(t, kPacketCorners[0], 0));

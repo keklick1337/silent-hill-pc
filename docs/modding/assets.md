@@ -87,10 +87,16 @@ A mod's item can have a model of its own: `"close_up_model": "<mod>/<NAME>.glb"`
 
 A world object of a map (`maps/<map>/world_objects.json`) can be a mod's own model: a prop, a vehicle, a note lying on a table. `"item_model": {"file": "<mod>/<name>.glb", "scale": 1.0}` names a glb below `convert/models/` of the mod (metres, +Y up, front +Z, the origin where it stands: bottom centre; its pictures embedded as the base colour, alpha "MASK" or "BLEND" for cut-outs). It is drawn with the map's light, fog and the flashlight like the map's own objects. `"position"` (metres, Y grows downwards: a negative Y is above the ground) and `"rotation"` (degrees about X, Y and Z) place it; laying a model on its side is a rotation of 90 about its forward axis plus a lift of half its width. `"flags_set"` / `"flags_clear"` show it only while the story says so (a pickup's flag hides the model once it is taken). While the glb is missing the object is not drawn and the log says so once.
 
+A model is only a picture: characters walk through it unless the object has `"collision"`, a list of upright cylinders `{"offset": [x, y, z], "radius": r, "height": h}` in metres. `offset` is the middle of the cylinder's foot from the object's `position` along the world's axes (Y grows downwards; it does not turn with `rotation`, so a lying or turned model gets the offsets of where its parts are in the world); the cylinder stands `height` up from there. While the object is drawn, the player and the monsters are stopped by the cylinders as by a character that never gives way; shots and the camera pass. Follow a long shape with a row of cylinders, not one big one. The collision view of the debug options shows them as bodies.
+
+A model can wear a picture of the game without shipping it: a material whose `extras` name one of the game's item sheets (`"textured": true, "tim": "ITEM/TIM01.TIM", "png": "textures/ITEM/TIM01.png", "palette": 6, "tim_width": 256, "tim_height": 256, "tim_page_u": 0, "tim_page_v": 0`, the keys the importer writes for the game's own item models in `convert/models/ITEM/*.glb`) is drawn with that sheet and palette from the player's import; its texture coordinates are `(texel + 0.5) / 256` of the sheet. Such a material embeds no image.
+
 ```json
 {"objects": [{"name": "MyBike", "model": "MYBIKE", "item_model": {"file": "mymod/bike.glb", "scale": 1.0},
   "position": [-6.0, -0.54, 158.0], "rotation": [0, 0, 90], "zones": [{"x": -1, "z": 3}],
-  "flags_set": ["mymod:story_started"]}]}
+  "flags_set": ["mymod:story_started"],
+  "collision": [{"offset": [0.4, 0.0, -0.6], "radius": 0.4, "height": 0.6},
+                {"offset": [0.5, 0.0, 0.3], "radius": 0.45, "height": 1.0}]}]}
 ```
 
 
