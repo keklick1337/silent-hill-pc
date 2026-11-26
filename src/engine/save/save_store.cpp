@@ -190,6 +190,10 @@ SlotRead SaveStore::read_file(const fs::path& path, FileKind kind) const {
     }
     if (const Chunk* meta = d.file.find(kTagMeta)) {
         out.record.mods = mods_of_meta(text_of(*meta));
+        if (auto doc = json::parse(text_of(*meta)); doc && doc.value().is_object()) {
+            const std::string at = string_member(doc.value(), "saved_at");
+            if (parse_utc(at) > 0) out.record.saved_at = at;
+        }
     }
     if (const Chunk* state = d.file.find(kTagState)) {
         out.record.state = text_of(*state);
@@ -229,6 +233,7 @@ Result<void> SaveStore::write_file(const fs::path& path, FileKind kind, const Sl
     }
     SlotDescription description = describe_state(game.value());
     description.mods = record.mods;
+    description.saved_at = record.saved_at;
     const std::string meta = describe(description, number, quick_index);
     // Always the current format (a state read from an older one is written anew).
     const std::string text = game.value().old_format ? to_json(game.value()) : state.value();
@@ -464,7 +469,7 @@ std::string describe(const SlotDescription& d, int number, int quick_index) {
     } else {
         w.member("save", number);
     }
-    w.member("saved_at", utc_now());
+    w.member("saved_at", d.saved_at.empty() ? utc_now() : d.saved_at);
     if (!d.map_name.empty()) {
         w.member("map", d.map_name);
     }

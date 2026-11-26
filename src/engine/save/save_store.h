@@ -48,6 +48,8 @@ struct SlotDescription {
     int save_count = 0;
     // The mods the save was made with; none: the save does not say (it keeps the "mods" key out of META).
     std::optional<std::vector<SavedMod>> mods;
+    // When the save was made ("2026-11-06T14:30:00Z"); empty: now.
+    std::string saved_at;
 };
 
 struct SlotRecord {
@@ -64,6 +66,9 @@ struct SlotRecord {
     // META "mods" (META format 3): the mods the save was made with, written as they are on every rewrite. None: a
     // save of an older build, which does not say.
     std::optional<std::vector<SavedMod>> mods;
+    // META "saved_at" of a read save, written as it is on a rewrite (the conversion of an old save keeps the day it
+    // was made); empty: the write is a new save, made now.
+    std::string saved_at;
 };
 
 enum class SlotState { Empty, Ok, Damaged };

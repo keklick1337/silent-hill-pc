@@ -328,6 +328,12 @@ SH_TEST(save_store_converts_old_saves) {
         text.replace(text.find(kSaveGameFormat), std::string(kSaveGameFormat).size(), kSaveGameFormatV1);
         file.version = 2;
         file.put(kTagState, std::vector<std::uint8_t>(text.begin(), text.end()));
+        // Made on another day: the conversion keeps the day.
+        std::string meta(file.find(kTagMeta)->data.begin(), file.find(kTagMeta)->data.end());
+        const std::size_t at = meta.find("\"saved_at\": \"");
+        SH_CHECK(at != std::string::npos);
+        if (at != std::string::npos) meta.replace(at + 13, 20, "2026-11-18T02:50:34Z");
+        file.put(kTagMeta, std::vector<std::uint8_t>(meta.begin(), meta.end()));
         SH_CHECK(write_file_atomic(store.save_path(1), encode(file)));
         SaveFile old;
         old.version = 1;
@@ -354,6 +360,9 @@ SH_TEST(save_store_converts_old_saves) {
         SH_CHECK(a == b && b.flags.size() == 2 && b.flag_bits == std::vector<int>{0});
     }
     SH_CHECK(record_bytes(store.read(2)) == expected_record(3));
+    for (const SaveEntry& e : store.list()) {
+        if (e.number == 1) SH_CHECK(e.saved_at == parse_utc("2026-11-18T02:50:34Z"));
+    }
     lines.clear();
     SH_CHECK(store.convert_old_saves(lines) == 0 && lines.empty());
     fs::remove_all(dir);
