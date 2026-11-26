@@ -123,4 +123,12 @@ private:
     std::map<int, std::string> file_ids_;  // id -> the name whose file plays for it
 };
 
+// A script's stand-in for a sound while it wants one (sh.sound.swap): the game's calls of sound `id` play `info`'s
+// own file (file_path, volume, pitch, loop) instead of the bank tone or file the registry names. Not saved: a script
+// sets it again after a load. Kept on the game's thread.
+void set_sound_swap(int id, SoundInfo info);
+// Ends the stand-in of `id` (true when there was one); every one for id < 0.
+bool clear_sound_swap(int id);
+const SoundInfo* sound_swap(int id);
+
 }  // namespace sh::audio

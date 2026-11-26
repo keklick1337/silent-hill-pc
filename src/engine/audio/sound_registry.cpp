@@ -371,4 +371,29 @@ const SoundRegistry& SoundRegistry::shared(const std::filesystem::path& gamedata
     return *slot;
 }
 
+namespace {
+
+std::map<int, SoundInfo>& swaps() {
+    static std::map<int, SoundInfo> s;
+    return s;
+}
+
+}  // namespace
+
+void set_sound_swap(int id, SoundInfo info) { swaps()[id] = std::move(info); }
+
+bool clear_sound_swap(int id) {
+    if (id < 0) {
+        const bool any = !swaps().empty();
+        swaps().clear();
+        return any;
+    }
+    return swaps().erase(id) > 0;
+}
+
+const SoundInfo* sound_swap(int id) {
+    const auto it = swaps().find(id);
+    return it != swaps().end() ? &it->second : nullptr;
+}
+
 }  // namespace sh::audio

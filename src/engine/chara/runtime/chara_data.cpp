@@ -117,6 +117,9 @@ bool valid_id(int id) {
 }
 
 const sh::audio::SoundInfo* file_sound(int sfx) {
+    if (const sh::audio::SoundInfo* swapped = sh::audio::sound_swap(sfx)) {
+        return swapped;  // a script's stand-in (sh.sound.swap)
+    }
     const CharaLibrary* lib = data().library();
     return lib != nullptr ? lib->sound_registry().file_sound(sfx) : nullptr;
 }

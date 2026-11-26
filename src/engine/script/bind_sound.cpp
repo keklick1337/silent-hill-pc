@@ -3,9 +3,12 @@
 
 #include "engine/script/bind_sound.h"
 
+#include <filesystem>
+#include <optional>
 #include <string>
 
 #include "engine/audio/sound_registry.h"
+#include "engine/mods/registry.h"
 #include "engine/script/caller_mod.h"
 #include "engine/script/host_interfaces.h"
 #include "engine/script/script_host.h"
@@ -274,6 +277,46 @@ int l_sound_name(lua_State* L) {
 }
 int l_sound_exists(lua_State* L) {
     lua_pushboolean(L, registry(L).find(luaL_checkstring(L, 1)) != nullptr);
+    return 1;
+}
+
+// sh.sound.swap(sound, file[, {volume, pitch, loop}]) -> bool: while set, the game's calls of the sound play the file
+// of the active mods (a path inside a mod folder, "mymod/sounds/hiss.wav"; WAV or Ogg Opus) instead; the sound stops
+// first if it plays. sh.sound.swap(sound) (no file) ends it; sh.sound.swap() ends every one. Not saved.
+int l_sound_swap(lua_State* L) {
+    if (lua_gettop(L) == 0) {
+        lua_pushboolean(L, sh::audio::clear_sound_swap(-1));
+        return 1;
+    }
+    const int id = sfx_arg(L, 1);
+    if (g_sound != nullptr) g_sound->stop(id);
+    if (lua_isnoneornil(L, 2)) {
+        lua_pushboolean(L, sh::audio::clear_sound_swap(id));
+        return 1;
+    }
+    const char* file = luaL_checkstring(L, 2);
+    const std::optional<std::filesystem::path> path = sh::mods::registry().find(file);
+    if (!path) {
+        lua_pushboolean(L, 0);
+        return 1;
+    }
+    sh::audio::SoundInfo info;
+    if (const std::string* name = registry(L).name(id)) info.name = *name;
+    info.id = id;
+    info.file = file;
+    info.file_path = *path;
+    info.loop = true;
+    if (lua_istable(L, 3)) {
+        lua_getfield(L, 3, "volume");
+        if (lua_isnumber(L, -1)) info.volume = static_cast<float>(lua_tonumber(L, -1));
+        lua_getfield(L, 3, "pitch");
+        if (lua_isnumber(L, -1)) info.pitch = static_cast<float>(lua_tonumber(L, -1));
+        lua_getfield(L, 3, "loop");
+        if (lua_isboolean(L, -1)) info.loop = lua_toboolean(L, -1) != 0;
+        lua_pop(L, 3);
+    }
+    sh::audio::set_sound_swap(id, std::move(info));
+    lua_pushboolean(L, 1);
     return 1;
 }
 
@@ -559,6 +602,7 @@ void install_sound_families(lua_State* L, Host* host) {
         {"sound", "id", nullptr, l_sound_id},
         {"sound", "name", nullptr, l_sound_name},
         {"sound", "exists", nullptr, l_sound_exists},
+        {"sound", "swap", nullptr, l_sound_swap},
         {"sound", "sd_call", nullptr, l_sound_sd_call},
         {"sound", "stop", nullptr, l_sound_stop},
         {"sound", "attributes", nullptr, l_sound_attributes},
