@@ -150,12 +150,39 @@ SH_TEST(flags_mod_flags_get_free_bits) {
     std::vector<std::string> assign_warnings;
     const auto bits = r.assign_bits(base, 16, assign_warnings);
     SH_CHECK(bits.at("silenthill:A") == 10 && bits.at("silenthill:B") == 15);
-    // From the top down, sorted by id: amod:lever first.
-    SH_CHECK(bits.at("amod:lever") == 14);
-    SH_CHECK(bits.at("zmod:door_opened") == 13);
+    // A mod's flags beyond the layout, sorted by id: amod:lever first; the layout's free bits stay the base game's.
+    SH_CHECK(bits.at("amod:lever") == 16);
+    SH_CHECK(bits.at("zmod:door_opened") == 17);
     SH_CHECK(assign_warnings.empty());
     std::vector<std::string> again;
     SH_CHECK(r.assign_bits(base, 16, again) == bits);
+    fs::remove_all(root);
+}
+
+// A big mod declares thousands of flags: every one gets a number past the layout, the base flags keep theirs.
+SH_TEST(flags_many_mod_flags_all_assigned) {
+    const fs::path root = scratch("many");
+    write_text(root / "gamedata/flags.json", R"json({"flags": {"A": {}, "Late": {}}})json");
+    write_text(root / "mods/big/mod.json", R"({"id": "big", "version": "1.0.0", "priority": 0})");
+    std::string text = R"({"flags": {)";
+    constexpr int kCount = 2400;
+    for (int i = 0; i < kCount; ++i) text += (i ? ",\"f" : "\"f") + std::to_string(i) + "\": {}";
+    text += "}}";
+    write_text(root / "mods/big/flags.json", text);
+    std::vector<std::string> warnings;
+    auto registry = FlagRegistry::load(root / "gamedata", root / "mods", warnings);
+    SH_CHECK(registry && warnings.empty());
+    if (!registry) return;
+    const std::map<std::string, int, std::less<>> base = {{"silenthill:A", 3}};
+    std::vector<std::string> assign_warnings;
+    const auto bits = registry.value().assign_bits(base, 64, assign_warnings);
+    SH_CHECK(assign_warnings.empty() && bits.size() == static_cast<std::size_t>(kCount) + 2);
+    SH_CHECK(bits.at("silenthill:A") == 3 && bits.at("silenthill:Late") == 63);  // as without the mod
+    std::set<int> seen;
+    for (const auto& [id, bit] : bits) {
+        SH_CHECK(seen.insert(bit).second);
+        if (id.starts_with("big:")) SH_CHECK(bit >= 64);
+    }
     fs::remove_all(root);
 }
 

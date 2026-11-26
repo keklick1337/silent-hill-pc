@@ -4,7 +4,7 @@
 
 // The engine's save game: what a save holds, by name. Items, event flags, maps,
 // paper maps and save points are readable ids ("silenthill:Handgun", "map1_s02", "Cafe"); a number appears only for
-// a thing this build has no name for. Written as the STAT chunk, JSON "sh-savegame/1".
+// a thing this build has no name for. Written as the STAT chunk, JSON "sh-savegame/2".
 //
 // The running game keeps its progress and settings in sh::game::SaveRecord and sh::game::Settings by name;
 // from_live_* / to_live_* convert them to and from SaveGame field by field. The console's byte form of the same
@@ -24,7 +24,12 @@
 
 namespace sh::save {
 
-inline constexpr const char* kSaveGameFormat = "sh-savegame/1";
+// 2: event flags by name only; "flag_bits" holds only set bits of the original layout that have no name. The flags
+// beyond that layout (a mod's) have run-time numbers that are never written.
+inline constexpr const char* kSaveGameFormat = "sh-savegame/2";
+// DEPRECATED, to be removed in a future version: the format before 2, still read so that old saves load and are
+// converted at start (convert_old_saves, save_store.h).
+inline constexpr const char* kSaveGameFormatV1 = "sh-savegame/1";
 // "flag_names" of the STAT JSON: 2 = the flag names of gamedata/flags/. A save without the key
 // was written with the older names: a name that has moved to another flag since is read as the flag it meant.
 inline constexpr int kFlagNamesVersion = 2;
@@ -113,7 +118,8 @@ struct SaveGame {
 
     // World.
     std::vector<std::string> flags;       // set event flags with a name, in bit order
-    std::vector<int> flag_bits;           // set event flag bits without a name
+    std::vector<int> flag_bits;           // set event flag bits of the original layout without a name
+    bool old_format = false;              // read from kSaveGameFormatV1 (deprecated): convert_old_saves rewrites it
     bool old_flag_names = false;          // `flags` holds the names of before kFlagNamesVersion (a read save)
     std::vector<std::string> paper_maps;  // paper maps held
     std::vector<int> paper_map_bits;      // held bits without a name

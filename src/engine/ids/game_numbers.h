@@ -64,6 +64,8 @@ int attack_weapon(int packed_attack);
 
 int flag_number(const char* name);  // save bit; former names (aliases) resolve too
 const char* flag_name(int bit);     // full id, nullptr for a bit without a name
+// One past the highest flag bit handed out (the original layout's, then the flags beyond it).
+int flag_bit_end();
 // A name a save written before a rename may hold that names another flag now ("old_save_names" of
 // gamedata/flags): the full id of the flag it meant there; nullptr for any other name.
 const char* flag_name_in_old_save(const char* name);

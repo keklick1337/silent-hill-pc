@@ -19,8 +19,10 @@
 namespace sh::save {
 
 inline constexpr std::array<char, 8> kMagic = {'S', 'H', 'P', 'C', 'S', 'A', 'V', 'E'};
-// 2: the game state is the STAT chunk (named, save_game.h). Files of version 1 (GAME, NAME, OPTS) are still read.
-inline constexpr std::uint16_t kFormatVersion = 2;
+// 3: the STAT chunk is "sh-savegame/2" (event flags by name only). 2: the STAT chunk "sh-savegame/1". Files of
+// versions 1 (GAME, NAME, OPTS) and 2 are still read (DEPRECATED, to be removed in a future version) and converted
+// at start (SaveStore convert_old_saves).
+inline constexpr std::uint16_t kFormatVersion = 3;
 inline constexpr std::size_t kHeaderSize = 32;
 
 enum class FileKind : std::uint16_t {
@@ -33,7 +35,7 @@ using Tag = std::array<char, 4>;
 constexpr Tag make_tag(const char (&text)[5]) { return {text[0], text[1], text[2], text[3]}; }
 
 inline constexpr Tag kTagInfo = make_tag("INFO");  // SlotSummary, 16 bytes
-// UTF-8 JSON "sh-savegame/1": the whole game state by name, options included (save_game.h).
+// UTF-8 JSON "sh-savegame/2": the whole game state by name, options included (save_game.h).
 inline constexpr Tag kTagState = make_tag("STAT");
 inline constexpr Tag kTagMeta = make_tag("META");
 // Optional: UTF-8 JSON "sh-remains/1", the bodies and blood pools kept by `persistent_remains`

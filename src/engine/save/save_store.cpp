@@ -5,6 +5,7 @@
 #include "formats/common/json.h"
 
 #include <algorithm>
+#include <optional>
 #include <cstdio>
 #include <ctime>
 #include <system_error>
@@ -223,10 +224,12 @@ Result<void> SaveStore::write_file(const fs::path& path, FileKind kind, const Sl
         return Result<void>::fail(game.error());
     }
     const std::string meta = describe(describe_state(game.value()), number, quick_index);
+    // Always the current format (a state read from an older one is written anew).
+    const std::string text = game.value().old_format ? to_json(game.value()) : state.value();
     SaveFile file;
     file.kind = kind;
     file.put(kTagInfo, encode_summary(record.summary));
-    file.put(kTagState, std::vector<std::uint8_t>(state.value().begin(), state.value().end()));
+    file.put(kTagState, std::vector<std::uint8_t>(text.begin(), text.end()));
     file.put(kTagMeta, std::vector<std::uint8_t>(meta.begin(), meta.end()));
     if (!record.remains.empty()) {
         file.put(kTagRemains, std::vector<std::uint8_t>(record.remains.begin(), record.remains.end()));
@@ -446,6 +449,82 @@ std::string describe(const SlotDescription& d, int number, int quick_index) {
     w.end_array();
     w.end_object();
     return w.take();
+}
+
+}  // namespace sh::save
+
+namespace sh::save {
+
+namespace {
+
+// The running record a save gives, for comparing an old file with its conversion.
+std::optional<game::SaveRecord> live_of(const SlotRead& read, const NameTable& names) {
+    if (read.state != SlotState::Ok) return std::nullopt;
+    auto game = from_json(read.record.state);
+    if (!game) return std::nullopt;
+    Warnings warnings;
+    auto live = to_live_state(game.value(), names, warnings);
+    if (!live) return std::nullopt;
+    return std::move(live.value());
+}
+
+}  // namespace
+
+int SaveStore::convert_old_saves(std::vector<std::string>& lines) {
+    std::vector<std::pair<fs::path, int>> files;  // path, number (> 0) or -1 - quick index
+    for (const int n : numbers()) files.emplace_back(save_path(n), n);
+    for (int q = 0; q < kQuickSlots; ++q) {
+        if (is_file(quick_path(q))) files.emplace_back(quick_path(q), -1 - q);
+    }
+    const fs::path backup_dir = root_ / "old_format_backup";
+    int converted = 0;
+    for (const auto& [path, id] : files) {
+        auto bytes = read_whole_file(path);
+        if (!bytes) continue;
+        auto file = decode(bytes.value());
+        if (!file) continue;  // a damaged file stays as it is (the list shows it)
+        bool old = file.value().version < kFormatVersion;
+        if (const Chunk* state = file.value().find(kTagState); state != nullptr && !old) {
+            auto game = from_json(text_of(*state));
+            old = game && game.value().old_format;
+        }
+        if (!old) continue;
+        const SlotRead before = id > 0 ? read(id) : read_quick(-1 - id);
+        if (before.state != SlotState::Ok) {
+            lines.push_back(path.filename().string() + ": not converted (" + before.error + ")");
+            continue;
+        }
+        std::error_code ec;
+        fs::create_directories(backup_dir, ec);
+        fs::path copy = backup_dir / path.filename();
+        if (id < 0) copy = backup_dir / ("quick_" + path.filename().string());
+        if (!is_file(copy)) {
+            fs::copy_file(path, copy, ec);
+            if (ec) {
+                lines.push_back(path.filename().string() + ": not converted, no backup copy (" + ec.message() + ")");
+                continue;
+            }
+        }
+        bool written = false;
+        if (id > 0) {
+            written = static_cast<bool>(write(id, before.record));
+        } else {
+            written = static_cast<bool>(write_quick(-1 - id, before.record));
+        }
+        const SlotRead after = id > 0 ? read(id) : read_quick(-1 - id);
+        const auto a = live_of(before, names_), b = live_of(after, names_);
+        if (!written || !a || !b || !(*a == *b)) {
+            write_file_atomic(path, bytes.value());
+            lines.push_back(path.filename().string() + ": not converted, the new file did not give the same state; "
+                            "the old one is kept");
+            continue;
+        }
+        ++converted;
+        lines.push_back(path.filename().string() + ": converted from save format " +
+                        std::to_string(file.value().version) + " (deprecated, to be removed in a future version); "
+                        "the old file is in " + copy.string());
+    }
+    return converted;
 }
 
 }  // namespace sh::save

@@ -635,6 +635,11 @@ int chara_number(const char* name) {
 }
 int flag_number(const char* name) { return lookup(&Tables::flags, name); }
 const char* flag_name(int bit) { return reverse(&Tables::flags, bit); }
+int flag_bit_end() {
+    std::lock_guard<std::mutex> guard(lock());
+    const Tables& t = tables();
+    return std::max(kFlagBits, t.flags.by_number.empty() ? 0 : t.flags.by_number.rbegin()->first + 1);
+}
 const char* flag_name_in_old_save(const char* name) {
     if (name == nullptr) {
         return nullptr;

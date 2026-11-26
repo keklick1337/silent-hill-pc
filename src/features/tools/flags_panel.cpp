@@ -86,7 +86,7 @@ std::string map_now() {
 void load_flags() {
     State& s = st();
     s.flags.clear();
-    for (int bit = 1; bit < gs::kEventFlagWords * 32; ++bit) {
+    for (int bit = 1; bit < sh::ids::flag_bit_end(); ++bit) {
         const char* n = sh::ids::flag_name(bit);
         if (n != nullptr) s.flags.push_back({bit, n, lower(n)});
     }

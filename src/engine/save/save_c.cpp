@@ -202,6 +202,15 @@ extern "C" int ShSave_MigrateLegacy(const char* const* dirs, int count) {
     for (const std::string& line : report.lines) {
         SH_LOG_INFO(SAVE, "migration: %s", line.c_str());
     }
+    // DEPRECATED, to be removed in a future version: saves of the older formats rewritten in the current one.
+    std::vector<std::string> converted;
+    if (const int n = store().convert_old_saves(converted); n > 0) {
+        SH_LOG_INFO(SAVE, "%d save(s) converted to save format %d (the old-format reader is deprecated)", n,
+                    static_cast<int>(kFormatVersion));
+    }
+    for (const std::string& line : converted) {
+        SH_LOG_INFO(SAVE, "conversion: %s", line.c_str());
+    }
     return report.saves;
 }
 

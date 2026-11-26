@@ -480,11 +480,13 @@ Result<SaveGame> from_json(std::string_view text) {
         return Result<SaveGame>::fail("STAT chunk: not a JSON object");
     }
     const json::Value* format = v.find("format");
-    if (format == nullptr || !format->is_string() || format->string() != kSaveGameFormat) {
+    const bool old_format = format != nullptr && format->is_string() && format->string() == kSaveGameFormatV1;
+    if (format == nullptr || !format->is_string() || (format->string() != kSaveGameFormat && !old_format)) {
         return Result<SaveGame>::fail(std::string("STAT chunk: not ") + kSaveGameFormat);
     }
 
     SaveGame g;
+    g.old_format = old_format;
     Reader r;
     r.ref(v, "map", g.map);
     r.integer(v, "room", g.room);
@@ -666,6 +668,12 @@ SaveGame from_live_state(const game::SaveRecord& r, const NameTable& names) {
     }
     bits_to_names({&r.paper_maps, 1}, names.paper_map_name, g.paper_maps, g.paper_map_bits);
     bits_to_names(r.event_flags, names.flag_name, g.flags, g.flag_bits);
+    // The flags beyond the original layout (a mod's): by name only, their numbers are this run's.
+    for (int bit = game::SaveRecord::kEventFlagWords * 32; bit < r.flag_words() * 32; ++bit) {
+        if (!r.event_flag(bit)) continue;
+        const char* name = names.flag_name ? names.flag_name(bit) : nullptr;
+        if (name != nullptr && name[0] != '\0') g.flags.emplace_back(name);
+    }
     g.health_saturation = r.health_saturation;
     g.picked_up_items = r.picked_up_items;
     g.inventory_item_flags = r.inventory_flags;
@@ -758,8 +766,20 @@ Result<game::SaveRecord> to_live_state(const SaveGame& g, const NameTable& names
         r.enemy_states[m] = e.alive_bits;
     }
     names_to_bits({&r.paper_maps, 1}, g.paper_maps, g.paper_map_bits, names.paper_map_number, "paper map", warnings);
-    names_to_bits(r.event_flags, g.old_flag_names ? current_flag_names(g.flags, names) : g.flags, g.flag_bits,
-                  names.flag_number, "event flag", warnings);
+    {
+        // A name is the flag of this run whatever its number; a name nothing installed declares (a mod taken out) is
+        // dropped with a warning. Bare bits (older saves, unnamed bits) only reach the original layout.
+        const std::vector<std::string> flag_names = g.old_flag_names ? current_flag_names(g.flags, names) : g.flags;
+        names_to_bits(r.event_flags, {}, g.flag_bits, names.flag_number, "event flag", warnings);
+        for (const std::string& name : flag_names) {
+            const int bit = names.flag_number ? names.flag_number(name.c_str()) : -1;
+            if (bit < 0) {
+                warnings.push_back("the save has event flag " + name + ", which no installed data has; it is dropped");
+                continue;
+            }
+            r.set_event_flag(bit, true);
+        }
+    }
     r.health_saturation = g.health_saturation;
     r.picked_up_items = g.picked_up_items;
     r.inventory_flags = g.inventory_item_flags;

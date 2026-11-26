@@ -182,18 +182,32 @@ std::map<std::string, int, std::less<>> FlagRegistry::assign_bits(const std::map
         }
     }
     std::sort(fresh.begin(), fresh.end(), [](const FlagInfo* a, const FlagInfo* b) { return a->id < b->id; });
+    // The base game's own flags first take the free bits of the layout, from the top down, as they always did: a mod
+    // never moves them. A mod's flags, and base flags the layout has no room for, are numbered from bit_count up,
+    // as many as there are (the run-time store grows; saves name them).
     int next = bit_count - 1;
-    for (const FlagInfo* f : fresh) {
-        while (next > 0 && taken.count(next) != 0) {
-            --next;
+    int beyond = bit_count;
+    for (const bool mods : {false, true}) {
+        for (const FlagInfo* f : fresh) {
+            if (ids::is_base(f->id) == mods) {
+                continue;
+            }
+            while (!mods && next > 0 && taken.count(next) != 0) {
+                --next;
+            }
+            if (mods || next <= 0) {
+                while (taken.count(beyond) != 0) {
+                    ++beyond;  // a number handed out before (a data reload keeps it)
+                }
+                out.emplace(f->id, beyond);
+                taken.insert(beyond++);
+                continue;
+            }
+            out.emplace(f->id, next);
+            taken.insert(next);
         }
-        if (next <= 0) {
-            warnings.push_back(f->origin + ": no free save bit left for " + f->id);
-            continue;
-        }
-        out.emplace(f->id, next);
-        taken.insert(next);
     }
+    (void)warnings;
     return out;
 }
 

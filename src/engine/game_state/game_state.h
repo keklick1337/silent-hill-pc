@@ -335,6 +335,9 @@ int save_room();
 // The save's event flags, 32 per word (kEventFlagWords words); nullptr before a save exists.
 constexpr int kEventFlagWords = 52;
 const std::uint32_t* save_event_flags();
+// Every flag word: the original's 52, then the words of the flags beyond its layout (as many as are in use).
+int save_flag_words();
+std::uint32_t save_flag_word(int word);
 
 // Inventory and save progress.
 bool inventory_has(int item_id);       // any of the table's entries

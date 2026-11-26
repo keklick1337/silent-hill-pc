@@ -53,9 +53,9 @@ public:
     const std::vector<FlagInfo>& flags() const { return flags_; }
     const FlagInfo* find(std::string_view id) const;
 
-    // id -> bit: the flags of `base_bits` (full ids) at their bits, every other declared flag at the
-    // highest bit below `bit_count` that none of them and no earlier one uses, so the bits of the
-    // original layout stay free. A flag that finds no bit is left out with a warning.
+    // id -> bit: the flags of `base_bits` (full ids) at their bits; every other base flag at the highest bit below
+    // `bit_count` that none of them and no earlier one uses; a mod's flags (and base flags left without a free bit)
+    // at bit_count and up, as many as are declared, in id order. Every declared flag gets a bit.
     std::map<std::string, int, std::less<>> assign_bits(const std::map<std::string, int, std::less<>>& base_bits,
                                                         int bit_count, std::vector<std::string>& warnings) const;
 

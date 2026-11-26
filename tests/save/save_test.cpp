@@ -306,6 +306,59 @@ SH_TEST(save_store_new_overwrite_delete) {
 }
 
 // No memory card limit: far more saves than two cards of 15 files held, in order, numbered on.
+// Saves of the older formats are rewritten in the current one once, a copy of each kept first; the state is the
+// same, a second run changes nothing.
+SH_TEST(save_store_converts_old_saves) {
+    const fs::path dir = fresh_dir("sh_save_convert");
+    SaveStore store(dir / ".savegames");
+    SaveGame cafe;
+    cafe.map = Ref::of_number(5);
+    cafe.location = Ref::of_name("Cafe");
+    cafe.flags = {"mod:Gone", "silenthill:A"};
+    cafe.flag_bits = {0};
+    cafe.options = GameOptions{};
+    SlotRecord record;
+    record.summary = record_of(9, 4).summary;
+    record.state = to_json(cafe);
+    SH_CHECK(store.write(0, record) && store.write(0, record_of(3, 5)));
+    // Make save 1 a file of format 2 ("sh-savegame/1") and save 2 one of format 1 (GAME chunk).
+    {
+        auto file = decode(read_whole_file(store.save_path(1)).value()).value();
+        std::string text(file.find(kTagState)->data.begin(), file.find(kTagState)->data.end());
+        text.replace(text.find(kSaveGameFormat), std::string(kSaveGameFormat).size(), kSaveGameFormatV1);
+        file.version = 2;
+        file.put(kTagState, std::vector<std::uint8_t>(text.begin(), text.end()));
+        SH_CHECK(write_file_atomic(store.save_path(1), encode(file)));
+        SaveFile old;
+        old.version = 1;
+        old.put(kTagInfo, encode_summary(record_of(3, 5).summary));
+        old.put(kTagGame, record_of(3, 5).legacy_game);
+        SH_CHECK(write_file_atomic(store.save_path(2), encode(old)));
+    }
+    const std::string state_before = store.read(1).record.state;
+    const auto game_before = from_json(state_before);
+    SH_CHECK(game_before && game_before.value().old_format);
+    std::vector<std::string> lines;
+    SH_CHECK(store.convert_old_saves(lines) == 2 && lines.size() == 2);
+    SH_CHECK(fs::exists(dir / ".savegames" / "old_format_backup" / "save_0001.sav"));
+    SH_CHECK(fs::exists(dir / ".savegames" / "old_format_backup" / "save_0002.sav"));
+    for (int n : {1, 2}) {
+        auto file = decode(read_whole_file(store.save_path(n)).value());
+        SH_CHECK(file && file.value().version == kFormatVersion && file.value().find(kTagGame) == nullptr);
+    }
+    const auto game_after = from_json(store.read(1).record.state);
+    SH_CHECK(game_after && !game_after.value().old_format);
+    if (game_after && game_before) {
+        SaveGame a = game_before.value(), b = game_after.value();
+        a.old_format = false;
+        SH_CHECK(a == b && b.flags.size() == 2 && b.flag_bits == std::vector<int>{0});
+    }
+    SH_CHECK(record_bytes(store.read(2)) == expected_record(3));
+    lines.clear();
+    SH_CHECK(store.convert_old_saves(lines) == 0 && lines.empty());
+    fs::remove_all(dir);
+}
+
 SH_TEST(save_store_keeps_the_remains_chunk) {
     const fs::path dir = fresh_dir("sh_save_remains");
     SaveStore store(dir / ".savegames");

@@ -30,14 +30,14 @@ namespace {
 using namespace sh::debug::commands;
 namespace gs = sh::game_state;
 
-constexpr int kFlagCount = gs::kEventFlagWords * 32;
+int flag_count() { return sh::ids::flag_bit_end(); }
 
 RememberedFlags& remembered() {
     static RememberedFlags flags;
     return flags;
 }
 
-bool flag_is_set(int flag) { return ((gs::save_event_flags()[flag >> 5] >> (flag & 31)) & 1u) != 0; }
+bool flag_is_set(int flag) { return gs::event_flag(flag); }
 
 // Named event flags by lower-case name, for typing and completion; read again when the data is reloaded.
 const std::map<std::string, int>& flags_by_name() {
@@ -45,7 +45,7 @@ const std::map<std::string, int>& flags_by_name() {
     static std::uint32_t seen = sh::mods::kNeverRead;
     if (sh::mods::data_stale(seen)) names.clear();
     if (names.empty()) {
-        for (int flag = 0; flag < kFlagCount; ++flag) {
+        for (int flag = 0; flag < flag_count(); ++flag) {
             const char* name = DbgTrace_EventFlagName(flag);
             if (name != nullptr && name[0] != '\0') names.emplace(lower(name), flag);
         }
@@ -127,8 +127,8 @@ Result<void> run_flags(Context& ctx, const Args& args) {
     const std::string filter = upper(args.joined(0));
     if (!filter.empty() && std::isdigit(static_cast<unsigned char>(filter[0])) != 0) {
         const int flag = whole(filter);
-        if (flag >= kFlagCount) {
-            say(ctx, "flags: %d is past the last flag (%d)", flag, kFlagCount - 1);
+        if (flag >= flag_count()) {
+            say(ctx, "flags: %d is past the last flag (%d)", flag, flag_count() - 1);
             return done();
         }
         const char* name = DbgTrace_EventFlagName(flag);
@@ -139,7 +139,7 @@ Result<void> run_flags(Context& ctx, const Args& args) {
 
     int set = 0, shown = 0;
     LineWrapper list(ctx, 120, 2, "  ");
-    for (int flag = 0; flag < kFlagCount; ++flag) {
+    for (int flag = 0; flag < flag_count(); ++flag) {
         if (!flag_is_set(flag)) continue;
         ++set;
         const char* name = DbgTrace_EventFlagName(flag);
@@ -149,7 +149,7 @@ Result<void> run_flags(Context& ctx, const Args& args) {
         ++shown;
     }
     list.flush();
-    say(ctx, "%d event flag(s) set of %d%s%s, %d shown ('flags <n>' for one flag)", set, kFlagCount,
+    say(ctx, "%d event flag(s) set of %d%s%s, %d shown ('flags <n>' for one flag)", set, flag_count(),
         filter.empty() ? "" : ", filter ", filter.c_str(), shown);
     return done();
 }
@@ -168,7 +168,7 @@ Result<void> run_setflag(Context& ctx, const Args& args) {
         ctx.out.error("unknown flag '" + args.str(0) + "'");
         return Result<void>::fail("unknown flag");
     }
-    if (flag == 0 || flag >= kFlagCount) {
+    if (flag == 0 || flag >= flag_count()) {
         say(ctx, "usage: setflag <name> 0|1  (a flag of gamedata/flags; a save bit works too)");
         return done();
     }

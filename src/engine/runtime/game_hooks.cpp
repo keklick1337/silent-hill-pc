@@ -50,12 +50,13 @@ int s_room = -1;    // the room map.room_enter knows, -1 right after a map load
 
 // ---- flag.set by comparison ----
 
-std::array<std::uint32_t, gs::kEventFlagWords> s_flags{};
+std::vector<std::uint32_t> s_flags;
 bool s_flags_valid = false;
 
-void flags_take(const std::uint32_t* now) {
+void flags_take() {
+    s_flags.assign(static_cast<std::size_t>(gs::save_flag_words()), 0u);
     for (std::size_t w = 0; w < s_flags.size(); ++w) {
-        s_flags[w] = now[w];
+        s_flags[w] = gs::save_flag_word(static_cast<int>(w));
     }
     s_flags_valid = true;
 }
@@ -70,11 +71,14 @@ void flags_compare() {
         return;
     }
     if (!s_flags_valid) {
-        flags_take(flags);
+        flags_take();
         return;
     }
+    if (const std::size_t words = static_cast<std::size_t>(gs::save_flag_words()); words > s_flags.size()) {
+        s_flags.resize(words, 0u);
+    }
     for (std::size_t w = 0; w < s_flags.size(); ++w) {
-        const std::uint32_t now = flags[w];
+        const std::uint32_t now = gs::save_flag_word(static_cast<int>(w));
         const std::uint32_t changed = now ^ s_flags[w];
         if (changed == 0) {
             continue;

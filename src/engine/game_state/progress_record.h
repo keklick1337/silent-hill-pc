@@ -8,6 +8,7 @@
 #pragma once
 
 #include <cstdint>
+#include <vector>
 
 namespace sh::game {
 
@@ -60,6 +61,10 @@ struct SaveRecord {
     std::uint16_t counters[kCounters];
     std::int8_t current_ending;
     std::uint8_t continues;
+    // Flags beyond the original's 52 words (a mod's, the port's own): bits from kEventFlagWords * 32 on, as many
+    // words as the flags handed out need (it grows on a set). Saves keep flags by name: these bits are run-time
+    // numbers, written nowhere.
+    std::vector<std::uint32_t> extra_flags;
 
     bool operator==(const SaveRecord&) const = default;
 
@@ -67,13 +72,33 @@ struct SaveRecord {
     void set_difficulty(int value) {
         hits_and_difficulty = (hits_and_difficulty & 0x0FFFFFFFu) | (static_cast<std::uint32_t>(value) << 28);
     }
-    bool event_flag(int flag) const { return (event_flags[flag >> 5] >> (flag & 31) & 1u) != 0; }
+    // The words of every flag bit, the original's first.
+    int flag_words() const { return kEventFlagWords + static_cast<int>(extra_flags.size()); }
+    std::uint32_t flag_word(int w) const {
+        if (w < 0) return 0;
+        if (w < kEventFlagWords) return event_flags[w];
+        const std::size_t e = static_cast<std::size_t>(w - kEventFlagWords);
+        return e < extra_flags.size() ? extra_flags[e] : 0u;
+    }
+    void set_flag_word(int w, std::uint32_t value) {
+        if (w < 0) return;
+        if (w < kEventFlagWords) {
+            event_flags[w] = value;
+            return;
+        }
+        const std::size_t e = static_cast<std::size_t>(w - kEventFlagWords);
+        if (e >= extra_flags.size()) {
+            if (value == 0) return;
+            extra_flags.resize(e + 1, 0u);
+        }
+        extra_flags[e] = value;
+    }
+    bool event_flag(int flag) const { return flag >= 0 && (flag_word(flag >> 5) >> (flag & 31) & 1u) != 0; }
     void set_event_flag(int flag, bool on) {
+        if (flag < 0) return;
         const std::uint32_t bit = 1u << (flag & 31);
-        if (on)
-            event_flags[flag >> 5] |= bit;
-        else
-            event_flags[flag >> 5] &= ~bit;
+        const std::uint32_t word = flag_word(flag >> 5);
+        set_flag_word(flag >> 5, on ? word | bit : word & ~bit);
     }
 };
 

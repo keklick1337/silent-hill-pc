@@ -135,6 +135,13 @@ public:
     // What META says about a state.
     SlotDescription describe_state(const SaveGame& game) const;
 
+    // DEPRECATED, to be removed in a future version (with the readers of the old formats): rewrites every save and
+    // quick save of an older format (file version < kFormatVersion or a STAT chunk of kSaveGameFormatV1) in the
+    // current one. Each file is first copied to <root>/old_format_backup/ (never overwriting a copy there); the new
+    // file must give the same game state as the old one, else the old file is put back. A file already in the
+    // current format is left alone. One line per file in `lines`; returns the number converted.
+    int convert_old_saves(std::vector<std::string>& lines);
+
 private:
     SlotRead read_file(const std::filesystem::path& path, FileKind kind) const;
     Result<void> write_file(const std::filesystem::path& path, FileKind kind, const SlotRecord& record, int number,

@@ -251,6 +251,66 @@ SH_TEST(save_game_unknown_names) {
     SH_CHECK(!to_live_state(game, names, warnings));
 }
 
+// Flags beyond the original layout (a mod's): thousands of them, saved by name only; another run that numbers them
+// differently reads them back by name, a run without the mod drops them with a warning, and a save of an older build
+// that has only bits keeps loading as before.
+SH_TEST(save_game_flags_beyond_layout) {
+    constexpr int kLayout = 52 * 32;
+    constexpr int kModFlags = 2500;
+    const auto with_mod = [](int offset) {
+        NameTable t = test_names();
+        t.flag_name = [offset](int n) -> const char* {
+            if (n >= kLayout + offset && n < kLayout + offset + kModFlags)
+                return texts("mod:Flag", kModFlags)[n - kLayout - offset].c_str();
+            return test_names().flag_name(n);
+        };
+        t.flag_number = [offset](const char* s) {
+            const int n = parse(s, "mod:Flag", kModFlags);
+            return n >= 0 ? kLayout + offset + n : test_names().flag_number(s);
+        };
+        return t;
+    };
+    std::vector<std::uint8_t> state(layout::kStateSize, 0);
+    for (int slot = 0; slot < layout::kItemSlots; ++slot) state[slot * 4] = 0xFF;
+    sh::game::SaveRecord r = console::decode_save_record(state);
+    r.set_event_flag(2, true);
+    int set = 0;
+    for (int i = 0; i < kModFlags; i += 3, ++set) r.set_event_flag(kLayout + i, true);
+    SH_CHECK(r.event_flag(kLayout + 2499 - 2499 % 3) && !r.event_flag(kLayout + 1));
+
+    const SaveGame game = from_live_state(r, with_mod(0));
+    SH_CHECK(static_cast<int>(game.flags.size()) == set + 1);
+    for (const int bit : game.flag_bits) SH_CHECK(bit < kLayout);  // a mod's flag never as a number
+    const auto back = from_json(to_json(game));
+    SH_CHECK(back && back.value() == game);
+    if (!back) return;
+
+    Warnings warnings;
+    auto live = to_live_state(back.value(), with_mod(7), warnings);
+    SH_CHECK(live && warnings.empty());
+    if (live) {
+        int found = 0;
+        for (int i = 0; i < kModFlags; ++i) found += live.value().event_flag(kLayout + 7 + i) ? 1 : 0;
+        SH_CHECK(found == set && live.value().event_flag(kLayout + 7) && !live.value().event_flag(kLayout + 8));
+        SH_CHECK(live.value().event_flag(2));
+    }
+
+    Warnings dropped;
+    auto without = to_live_state(back.value(), test_names(), dropped);
+    SH_CHECK(without && static_cast<int>(dropped.size()) == set);
+    if (without) SH_CHECK(without.value().event_flag(2) && without.value().flag_words() == 52);
+
+    SaveGame old = back.value();
+    old.flags.clear();
+    old.flag_bits = {2, 3, kLayout + 5};  // an older build's unnamed bits: only the layout's are its flags
+    Warnings none;
+    auto bits = to_live_state(old, with_mod(0), none);
+    SH_CHECK(bits && none.empty());
+    if (bits) {
+        SH_CHECK(bits.value().event_flag(2) && bits.value().event_flag(3) && !bits.value().event_flag(kLayout + 5));
+    }
+}
+
 // Saves written before the settings became an engine class carry "reserved" among the options (four bytes the game
 // never used): they still read, the same as without it, and a save written now does not carry it.
 SH_TEST(save_game_json_reads_old_options) {
@@ -289,7 +349,7 @@ SH_TEST(save_game_json_rejects_damage) {
         text.replace(at, from.size(), to);
         return !from_json(text);
     };
-    SH_CHECK(bad("sh-savegame/1", "sh-savegame/9"));
+    SH_CHECK(bad("sh-savegame/2", "sh-savegame/9"));
     SH_CHECK(bad("\"room\": 0", "\"room\": \"x\""));
     SH_CHECK(bad("\"special_items\": 0", "\"special_items\": 32"));
     SH_CHECK(bad("\"save_count\": 0", "\"save_count\": 70000"));

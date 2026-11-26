@@ -134,6 +134,8 @@ int save_difficulty() { return save().difficulty(); }
 void set_save_difficulty(int difficulty) { save().set_difficulty(difficulty); }
 const std::uint32_t* save_event_flags() { return save().event_flags; }
 static_assert(kEventFlagWords == sh::game::SaveRecord::kEventFlagWords);
+int save_flag_words() { return save().flag_words(); }
+std::uint32_t save_flag_word(int word) { return save().flag_word(word); }
 
 bool event_flag(int flag) { return save().event_flag(flag); }
 void set_event_flag(int flag, bool on) { save().set_event_flag(flag, on); }

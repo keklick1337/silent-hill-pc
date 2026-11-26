@@ -172,9 +172,9 @@ void fill_camera(dt::StateDump& d) {
 }
 
 void fill_flags_and_items(dt::StateDump& d) {
-    if (const std::uint32_t* words = gs::save_event_flags(); words != nullptr) {
-        for (int flag = 0; flag < gs::kEventFlagWords * 32; ++flag) {
-            if (((words[flag >> 5] >> (flag & 31)) & 1u) == 0) {
+    if (gs::save_event_flags() != nullptr) {
+        for (int flag = 0; flag < gs::save_flag_words() * 32; ++flag) {
+            if (!gs::event_flag(flag)) {
                 continue;
             }
             const char* name = DbgTrace_EventFlagName(flag);
