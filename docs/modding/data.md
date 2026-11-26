@@ -191,6 +191,8 @@ The engine does not branch on a particular character: everything that depends on
 | `pool_files` | — | disc files the pool loads instead of the file table's row: `{"model", "texture", "anim"}` |
 | `preview` | — | the view in the spawn menu's preview: `{"rotate": [x, y, z], "zoom": 1, "lift": 0}` |
 | `acid_attack` | `0` | the attack by which Harry receives this type's acid |
+| `portrait` | — | the picture this type shows as the player's portrait on the inventory screen (`"convert/textures/ITEM/HEROPIC2.png"` for Harry), so it can be swapped |
+| `as_player` | — | how the player wears this type (`sh.player.set_character`): `{"model": "models/<mod>/<NAME>.glb", "portrait": "<file in the mod>"}`; the model is bound to the player's skeleton ([assets.md](assets.md#a-model-of-the-import-on-another-skeleton)) |
 
 ## Maps
 
@@ -208,7 +210,7 @@ Every map is data in `gamedata/maps/<map>/`: `overlay.json`, `tables.json`, `han
   ```
 
   `when` also takes `{"flags_set": [...], "flags_clear": [...]}` and `{"difficulty_min": "normal"}`; whole spawn tables by condition are `spawn_variants`. Event-driven spawns are `sh.entity.spawn` in a script.
-- **World objects**, `maps/<map>/world_objects.json`: a patch adds, removes or moves models and changes their cells and flag conditions; motion is `world_objects.lua`. Keep the names of objects the map's variables refer to and their `"script": true`.
+- **World objects**, `maps/<map>/world_objects.json`: a patch adds, removes or moves models and changes their cells and flag conditions; motion is `world_objects.lua`. Keep the names of objects the map's variables refer to and their `"script": true`. An object can be drawn from a mod's own model: `"item_model": {"file": "<mod>/<name>.glb", "scale": 1.0}` names a glb below the mod's `convert/models/` ([assets.md](assets.md#world-objects-from-a-mods-model)); while the file is missing the object is simply not drawn.
 - **Map events** call the function of `events.lua` named by the `name` of the slot in `handlers.json` (`MapEvent_CafeCutscene`, ...). A mod wraps one with `extend` or adds a new one ([scripting.md](scripting.md#script-layers)); it can also cancel one through the event `map.event` ([events.md](events.md)).
 - **Lights**, `maps/<map>/lights.json` (rendering only, no `"gameplay"` needed): point and spot lights for the modern lighting, patched light by light (`name`). Positions are metres in the game's axes (y grows downwards), colour is linear 0..1:
 
@@ -248,6 +250,9 @@ A mod declares its own in `flags.json` (or `flags/*.json`):
 
 A short name that is a flag of the base patches its description; any other name is a new flag, `<mod id>:door_opened`. Scripts read and write it by name — `sh.flag.get("door_opened")`, `sh.flag.set("door_opened", true)`, `sh.flag.clear("door_opened")` — and data names it the same way (`"required_flag"`, `"complete_flag"`, `"flags_set"`). An unknown name is a Lua error, `unknown flag`. The bit is stored nowhere: the save writes flags by name.
 
+A mod may declare as many flags as it needs (thousands are fine). The base game's flags keep the bits of the original save layout; every flag of a mod gets an internal number past that layout when the game starts, a different one if the set of mods changes. That number is never written anywhere, so a mod can add, rename or drop flags between versions: what a save keeps is the flag's name. A flag a script sets once (a monster killed, a pickup taken, a beat of a story reached) is the way to make something stay done after a load.
+
+
 ## Game settings
 
 Files of `config/*.json` merge. A mod that changes them declares `"gameplay": true` (except `title_fog.json`).
@@ -256,8 +261,15 @@ Files of `config/*.json` merge. A mod that changes them declares `"gameplay": tr
 - `config/difficulties.json`: the difficulty list of the New Game menu. An entry is `{"label": "NIGHTMARE", "base_difficulty": 1}`; `base_difficulty` (−1, 0, 1) is the difficulty the game's mechanics run on, `"default": true` preselects an entry, `"start_map"` starts another map.
 - `config/quick_actions.json`, `config/console_give.json`, `config/pickups.json`, `door_sounds.json`, `game_over_tips.json` and the rest are described by their own `"description"`.
 
+Save points: `menu/save_screen.json` `location_keys` lists the text key of every save point name by its number (0..24 the game's). A mod appends its own with `{"location_keys": {"$append": ["mymod:save.tower"]}}`; they get the numbers after the game's in load order, the save keeps the number, and a script opens the save screen at one with `sh.map_event_set(9, number, 0)`.
+
 `game.json` holds the movies of the intro (`intro_file`, `opening_file`), the map of a new game (`new_game_map`), the map of `-skiptogame` (`start_map`) and the list of maps (`maps`, each a `name`; a map's number is its place in the list). A mod's `game.json` is a patch: a new map is appended or placed with `"$after"` / `"$before"`.
 
 ## Saves
 
 Mods do not touch saves. They are files in `.savegames/` beside the game, one per slot, and they store the names of things and flags, not numbers.
+
+Since engine 1.3.0 a save (file format 3, game state `"sh-savegame/2"`) lists the set event flags by name only (`"flags"`); `"flag_bits"` holds only set bits of the original layout that have no name. A save made with a mod that is no longer installed loads: the flags nobody declares any more are dropped with a log line (`the save has event flag <name>, which no installed data has; it is dropped`), the rest of the game loads as saved.
+
+Saves of older builds (file formats 1 and 2) are converted once when the game starts: each old file is first copied to `.savegames/old_format_backup/`, then written in the current format and read back; if the new file does not give the same game state, the old one is put back and the log says so. The log has one `conversion:` line per file. The reader of the old formats and this conversion are deprecated and will be removed in a future version.
+

@@ -61,6 +61,47 @@ A character can also be pointed at a glb under another name with a one-key patch
 
 Model upscaling (Options > Graphics, `model_upscaling`, experimental) never touches a mod's mesh: a character glb found in a mod (a replacement under `convert/models/`, or the file a `character.json` patch points at), a library of world objects or an area file (`maps/areas/<AREA>.glb`) from a mod is drawn exactly as the mod made it, without PN triangles, so an HD model keeps its own silhouette. Only the game's own imported meshes are rounded. Together with the texture rule above, an "HD Harry" mod with its own model and texture is shown as made whatever the graphics preset.
 
+### A model of the import on another skeleton
+
+A mod may dress a character in another character's imported model without shipping a file of the game: a manifest `convert/models/<mod>/<NAME>.model.json` with no glb beside it and a `"derive"` object. The engine reads the glb `"from"` names (below `convert/models/`), keeps its own bone lengths with `"proportions": "model"`, and draws its meshes as the parts `"parts"` maps them to (a mesh not named keeps its name; `[]` leaves it out). Meshes match the wearer's parts by name. `"source"` names the skeleton file of the wearer, as for any model:
+
+```json
+{
+  "format": "sh-model/1",
+  "source": { "path": "CHARA/HERO.ILM", "kind": "ilm" },
+  "derive": {
+    "from": "CHARA/SIBYL.glb",
+    "proportions": "model",
+    "parts": { "10RHAND": ["10RHAND", "10RHAND2", "10RHAND3", "10RHAND4"], "10RGUN": [] }
+  }
+}
+```
+
+It is used like a glb: `"model": "models/<mod>/<NAME>.glb"` in a `character.json`, `"as_player"` (below), or `sh.chara.model_override(type, "<mod>/<NAME>.glb")` while a script wants it. The skeletons must have the same bones (the humans of the game share one layout); the game's clips still turn the wearer's skeleton. The mesh is the import's own, so model upscaling treats it like the game's. [`examples/mods/cybil_story/`](../../examples/mods/cybil_story/) wears Cybil on Harry's skeleton and Harry on Cybil's.
+
+### An item model of a mod
+
+A mod's item can have a model of its own: `"close_up_model": "<mod>/<NAME>.glb"` in `items/<Name>.json` names a glb below `convert/models/` (any node with a mesh, metres, +Y up, front +Z, its picture embedded as the base colour). The inventory, the pickup screen and the close-up draw it with its own picture; it is centred and scaled so its face (the mean of its two largest sides) matches the game's item models, and `display_tilt` turns it. `"display_scale": 1.25` draws it larger or smaller there, and `"display_center": {"x": 0, "y": 0.05, "z": 0}` (metres of the glb, +Y up) names the point of the model that sits at the middle of its place on the item screens, where the middle of its bounds would push a tall part's body (a radio under its antenna) out of the selection frame; the model turns about that point. [`examples/mods/cybil_story/`](../../examples/mods/cybil_story/) has its walkie-talkie this way.
+
+### World objects from a mod's model
+
+A world object of a map (`maps/<map>/world_objects.json`) can be a mod's own model: a prop, a vehicle, a note lying on a table. `"item_model": {"file": "<mod>/<name>.glb", "scale": 1.0}` names a glb below `convert/models/` of the mod (metres, +Y up, front +Z, the origin where it stands: bottom centre; its pictures embedded as the base colour, alpha "MASK" or "BLEND" for cut-outs). It is drawn with the map's light, fog and the flashlight like the map's own objects. `"position"` (metres, Y grows downwards: a negative Y is above the ground) and `"rotation"` (degrees about X, Y and Z) place it; laying a model on its side is a rotation of 90 about its forward axis plus a lift of half its width. `"flags_set"` / `"flags_clear"` show it only while the story says so (a pickup's flag hides the model once it is taken). While the glb is missing the object is not drawn and the log says so once.
+
+```json
+{"objects": [{"name": "MyBike", "model": "MYBIKE", "item_model": {"file": "mymod/bike.glb", "scale": 1.0},
+  "position": [-6.0, -0.54, 158.0], "rotation": [0, 0, 90], "zones": [{"x": -1, "z": 3}],
+  "flags_set": ["mymod:story_started"]}]}
+```
+
+
+### Replacing a file while a script wants it
+
+`sh.assets.replace(path, file)` makes the game read the data path `path` (`"convert/textures/ITEM/HEROPIC2.png"`, any path a mod could replace) from `file`, a path inside an active mod folder, until `sh.assets.restore(path)` (or `sh.assets.restore()` for all). It is not saved: a mod sets it again after a load, from its condition (a flag of its story). A picture the game already read is read again the next time the game loads it.
+
+```lua
+sh.assets.replace("convert/textures/ITEM/HEROPIC2.png", "portraits/mymod/HEROPIC2.png")
+```
+
 ## Disc files
 
 Any file of the disc is replaced by a file at the same disc path in the mod's root: `mods/<mod>/CHARA/HERO.ILM`, `BG/*.TIM`, `ITEM/*.TMD`. The path is the one in the game's file table (every one is listed in `gamedata/index.tsv`). A character model file larger than the disc's is checked before it is read; one that fails the check is refused with a `[BIGLM]` line in the log and the disc's model stays.

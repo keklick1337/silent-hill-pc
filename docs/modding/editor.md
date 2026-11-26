@@ -103,3 +103,15 @@ restart
 ```
 
 A script can show a map message the same way: `sh.world.message(key)` ([lua-api.md](lua-api.md)).
+
+## Placing things exactly
+
+*Panels > World > Placement* finds the exact place of anything a mod puts into the world and tries a model there before a line of data is written.
+
+1. Tick *click sets the point* and click the world: the point is where the click hits the drawn geometry (metres; Y grows downwards, so a negative Y is above the ground), with its 40 m cell (the `zones` entry of a world object) and the room. *at player* takes the player's place instead. The arrow keys move the point along x and z, Shift+Up and Shift+Down up and down, by the *arrow step*; the fields take typed numbers. *snap to ground* puts it on the floor of the loaded collision, *player here* moves the player onto it.
+2. Type a model into *model*: a world model name of the map (`BULLET_N`, at most 8 characters), an item model file (`ITEM/UNQ41.TMD`) or a mod's own glb below `convert/models/` (`mymod/bike.glb`). With *draw it* ticked the model stands at the point in the world, lit and fogged like the map's own objects, while the editor is open. Turn it about x, y and z (degrees; the ±90 buttons lay a model on its side), and scale a file model.
+3. *Copy* puts the place on the clipboard as a `world_objects.json` object, a `sh.world.pickup_create` call or a Lua table row `{ x, z }`, with the exact numbers shown.
+
+Look at a placed model from several sides (fly the free camera around it) before you copy it: a model should neither float above the ground nor sink into it.
+
+The console command `placement <x> <y> <z> [model] [rx] [ry] [rz] [scale]` sets the panel's point and try-out from a script (`-consolecmd`) and prints the `world_objects.json` entry; `editorcam` and `editorshot` then frame and capture it.

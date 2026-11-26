@@ -56,7 +56,10 @@ The menu *Overlays* draws the data the game actually runs on, so what a mod merg
 
 - map events and pickups with the shape of their trigger, the handler's name and what kind of event it is;
 - doors and map transitions with their targets;
-- spawn points, camera zones, collision triggers, rooms and world objects.
+- spawn points, camera zones, collision triggers, rooms and world objects;
+- the scripts' live things (*Scripts: pickups, marks, characters*): the pickups a script put down (`sh.world.pickup_create`), the places a script marked (`sh.world.mark`: its trigger zones, save points, the doors it shuts, monsters waiting to come) and every character in the world now.
+
+The inspector's *live* switch (on by default) shows what runs now rather than what the files hold: an event whose flags shut it (its condition unmet, or already done) and a world object that is not drawn now are left out. A story mod that shuts the game's doors, takes the game's pickups away and places its own shows its own world this way; switch *live* off to see the files as they are.
 
 The world inspector (*Panels*) reacts to a click on the world: for a character it shows its model and textures, for a world object or a cell the model name, its glb, the file and the mod it comes from, vertex and triangle counts and the materials.
 

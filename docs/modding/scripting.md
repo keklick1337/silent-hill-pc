@@ -89,8 +89,28 @@ Rules of the API:
 - `flag` is required: the "taken" flag from the mod's `flags.json`. A set flag hides the pickup for good.
 - `id` is unique on the map; a bare name gets the mod's namespace.
 - `count` defaults to what the game gives for a common pickup; `message` is a message key for the question, needed for an item that has no common question; `model` is the world model, by default the item's `world_model`.
+- `model = false` draws nothing for the pickup: the mod shows the thing itself, as a world object of its own model ([assets.md](assets.md#world-objects-from-a-mods-model)) whose `flags_clear` names the pickup's flag, so the model goes when it is taken.
 
 Pickups live while the map is loaded: every map load starts from an empty list, so create them on every load (`on_map_load` or the event `map.load`). The pickup works like the game's own: the action button, facing the item within 0.8 m, the usual question, the events `item.pickup` and `item.picked`. Up to 64 pickups per map.
+
+`sh.world.pickup_take(id)` opens a pickup's question at once, wherever the player stands: the end of a scene hands the player its item with the game's own prompt (the item's model, Yes and No). It starts as soon as no map event runs and the player is free; the pickup's flag tells afterwards whether it was taken.
+
+## A story mod: playing as another character
+
+A mod can tell its own story with the game's maps. What it uses:
+
+- **The start.** `config/difficulties.json` `"start_map"` of each difficulty names the map a New Game begins on (it wins over the `map` of `config.cfg`); `menu/title_menu.json` with `{"$keys": {"entries": "kind"}, "entries": [{"kind": "new_game", "next": "MainLoadScreen"}]}` leaves out the opening movie; `on_new_game` / `game.new_game` set the first flags.
+- **The player.** `sh.player.set_character("Cybil")` dresses the player in the character's `"as_player"` model and portrait ([data.md](data.md#type-properties)); `sh.player.set_character(nil)` gives Harry back. Harry's controls, animations, weapons and sounds stay: the clips of another character are not the player's set. Not saved: call it again on `map.load` from the mod's flags.
+- **Who stands where.** `sh.chara.model_override(type, glb)` dresses every character of a type in another model (Harry as the actor of a scene that had Cybil).
+- **Going places.** `load_map(map, point)` from `main.lua` goes through the game's door path; a landing point the map does not have can be added by changing an unused point of `maps/<map>/map.json`.
+- **Lines.** `sh.world.say(key)` shows a message of a map over play: the world goes on, the player can walk, the confirm button advances it; `sh.world.saying()` tells whether it still shows and `sh.world.hush()` ends it. `sh.world.message(key)` shows one the way a map's message event does, the world stopped (`sh.game.state() == "ReadMessage"` while it shows). A mod adds messages with `text/<lang>/maps/<map>.json` that says `"map"`.
+- **Doors and events.** A `maps/<map>/map.json` patch gives an event (`entities`, by `id`) a `"required_flag"` the mod never sets to shut it; `map.event` cancels a handler of the game.
+- **Map marks and save points.** `menu/map_screen.json` takes marks of the mod (`"$append"` to a page's `marks`, the mod's own flags); `menu/save_screen.json` takes save point names ([data.md](data.md#game-settings)).
+- **Sounds of the story.** `sh.sound.swap(sound, file)` makes every call of one of the game's sounds play a file of the mod while it is set (the pocket radio's noise turned into a walkie-talkie's static only while the mod's character carries it); `sh.sound.swap(sound)` gives the game's sound back. Not saved: set it again on `map.load`.
+- **What the tools show.** `sh.world.mark(id, {x, z, r, label, kind})` puts a place of the story (a trigger of the script, a save point, a monster waiting to come) into the modding tools' overlay (F2, *Scripts*), so the editor shows the story as it runs; the marks go at a map change.
+- **Remembering.** Every flag of a mod is saved by name, as many as the story needs: a flag per beat reached, per item taken, per monster killed keeps all of it across a load.
+
+[`examples/mods/cybil_story/`](../../examples/mods/cybil_story/) is a whole branch made this way.
 
 ## Script layers
 

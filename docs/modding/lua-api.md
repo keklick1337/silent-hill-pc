@@ -6,16 +6,17 @@ Every function a script can call, by table. The same text is what the in-game Lu
 
 **Units.** Positions and lengths are Q12 integers (4096 = 1 m, Y grows downwards), angles Q12 (4096 = a full turn), times Q12 seconds, health Q12 (409600 = 100), unless a line says otherwise. A character is its slot number: 0 the player, 1 and up the others. Items, flags, characters, sounds and messages are given by name.
 
-**Coverage.** 1064 functions are listed, 774 of them described. The rest are listed by signature under "Not described yet": they exist and can be called, but nobody has written down what they do; nearly all of them are helpers of the base game's own map and character scripts, and reading those scripts (`gamedata/maps/*/events.lua`, `gamedata/chara/*/behavior.lua`) is the way to learn them. `...` in a signature means the arguments have not been written down either.
+**Coverage.** 1075 functions are listed, 785 of them described. The rest are listed by signature under "Not described yet": they exist and can be called, but nobody has written down what they do; nearly all of them are helpers of the base game's own map and character scripts, and reading those scripts (`gamedata/maps/*/events.lua`, `gamedata/chara/*/behavior.lua`) is the way to learn them. `...` in a signature means the arguments have not been written down either.
 
 ## Contents
 
 - [`(globals)`](#globals) — 21 of 21 described
 - [`math`](#math) — 8 of 8 described
 - [`sh`](#sh) — 171 of 196 described
+- [`sh.assets`](#shassets) — 2 of 2 described
 - [`sh.audio`](#shaudio) — 3 of 3 described
 - [`sh.camera`](#shcamera) — 16 of 23 described
-- [`sh.chara`](#shchara) — 9 of 9 described
+- [`sh.chara`](#shchara) — 10 of 10 described
 - [`sh.collision`](#shcollision) — 0 of 2 described
 - [`sh.combat`](#shcombat) — 1 of 1 described
 - [`sh.config`](#shconfig) — 7 of 7 described
@@ -42,19 +43,19 @@ Every function a script can call, by table. The same text is what the in-game Lu
 - [`sh.music`](#shmusic) — 5 of 5 described
 - [`sh.npc`](#shnpc) — 81 of 86 described
 - [`sh.pad`](#shpad) — 3 of 3 described
-- [`sh.player`](#shplayer) — 19 of 23 described
+- [`sh.player`](#shplayer) — 20 of 24 described
 - [`sh.render`](#shrender) — 18 of 24 described
 - [`sh.rng`](#shrng) — 4 of 4 described
 - [`sh.save`](#shsave) — 15 of 15 described
 - [`sh.savegame`](#shsavegame) — 0 of 2 described
 - [`sh.screen`](#shscreen) — 9 of 18 described
 - [`sh.session`](#shsession) — 2 of 2 described
-- [`sh.sound`](#shsound) — 13 of 24 described
+- [`sh.sound`](#shsound) — 14 of 25 described
 - [`sh.timer`](#shtimer) — 5 of 5 described
 - [`sh.ui`](#shui) — 3 of 3 described
 - [`sh.vec`](#shvec) — 4 of 4 described
 - [`sh.view`](#shview) — 0 of 1 described
-- [`sh.world`](#shworld) — 28 of 32 described
+- [`sh.world`](#shworld) — 34 of 38 described
 - [`sh.world_object`](#shworld_object) — 6 of 6 described
 - [`sh.world_objects`](#shworld_objects) — 1 of 1 described
 - [`string`](#string) — 12 of 12 described
@@ -72,7 +73,7 @@ Helpers the script hosts define beside the `sh` table, and the Lua library names
 | `fmv(param[, complete_flag])` | Plays a movie. |
 | `getmetatable(v) -> mt` | The metatable of a value. |
 | `ipairs(t) -> iterator` | Iterates over t[1], t[2], ... up to the first nil. |
-| `load_map(map, point[, complete_flag])` | Goes through a door to another map the game's usual way (fade, loading screen). |
+| `load_map(map, point[, complete_flag])` | Goes through a door to another map the game's usual way (fade, loading screen); point is a landing point of the current map's points. Works from a map event and from any other script (a mod's main.lua, a coroutine): there it starts once no map event runs. |
 | `next(t[, key]) -> key, value` | The entry of a table after key. |
 | `pairs(t) -> iterator` | Iterates over every key and value of a table. |
 | `pcall(f, ...) -> ok, results` | Calls f and catches an error: false and the message instead of raising it. |
@@ -281,6 +282,13 @@ Flat functions: the vocabulary the base game's map event scripts are written in.
 
 Not described yet: `sh.bg_img_transition(which, alpha)`, `sh.chara_bones_init(idx)`, `sh.cursor_draw(12 integers)`, `sh.game_state_update()`, `sh.game_warm_boot()`, `sh.held_item_attach(...)`, `sh.light_pos_set(...)`, `sh.light_rot_set(...)`, `sh.map_box_outline_draw(a0..a8)`, `sh.map_effects_init(a, b)`, `sh.map_effects_update(a, b, prim_type, "var", arg4, arg5)`, `sh.map_msg_audio(...)`, `sh.map_screen_marking_draw(mode, page, flag, …)`, `sh.map_screen_player_mark_draw(a, b, c, d)`, `sh.map_screen_vertex_draw(a, b, c)`, `sh.math_point_from_angle(x, y, z, angle, a2, a3)`, `sh.mouse_cursor_puzzle_override("x_var", "y_var")`, `sh.overlay_screen_set(step, file, reset)`, `sh.screen_fade_status_set(status)`, `sh.sfx_attributes_update(...)`, `sh.sfx_play_at_pos(...)`, `sh.world_object_pos_get(...)`, `sh.world_object_pos_set(...)`, `sh.world_object_rot_y_get(...)`, `sh.world_object_rot_y_set(...)`.
 
+## sh.assets
+
+| Function | What it does |
+| --- | --- |
+| `sh.assets.replace(path, file) -> 1 or 0` | While set, the game data path ("convert/textures/ITEM/HEROPIC2.png") is read from another file of the active mods (a path inside a mod folder); 0 when no active mod has the file. A picture or model already read is read again the next time the game loads it. Not saved. |
+| `sh.assets.restore([path]) -> 1 or 0` | Ends the replacement of one path, or of every path without an argument; 1 when there was one. |
+
 ## sh.audio
 
 Sound effects and the music track (the named twins of `sh.sfx`, `sh.sfx_stop`, `sh.bgm`).
@@ -326,6 +334,7 @@ Character types of the loaded map: spawning, their loads and behaviours.
 | `sh.chara.anim_file_set(type, file)` | Sets the animation file the type loads from now on. |
 | `sh.chara.model_load(type, model_slot, buffer, page, u, v, palette_x, palette_y)` | Loads the type's model from a file buffer, its texture at the place given. |
 | `sh.chara.model_loads_process()` | Finishes the queued model loads. |
+| `sh.chara.model_override(type[, glb])` | Draws every character of a type (a name or a number) from another glb below convert/models/ ("mymod/LOOK.glb": a glb, or a manifest LOOK.model.json with "derive") bound to the type's skeleton; nil or no glb gives the type its own again. Not saved: set it again after a load. |
 | `sh.chara.spawn(chara, spawn_flags, x, z[, rot[, step]]) -> slot` | Spawns a character at x, z; -1 when it cannot be placed. |
 | `sh.chara.spawn_entry_set(entry, on)` | Marks an entry of the map's spawn table as in play, so the map's spawner leaves it alone. |
 | `sh.chara.spawn_flags_set(chara, idx, flags)` | Sets the flags of a placed spawn. |
@@ -952,6 +961,7 @@ Harry.
 | `sh.player.map_anim_ranges_set(first, symbol, count)` | Sets Harry's map keyframe ranges from an array of the loaded map's tables. |
 | `sh.player.map_anims_append()` | Adds the map's extra animations to Harry's base table. |
 | `sh.player.pos()` | Harry's position in Q12 (4096 = 1 m, y grows downwards). |
+| `sh.player.set_character([name])` | The player wears another character: the model and the inventory portrait of the key "as_player" in chara/<name>/character.json; nil gives back the player's own. Harry's controls, animations and sounds stay. Not saved: set it again after a load. |
 | `sh.player.set_pos(x, y, z)` | Moves Harry to a position in Q12. |
 | `sh.player.set_weapon_attack(attack)` | Sets the attack of Harry's weapon. |
 | `sh.player.weapon_attack() -> attack` | The attack of Harry's weapon. |
@@ -1069,6 +1079,7 @@ Sounds by registry name: playing, positions, the sound driver.
 | `sh.sound.sfx_mix_reset()` | Resets the positional music mix. |
 | `sh.sound.sfx_mix_update(sfx, x, y, z, volume, range, mode)` | The positional music mix (the park's music box): pan and volume from the player's distance to the point; range is the distance it is heard within. |
 | `sh.sound.stop(...)` | Stops a sound. |
+| `sh.sound.swap([sound[, file[, {volume, pitch, loop}]]]) -> bool` | While set, every call of the game's sound (a registry name or number) plays a file of the active mods instead (a path inside the mod folder, "sounds/mymod/hiss.wav" or a .opus file; volume 1, pitch 0 semitones and loop true by default); the sound stops first if it plays. sh.sound.swap(sound) ends it, sh.sound.swap() ends every one. Not saved: set it again after a load (a map.load hook). false when no active mod has the file. Example: sh.sound.swap("radio_static_loop", "sounds/mymod/static.wav", {volume = 0.9}). |
 
 Not described yet: `sh.sound.attributes(...)`, `sh.sound.bgm_crossfade(...)`, `sh.sound.bgm_flags(...)`, `sh.sound.bgm_play_new(...)`, `sh.sound.play_falloff(...)`, `sh.sound.play_with_flags(...)`, `sh.sound.radio_npc_clear(...)`, `sh.sound.sd_call(...)`, `sh.sound.set_bgm_flags(...)`, `sh.sound.streaming(...)`, `sh.sound.xa_preload(...)`.
 
@@ -1123,19 +1134,25 @@ The loaded world: ground, rays, walkable points, pickups, effect slots.
 | `sh.world.fog_floor_request()` | Raises the live fog to at least the stock level for this frame. |
 | `sh.world.ground(x, z)` | The ground under a point. |
 | `sh.world.ground_height(x, z)` | The height of the ground under a point. |
+| `sh.world.hush()` | Ends the message of sh.world.say at once (a script that lets the player skip a line). |
 | `sh.world.light_flags()` | The flag byte of the current environment preset: bit 0 the dark set-up, bit 1 an area where the flashlight matters. |
+| `sh.world.mark(id, {x, z, r, label, kind})` | A place of the script's story (a trigger zone of its own, a save point, a door it shuts, a monster waiting to come) that the modding tools' overlay draws: x, z and the radius r in metres, a label and a free kind text. Nothing in the game sees it. Gone at a map change: mark the places again in a map.load hook. Example: sh.world.mark("lever", {x = 12.5, z = -3.0, r = 1.5, label = "the lever", kind = "action"}). |
 | `sh.world.message(key) -> true or nil, err` | Shows a map message (its text key or number) as soon as Harry is free, the world stopped, like the map's own message events. A mod adds messages to a map with a text file that has "map". |
 | `sh.world.nearest_walkable(x, z[, radius[, from_x, from_z]]) -> x, z, y` | The nearest point with ground within radius (default 2 m, at most 16 m); nil when there is none. |
 | `sh.world.object_add(...)` | Adds a world object of the map by name to this frame's objects. |
 | `sh.world.object_draw(name, x, y, z, rx, ry, rz)` | Draws a "script" world object once more this tick at another place. |
 | `sh.world.object_model_name_set(name, model)` | Gives a world object another model. |
-| `sh.world.pickup_create{item, x, y, z, rot, id, flag, count, message, model, units} -> id or nil, err` | Puts a real pickup on the loaded map; flag (from the mod's flags.json) marks it taken. Call it at every map load. |
+| `sh.world.pickup_create{item, x, y, z, rot, id, flag, count, message, model, units} -> id or nil, err` | Puts a real pickup on the loaded map; flag (from the mod's flags.json) marks it taken. Call it at every map load. model is a world model name of the map (8 characters at most), the item's world_model by default, or false: nothing is drawn for it (the mod shows the thing as a world object of its own model) and it is still taken up there. |
 | `sh.world.pickup_remove(id) -> bool` | Removes a pickup the script created. |
+| `sh.world.pickup_take(id) -> bool` | Opens the prompt of a pickup the script created as if the player had taken it up there, wherever the player stands (once no map event runs and the player is free): the end of a scene can hand the player its item with the game's own question. false when the map has no such pickup. Example: sh.world.pickup_create{item = "Key", x = 1.5, z = 2.0, id = "key", flag = "key_taken", message = "take_key", model = false}; sh.world.pickup_take("key"). |
 | `sh.world.pickups([units]) -> rows` | The script pickups of the map: {id, owner, item, model, flag, count, message, x, y, z, rot, taken}. |
 | `sh.world.ray(fx, fy, fz, tx, ty, tz[, mode[, exclude_slot]])` | Casts a ray; mode is "solid", "chara", "sight" or "probe"; slot is -1 when it hit geometry. |
 | `sh.world.ray_surface(x0, y0, z0, x1, y1, z1)` | Casts a ray against the collision surface. |
+| `sh.world.say(key) -> true or nil, err` | Shows a map message (its text key or number) over play: the world goes on and the player can move; the confirm button advances it, its own waits end it. One at a time: a new one replaces it, a map event that starts drops it. |
+| `sh.world.saying() -> bool` | True while the message of sh.world.say still shows. |
 | `sh.world.script_call(name, a, b, c) -> 1 or 0` | Calls a global function of the map's world_objects.lua. |
 | `sh.world.speed_zone(x, z)` | The speed zone of a point: 0 slow, 1 normal, 2 fast. |
+| `sh.world.unmark([id]) -> bool` | Removes one of the script's marks (sh.world.mark), or every one of them without an id; true when one went. |
 | `sh.world.walkable(x, z[, from_x, from_z]) -> ok, ground_y` | Whether the point has loaded ground; with from, also whether it can be walked to from there (height step and walls). |
 | `sh.world.water_disable(...)` | Turns the water effect off. |
 | `sh.world.water_enable(...)` | Turns the water effect on. |

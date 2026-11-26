@@ -27,7 +27,7 @@
     },
     "load_map": {
       "signature": "load_map(map, point[, complete_flag])",
-      "description": "Goes through a door to another map the game's usual way (fade, loading screen)."
+      "description": "Goes through a door to another map the game's usual way (fade, loading screen); point is a landing point of the current map's points. Works from a map event and from any other script (a mod's main.lua, a coroutine): there it starts once no map event runs."
     },
     "math.abs": {
       "signature": "math.abs(x) -> number",
@@ -3757,6 +3757,10 @@
       "signature": "sh.sound.exists(name) -> bool",
       "description": "True when the registry has the sound."
     },
+    "sh.sound.swap": {
+      "signature": "sh.sound.swap([sound[, file[, {volume, pitch, loop}]]]) -> bool",
+      "description": "While set, every call of the game's sound (a registry name or number) plays a file of the active mods instead (a path inside the mod folder, \"sounds/mymod/hiss.wav\" or a .opus file; volume 1, pitch 0 semitones and loop true by default); the sound stops first if it plays. sh.sound.swap(sound) ends it, sh.sound.swap() ends every one. Not saved: set it again after a load (a map.load hook). false when no active mod has the file. Example: sh.sound.swap(\"radio_static_loop\", \"sounds/mymod/static.wav\", {volume = 0.9})."
+    },
     "sh.sound.id": {
       "signature": "sh.sound.id(name) -> id",
       "description": "The number of a sound by registry name; an unknown name is an error."
@@ -4027,7 +4031,11 @@
     },
     "sh.world.pickup_create": {
       "signature": "sh.world.pickup_create{item, x, y, z, rot, id, flag, count, message, model, units} -> id or nil, err",
-      "description": "Puts a real pickup on the loaded map; flag (from the mod's flags.json) marks it taken. Call it at every map load."
+      "description": "Puts a real pickup on the loaded map; flag (from the mod's flags.json) marks it taken. Call it at every map load. model is a world model name of the map (8 characters at most), the item's world_model by default, or false: nothing is drawn for it (the mod shows the thing as a world object of its own model) and it is still taken up there."
+    },
+    "sh.world.mark": {
+      "signature": "sh.world.mark(id, {x, z, r, label, kind})",
+      "description": "A place of the script's story (a trigger zone of its own, a save point, a door it shuts, a monster waiting to come) that the modding tools' overlay draws: x, z and the radius r in metres, a label and a free kind text. Nothing in the game sees it. Gone at a map change: mark the places again in a map.load hook. Example: sh.world.mark(\"lever\", {x = 12.5, z = -3.0, r = 1.5, label = \"the lever\", kind = \"action\"})."
     },
     "sh.world.message": {
       "signature": "sh.world.message(key) -> true or nil, err",
@@ -4037,9 +4045,17 @@
       "signature": "sh.world.pickup_remove(id) -> bool",
       "description": "Removes a pickup the script created."
     },
+    "sh.world.pickup_take": {
+      "signature": "sh.world.pickup_take(id) -> bool",
+      "description": "Opens the prompt of a pickup the script created as if the player had taken it up there, wherever the player stands (once no map event runs and the player is free): the end of a scene can hand the player its item with the game's own question. false when the map has no such pickup. Example: sh.world.pickup_create{item = \"Key\", x = 1.5, z = 2.0, id = \"key\", flag = \"key_taken\", message = \"take_key\", model = false}; sh.world.pickup_take(\"key\")."
+    },
     "sh.world.pickups": {
       "signature": "sh.world.pickups([units]) -> rows",
       "description": "The script pickups of the map: {id, owner, item, model, flag, count, message, x, y, z, rot, taken}."
+    },
+    "sh.world.unmark": {
+      "signature": "sh.world.unmark([id]) -> bool",
+      "description": "Removes one of the script's marks (sh.world.mark), or every one of them without an id; true when one went."
     },
     "sh.world.ray": {
       "signature": "sh.world.ray(fx, fy, fz, tx, ty, tz[, mode[, exclude_slot]])",
@@ -4256,6 +4272,34 @@
     "sh.mods.import_select": {
       "signature": "sh.mods.import_select(index, on) -> bool",
       "description": "Menu scripts: chooses whether the found mod at index is imported; false for an invalid one."
+    },
+    "sh.chara.model_override": {
+      "signature": "sh.chara.model_override(type[, glb])",
+      "description": "Draws every character of a type (a name or a number) from another glb below convert/models/ (\"mymod/LOOK.glb\": a glb, or a manifest LOOK.model.json with \"derive\") bound to the type's skeleton; nil or no glb gives the type its own again. Not saved: set it again after a load."
+    },
+    "sh.player.set_character": {
+      "signature": "sh.player.set_character([name])",
+      "description": "The player wears another character: the model and the inventory portrait of the key \"as_player\" in chara/<name>/character.json; nil gives back the player's own. Harry's controls, animations and sounds stay. Not saved: set it again after a load."
+    },
+    "sh.assets.replace": {
+      "signature": "sh.assets.replace(path, file) -> 1 or 0",
+      "description": "While set, the game data path (\"convert/textures/ITEM/HEROPIC2.png\") is read from another file of the active mods (a path inside a mod folder); 0 when no active mod has the file. A picture or model already read is read again the next time the game loads it. Not saved."
+    },
+    "sh.assets.restore": {
+      "signature": "sh.assets.restore([path]) -> 1 or 0",
+      "description": "Ends the replacement of one path, or of every path without an argument; 1 when there was one."
+    },
+    "sh.world.say": {
+      "signature": "sh.world.say(key) -> true or nil, err",
+      "description": "Shows a map message (its text key or number) over play: the world goes on and the player can move; the confirm button advances it, its own waits end it. One at a time: a new one replaces it, a map event that starts drops it."
+    },
+    "sh.world.saying": {
+      "signature": "sh.world.saying() -> bool",
+      "description": "True while the message of sh.world.say still shows."
+    },
+    "sh.world.hush": {
+      "signature": "sh.world.hush()",
+      "description": "Ends the message of sh.world.say at once (a script that lets the player skip a line)."
     }
   }
 }
