@@ -2,7 +2,7 @@
   "format": "sh-map-lights",
   "version": 1,
   "map": "map2_s00",
-  "description": "The lights of the streets of Old Silent Hill for the modern lighting (rt_lights, docs/RENDER.md section 10). Daytime fog and snow: a sun and the sky; the street lamps give no light by day. The streets are dark from the Door of Eclipse until Harry wakes up after the school's boss: no sun and no sky then, and the lamps shine.",
+  "description": "The lights of the streets of Old Silent Hill for the modern lighting (rt_lights, docs/RENDER.md section 10). Daytime fog and snow: a sun and the sky; the street lamps give no light by day. The streets are dark from the Door of Eclipse until Harry wakes up after the school's boss: no sun and no sky then. The lamps have no power at night and the original gives them no light, so their glows light nothing (glows: null): only the flashlight lights the streets.",
   "sun": {
     "description": "The overcast sun behind the fog: one fixed direction for the whole location (direction is the way the light travels, PS1 axes, y down). The fog dims it with the distance from the eye, so its shadows are only crisp near Harry and the fog keeps its own soft colour; light passes through the gaps of fences and leaves (alpha holes of the textures).",
     "direction": [-0.42, 1.0, 0.55],
@@ -15,5 +15,6 @@
     "description": "The grey sky's light on surfaces open to it: the bounce rays that find nothing above see it.",
     "color": [0.78, 0.8, 0.86],
     "intensity": 0.35
-  }
+  },
+  "glows": null
 }

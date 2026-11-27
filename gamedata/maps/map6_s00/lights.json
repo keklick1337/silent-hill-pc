@@ -1,0 +1,7 @@
+{
+  "format": "sh-map-lights",
+  "version": 1,
+  "map": "map6_s00",
+  "description": "The lights of the Resort Area in the Otherworld for the modern lighting (rt_lights, docs/RENDER.md section 10). It is night: no sun and no sky. Its street lamps have no power and the original gives them no light, so their glows light nothing (glows: null): outdoors only the flashlight lights the dark.",
+  "glows": null
+}

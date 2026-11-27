@@ -136,3 +136,14 @@ SH_TEST(map_lights_lamp_glow_defaults_parse) {
     const sh::Result<fx::MapLights> off = fx::parse_map_lights(R"({"glows": null})");
     SH_CHECK(static_cast<bool>(off) && off.value().glows.has_value() && !off.value().glows->on);
 }
+
+// Outdoors at night only the flashlight gives light: the streets that are dark at night switch the lamp glows off.
+SH_TEST(map_lights_dark_streets_have_no_lamp_glows) {
+    for (const char* map : {"map0_s00", "map2_s00", "map5_s01", "map6_s00", "map6_s02"}) {
+        std::ifstream in(std::string(SH_PROJECT_ROOT) + "/gamedata/maps/" + map + "/lights.json", std::ios::binary);
+        const std::string text((std::istreambuf_iterator<char>(in)), std::istreambuf_iterator<char>());
+        const sh::Result<fx::MapLights> r = fx::parse_map_lights(text);
+        if (!r || !r.value().glows || r.value().glows->on) std::fprintf(stderr, "%s: lamp glows give light\n", map);
+        SH_CHECK(static_cast<bool>(r) && r.value().glows.has_value() && !r.value().glows->on);
+    }
+}
