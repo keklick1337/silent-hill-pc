@@ -334,10 +334,10 @@ SH_TEST(world_move_observer) {
 }
 
 // A unified map file of one area "TST" with the synthetic cell as TST0102 and two lamp glows on its root.
-std::vector<std::uint8_t> synthetic_area_glb() {
+std::vector<std::uint8_t> synthetic_area_glb(const std::string& cell_json = synthetic_cell_json()) {
     std::string json = R"({"asset": {"version": "2.0"}, "nodes": [
         {"name": "TST0102", "extras": {"source": "BG/TST0102.IPD", "glows": [[10, -20, 30, 0], [40, -50, 60, 257]]}},
-        {"name": "TST0102/collision", "extensions": {"SH_collision": )" + synthetic_cell_json() + "}}]}";
+        {"name": "TST0102/collision", "extensions": {"SH_collision": )" + cell_json + "}}]}";
     while (json.size() % 4 != 0) {
         json += ' ';
     }
@@ -413,6 +413,47 @@ SH_TEST(world_place_cells_in_slots) {
     SH_CHECK(world.stats().cells_missing == 1);
     world.unplace(5);
     SH_CHECK(world.placed(5) == nullptr);
+}
+
+// A cell an event puts somewhere else (the opening alley's nightmare closes the way back with the cell of another
+// spot, named with its extension as the file table has it) blocks where it was put: the wall stops a mover there.
+SH_TEST(world_moved_cell_blocks_where_it_is_placed) {
+    std::string wall = synthetic_cell_json();
+    const std::string edge = "[0, 4096, 512, 1, 0, 0, 1]";
+    wall.replace(wall.find(edge), edge.size(), "[0, 4096, 512, 1, 0, 0, 255]");
+    const std::vector<std::uint8_t> glb = synthetic_area_glb(wall);
+    w::World world;
+    world.configure([&glb](std::string_view relative) -> std::optional<std::vector<std::uint8_t>> {
+                        return relative == "maps/areas/TST.glb" ? std::optional(glb) : std::nullopt;
+                    },
+                    nullptr);
+    // Two cells west and two south of the cell the name gives (1, 2).
+    SH_CHECK(world.place(0, "BG/TST0102.IPD", -1, 0) != nullptr);
+    w::Placement* p = world.placement(0);
+    SH_CHECK(p != nullptr);
+    if (p == nullptr) {
+        return;
+    }
+    const std::int32_t ox = 1024 - 2 * 10240;
+    const std::int32_t oz = 2048 - 2 * 10240;
+    SH_CHECK(p->origin_x == ox && p->origin_z == oz);
+    const w::ActiveCell ac{w::PlacedCell{p->cell.get(), p->origin_x, p->origin_z}, p->ledger()};
+    const std::span<const w::ActiveCell> cells(&ac, 1);
+    w::MoveCylinder cyl;
+    cyl.bottom = 0;
+    cyl.top = -6000;
+    cyl.radius = 819;
+    cyl.collision_state = 1;
+    const w::MoveOptions options;
+    // Walking into the wall where the cell now is: stopped at it, as in the cell's own place.
+    cyl.position = w::Vec3{(ox + 620) * 16, 0, (oz + 256) * 16};
+    w::MoveResult m = w::move_cylinder(cyl, w::Vec3{-(200 << 4), 0, 0}, cells, {}, {}, {}, 0xFFFF, options);
+    SH_CHECK(m.code == 1);
+    SH_CHECK(m.offset.x < 0 && (620 << 4) + m.offset.x >= (512 + 51 - 2) << 4);
+    // The same walk where the file's name would have put the cell: nothing is there.
+    cyl.position = w::Vec3{(1024 + 620) << 4, 0, (2048 + 256) << 4};
+    m = w::move_cylinder(cyl, w::Vec3{-(200 << 4), 0, 0}, cells, {}, {}, {}, 0xFFFF, options);
+    SH_CHECK(m.code == 0 && m.offset.x == -(200 << 4));
 }
 
 SH_TEST(world_area_files_of_import) {
