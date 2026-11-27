@@ -119,6 +119,7 @@ void VoiceLinePlayer::update() {
     if (delay_end_vblank_ != 0) {
         if (now < delay_end_vblank_) return;
         // The line was timed when it was asked for; its clock moves to where the sound really starts.
+        if (is_file_) SH_DBG("[XA] file sounds after a lead of %d vblanks", now - start_vblank_);
         end_vblank_ += now - start_vblank_;
         start_vblank_ = now;
         delay_end_vblank_ = 0;
@@ -149,6 +150,17 @@ bool VoiceLinePlayer::sounding() const {
 }
 
 void VoiceLinePlayer::hold(bool held) {
+    clock_held_ = held;
+    apply_hold();
+}
+
+void VoiceLinePlayer::hold_file(bool held) {
+    file_held_ = held;
+    apply_hold();
+}
+
+void VoiceLinePlayer::apply_hold() {
+    const bool held = clock_held_ || (file_held_ && playing_ && is_file_);
     if (held == held_) return;
     held_ = held;
     if (held) {
@@ -168,7 +180,7 @@ void VoiceLinePlayer::set_volume(float volume) {
     ShSound_SetLineGain(volume_);
 }
 
-bool VoiceLinePlayer::play_file(const char* path) {
+bool VoiceLinePlayer::play_file(const char* path, int lead_ms) {
     // A file that is not there must change nothing: not even cut the silence that pads the line before.
     const Result<VoiceClip> loaded = load_voice_wav(path);
     if (!loaded) {
@@ -182,11 +194,14 @@ bool VoiceLinePlayer::play_file(const char* path) {
         return true;
     }
     if (playing_) stop();
+    // The CD input keeps the level of the game's last line, or none after a reset: a file sets the one a line
+    // of the game would have.
+    const int level = game_sound_driver().default_line_level();
+    ShSound_SetLineVolume(level, level);
     start_clip(clip, true);
     const int length = static_cast<int>(std::uint64_t{clip.frames()} * static_cast<unsigned>(voice_blank_rate()) / clip.rate);
     end_vblank_ = start_vblank_ + length;
-    const int gap_ms = g_PcConfig.cutsceneLineGapMs;
-    delay_end_vblank_ = gap_ms > 0 ? start_vblank_ + gap_ms * voice_blank_rate() / 1000 : 0;
+    delay_end_vblank_ = lead_ms > 0 ? start_vblank_ + lead_ms * voice_blank_rate() / 1000 : 0;
     // The game's sound task switches the CD mix on for its own lines only.
     ShSound_SetLineMix(1);
     SH_DBG("[XA] file %s %u Hz, %d vblanks", path, clip.rate, length);

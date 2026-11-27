@@ -332,7 +332,8 @@ inline constexpr Setting kSettings[] = {
     keys::flag("fmv_psx_volume", &keys::C::fmvOriginalVolume, 1, "movies at the console's 80/128 level"),
     keys::word("audio_output", &keys::C::audioOutput, 0, keys::kSpeakers, 0, "auto, stereo, quad, 51, 71 or hrtf"),
     keys::any_whole("cutscene_line_gap_ms", &keys::C::cutsceneLineGapMs, 300, "least silence between cutscene lines"),
-    keys::whole("msg_voice_tail_ms", &keys::C::msgVoiceTailMs, 1000, 0, 10000, "how long a voiced text box stays after the clip"),
+    keys::whole("msg_voice_tail_ms", &keys::C::msgVoiceTailMs, 500, 0, 10000, "how long a voiced text box stays after the clip"),
+    keys::whole("msg_voice_lead_ms", &keys::C::msgVoiceLeadMs, 500, 0, 5000, "how long a voiced text box shows before the clip"),
 
     // Loading.
     keys::flag("cd_fast_load", &keys::C::cdFastLoad, 1, "blocking loads skip the console's waits"),

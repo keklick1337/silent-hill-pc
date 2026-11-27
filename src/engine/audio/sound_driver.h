@@ -248,6 +248,9 @@ public:
 
     // The voice-line player reports the end of a line (or its stop).
     void line_finished();
+    // The level the CD input gets for a line the tables give no volume of its own, with the voice option applied:
+    // what a mod's voice file plays at, as the game's lines do.
+    int default_line_level() const;
     std::uint16_t line_playing() const { return s_.line_playing; }
 
     const DriverState& state() const { return s_; }

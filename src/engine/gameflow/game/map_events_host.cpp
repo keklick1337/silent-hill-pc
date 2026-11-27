@@ -285,12 +285,20 @@ extern "C" void Event_Update(unsigned int disableButtonEvents) {
     }
     // A message a script shows over play (sh.world.say): drawn here, where map events draw theirs, while nothing
     // else holds the player; a map event that starts drops it.
+    static int drawn_soft = -1;
     if (const int soft = sh::world::soft_message(); soft >= 0) {
         const std::int32_t now = gf::map_event_state().sys_state;
         if (now != static_cast<std::int32_t>(gf::GameState::None) &&
             now != static_cast<std::int32_t>(gf::GameState::Gameplay)) {
             sh::world::clear_soft_message();
+            drawn_soft = -1;
         } else {
+            // Another line replacing the one on screen takes its voice away, even when the new one has none. A line
+            // asked for after the last one was ended (sh.world.hush) starts afresh, voice and all, even with the
+            // same key: the box the hushed line left set up would carry on from where it was.
+            if (drawn_soft >= 0 && drawn_soft != soft) link::stop_message_voice();
+            if (drawn_soft < 0 && !sh::world::soft_message_started()) sh::game::session().system.flow.message_shown = 0;
+            drawn_soft = soft;
             const int state = link::map_message_draw(soft);
             if (!sh::world::soft_message_started()) {
                 sh::world::set_soft_message_started();
@@ -298,6 +306,8 @@ extern "C" void Event_Update(unsigned int disableButtonEvents) {
                 sh::world::clear_soft_message();
             }
         }
+    } else {
+        drawn_soft = -1;
     }
     if (const int message = sh::world::pending_script_message();
         message >= 0 && !frame.player_busy &&

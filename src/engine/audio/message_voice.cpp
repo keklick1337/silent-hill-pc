@@ -18,6 +18,7 @@ MessageVoice::MessageVoice(Host host) : host_(std::move(host)) {}
 std::string MessageVoice::mod_path(const std::string& message_key) {
     std::string name = message_key;
     std::replace(name.begin(), name.end(), '.', '_');
+    std::replace(name.begin(), name.end(), ':', '_');
     return "XA/msg_" + name + ".wav";
 }
 
@@ -51,6 +52,12 @@ bool MessageVoice::page_held() {
 }
 
 void MessageVoice::frame_ended() {
+    const bool paused = host_.paused && host_.paused();
+    if (host_.hold) host_.hold(paused && playing_);
+    if (paused) {
+        drawn_ = false;
+        return;
+    }
     if (drawn_) {
         frames_undrawn_ = 0;
     } else if (playing_ && ++frames_undrawn_ > kUndrawnFrames) {

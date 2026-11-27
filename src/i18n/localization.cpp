@@ -439,6 +439,10 @@ std::string message_voice_name(int map_index, int slot) {
     if (map == nullptr) {
         return {};
     }
+    // A message a mod added has no number of the game's to go by: its file is named by its key.
+    if (const char* added = Pc_TextMapAddedKey(map, slot)) {
+        return added;
+    }
     std::string name = map;
     for (char& c : name) {
         c = static_cast<char>(std::toupper(static_cast<unsigned char>(c)));

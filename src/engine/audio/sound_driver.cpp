@@ -596,6 +596,8 @@ void SoundDriver::set_option_volumes(std::uint8_t lines, std::uint8_t music, std
 
 // ---- Voice lines ----
 
+int SoundDriver::default_line_level() const { return ((t_.default_line_volume * s_.options_lines) >> 7) << 8; }
+
 int SoundDriver::line_volume_of(std::uint16_t index) const {
     for (const LineVolume& v : t_.line_volumes) {
         if (v.line == index) {

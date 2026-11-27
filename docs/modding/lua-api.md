@@ -1153,7 +1153,7 @@ The loaded world: ground, rays, walkable points, pickups, effect slots.
 | `sh.world.pickups([units]) -> rows` | The script pickups of the map: {id, owner, item, model, flag, count, message, x, y, z, rot, taken}. |
 | `sh.world.ray(fx, fy, fz, tx, ty, tz[, mode[, exclude_slot]])` | Casts a ray; mode is "solid", "chara", "sight" or "probe"; slot is -1 when it hit geometry. |
 | `sh.world.ray_surface(x0, y0, z0, x1, y1, z1)` | Casts a ray against the collision surface. |
-| `sh.world.say(key) -> true or nil, err` | Shows a message (its text key or number) over play: the world goes on and the player can move; the confirm button advances it, its own waits end it. One at a time: a new one replaces it, a map event that starts drops it. The key is a message of the loaded map or, on any map, a message of text/<lang>/messages.json. |
+| `sh.world.say(key) -> true or nil, err` | Shows a message (its text key or number) over play: the world goes on and the player can move; the confirm button advances it, its own waits end it. One at a time: a new one replaces it, a map event that starts drops it. The key is a message of the loaded map or, on any map, a message of text/<lang>/messages.json. A mod's XA/msg_<key>.wav or .opus voices it (assets.md, Voices of messages). |
 | `sh.world.saying() -> bool` | True while the message of sh.world.say still shows. |
 | `sh.world.script_call(name, a, b, c) -> 1 or 0` | Calls a global function of the map's world_objects.lua. |
 | `sh.world.speed_zone(x, z)` | The speed zone of a point: 0 slow, 1 normal, 2 fast. |

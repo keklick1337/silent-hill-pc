@@ -630,6 +630,7 @@ void console_apply_pending_flags() { sh::debug::apply_remembered_flags(); }
 // --- Messages, items ---
 int map_message_draw(int message) { return Gfx_MapMsg_Draw(message); }
 void set_message_game_voiced(bool on) { sh::audio::message_voice().set_game_voiced(on); }
+void stop_message_voice() { sh::audio::message_voice().box_closed(); }
 void start_item_pickup(int item) { Gfx_Items_PickupInit(item); }
 bool animate_pickup_item(int item) { return Gfx_PickupItemAnimate(item) != 0; }
 void set_pickup_item_active(bool on) { g_PcPickupItemActive = on ? 1 : 0; }

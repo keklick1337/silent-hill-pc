@@ -4299,7 +4299,7 @@
     },
     "sh.world.say": {
       "signature": "sh.world.say(key) -> true or nil, err",
-      "description": "Shows a message (its text key or number) over play: the world goes on and the player can move; the confirm button advances it, its own waits end it. One at a time: a new one replaces it, a map event that starts drops it. The key is a message of the loaded map or, on any map, a message of text/<lang>/messages.json."
+      "description": "Shows a message (its text key or number) over play: the world goes on and the player can move; the confirm button advances it, its own waits end it. One at a time: a new one replaces it, a map event that starts drops it. The key is a message of the loaded map or, on any map, a message of text/<lang>/messages.json. A mod's XA/msg_<key>.wav or .opus voices it (assets.md, Voices of messages)."
     },
     "sh.world.saying": {
       "signature": "sh.world.saying() -> bool",

@@ -94,7 +94,8 @@ const char* item_description(int index);
 // for the message box (wrapped to the box, ordered, shaped).
 void install_map_messages(int map_index);
 // The name a message goes by in the mods' voice files, "MAP1_S00.23" (the map, the slot) and "COMMON.5" for the
-// block every map shares; empty when the map index carries no text.
+// block every map shares; a message a mod added (to the map or as a message of no map) goes by its key
+// ("mymod:hello"). Empty when the map index carries no text.
 std::string message_voice_name(int map_index, int slot);
 
 // ---- diagnostics ----

@@ -237,6 +237,8 @@ void console_apply_pending_flags();
 // --- Messages, items, pickups ---
 int map_message_draw(int message);
 void set_message_game_voiced(bool on);
+// The voice of the text box stops: the box is taken over by another message.
+void stop_message_voice();
 void start_item_pickup(int item);
 bool animate_pickup_item(int item);
 void set_pickup_item_active(bool on);

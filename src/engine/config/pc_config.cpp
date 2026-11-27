@@ -375,6 +375,10 @@ void migrate(int from) {
     }
     // The key's range already clamped 8 and 16 to 4 in memory; the file still holds them.
     if (from < 10 && c.textureUpscale == 4) PcConfig_SaveKeyValue("texture_upscale", "4");
+    if (from < 11 && c.msgVoiceTailMs == 1000) {
+        c.msgVoiceTailMs = 500;
+        PcConfig_SaveKeyValue("msg_voice_tail_ms", "500");
+    }
     ControlScheme* const schemes[2] = {&c.classic, &c.altcam};
     const auto save_slot = [](const char* key, int scheme, const char* value) {
         const std::string full = std::string(key) + (scheme ? "_altcam" : "");

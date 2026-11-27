@@ -1,8 +1,9 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 #pragma once
 
-// Voices for the text boxes the game never voiced: a mod ships XA/msg_<KEY>.wav, where KEY is the message's key
-// with '.' written as '_' (MAP1_S00_23, COMMON_5), and the file plays when that page of the box comes up.
+// Voices for the text boxes the game never voiced: a mod ships XA/msg_<KEY>.wav (or .opus), where KEY is the
+// message's key with '.' and ':' written as '_' (MAP1_S00_23, COMMON_5, mymod_hello for a mod's "mymod:hello"),
+// and the file plays when that page of the box comes up, after a short lead (the host's play()).
 //
 // A page without a file of its own leaves the file before it playing, so one recording can cover a message of
 // several pages. The page that started a file is held on screen while the file is heard and for a short tail
@@ -22,7 +23,7 @@ public:
         // The key of a message of the current map ("MAP1_S00.23"); empty when it has none.
         std::function<std::string(int message_index)> message_key;
         // Starts the mod's file of that name ("XA/msg_MAP1_S00_23.wav"); false when no mod has it or it does
-        // not play.
+        // not play. The sound may start a little later; the file counts as heard from this call on.
         std::function<bool(const std::string& mod_path)> play;
         std::function<void()> stop;
         // The file started by play() is still heard.
@@ -30,6 +31,10 @@ public:
         // The game's clock, and how long a page is held after its file went silent.
         std::function<std::uint32_t()> now_ms;
         std::function<std::uint32_t()> tail_ms;
+        // The world is held (the pause, the inventory, a paper map): the box is not drawn but stays open. Optional.
+        std::function<bool()> paused;
+        // Holds the file's sound and its timing, or lets them go on. Optional.
+        std::function<void(bool held)> hold;
     };
 
     explicit MessageVoice(Host host);
@@ -45,8 +50,8 @@ public:
     // waits.
     bool page_held();
     // Once per game frame. Stops a file whose box is no longer drawn: some boxes close without box_closed()
-    // (codes that close them by themselves, skipped cutscenes). Counted in frames, so a paused game holds the
-    // file instead of cutting it.
+    // (codes that close them by themselves, skipped cutscenes). While the world is held the file is held with it
+    // and the frames without the box are not counted.
     void frame_ended();
 
     // The name of a message's file inside a mod.

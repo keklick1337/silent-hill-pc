@@ -252,6 +252,16 @@ extern "C" int Pc_TextMsgIndex(const char* key) {
     return key != nullptr ? s.layers.map_slot(s.map, key) : -1;
 }
 
+extern "C" const char* Pc_TextMapAddedKey(const char* map, int slot) {
+    State& s = ready();
+    const std::string_view name = map != nullptr ? map : "";
+    if (!s.layers.is_extra_slot(name, slot)) {
+        return nullptr;
+    }
+    const std::string* key = s.layers.map_key(name, slot);
+    return key != nullptr ? key->c_str() : nullptr;
+}
+
 extern "C" const char* Pc_TextGet(const char* key) {
     State& s = ready();
     const auto* e = key != nullptr ? lookup(s, key) : nullptr;

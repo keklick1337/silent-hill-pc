@@ -15,7 +15,7 @@ extern "C" {
 //   4, 5: no step                        6: pad_reload / pad_quick_turn filled where unbound
 //   7: Space / Escape / Tab / M binds    8: keyboard binds become action_* lines
 //   9: fps_cap 30 -> 60                  10: texture_upscale 8 and 16 -> 4
-#define PC_CONFIG_VERSION 10
+#define PC_CONFIG_VERSION 11
 
 // One control scheme. A keyboard slot holds an SDL scancode name or "MouseN", a controller slot an SDL gamepad
 // button name; "NONE" or "" is unbound. The *2 slots are the second binding of the same button.
@@ -60,6 +60,7 @@ typedef struct {
     int weatherSimHz;
     int cutsceneLineGapMs;
     int msgVoiceTailMs;
+    int msgVoiceLeadMs;
     int skipIntros;  // 2 also starts a new game; the command line sets it too
     int showConsole;
     int legacyDitherFilter;  // dithering and texture_filter as one 8-way value: the options row cycles it

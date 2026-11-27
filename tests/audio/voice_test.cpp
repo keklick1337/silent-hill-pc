@@ -72,6 +72,8 @@ struct VoiceHost {
     bool audible = false;
     std::uint32_t now = 1000;
     std::uint32_t tail = 500;
+    bool paused = false;
+    std::vector<bool> holds;
 
     au::MessageVoice::Host host() {
         au::MessageVoice::Host h;
@@ -84,6 +86,8 @@ struct VoiceHost {
         h.audible = [this] { return audible; };
         h.now_ms = [this] { return now; };
         h.tail_ms = [this] { return tail; };
+        h.paused = [this] { return paused; };
+        h.hold = [this](bool held) { holds.push_back(held); };
         return h;
     }
 };
@@ -222,6 +226,8 @@ SH_TEST(message_voice_holds_the_page_that_started_a_file) {
     host.only_file = "XA/msg_MAP1_S00_23.wav";
     au::MessageVoice voice(host.host());
     SH_CHECK(au::MessageVoice::mod_path("COMMON.5") == "XA/msg_COMMON_5.wav");
+    // A mod's message goes by its key, the namespace too: a file name has no ':' on every system.
+    SH_CHECK(au::MessageVoice::mod_path("mymod:hello.2") == "XA/msg_mymod_hello_2.wav");
 
     // A page with a file: it plays, and the page is held while it is heard and for the tail after.
     voice.page_started(23);
@@ -292,4 +298,28 @@ SH_TEST(message_voice_stops_a_file_whose_box_is_gone) {
     // Nothing plays: frames without a box stop nothing.
     for (int frame = 0; frame < 10; ++frame) voice.frame_ended();
     SH_CHECK(host.stops == 1);
+}
+
+SH_TEST(message_voice_holds_its_file_while_the_world_is_held) {
+    VoiceHost host;
+    host.only_file = "XA/msg_MAP1_S00_7.wav";
+    au::MessageVoice voice(host.host());
+    voice.page_started(7);
+    voice.box_drawn();
+    voice.frame_ended();
+    SH_CHECK(host.holds.back() == false);
+    // The pause hides the box for many frames: the file is held, not stopped.
+    host.paused = true;
+    for (int frame = 0; frame < 30; ++frame) voice.frame_ended();
+    SH_CHECK(host.stops == 0 && host.holds.back() == true);
+    // Back in play the box is drawn again and the file goes on.
+    host.paused = false;
+    voice.box_drawn();
+    voice.frame_ended();
+    SH_CHECK(host.stops == 0 && host.holds.back() == false);
+    // With nothing playing a pause holds nothing.
+    voice.box_closed();
+    host.paused = true;
+    voice.frame_ended();
+    SH_CHECK(host.holds.back() == false);
 }

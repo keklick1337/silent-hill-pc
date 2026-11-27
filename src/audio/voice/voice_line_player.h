@@ -26,10 +26,11 @@ public:
     // Once per game frame: starts the sound when its delay is over, ends the line when it is due.
     void update();
 
-    // A mod's file as a voice line of its own (the voice of a text box). While a line of the disc is still heard
-    // the file is mixed over it and plays on alone if it lasts longer. False, with nothing changed, when the
-    // file is missing or cannot be played.
-    bool play_file(const char* path);
+    // A mod's file as a voice line of its own (the voice of a text box): its sound starts `lead_ms` later, a wait
+    // that holds with the game clock and counts as heard. While a line of the disc is still heard the file is
+    // mixed over it at once and plays on alone if it lasts longer. False, with nothing changed, when the file is
+    // missing or cannot be played.
+    bool play_file(const char* path, int lead_ms);
     // Stops only a file; a line of the disc is left alone.
     void stop_file();
     bool file_audible() const;
@@ -39,6 +40,8 @@ public:
     bool sounding() const;
     // The game clock is frozen: the line and its timing stop with it, or the voice would run ahead of the scene.
     void hold(bool held);
+    // The same for a file only, while the world is held under its text box (the pause, the inventory).
+    void hold_file(bool held);
 
     // The voice volume of the settings, 0..1, on top of the volume the game gives each line.
     void set_volume(float volume);
@@ -50,6 +53,7 @@ public:
 
 private:
     void start_clip(const VoiceClip& clip, bool is_file);
+    void apply_hold();
     void finish();
 
     bool playing_ = false;
@@ -62,6 +66,8 @@ private:
     // The blank the start delay ends at; 0 when there is none.
     int delay_end_vblank_ = 0;
     bool held_ = false;
+    bool clock_held_ = false;
+    bool file_held_ = false;
     int hold_start_vblank_ = 0;
     float volume_ = 1.0f;
     LineStartDelay start_delay_;

@@ -47,6 +47,9 @@ const char* Pc_TextMapMsg(const char* map, int slot, int layers);
 
 /* The message slot of `key` in the current map (or the common block), -1 if none. */
 int Pc_TextMsgIndex(const char* key);
+/* The key of a slot of `map` past its base table (a message a mod added to the map, or one of no map); NULL for the
+ * base table's slots and for a slot the map does not have. */
+const char* Pc_TextMapAddedKey(const char* map, int slot);
 
 /* Any key, current language first, then English: readable / engine format. NULL if absent. */
 const char* Pc_TextGet(const char* key);
