@@ -73,6 +73,13 @@ bool WeatherSystem::camera_moved(Context& c) const {
 void WeatherSystem::update(WeatherHost& host, WeatherWords& words, const WeatherFrame& frame, int arg) {
     Context c{host, words, frame};
 
+    const bool initial = arg == 0 || arg == -1;
+    if (initial) {
+        sim_step_ = true;
+        lead_ = 0;
+    } else {
+        sim_tick(c);
+    }
     if (params_.rain_on && params_.rain.sound) {
         rain_sound(c);
     }
@@ -82,7 +89,6 @@ void WeatherSystem::update(WeatherHost& host, WeatherWords& words, const Weather
         wind_x_ = 0;
     }
 
-    const bool initial = arg == 0 || arg == -1;
     if (initial) {
         if (params_.any()) {
             apply_rules(c, params_.init_rules);
@@ -116,7 +122,6 @@ void WeatherSystem::update(WeatherHost& host, WeatherWords& words, const Weather
             words.paused = host.delta_time() == 0;
         }
         if (params_.any()) {
-            sim_tick(c);
             step_transitions(c);
             simulate_and_draw(c);
             // The particles past the live ones are dead.
@@ -126,13 +131,23 @@ void WeatherSystem::update(WeatherHost& host, WeatherWords& words, const Weather
             }
         }
     }
-    prev_view_ = view_;
+    if (initial || sim_step_) {
+        prev_view_ = view_;
+    }
 }
 
+// The console stepped the weather once per 30 fps frame, and only the travel of a step is scaled by its time: the
+// flakes' drift and fall speed, the wind, the spawn budget, the rest counters and the ramps change once a step. So
+// the weather steps on the update that ends a 30 Hz game tick, by the time since the tick before; at 30 updates a
+// second that is every update. The updates between two ticks only draw, each particle moved on by its own speed
+// (`lead_`), so the picture is smooth and the weather has the console's speed and density at any frame rate.
 void WeatherSystem::sim_tick(Context& c) {
+    const std::int32_t delta = c.host.delta_time();
+    lead_ = 0;
     if (c.host.sim_hz() == 30) {
+        // The console's cadence on the screen too: nothing moves between two steps.
         sim_dt_ = kStep30;
-        sim_accum_ += c.host.delta_time();
+        sim_accum_ += delta;
         sim_step_ = sim_accum_ >= kStep30;
         if (sim_step_) {
             sim_accum_ -= kStep30;
@@ -140,11 +155,18 @@ void WeatherSystem::sim_tick(Context& c) {
                 sim_accum_ = kStep30;
             }
         }
+        tick_time_ = 0;
         return;
     }
     sim_accum_ = 0;
-    sim_step_ = true;
-    sim_dt_ = c.host.delta_time();
+    sim_step_ = c.host.tick30();
+    tick_time_ += delta;
+    if (sim_step_) {
+        sim_dt_ = tick_time_;
+        tick_time_ = 0;
+    } else {
+        lead_ = tick_time_;
+    }
 }
 
 bool WeatherSystem::apply_rules(Context& c, const std::vector<RoomRule>& rules) {
@@ -514,7 +536,11 @@ void WeatherSystem::simulate_and_draw(Context& c) {
     moved_ = camera_moved(c);
     host.begin_view(origin_.x >> 4, origin_.z >> 4);
 
-    std::uint16_t rnd = static_cast<std::uint16_t>(host.rand16());
+    // One draw a step, as one a frame on the console.
+    if (sim_step_) {
+        step_rnd_ = static_cast<std::uint16_t>(host.rand16());
+    }
+    std::uint16_t rnd = step_rnd_;
 
     if (sim_step_) {
         update_wind(c);
@@ -593,12 +619,25 @@ void WeatherSystem::simulate_and_draw(Context& c) {
         const std::size_t n = static_cast<std::size_t>(std::max<std::int32_t>(0, counts_[static_cast<std::size_t>(pass)]));
         for (std::size_t k = first; k < first + n; k++) {
             Particle& p = parts_[k];
+            if (sim_step_ || host.sim_hz() == 30) {
+                if (pass == 0) {
+                    if (params_.snow_on) {
+                        draw_snow(c, p);
+                    }
+                } else if (params_.rain_on) {
+                    draw_rain(c, p, rain_shift);
+                }
+                continue;
+            }
+            // Between two steps a copy is drawn, moved on from the last step; the particle itself waits.
+            Particle shown = p;
+            lead(pass, shown);
             if (pass == 0) {
                 if (params_.snow_on) {
-                    draw_snow(c, p);
+                    draw_snow(c, shown);
                 }
             } else if (params_.rain_on) {
-                draw_rain(c, p, rain_shift);
+                draw_rain(c, shown, rain_shift);
             }
         }
         first += n;
@@ -607,6 +646,51 @@ void WeatherSystem::simulate_and_draw(Context& c) {
     if (sim_step_) {
         prev_origin_.x = origin_now.x;
         prev_origin_.z = origin_now.z;
+    }
+}
+
+// Where a particle is `lead_` after the last step, for the picture only: on by its speed while it falls, and kept
+// in its place in the world as the camera moves (the step does the same with the camera's travel of a whole step).
+void WeatherSystem::lead(int pass, Particle& p) const {
+    if (p.step == 0) {
+        return;
+    }
+    const bool heavy_rain = pass == 1 && params_.rain_on && !params_.rain.light;
+    std::int32_t dx = prev_origin_.x - origin_.x;
+    std::int32_t dz = prev_origin_.z - origin_.z;
+    if (p.step == 1 && heavy_rain) {
+        dx = prev_view_.x - view_.x;
+        dz = prev_view_.z - view_.z;
+    }
+    std::int32_t fall = 0;
+    if (p.step == 1) {
+        if (pass == 0) {
+            dx += scaled((p.mx << 2) + wind_x_, lead_);
+            dz += scaled((p.mz << 2) + wind_z_, lead_);
+            fall = scaled((p.my >> 1) << 2, lead_);
+        } else {
+            dx += scaled(wind_x_, lead_);
+            dz += scaled(wind_z_, lead_);
+            fall = scaled(p.my << 2, lead_);
+        }
+    } else if (pass == 1 && p.step >= 32 && params_.rain.after_rest) {
+        fall = scaled(p.my << 2, lead_);
+    }
+    if (params_.snow.drifting && (pass == 0 || p.step != 1)) {
+        dz += (prev_origin_.z - origin_.z) - mul(lead_, 10936) / q12(1);
+    }
+    p.head.x += dx;
+    p.head.z += dz;
+    p.tail.x += dx;
+    p.tail.z += dz;
+    if (fall != 0) {
+        // Not below the ground it has not reached at a step yet.
+        const std::int32_t room = p.head.y < 0 ? -p.head.y : 0;
+        fall = fall < room ? fall : room;
+        p.head.y += fall;
+        if (pass == 1) {
+            p.tail.y += fall;
+        }
     }
 }
 
@@ -1216,7 +1300,9 @@ void WeatherSystem::draw_rain(Context& c, Particle& p, int shift) {
 // The rain's loudness follows the number of drops, in steps of 15 per update.
 void WeatherSystem::rain_sound(Context& c) {
     const int volume = static_cast<std::uint8_t>(rain_sound_ramp_ >> 2);
-    if (rain_sound_ramp_ - counts_[1] > 15) {
+    if (!sim_step_) {
+        // The ramp moves once a step.
+    } else if (rain_sound_ramp_ - counts_[1] > 15) {
         rain_sound_ramp_ -= 15;
     } else if (counts_[1] - rain_sound_ramp_ > 15) {
         rain_sound_ramp_ += 15;

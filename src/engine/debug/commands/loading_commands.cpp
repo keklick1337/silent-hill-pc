@@ -97,13 +97,13 @@ void register_loading_commands(Registry& registry) {
             return done();
         });
 
-    add(registry, "weatherhz", "graphics", "Weather simulation rate",
-        {arg("hz", ArgType::Enum, true, "30 = original cadence, 60 = per frame", {"30", "60"})},
+    add(registry, "weatherhz", "graphics", "Weather display rate",
+        {arg("hz", ArgType::Enum, true, "30 = only the steps, 60 = smooth between them", {"30", "60"})},
         [](Context& ctx, const Args& args) {
             if (args.has(0)) g_PcConfig.weatherSimHz = args.str(0) == "30" ? 30 : 60;
             const bool original = g_PcConfig.weatherSimHz == 30;
-            say(ctx, "Weather (rain/snow) simulation: %d Hz%s", g_PcConfig.weatherSimHz,
-                original ? " (original console cadence)" : " (per rendered frame)");
+            say(ctx, "Weather (rain/snow) steps 30 times a second; shown %s",
+                original ? "at its steps only (weather_sim_hz 30)" : "moving on every frame (weather_sim_hz 60)");
             return done();
         });
 }

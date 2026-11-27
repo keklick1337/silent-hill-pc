@@ -165,6 +165,7 @@ public:
     virtual std::int32_t square_root(std::int32_t v) = 0;
     virtual std::int32_t delta_time() = 0;     // Q12 seconds of this frame
     virtual int sim_hz() = 0;                  // weather_sim_hz
+    virtual bool tick30() = 0;                 // this update ends a 30 Hz game tick (every update at 30 fps)
     virtual int room() = 0;
     virtual Vec3 player() = 0;
     virtual int event_param() = 0;
@@ -231,6 +232,7 @@ private:
     void spawn_move(Context& c, int pass, Particle& p, std::uint16_t& rnd, std::int32_t dt);
     void move(Context& c, int pass, Particle& p, std::uint16_t& rnd, std::int32_t dt);
     void rest(Context& c, int pass, Particle& p);
+    void lead(int pass, Particle& p) const;
     void rain_after_rest(Context& c, Particle& p, std::int32_t dt);
     void randomize_position(Context& c, std::uint16_t& rnd, Vec3& v, int range);
     void clamp_to_line(const Vec3& a, const Vec3& b, int flag, Vec3& point);
@@ -259,10 +261,13 @@ private:
     bool rain_sound_on_ = false;
     std::int32_t drift_clock_ = 0;
     std::int32_t drift_step_ = 0;
-    // Fixed-rate simulation (weather_sim_hz 30).
+    // The simulation steps at 30 Hz: on the game's tick, or by its own count with weather_sim_hz 30.
     std::int32_t sim_accum_ = 0;
-    bool sim_step_ = true;
-    std::int32_t sim_dt_ = 136;
+    bool sim_step_ = true;          // the weather steps on this update
+    std::int32_t sim_dt_ = 136;     // the time of that step, Q12 seconds
+    std::int32_t tick_time_ = 0;    // game time since the last step
+    std::int32_t lead_ = 0;         // how far past the last step this update's picture is
+    std::uint16_t step_rnd_ = 0;
 };
 
 Result<WeatherParams> parse_weather_params(std::string_view json_text);

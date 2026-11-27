@@ -346,6 +346,7 @@ public:
     std::int32_t square_root(std::int32_t v) override { return sh::world::fixed_sqrt(v); }
     std::int32_t delta_time() override { return sh::game_state::delta_time(); }
     int sim_hz() override { return g_PcConfig.weatherSimHz; }
+    bool tick30() override { return sh::loop::frame_timing().tick30 != 0; }
     int room() override { return sh::game::save_record().room; }
     fx::Vec3 player() override { return vec(::player().position); }
     int event_param() override { return static_cast<int>(sh::gameflow::map_event_state().param); }

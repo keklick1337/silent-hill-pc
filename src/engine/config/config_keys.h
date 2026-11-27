@@ -210,7 +210,7 @@ inline constexpr Setting kSettings[] = {
     keys::at_least("refresh_rate", &keys::C::refreshRate, 0, 0, "fullscreen refresh rate in Hz, 0 = the display's"),
     keys::any_whole("fps_cap", &keys::C::fpsCap, 60, "gameplay frame cap, 0 = none"),
     keys::flag("menu_fps_unlock", &keys::C::menuFpsUnlock, 0, "screens other than gameplay follow fps_cap"),
-    keys::custom("weather_sim_hz", Hook::WeatherRate, "rain and snow steps per second: 60, or the console's 30")
+    keys::custom("weather_sim_hz", Hook::WeatherRate, "rain and snow between their 30 steps a second: 60 moving on every frame, 30 the steps only")
         .owning(&keys::C::weatherSimHz, 60),
     keys::whole("skip_intros", &keys::C::skipIntros, 0, 0, 2, "1 skips the logos and the intro, 2 also starts a game"),
     keys::flag("quick_setup", &keys::C::quickSetup, 0, "1 shows the quick setup at the next start"),

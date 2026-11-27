@@ -10,6 +10,7 @@
 #include <fstream>
 #include <iterator>
 #include <string>
+#include <utility>
 #include <vector>
 
 namespace {
@@ -51,7 +52,10 @@ public:
         return r;
     }
     std::int32_t delta_time() override { return dt; }
-    int sim_hz() override { return 30; }
+    int hz = 30;
+    bool tick = true;
+    int sim_hz() override { return hz; }
+    bool tick30() override { return tick; }
     int room() override { return room_no; }
     fx::Vec3 player() override { return where; }
     int event_param() override { return 0; }
@@ -236,6 +240,73 @@ SH_TEST(weather_same_numbers_same_picture) {
     for (std::size_t i = 0; i < a.size() && i < b.size(); i++) {
         SH_CHECK(a[i].x[0] == b[i].x[0] && a[i].y[0] == b[i].y[0] && a[i].slot == b[i].slot &&
                  a[i].rgb[0].r == b[i].rgb[0].r);
+    }
+}
+
+// The console stepped the weather once per 30 fps frame. At 60 updates a second the weather still steps once per
+// 30 Hz tick, by the time of the whole tick: the update that ends a tick shows exactly the picture of 30 updates a
+// second and has drawn as many random numbers. The update between two ticks draws no random number and shows the
+// same particles moved on by their own speed, so nothing stands still on the screen.
+SH_TEST(weather_steps_once_a_tick_at_any_update_rate) {
+    struct Seen {
+        std::vector<std::vector<fx::EffectPrim>> ticks;  // the picture of each update that ends a tick
+        int rand_calls = 0;
+        int moved_between = 0;  // updates between two ticks whose picture differs from the tick's before
+    };
+    auto same = [](const std::vector<fx::EffectPrim>& a, const std::vector<fx::EffectPrim>& b) {
+        if (a.size() != b.size()) {
+            return false;
+        }
+        for (std::size_t i = 0; i < a.size(); i++) {
+            for (int v = 0; v < 4; v++) {
+                if (a[i].x[v] != b[i].x[v] || a[i].y[v] != b[i].y[v]) {
+                    return false;
+                }
+            }
+            if (a[i].slot != b[i].slot || a[i].rgb[0].r != b[i].rgb[0].r) {
+                return false;
+            }
+        }
+        return true;
+    };
+    auto run = [&same](const char* json, int kind, int updates_per_tick) {
+        fx::WeatherSystem w(parse(json));
+        FakeHost host;
+        host.hz = 60;
+        host.dt = 136 / updates_per_tick;
+        fx::WeatherWords words = asked(kind);
+        w.update(host, words, frame(), -1);
+        Seen seen;
+        const int base = host.rand_calls;
+        for (int i = 0; i < 150 * updates_per_tick; i++) {
+            host.tick = i % updates_per_tick == updates_per_tick - 1;
+            const int before = host.rand_calls;
+            host.prims.clear();
+            w.update(host, words, frame(), 1);
+            if (host.tick) {
+                seen.ticks.push_back(host.prims);
+            } else {
+                SH_CHECK(host.rand_calls == before);
+                if (!seen.ticks.empty() && !same(host.prims, seen.ticks.back())) {
+                    seen.moved_between++;
+                }
+            }
+        }
+        seen.rand_calls = host.rand_calls - base;
+        return seen;
+    };
+    for (const auto& [json, kind] : {std::pair{"{\"snow\": {}}", 0x4}, std::pair{"{\"rain\": {}}", 0x8}}) {
+        const Seen at30 = run(json, kind, 1);
+        const Seen at60 = run(json, kind, 2);
+        SH_CHECK(at30.rand_calls > 1000 && at60.rand_calls == at30.rand_calls);
+        SH_CHECK(at30.ticks.size() == 150 && at60.ticks.size() == 150);
+        std::size_t equal = 0;
+        for (std::size_t i = 0; i < at30.ticks.size() && i < at60.ticks.size(); i++) {
+            SH_CHECK(!at30.ticks[i].empty());
+            equal += same(at30.ticks[i], at60.ticks[i]) ? 1 : 0;
+        }
+        SH_CHECK(equal == 150);
+        SH_CHECK(at60.moved_between == 149);
     }
 }
 
