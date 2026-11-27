@@ -13,7 +13,8 @@
 namespace sh::world {
 
 struct ScriptOrigin {
-    std::string file;  // the script's host path; empty: not made by a script (or by a chunk without a file)
+    // The script's host path with '/' separators; empty: not made by a script (or by a chunk without a file).
+    std::string file;
     int line = 0;      // 1-based line of the call
     // The Lua callers above it, nearest first: "<file name>:<line>" joined by " < " (a table is often placed by a
     // loop in one function that another one calls).

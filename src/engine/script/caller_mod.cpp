@@ -3,6 +3,7 @@
 
 #include "engine/script/caller_mod.h"
 
+#include <algorithm>
 #include <cstring>
 
 extern "C" {
@@ -49,13 +50,15 @@ sh::world::ScriptOrigin caller_origin(lua_State* L) {
         if (lua_getinfo(L, "Sl", &ar) == 0 || ar.source == nullptr || ar.source[0] != '@' || ar.currentline <= 0) {
             continue;  // a C function or a chunk without a file between two script frames
         }
-        const std::string file = ar.source + 1;
+        // '/' on every system: the modding tools show the path and match it against the mod roots.
+        std::string file = ar.source + 1;
+        std::replace(file.begin(), file.end(), '\\', '/');
         if (!origin.known()) {
             origin.file = file;
             origin.line = ar.currentline;
             continue;
         }
-        const std::size_t slash = file.find_last_of("/\\");
+        const std::size_t slash = file.rfind('/');
         if (!origin.via.empty()) origin.via += " < ";
         origin.via += (slash == std::string::npos ? file : file.substr(slash + 1)) + ":" + std::to_string(ar.currentline);
     }
