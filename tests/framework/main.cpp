@@ -26,6 +26,9 @@ int run(int argc, char** argv) {
             continue;
         }
         ++selected;
+        // Printed and flushed before the case runs, so a crash in CI names its case: piped stdout is fully buffered.
+        std::printf("RUN  %s\n", c.name);
+        std::fflush(stdout);
 
         g_failures.clear();
         bool skip = false;
@@ -58,6 +61,8 @@ int run(int argc, char** argv) {
             ++passed;
             std::printf("PASS %s\n", c.name);
         }
+        std::fflush(stdout);
+        std::fflush(stderr);
     }
 
     if (filter && selected == 0) {

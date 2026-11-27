@@ -35,17 +35,17 @@ const char* change_words(ModChange change) {
 
 }  // namespace
 
-ModCheck check_save_mods(const std::optional<std::vector<save::SavedMod>>& saved, const std::vector<InstalledMod>& now) {
+ModCheck check_save_mods(const std::optional<std::vector<save::SavedMod>>& saved, const std::vector<RunningMod>& now) {
     ModCheck out;
     if (!saved) {
         return out;
     }
     const auto find_now = [&now](const std::string& id) {
-        const auto it = std::find_if(now.begin(), now.end(), [&id](const InstalledMod& m) { return m.id == id; });
+        const auto it = std::find_if(now.begin(), now.end(), [&id](const RunningMod& m) { return m.id == id; });
         return it == now.end() ? nullptr : &*it;
     };
     for (const save::SavedMod& mod : *saved) {
-        const InstalledMod* here = find_now(mod.id);
+        const RunningMod* here = find_now(mod.id);
         ModDifference d;
         d.id = mod.id;
         d.name = !mod.name.empty() ? mod.name : (here != nullptr && !here->name.empty() ? here->name : mod.id);
@@ -66,7 +66,7 @@ ModCheck check_save_mods(const std::optional<std::vector<save::SavedMod>>& saved
         }
         out.differences.push_back(std::move(d));
     }
-    for (const InstalledMod& m : now) {
+    for (const RunningMod& m : now) {
         if (!m.active || !m.gameplay) {
             continue;
         }
@@ -104,8 +104,8 @@ std::string describe_check(const ModCheck& check) {
     return out;
 }
 
-std::vector<InstalledMod> installed_mods() {
-    std::vector<InstalledMod> out;
+std::vector<RunningMod> running_mods() {
+    std::vector<RunningMod> out;
     for (const ResolvedMod& m : registry().plan().mods) {
         const Manifest& man = m.candidate.manifest;
         out.push_back({man.id, man.name, man.version_text, m.state == ModState::Active, man.gameplay});

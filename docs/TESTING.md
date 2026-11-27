@@ -17,7 +17,7 @@ ctest --test-dir build -L replay     # replay harness: replay_tools and replay_c
 
 `sh_tests` is rebuilt together with the project. A new `*_test.cpp` file is picked up by the next `cmake --build` without running CMake by hand.
 
-Output: one line per case — `PASS name`, `FAIL name` (below it, the file, line and expression of each failure), `SKIP name (reason)`. At the end — `N passed, M failed, K skipped`.
+Output: `RUN  name` before each case, then its result — `PASS name`, `FAIL name` (below it, the file, line and expression of each failure), `SKIP name (reason)`. Each line is flushed at once, so a case that crashes the runner is the last `RUN` line of the log. At the end — `N passed, M failed, K skipped`.
 
 Exit code:
 

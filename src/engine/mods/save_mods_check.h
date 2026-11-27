@@ -14,8 +14,9 @@
 
 namespace sh::mods {
 
-// A mod of this run as the check sees it.
-struct InstalledMod {
+// A mod of this run as the check sees it. Not mod_import.h's InstalledMod: two classes of one name in one namespace
+// break the program (the linker keeps one copy of their inline members, of whichever layout).
+struct RunningMod {
     std::string id;
     std::string name;
     std::string version;
@@ -48,14 +49,14 @@ struct ModCheck {
 };
 
 // `saved`: the save's list (none: a save that does not say, which checks clean). `now`: every installed mod.
-ModCheck check_save_mods(const std::optional<std::vector<save::SavedMod>>& saved, const std::vector<InstalledMod>& now);
+ModCheck check_save_mods(const std::optional<std::vector<save::SavedMod>>& saved, const std::vector<RunningMod>& now);
 
 // One line for the log: "cybil_story 1.2.0: not enabled; hd_harry 1.0.0: not installed". Empty when clean.
 std::string describe_check(const ModCheck& check);
 
 // The run's installed mods (the registry's plan: active ones and the others), and the active ones as a save records
 // them.
-std::vector<InstalledMod> installed_mods();
+std::vector<RunningMod> running_mods();
 std::vector<save::SavedMod> active_mods_for_save();
 
 }  // namespace sh::mods

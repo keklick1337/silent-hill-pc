@@ -4,13 +4,13 @@
 
 #include "engine/mods/save_mods_check.h"
 
-using sh::mods::InstalledMod;
 using sh::mods::ModChange;
+using sh::mods::RunningMod;
 using sh::save::SavedMod;
 
 namespace {
 
-std::vector<InstalledMod> run_mods() {
+std::vector<RunningMod> run_mods() {
     return {{"story", "Story", "1.2.0", true, true},  {"looks", "Looks", "2.0", true, false},
             {"off", "Off", "1.0", false, true},       {"older", "Older", "0.9.0", true, false},
             {"added", "Added", "1.0", true, true}};

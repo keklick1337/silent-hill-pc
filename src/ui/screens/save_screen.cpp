@@ -128,7 +128,7 @@ void refresh_rows(int select_number) {
         row.is_new = true;
         s.rows.push_back(row);
     }
-    const std::vector<sh::mods::InstalledMod> installed = sh::mods::installed_mods();
+    const std::vector<sh::mods::RunningMod> installed = sh::mods::running_mods();
     for (SaveEntry& e : sh::save::active_store().list()) {
         Row row;
         row.mods = sh::mods::check_save_mods(e.mods, installed);
