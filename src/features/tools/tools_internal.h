@@ -53,6 +53,22 @@ void go_to_room_stop(const RoomStop& stop);
 void room_stop_tick();
 // The player has no floor under him (a map point only a scene uses): he goes to the first room stop that has one.
 void stand_on_floor();
+// The player to (x, z) metres: held there until the floor of the place has loaded, then the editor's camera goes
+// behind him. The play camera follows at once (gs::place_player).
+void teleport_player(double x, double z);
+// What the map overlays know of the loaded map's data, for the placement editor (map_overlays.cpp).
+struct EventInfo {
+    std::string label;     // as the overlay labels it: the handler's name, the door's target, the kind
+    int point = 0;         // the map point it triggers at
+    int trigger_type = 0;  // 1 box, 2 facing point, 3 segment, 4 oriented box
+    bool door = false;
+    bool open = true;      // its flags let it run now
+};
+int map_event_count();
+EventInfo map_event_info(int index);
+std::string map_spawn_label(int row);
+// "gamedata/<relative>  + mods: a b": the file of a kind of data and the active mods that have a copy of it.
+std::string data_source(const std::string& relative);
 // The next presented frame to a PNG, with or without the tool UI.
 void request_shot(const std::string& path, bool with_ui);
 bool set_overlay_enabled(const std::string& id, bool on);

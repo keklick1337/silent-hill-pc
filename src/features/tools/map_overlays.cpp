@@ -631,6 +631,34 @@ void go_to_room_stop(const RoomStop& stop) {
     defer([x, z] { start_stop(x, z, gs::chara_position(0), -1); });
 }
 
+void teleport_player(double x, double z) {
+    const std::int32_t qx = q12(x), qz = q12(z);
+    defer([qx, qz] { start_stop(qx, qz, gs::chara_position(0), -1); });
+}
+
+int map_event_count() { return event_count(); }
+
+EventInfo map_event_info(int index) {
+    EventInfo info;
+    if (index < 0 || index >= event_count()) return info;
+    const sh::maps::MapEventRecord& e = rt().events()[index];
+    info.label = event_label(index, e);
+    info.point = e.point;
+    info.trigger_type = e.trigger_type();
+    info.door = is_door(e);
+    info.open = !((e.required_flag > 0 && !gs::event_flag(e.required_flag)) ||
+                  (e.done_flag > 0 && gs::event_flag(e.done_flag)));
+    return info;
+}
+
+std::string map_spawn_label(int row) {
+    const sh::maps::SpawnPoint& s = rt().spawn(row);
+    return spawn_chara_name(row) + " [" + std::to_string(row / sh::maps::kSpawnSlots) + ":" +
+           std::to_string(row % sh::maps::kSpawnSlots) + "] " + difficulty_name(s.difficulty_min);
+}
+
+std::string data_source(const std::string& relative) { return source_of(relative); }
+
 void stand_on_floor() {
     const sh::entities::Vec3 p = gs::chara_position(0);
     if (s_stop.active || gs::ground_height(p.x, p.z) != kNoGround) return;

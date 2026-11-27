@@ -14,6 +14,7 @@
 #include <imgui_impl_sdl3.h>
 
 #include <algorithm>
+#include <deque>
 #include <cmath>
 #include <numbers>
 #include <cstdio>
@@ -100,6 +101,17 @@ struct Host {
     int turn_frames = 0;
     double turn_yaw = 0.0, turn_pitch = 0.0;
     float scripted_pick_at[2] = {0.5f, 0.5f};  // picture fractions
+    // A scripted pointer (`editormouse`): one step a frame, each a place and the left button's state. While it is
+    // in force the real pointer is not read, so a run without a window can click and drag.
+    struct MouseStep {
+        bool world = false;  // `at` is a world point (metres), projected when the step runs; else picture fractions
+        Vec3 at;
+        bool down = false;
+    };
+    std::deque<MouseStep> mouse_steps;
+    bool mouse_scripted = false;
+    bool mouse_down = false;
+    float mouse_at[2] = {0.f, 0.f};  // overlay pixels
     // The console's own `shot` and `shotwin`, wrapped so the editor's UI stays out of them.
     std::function<Result<void>(sh::console::Context&, const sh::console::Args&)> shot_run, shotwin_run;
 };
@@ -483,6 +495,26 @@ void copy_to_clipboard(const std::string& text) {
 
 const Pick& last_pick() { return host().pick; }
 
+bool pointer_ray(Vec3* origin, Vec3* dir) {
+    const ImVec2 m = ImGui::GetIO().MousePos;
+    if (m.x <= -FLT_MAX * 0.5f) return false;
+    return screen_ray(m.x, m.y, origin, dir);
+}
+
+bool ray_surface(const Vec3& origin, const Vec3& dir, Vec3* point, double reach) {
+    const scene::SurfaceVec from = {origin.x * kGeomPerMetre, origin.y * kGeomPerMetre, origin.z * kGeomPerMetre};
+    const double r = reach * kGeomPerMetre;
+    const scene::SurfaceVec to = {from[0] + dir.x * r, from[1] + dir.y * r, from[2] + dir.z * r};
+    const auto hit = scene::solid_surface_on_segment(from, to, 0.0);
+    if (!hit) return false;
+    *point = {hit->point[0] / kGeomPerMetre, hit->point[1] / kGeomPerMetre, hit->point[2] / kGeomPerMetre};
+    return true;
+}
+
+bool project(const Vec3& p, float* x, float* y) { return Draw3D().project(p, x, y); }
+
+float ui_scale() { return std::max(1.0f, host().ui_scale); }
+
 Vec3 camera_position() {
     std::int32_t p[3] = {};
     if (g_DebugCamEnabled) {
@@ -547,6 +579,25 @@ void Draw3D::circle_xz(const Vec3& centre, double radius, const Color& color, in
         line({centre.x + radius * std::cos(a0), centre.y, centre.z + radius * std::sin(a0)},
              {centre.x + radius * std::cos(a1), centre.y, centre.z + radius * std::sin(a1)}, color, width);
     }
+}
+
+void Draw3D::ring(const Vec3& centre, const Vec3& u, const Vec3& v, double radius, const Color& color, int segments,
+                  float width) {
+    segments = std::max(segments, 3);
+    auto at = [&](int i) {
+        const double a = 2.0 * std::numbers::pi * i / segments, c = radius * std::cos(a), s = radius * std::sin(a);
+        return Vec3{centre.x + u.x * c + v.x * s, centre.y + u.y * c + v.y * s, centre.z + u.z * c + v.z * s};
+    };
+    for (int i = 0; i < segments; ++i) line(at(i), at(i + 1), color, width);
+}
+
+void Draw3D::knob(const Vec3& p, float pixels, const Color& color) {
+    float x, y;
+    if (!project(p, &x, &y)) return;
+    ImDrawList* dl = ImGui::GetBackgroundDrawList();
+    const float r = pixels * std::max(1.0f, host().ui_scale);
+    dl->AddCircleFilled(ImVec2(x, y), r, im_color(color), 16);
+    dl->AddCircle(ImVec2(x, y), r, IM_COL32(0, 0, 0, 220), 16, 1.5f);
 }
 
 void Draw3D::cross(const Vec3& p, double size, const Color& color, float width) {
@@ -813,7 +864,29 @@ void draw_hook() {
     // The overlay target, not the window: at render_scale above 1 or on a dense display it is the bigger one.
     io.DisplaySize = ImVec2(static_cast<float>(frame.target_w), static_cast<float>(frame.target_h));
     io.DisplayFramebufferScale = ImVec2(1.0f, 1.0f);
-    if (!mode.mouse_look) {
+    if (!h.mouse_steps.empty()) {
+        const Host::MouseStep step = h.mouse_steps.front();
+        h.mouse_steps.pop_front();
+        h.mouse_scripted = true;
+        if (step.world) {
+            // On the view of the frame before: the camera stands still while a scripted pointer works.
+            float x = 0, y = 0;
+            if (Draw3D().project(step.at, &x, &y)) {
+                h.mouse_at[0] = x;
+                h.mouse_at[1] = y;
+            }
+        } else {
+            h.mouse_at[0] = static_cast<float>(s_view.picture.x + step.at.x * s_view.picture.w);
+            h.mouse_at[1] = static_cast<float>(s_view.picture.y + step.at.y * s_view.picture.h);
+        }
+        io.AddMousePosEvent(h.mouse_at[0], h.mouse_at[1]);
+        if (step.down != h.mouse_down) {
+            h.mouse_down = step.down;
+            io.AddMouseButtonEvent(ImGuiMouseButton_Left, step.down);
+        }
+    } else if (h.mouse_scripted) {
+        io.AddMousePosEvent(h.mouse_at[0], h.mouse_at[1]);
+    } else if (!mode.mouse_look) {
         float mx = 0, my = 0, ox = 0, oy = 0;
         SDL_GetMouseState(&mx, &my);
         sh::gpu::window_to_overlay(static_cast<int>(mx), static_cast<int>(my), &ox, &oy);
@@ -916,6 +989,8 @@ bool event_hook(const void* ev) {
 
     // The console takes its keys itself while it is open.
     if (g_PcConsoleInputActive) return false;
+    // The real pointer moved: it takes over from a scripted one.
+    if (e.type == SDL_EVENT_MOUSE_MOTION && h.mouse_scripted && h.mouse_steps.empty()) h.mouse_scripted = false;
     if (e.type == SDL_EVENT_MOUSE_MOTION) {
         // The UI is laid out in overlay pixels (draw_hook), the event is in window points: fed as it is, a
         // pointer move in the same frame as a wheel turn or a click placed that input at the wrong spot whenever
@@ -1055,6 +1130,68 @@ void register_commands() {
         return Result<void>::ok();
     };
     (void)r.add(std::move(pick));
+
+    // The pointer for scripted runs: places are picture fractions, or world points with a trailing "w" action.
+    sh::console::CommandSpec mouse;
+    mouse.name = "editormouse";
+    mouse.group = "debug";
+    mouse.help = "the editor's pointer for scripted runs: move|down|up|click|drag at picture fractions, clickw|dragw at "
+                 "world points (metres), off";
+    mouse.details = "move <fx> <fy> | click <fx> <fy> | drag <fx0> <fy0> <fx1> <fy1> [frames] | down | up | "
+                    "clickw <x> <y> <z> | dragw <x0> <y0> <z0> <x1> <y1> <z1> [frames] | off. A drag presses at the "
+                    "first place, moves evenly and lets go at the second. docs/modding/tools.md.";
+    mouse.args = {ArgSpec{"action", ArgType::Enum, false, "what to do",
+                          {"move", "down", "up", "click", "drag", "clickw", "dragw", "off"}, {}},
+                  ArgSpec{"a", ArgType::Float, true, "", {}, {}}, ArgSpec{"b", ArgType::Float, true, "", {}, {}},
+                  ArgSpec{"c", ArgType::Float, true, "", {}, {}}, ArgSpec{"d", ArgType::Float, true, "", {}, {}},
+                  ArgSpec{"e", ArgType::Float, true, "", {}, {}}, ArgSpec{"f", ArgType::Float, true, "", {}, {}},
+                  ArgSpec{"frames", ArgType::Float, true, "frames a drag takes (default 12)", {}, {}}};
+    mouse.run = [](sh::console::Context&, const sh::console::Args& args) -> Result<void> {
+        Host& h = host();
+        const std::string& action = args.str(0);
+        auto n = [&args](int i) { return args.number(static_cast<std::size_t>(i), 0.0); };
+        const bool world = action == "clickw" || action == "dragw";
+        const int coords = world ? 3 : 2;
+        const Vec3 a = world ? Vec3{n(1), n(2), n(3)} : Vec3{n(1), n(2), 0.0};
+        auto push = [&h, world](const Vec3& at, bool down, int frames) {
+            for (int i = 0; i < frames; ++i) h.mouse_steps.push_back({world, at, down});
+        };
+        if (action == "off") {
+            h.mouse_steps.clear();
+            h.mouse_scripted = false;
+        } else if (action == "move") {
+            push(a, h.mouse_down, 1);
+        } else if (action == "down" || action == "up") {
+            // Where the pointer is: a step without a place of its own.
+            if (h.mouse_scripted || !h.mouse_steps.empty()) {
+                const bool down = action == "down";
+                Host::MouseStep step;
+                step.at = {(h.mouse_at[0] - s_view.picture.x) / std::max(1.0f, s_view.picture.w),
+                           (h.mouse_at[1] - s_view.picture.y) / std::max(1.0f, s_view.picture.h), 0.0};
+                step.down = down;
+                h.mouse_steps.push_back(step);
+            }
+        } else if (action == "click" || action == "clickw") {
+            // The UI sees the pointer arrive, then the press, then the release, a frame or two each.
+            push(a, false, 2);
+            push(a, true, 2);
+            push(a, false, 2);
+        } else {
+            const Vec3 b = world ? Vec3{n(4), n(5), n(6)} : Vec3{n(3), n(4), 0.0};
+            const double asked = n(1 + coords * 2);
+            const int frames = asked > 0 ? std::clamp(static_cast<int>(asked), 2, 600) : 12;
+            push(a, false, 2);
+            push(a, true, 3);
+            for (int i = 1; i <= frames; ++i) {
+                const double t = static_cast<double>(i) / frames;
+                push({a.x + (b.x - a.x) * t, a.y + (b.y - a.y) * t, a.z + (b.z - a.z) * t}, true, 1);
+            }
+            push(b, true, 2);
+            push(b, false, 2);
+        }
+        return Result<void>::ok();
+    };
+    (void)r.add(std::move(mouse));
 
     sh::console::CommandSpec cam;
     cam.name = "editorcam";

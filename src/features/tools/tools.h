@@ -48,6 +48,11 @@ public:
     void circle_xz(const Vec3& centre, double radius, const Color& color, int segments = 32, float width = 1.5f);
     // Three short axis lines through `p` (`size` metres each way).
     void cross(const Vec3& p, double size, const Color& color, float width = 1.5f);
+    // A circle about `centre` in the plane of the unit vectors `u` and `v` (a rotation ring about their normal).
+    void ring(const Vec3& centre, const Vec3& u, const Vec3& v, double radius, const Color& color, int segments = 48,
+              float width = 1.5f);
+    // A filled dot of `pixels` radius at the point (a handle to drag), the same size at any distance.
+    void knob(const Vec3& p, float pixels, const Color& color);
     void label(const Vec3& p, const std::string& text, const Color& color);
     // The point on the overlay (ImGui screen pixels); false behind the camera.
     bool project(const Vec3& p, float* x, float* y) const;
@@ -92,6 +97,15 @@ void defer(std::function<void()> fn);
 // Runs a console line (as typed in the console) at the next update.
 void run_command(const std::string& line);
 void copy_to_clipboard(const std::string& text);
+// The camera ray through the pointer of this frame (metres, `dir` unit) and the pointer in overlay pixels; false
+// when there is no view yet. Whether the pointer is over a panel is ImGui's WantCaptureMouse.
+bool pointer_ray(Vec3* origin, Vec3* dir);
+// The first solid point of the drawn geometry along a ray, within `reach` metres.
+bool ray_surface(const Vec3& origin, const Vec3& dir, Vec3* point, double reach = 400.0);
+// A world point on the overlay (ImGui screen pixels); false behind the camera.
+bool project(const Vec3& p, float* x, float* y);
+// The interface scale (1 at 720 lines): sizes in pixels are multiplied by it.
+float ui_scale();
 // The last world pick of the left button (hit false when none yet).
 const Pick& last_pick();
 // Where the free camera stands and looks (metres; yaw and pitch in degrees).

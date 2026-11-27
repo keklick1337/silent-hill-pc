@@ -14,7 +14,8 @@ add_library(sh_devtools STATIC
     lua_edit.cpp
     lua_assist.cpp
     lua_ide.cpp
-    mod_authoring.cpp)
+    mod_authoring.cpp
+    placement_edit.cpp)
 
 target_compile_features(sh_devtools PRIVATE cxx_std_20)
 target_include_directories(sh_devtools PUBLIC ${PROJECT_SOURCE_DIR}/src)
