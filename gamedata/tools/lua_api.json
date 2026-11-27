@@ -2245,6 +2245,14 @@
       "signature": "sh.light.bone_detach()",
       "description": "The light no longer follows a bone."
     },
+    "sh.light.carry": {
+      "signature": "sh.light.carry(id, {slot, bone, position, direction, cone, color, intensity, range, radius, shadows, gi}) -> true | nil, err",
+      "description": "Gives the character in slot (0 the player, the default) a light that follows one of its bones until sh.light.drop or a map change: a flashlight for a character of a scene. bone is a bone index of the character's skeleton or a bone name of the player's (\"Torso\", the default); position {x, y, z} is in metres in the bone's space (y down), direction {x, y, z} the beam's axis there (none: a point light), cone the beam's half-angle in degrees or {inner, outer}; color {r, g, b} linear, intensity, range and radius in metres as in maps/<map>/lights.json; shadows and gi (true) are for ray tracing. Rendering only: shaded per pixel by every renderer whatever the light settings, without a shadow map of its own."
+    },
+    "sh.light.drop": {
+      "signature": "sh.light.drop([id]) -> bool",
+      "description": "Takes away the light id that sh.light.carry gave (every light of the calling mod without an id); true when one went."
+    },
     "sh.light.flashlight_fix": {
       "signature": "sh.light.flashlight_fix(...)",
       "description": ""

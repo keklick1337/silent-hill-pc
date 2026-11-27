@@ -6,7 +6,7 @@ Every function a script can call, by table. The same text is what the in-game Lu
 
 **Units.** Positions and lengths are Q12 integers (4096 = 1 m, Y grows downwards), angles Q12 (4096 = a full turn), times Q12 seconds, health Q12 (409600 = 100), unless a line says otherwise. A character is its slot number: 0 the player, 1 and up the others. Items, flags, characters, sounds and messages are given by name.
 
-**Coverage.** 1078 functions are listed, 788 of them described. The rest are listed by signature under "Not described yet": they exist and can be called, but nobody has written down what they do; nearly all of them are helpers of the base game's own map and character scripts, and reading those scripts (`gamedata/maps/*/events.lua`, `gamedata/chara/*/behavior.lua`) is the way to learn them. `...` in a signature means the arguments have not been written down either.
+**Coverage.** 1080 functions are listed, 790 of them described. The rest are listed by signature under "Not described yet": they exist and can be called, but nobody has written down what they do; nearly all of them are helpers of the base game's own map and character scripts, and reading those scripts (`gamedata/maps/*/events.lua`, `gamedata/chara/*/behavior.lua`) is the way to learn them. `...` in a signature means the arguments have not been written down either.
 
 ## Contents
 
@@ -32,7 +32,7 @@ Every function a script can call, by table. The same text is what the in-game Lu
 - [`sh.input`](#shinput) — 13 of 15 described
 - [`sh.item`](#shitem) — 4 of 4 described
 - [`sh.item_view`](#shitem_view) — 11 of 13 described
-- [`sh.light`](#shlight) — 20 of 21 described
+- [`sh.light`](#shlight) — 22 of 23 described
 - [`sh.load`](#shload) — 8 of 13 described
 - [`sh.map`](#shmap) — 25 of 47 described
 - [`sh.map6_s02`](#shmap6_s02) — 1 of 1 described
@@ -676,6 +676,8 @@ The flashlight and its light.
 | --- | --- |
 | `sh.light.bone_attached() -> bool` | Whether the flashlight light follows a bone. |
 | `sh.light.bone_detach()` | The light no longer follows a bone. |
+| `sh.light.carry(id, {slot, bone, position, direction, cone, color, intensity, range, radius, shadows, gi}) -> true \| nil, err` | Gives the character in slot (0 the player, the default) a light that follows one of its bones until sh.light.drop or a map change: a flashlight for a character of a scene. bone is a bone index of the character's skeleton or a bone name of the player's ("Torso", the default); position {x, y, z} is in metres in the bone's space (y down), direction {x, y, z} the beam's axis there (none: a point light), cone the beam's half-angle in degrees or {inner, outer}; color {r, g, b} linear, intensity, range and radius in metres as in maps/<map>/lights.json; shadows and gi (true) are for ray tracing. Rendering only: shaded per pixel by every renderer whatever the light settings, without a shadow map of its own. |
+| `sh.light.drop([id]) -> bool` | Takes away the light id that sh.light.carry gave (every light of the calling mod without an id); true when one went. |
 | `sh.light.flashlight_off()` | Turns the flashlight off. |
 | `sh.light.flashlight_on()` | Turns the flashlight on. |
 | `sh.light.intensity() -> intensity` | The intensity of the flashlight's light. |
