@@ -83,6 +83,7 @@ public:
     void stop_file(int tag);
     void set_file_volume(int tag, int left, int right);
     std::uint64_t files_started() const { return files_started_; }
+    std::vector<FilePlayer::VoiceInfo> file_voices();
 
     // --- Music -----------------------------------------------------------------------------------------------
     void set_music_slot(int slot) { music_slot_ = slot; }

@@ -129,6 +129,7 @@ Switching mods on and off and their order always need a restart.
 | `langcheck` | check the text layers of the current language and say which font draws its letters |
 | `shot [file]` | save a screenshot |
 | `log` | log categories and levels |
+| `sounds` | what sounds now: the radio (on or off, whom its two static channels follow, the monsters in reach) and every sound file playing with its level |
 | `editor`, `editorview`, `editorroom`, `editorcam`, `editorpick`, `editortexture`, `editormodel`, `luaedit` | drive the editor from the console, for scripted runs |
 
 A file of console commands can be run at start with `-consolecmd <file>`; a line that begins with `@N` runs N seconds after the start, one with `@+N` N sixtieths of a second of game time after the line before it. Mods add their own commands with [`sh.console.register`](scripting.md#console-commands-shconsole).

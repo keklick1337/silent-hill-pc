@@ -487,6 +487,11 @@ void AudioEngine::stop_file(int tag) {
     files_.stop(tag);
 }
 
+std::vector<FilePlayer::VoiceInfo> AudioEngine::file_voices() {
+    std::lock_guard<std::mutex> lock(mutex_);
+    return files_.voices();
+}
+
 void AudioEngine::set_file_volume(int tag, int left, int right) {
     std::lock_guard<std::mutex> lock(mutex_);
     files_.set_volume(tag, left, right);

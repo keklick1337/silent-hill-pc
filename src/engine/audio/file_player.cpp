@@ -72,6 +72,16 @@ int FilePlayer::active_count() const {
     return static_cast<int>(std::count_if(std::begin(voices_), std::end(voices_), [](const Voice& v) { return v.on; }));
 }
 
+std::vector<FilePlayer::VoiceInfo> FilePlayer::voices() const {
+    std::vector<VoiceInfo> out;
+    for (const Voice& v : voices_) {
+        if (v.on) {
+            out.push_back(VoiceInfo{v.tag, v.left, v.right, v.loop});
+        }
+    }
+    return out;
+}
+
 void FilePlayer::mix(std::int32_t* left, std::int32_t* right, std::uint32_t frames) {
     for (Voice& v : voices_) {
         if (!v.on) {

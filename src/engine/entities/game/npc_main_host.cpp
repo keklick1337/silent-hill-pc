@@ -10,6 +10,7 @@
 #include "engine/app/pc_paths.h"
 #include "engine/chara/chara_library.h"
 #include "engine/effects/effects_file.h"
+#include "engine/entities/game/radio_state.h"
 #include "engine/entities/game/remains_host.h"
 #include "engine/entities/npc_director.h"
 #include "engine/game_state/game_state.h"
@@ -195,6 +196,23 @@ private:
 };
 
 }  // namespace
+
+sh::entities::game::RadioState sh::entities::game::radio_state() {
+    RadioState out;
+    out.on = (link::item_toggle_flags() & kRadioOn) != 0;
+    const auto& channels = radio().channels();
+    for (std::size_t i = 0; i < out.channels.size(); ++i) {
+        out.channels[i].sound = kRadioLoop + static_cast<int>(i);
+        out.channels[i].playing = channels[i].playing;
+        out.channels[i].target = channels[i].target;
+    }
+    for (std::size_t i = 0; i < out.heard.size(); ++i) {
+        const ent::RadioEntry& e = director().radio().entry(static_cast<int>(i));
+        out.heard[i].slot = e.slot;
+        out.heard[i].distance_sq = e.distance_sq;
+    }
+    return out;
+}
 
 extern "C" {
 

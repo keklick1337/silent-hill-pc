@@ -5,6 +5,9 @@
 // the log, the frame counter, the console's own scale, the menu style and the voice volume.
 
 #include "audio/voice/voice_line_player.h"
+#include "engine/audio/engine.h"
+#include "engine/audio/file_player.h"
+#include "engine/audio/sound_registry.h"
 #include "engine/config/pc_config.h"
 #include "engine/crash/crash_handler.h"
 #include "engine/debug/commands/command_groups.h"
@@ -12,6 +15,7 @@
 #include "engine/debug/commands/game_switches.h"
 #include "engine/debug/console_host.h"
 #include "engine/debug/dbg_trace.h"
+#include "engine/entities/game/radio_state.h"
 #include "engine/log/sh_log.h"
 #include "engine/menu/menu_model.h"
 #include "engine/mods/mods_admin.h"
@@ -357,6 +361,34 @@ void register_system_commands(Registry& registry) {
             return done();
         },
         {"xavol"});
+
+    add(registry, "sounds", "audio", "what sounds now: the radio's static and the sound files playing",
+        {}, [](Context& ctx, const Args&) {
+            const sh::entities::game::RadioState radio = sh::entities::game::radio_state();
+            say(ctx, "radio: %s", radio.on ? "on" : "off");
+            for (std::size_t i = 0; i < radio.channels.size(); ++i) {
+                const auto& ch = radio.channels[i];
+                const sh::audio::SoundInfo* file = sh::audio::sound_swap(ch.sound);
+                say(ctx, " channel %d: sound %d%s%s, follows slot %d, sounded for slot %d", static_cast<int>(i),
+                    ch.sound, file != nullptr ? " = " : "", file != nullptr ? file->file.c_str() : "", ch.target,
+                    ch.playing);
+            }
+            for (const auto& h : radio.heard) {
+                if (h.slot >= 0) say(ctx, " in reach: slot %d, %u m^2", h.slot, h.distance_sq);
+            }
+            const std::vector<sh::audio::FilePlayer::VoiceInfo> files = sh::audio::audio_engine().file_voices();
+            say(ctx, "sound files playing: %d", static_cast<int>(files.size()));
+            for (const auto& v : files) {
+                say(ctx, " sound %d: left %d, right %d of %d%s", v.tag, v.left, v.right, sh::audio::FilePlayer::kUnity,
+                    v.loop ? ", loop" : "");
+            }
+            int keyed = 0;
+            for (int voice = 0; voice < sh::audio::kVoices; ++voice) {
+                if (sh::audio::audio_engine().key_status(voice) != sh::audio::KeyStatus::Off) ++keyed;
+            }
+            say(ctx, "bank voices keyed: %d", keyed);
+            return done();
+        });
 }
 
 }  // namespace sh::debug::commands

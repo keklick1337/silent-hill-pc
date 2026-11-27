@@ -25,6 +25,13 @@ public:
     void set_volume(int tag, int left, int right);
     int active(int tag) const;  // voices playing `tag`
     int active_count() const;
+    // The voices playing now (the console's sound dump).
+    struct VoiceInfo {
+        int tag = -1;
+        int left = 0, right = 0;  // of kUnity
+        bool loop = false;
+    };
+    std::vector<VoiceInfo> voices() const;
 
     // Adds the voices into 44.1 kHz stereo accumulators.
     void mix(std::int32_t* left, std::int32_t* right, std::uint32_t frames);
