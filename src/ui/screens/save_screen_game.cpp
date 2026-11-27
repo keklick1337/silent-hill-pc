@@ -11,6 +11,7 @@
 #include <algorithm>
 #include <cstdint>
 #include <iterator>
+#include <string>
 
 #include <SDL3/SDL_keyboard.h>
 
@@ -21,17 +22,27 @@
 #include "engine/game_state/game_state.h"
 #include "engine/game_state/save_record.h"
 #include "engine/game_state/session.h"
+#include "engine/config/pc_config.h"
+#include "engine/input/input_actions.h"
+#include "engine/input/touch_prompts.h"
 #include "engine/loop/frame_view.h"
 #include "engine/runtime/game_hooks.h"
 #include "engine/save/game_saves.h"
+#include "engine/screens/controls_names.h"
+#include "engine/screens/save_layout.h"
 #include "engine/screens/screens_view.h"
 #include "engine/text/message_box_view.h"
+#include "i18n/localization.h"
+#include "input/glyphs/glyph_sheet.h"
 #include "input/mouse_pointer.h"
+#include "input/pad.h"
+#include "input/touch/touch_controls.h"
 #include "render/draw2d/draw2d.h"
 #include "engine/app/game_view.h"
 
 extern "C" {
 extern unsigned char g_PcTrustedBloodColor;
+extern int g_DebugThirdPersonCam;
 void Gfx_Primitive2dTextureSet(std::int32_t x, std::int32_t y, std::int32_t otIdx, std::int32_t abr);
 }
 
@@ -123,6 +134,40 @@ void clear_color_black() {
 }
 
 bool s_delete_key_prev = true;
+// A press of the touch Delete the screen did not take within this long is dropped.
+constexpr int kTouchDeleteMs = 500;
+// The glyph sheet's quads, drawn after the menu text layer (8) as on the controls screen; their origin is the
+// middle of the 320x224 text space.
+constexpr int kGlyphLayer = 7;
+constexpr int kGlyphOriginX = 160;
+constexpr int kGlyphOriginY = 112;
+
+// The config's name of the pad button that is the game's Select ("back"), "" when none is bound.
+std::string select_button_name() {
+    const ControlScheme& scheme = g_DebugThirdPersonCam != 0 ? g_PcConfig.altcam : g_PcConfig.classic;
+    for (const char* name : {scheme.padSelect, scheme.padSelect2}) {
+        if (!sh::input::is_unbound(name)) return name;
+    }
+    return {};
+}
+
+sh::input::Glyph select_glyph() {
+    const std::string name = select_button_name();
+    if (name.empty() || !sh::input::glyph_sheet().ready()) return sh::input::Glyph::None;
+    const sh::input::Glyph glyph = sh::input::glyph_for_pad(sh::input::glyph_sheet().active_set(), name);
+    return glyph == sh::input::Glyph::PadEmpty ? sh::input::Glyph::None : glyph;
+}
+
+sh::screens::PadLabels pad_labels(sh::input::GlyphSet set) {
+    using sh::input::GlyphSet;
+    switch (set) {
+        case GlyphSet::PlayStationClassic: return sh::screens::PadLabels::PlayStationClassic;
+        case GlyphSet::PlayStation: return sh::screens::PadLabels::PlayStation;
+        case GlyphSet::Nintendo: return sh::screens::PadLabels::Nintendo;
+        case GlyphSet::Steam: return sh::screens::PadLabels::Steam;
+        default: return sh::screens::PadLabels::Xbox;
+    }
+}
 std::string s_load_file;  // a save file the next load screen loads at once (a state dump's); empty: none
 int s_quick_load_slot = -1;  // the quick slot the next load screen loads at once; -1: the list
 
@@ -192,7 +237,63 @@ int PcSaveGame_DeletePressed(void) {
     const bool held = keys != nullptr && keys[SDL_SCANCODE_DELETE];
     const bool edge = held && !s_delete_key_prev;
     s_delete_key_prev = held;
-    return edge || (session().game.pads[0].clicked & kPadSelect) != 0;
+    const bool touch = sh::input::take_touch_prompt_press(sh::input::kTouchDelete, kTouchDeleteMs);
+    return edge || touch || (session().game.pads[0].clicked & kPadSelect) != 0;
+}
+
+void PcSaveGame_AskTouchDelete(void) {
+    sh::input::note_touch_prompt(sh::input::kTouchDelete, sh::input::kTouchDelete);
+}
+
+int PcSaveGame_HintDevice(void) {
+    const bool pad = sh::input::last_device() == sh::input::LastDevice::Pad;
+    return static_cast<int>(sh::screens::save_hint_device(pad, sh::input::touch::controls_enabled()));
+}
+
+int PcSaveGame_DeleteGlyphWidth(void) {
+    sh::input::glyph_sheet().load();
+    const sh::input::Glyph glyph = select_glyph();
+    return glyph == sh::input::Glyph::None ? 0 : sh::input::glyph_cell(glyph, false).screen_width;
+}
+
+void PcSaveGame_DeleteGlyphDraw(int x, int y) {
+    const sh::input::Glyph glyph = select_glyph();
+    if (glyph == sh::input::Glyph::None) return;
+    const int lines = gs::screen_interlaced() ? 2 : 1;
+    const sh::input::GlyphCell cell = sh::input::glyph_cell(glyph, true);
+    const int tex_w = cell.width;
+    const int tex_h = tex_w * sh::input::kGlyphScreenSize / cell.screen_width;
+    const int left = x - kGlyphOriginX, right = left + cell.screen_width;
+    const int top = (y - kGlyphOriginY) * lines, bottom = (y + sh::input::kGlyphScreenSize - kGlyphOriginY) * lines;
+    gs::TexturedQuad quad;
+    const int xs[4] = {left, right, left, right};
+    const int ys[4] = {top, top, bottom, bottom};
+    const int us[4] = {cell.u, cell.u + tex_w, cell.u, cell.u + tex_w};
+    const int vs[4] = {cell.v, cell.v, cell.v + tex_h, cell.v + tex_h};
+    for (int corner = 0; corner < 4; corner++) {
+        quad.x[corner] = static_cast<std::int16_t>(xs[corner]);
+        quad.y[corner] = static_cast<std::int16_t>(ys[corner]);
+        quad.u[corner] = static_cast<std::uint8_t>(us[corner]);
+        quad.v[corner] = static_cast<std::uint8_t>(vs[corner]);
+    }
+    quad.texture_x = sh::input::kGlyphSheetPageX;
+    quad.clut_x = sh::input::kGlyphSheetKeyX;
+    quad.clut_y = sh::input::kGlyphSheetKeyY;
+    gs::menu_textured_quad(kGlyphLayer, quad);
+}
+
+const char* PcSaveGame_DeleteButtonName(void) {
+    static std::string text;
+    text.clear();
+    const std::string name = select_button_name();
+    if (name.empty()) return "";
+    for (const sh::screens::InputNamePart& part :
+         sh::screens::pad_input_name(name, pad_labels(sh::input::glyph_sheet().active_set()))) {
+        if (!text.empty()) text += ' ';
+        const char* found = part.key.empty() ? nullptr : sh::i18n::ui_text(part.key.c_str());
+        text += found != nullptr && part.key != found ? found : part.text;
+    }
+    return text.c_str();
 }
 
 int PcSaveGame_FromBoot(void) { return session().game.game_state_previous == state(GameState::KcetLogo); }

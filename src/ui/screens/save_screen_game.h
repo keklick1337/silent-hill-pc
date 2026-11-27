@@ -29,8 +29,19 @@ void PcSaveGame_BackgroundDraw(int kind);
 void PcSaveGame_PanelDraw(int x, int y, int w, int h);
 /* The rim alone, `glow` 0..128 brighter (the selected row). */
 void PcSaveGame_FrameDraw(int x, int y, int w, int h, int glow);
-/* Select on the pad (no menu binds it: Square is one of the cancel buttons) or the Delete key, this tick. */
+/* Select on the pad (no menu binds it: Square is one of the cancel buttons), the Delete key or the touch Delete
+ * (its button, or a long press on a row), this tick. */
 int PcSaveGame_DeletePressed(void);
+/* On every tick a save that can be deleted is selected: the touch controls show their Delete. */
+void PcSaveGame_AskTouchDelete(void);
+/* The device the delete hint names (sh::screens::SaveHintDevice: keys, touch, pad). */
+int PcSaveGame_HintDevice(void);
+/* The picture of the pad button that deletes: its width in the 320x224 text space (0: none to draw), and the
+ * picture at (x, y) of that space. */
+int PcSaveGame_DeleteGlyphWidth(void);
+void PcSaveGame_DeleteGlyphDraw(int x, int y);
+/* That button's name in UTF-8, "" when none is bound (the hint without a picture). */
+const char* PcSaveGame_DeleteButtonName(void);
 /* The game came here from the boot logo (auto load), not from the title or gameplay. */
 int PcSaveGame_FromBoot(void);
 

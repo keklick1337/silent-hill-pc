@@ -3,6 +3,7 @@
 // The touch controls' plain parts (src/input/touch): the layout and its config line, hit tests, the stick's pad
 // bytes, which controls show, the pinch, the scrolling drag and the action button's kinds.
 
+#include "engine/input/touch_prompts.h"
 #include "framework/sh_test.h"
 
 #include "input/touch/action_kinds.h"
@@ -12,8 +13,10 @@
 #include "input/touch/touch_sprites.h"
 
 #include <cmath>
+#include <chrono>
 #include <cstdio>
 #include <string>
+#include <thread>
 #include <vector>
 
 using namespace sh::input::touch;
@@ -181,6 +184,22 @@ SH_TEST(touch_visibility_prompts) {
     SH_CHECK((v.visible() & bit(Control::Struggle)) == 0 && (v.visible() & bit(Control::Attack)) != 0);
 }
 
+SH_TEST(touch_prompt_press_taken_once) {
+    // The save list asks for its Delete; the button's tap (or a long press) comes back as one press.
+    sh::input::note_touch_prompt(sh::input::kTouchDelete, "delete");
+    SH_CHECK(sh::input::touch_prompt(sh::input::kTouchDelete, 1000).value_or("") == "delete");
+    SH_CHECK(!sh::input::take_touch_prompt_press(sh::input::kTouchDelete, 1000));
+    sh::input::note_touch_prompt_press(sh::input::kTouchDelete);
+    SH_CHECK(!sh::input::take_touch_prompt_press("struggle", 1000));
+    SH_CHECK(sh::input::take_touch_prompt_press(sh::input::kTouchDelete, 1000));
+    SH_CHECK(!sh::input::take_touch_prompt_press(sh::input::kTouchDelete, 1000));
+    // A press the screen did not take in time (it was gone, a message was up) does not act later.
+    sh::input::note_touch_prompt_press(sh::input::kTouchDelete);
+    std::this_thread::sleep_for(std::chrono::milliseconds(5));
+    SH_CHECK(!sh::input::take_touch_prompt_press(sh::input::kTouchDelete, 1));
+    SH_CHECK(!sh::input::take_touch_prompt_press(sh::input::kTouchDelete, 1000));
+}
+
 SH_TEST(touch_press_train) {
     PressTrain t;
     SH_CHECK(!t.step());
@@ -337,7 +356,7 @@ SH_TEST(touch_icon_files) {
     for (const char* name : {"back", "skip", "pause", "map", "inventory", "aim", "act", "take", "read", "open", "use",
                              "check", "done", "reset", "attack", "attack_pistol", "attack_shotgun", "attack_rifle",
                              "attack_blaster", "attack_blade", "attack_blunt", "attack_axe", "attack_chainsaw",
-                             "attack_drill", "struggle", "camera", "kick"}) {
+                             "attack_drill", "struggle", "camera", "kick", "delete"}) {
         const std::string path = std::string(SH_PROJECT_ROOT "/gamedata/ui/touch/") + name + ".svg";
         std::FILE* f = std::fopen(path.c_str(), "rb");
         SH_CHECK(f != nullptr);

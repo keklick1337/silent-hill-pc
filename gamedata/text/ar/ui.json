@@ -103,6 +103,8 @@
     "ui.save.data": "البيانات",
     "ui.save.delete_failed": "فشل الحذف!",
     "ui.save.delete_hint": "Select / Delete: حذف",
+    "ui.save.delete_hint_pad": "{button}: حذف",
+    "ui.save.delete_hint_touch": "ضغط مطوّل / سلة المهملات: حذف",
     "ui.save.deleted": "تم الحذف.",
     "ui.save.difficulty.easy": "سهل",
     "ui.save.difficulty.hard": "صعب",

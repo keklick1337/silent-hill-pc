@@ -103,6 +103,8 @@
     "ui.save.data": "Dati",
     "ui.save.delete_failed": "Eliminazione non riuscita!",
     "ui.save.delete_hint": "Select / Canc: elimina",
+    "ui.save.delete_hint_pad": "{button}: elimina",
+    "ui.save.delete_hint_touch": "Tieni premuto o cestino: elimina",
     "ui.save.deleted": "Eliminato.",
     "ui.save.difficulty.easy": "Facile",
     "ui.save.difficulty.hard": "Difficile",

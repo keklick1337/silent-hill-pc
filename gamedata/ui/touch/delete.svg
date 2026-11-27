@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- Delete: a menu's delete (the save list). A bin: the lid with its handle, the body, two grooves. -->
+  <path d="M15 20 H49" stroke="#fff" stroke-width="4.5" fill="none"/>
+  <path d="M26 20 V15 H38 V20" stroke="#fff" stroke-width="4" fill="none"/>
+  <path d="M19 25 L22 50 H42 L45 25" stroke="#fff" stroke-width="4.5" fill="none"/>
+  <path d="M28 30 V44" stroke="#fff" stroke-width="3.5" fill="none"/>
+  <path d="M36 30 V44" stroke="#fff" stroke-width="3.5" fill="none"/>
+</svg>

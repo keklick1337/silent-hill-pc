@@ -54,7 +54,7 @@ namespace {
 namespace gs = sh::game_state;
 
 enum class Mode { Off, Idle, Controls, Map, Pointer, Edit };
-enum class Owner { None, Stick, Dpad, Control, Pointer, Map, Edit, EditUi, Back, Skip };
+enum class Owner { None, Stick, Dpad, Control, Pointer, Map, Edit, EditUi, Back, Skip, Delete };
 enum class EditUi { Done, Reset };
 
 constexpr int kMaxFingers = 10;
@@ -71,7 +71,8 @@ constexpr int kPromptMs = 250;             // a prompt the game stopped renewing
 constexpr float kDoubleTap = 0.30f;        // seconds between the two taps of a double tap
 constexpr float kDpadReach = 1.25f;        // radii: a finger that lands this near the d-pad takes it
 
-// The Back and Skip buttons sit where pause and the map do in play (the editor moves them along).
+// The Back and Skip buttons sit where pause and the map do in play, a menu's Delete where the inventory does (the
+// editor moves them along).
 constexpr Place kEditDone{0.42f, 0.11f, 0.13f};
 constexpr Place kEditReset{0.58f, 0.11f, 0.13f};
 
@@ -134,6 +135,7 @@ struct State {
     // The pointer.
     int pointer_finger = -1;
     bool pointer_long = false;   // the button is held (a long press)
+    bool pointer_long_taken = false;  // the long press was the menu's Delete: the button stays up
     bool scrolling = false;
     bool scroll_horizontal = false;
     int click_frames = 0;
@@ -225,6 +227,7 @@ bool inside(const Circle& c, Point p, float slop) { return std::hypot(p.x - c.x,
 
 Place back_place() { return st().layout[Control::Pause]; }
 Place skip_place() { return st().layout[Control::Map]; }
+Place delete_place() { return st().layout[Control::Inventory]; }
 
 // ---- what the screen is ----
 
@@ -243,6 +246,11 @@ bool free_gameplay() {
 }
 
 bool skip_shown() { return skip_asked_within(kSkipShownMs); }
+
+// A menu asks for its Delete (the save list while a save is selected): the button, and a long press deletes.
+bool delete_shown(Mode mode) {
+    return mode == Mode::Pointer && sh::input::touch_prompt(sh::input::kTouchDelete, kPromptMs).has_value();
+}
 
 // The message on screen waits for an answer (its options are listed; text/message_box.h).
 bool question_open() {
@@ -401,6 +409,7 @@ void drop_owners() {
     s.run.release_all();
     s.pointer_finger = -1;
     s.pointer_long = false;
+    s.pointer_long_taken = false;
     s.pointer_stop_only = false;
     s.scrolling = false;
     s.scroller.stop();
@@ -485,10 +494,16 @@ void down_pointer(Finger& f, const Screen& scr, Mode mode) {
         g_skip_tap_ns.store(0);  // taken here, by the game's frame: a movie starting next must not take it too
         return;
     }
+    if (delete_shown(mode) && inside(circle(delete_place(), scr), f.pos, kSlop * scr.h * 0.5f)) {
+        f.owner = Owner::Delete;
+        sh::input::note_touch_prompt_press(sh::input::kTouchDelete);
+        return;
+    }
     if (mode != Mode::Pointer || s.pointer_finger >= 0 || f.from_mouse) return;
     f.owner = Owner::Pointer;
     s.pointer_finger = index_of(f);
     s.pointer_long = false;
+    s.pointer_long_taken = false;
     // A finger that lands on a gliding list stops it, as on a phone; lifting it picks nothing.
     s.pointer_stop_only = (list_claimed() && s.list_flinging) || s.scroller.gliding();
     s.scrolling = false;
@@ -645,6 +660,7 @@ void up_finger(Finger& f, const Screen& scr) {
             s.pointer_finger = -1;
             if (s.pointer_long) {
                 s.pointer_long = false;
+                s.pointer_long_taken = false;
             } else if (!s.scrolling && pointer_tap(f.moved, slop, s.pointer_stop_only)) {
                 s.pointer_at = f.pos;
                 s.click_frames = kClickFrames;
@@ -904,7 +920,7 @@ TouchStick frame() {
     refresh_layout();
     if (s.frame == 1) {
         for (const char* name : {"back", "skip", "pause", "map", "inventory", "aim", "act", "take", "read", "open", "use",
-                                 "check", "done", "reset", "attack", "struggle", "camera", "kick", "run",
+                                 "check", "done", "reset", "attack", "struggle", "camera", "kick", "run", "delete",
                                  "dpad_up", "dpad_right", "dpad_down", "dpad_left"}) {
             load_icon(name);
         }
@@ -1010,6 +1026,12 @@ TouchStick frame() {
             if (!s.scrolling && !s.pointer_long && !list_claimed() && seconds_since(f.start_ns) >= kLongPress &&
                 f.moved <= kSlop * scr.h) {
                 s.pointer_long = true;
+                // Over a menu that asks for its Delete the long press is that, on the row under the finger (the
+                // menu followed the pointer there); the button is not held, so the row is not chosen as well.
+                if (delete_shown(s.mode)) {
+                    s.pointer_long_taken = true;
+                    sh::input::note_touch_prompt_press(sh::input::kTouchDelete);
+                }
             }
             if (s.scrolling) {
                 s.scroller.sample(s.scroll_horizontal ? f.pos.x - s.frame_pos.x : f.pos.y - s.frame_pos.y, dt);
@@ -1027,7 +1049,7 @@ TouchStick frame() {
             --s.click_frames;
             buttons = SDL_BUTTON_LMASK;
         }
-        if (s.pointer_long) buttons = SDL_BUTTON_LMASK;
+        if (s.pointer_long && !s.pointer_long_taken) buttons = SDL_BUTTON_LMASK;
         // Window points, which the mouse is measured in.
         Sh_SetTouchPointer(static_cast<int>(s.pointer_at.x * scr.points_w / scr.w),
                            static_cast<int>(s.pointer_at.y * scr.points_h / scr.h), buttons);
@@ -1417,6 +1439,8 @@ void draw() {
             if (back_shown(s.mode)) draw_button(p, scr, back_place(), "back", opacity, finger_on(Owner::Back));
             if (s.mode != Mode::Map && skip_shown())
                 draw_button(p, scr, skip_place(), "skip", opacity, finger_on(Owner::Skip));
+            if (delete_shown(s.mode))
+                draw_button(p, scr, delete_place(), "delete", opacity, finger_on(Owner::Delete));
             break;
         default:
             break;

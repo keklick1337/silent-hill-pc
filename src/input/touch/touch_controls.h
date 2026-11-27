@@ -11,7 +11,8 @@
 // free (engine/input/touch_prompts.h). They hold the same input actions a keyboard does (pc_actions.h), so the game
 // sees pad buttons only. Everywhere else a finger is a pointer: menus follow it as they follow the mouse, a drag
 // scrolls a list (and glides on), a tap selects; screens that do not follow the mouse (messages, a scene) take a tap
-// as Cross. A Back button is shown where Back does something, a Skip button where the game lets the player skip.
+// as Cross. A Back button is shown where Back does something, a Skip button where the game lets the player skip,
+// a Delete button where a menu asks for one (the save list): a long press on a row there is that Delete too.
 // The paper map is a page under the fingers: a pinch zooms about them, a drag pans and glides on, a double tap
 // zooms in and out, and at the whole page a vertical swipe turns it. The layout editor (Options > Controls > Touch Controls)
 // moves and sizes the controls (config.cfg `touch_layout`).

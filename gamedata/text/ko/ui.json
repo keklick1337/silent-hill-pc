@@ -103,6 +103,8 @@
     "ui.save.data": "데이터",
     "ui.save.delete_failed": "삭제에 실패했습니다!",
     "ui.save.delete_hint": "Select / Delete: 삭제",
+    "ui.save.delete_hint_pad": "{button}: 삭제",
+    "ui.save.delete_hint_touch": "길게 누르기 / 휴지통: 삭제",
     "ui.save.deleted": "삭제했습니다.",
     "ui.save.difficulty.easy": "쉬움",
     "ui.save.difficulty.hard": "어려움",

@@ -16,6 +16,7 @@ struct Prompt {
 
 std::mutex g_mutex;
 std::vector<Prompt> g_prompts;
+std::vector<Prompt> g_presses;  // icon unused
 
 long long now_ms() {
     return std::chrono::duration_cast<std::chrono::milliseconds>(
@@ -47,6 +48,30 @@ std::optional<std::string> touch_prompt(std::string_view control, int ms) {
         }
     }
     return std::nullopt;
+}
+
+void note_touch_prompt_press(std::string_view control) {
+    if (control.empty()) return;
+    const std::lock_guard<std::mutex> lock(g_mutex);
+    for (Prompt& p : g_presses) {
+        if (p.control == control) {
+            p.at_ms = now_ms();
+            return;
+        }
+    }
+    g_presses.push_back({std::string(control), std::string(), now_ms()});
+}
+
+bool take_touch_prompt_press(std::string_view control, int ms) {
+    const std::lock_guard<std::mutex> lock(g_mutex);
+    for (auto it = g_presses.begin(); it != g_presses.end(); ++it) {
+        if (it->control == control) {
+            const bool fresh = now_ms() - it->at_ms <= ms;
+            g_presses.erase(it);
+            return fresh;
+        }
+    }
+    return false;
 }
 
 }  // namespace sh::input

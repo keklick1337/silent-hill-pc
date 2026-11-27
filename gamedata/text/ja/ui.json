@@ -103,6 +103,8 @@
     "ui.save.data": "データ",
     "ui.save.delete_failed": "削除に失敗しました！",
     "ui.save.delete_hint": "Select / Delete: 削除",
+    "ui.save.delete_hint_pad": "{button}：削除",
+    "ui.save.delete_hint_touch": "長押し / ごみ箱：削除",
     "ui.save.deleted": "削除しました。",
     "ui.save.difficulty.easy": "イージー",
     "ui.save.difficulty.hard": "ハード",

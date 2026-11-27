@@ -103,6 +103,8 @@
     "ui.save.data": "Veri",
     "ui.save.delete_failed": "Silinemedi!",
     "ui.save.delete_hint": "Select / Delete: sil",
+    "ui.save.delete_hint_pad": "{button}: sil",
+    "ui.save.delete_hint_touch": "Basılı tut / çöp kutusu: sil",
     "ui.save.deleted": "Silindi.",
     "ui.save.difficulty.easy": "Kolay",
     "ui.save.difficulty.hard": "Zor",

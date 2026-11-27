@@ -684,6 +684,38 @@ std::string newer_line(const SaveEntry& e) {
     return nm::font_text(line);
 }
 
+// How to delete the selected save, for the device in use: the keys, the touch gesture and button, or the pad's button
+// as its picture where the text has its {button}.
+void delete_hint_draw() {
+    using sh::screens::SaveHintDevice;
+    const auto device = static_cast<SaveHintDevice>(PcSaveGame_HintDevice());
+    const std::string& key = sh::screens::delete_hint_key(T(), device);
+    if (device == SaveHintDevice::Keys) {
+        nm::text_centred(L().center_x, L().hint_y, C().hint, text(key.c_str()));
+        return;
+    }
+    if (device == SaveHintDevice::Touch) {
+        fitted_centred(L().hint_y, C().hint, nm::font_text(sh::i18n::ui_text(key.c_str())));
+        return;
+    }
+    constexpr int kGap = 2;
+    const sh::screens::ButtonSplit parts = sh::screens::split_at_button(sh::i18n::ui_text(key.c_str()));
+    const int glyph_w = parts.found ? PcSaveGame_DeleteGlyphWidth() : 0;
+    const std::string before = nm::font_text(parts.before), after = nm::font_text(parts.after);
+    const std::string name = parts.found && glyph_w == 0 ? nm::font_text(PcSaveGame_DeleteButtonName()) : "";
+    const int before_w = sh::i18n::text_width(before.c_str());
+    const int middle_w = glyph_w > 0 ? glyph_w + 2 * kGap : sh::i18n::text_width(name.c_str());
+    int x = L().center_x - (before_w + middle_w + sh::i18n::text_width(after.c_str())) / 2;
+    verbatim_draw(x, L().hint_y, C().hint, before.c_str());
+    x += before_w;
+    if (glyph_w > 0) {
+        PcSaveGame_DeleteGlyphDraw(x + kGap, L().hint_y);
+    } else {
+        verbatim_draw(x, L().hint_y, C().hint, name.c_str());
+    }
+    verbatim_draw(x + middle_w, L().hint_y, C().hint, after.c_str());
+}
+
 void draw() {
     const Screen& s = s_screen;
     PcSaveGame_BackgroundDraw(s.kind);
@@ -704,7 +736,7 @@ void draw() {
         // in place of the delete hint: what differs in the save's mods
         fitted_centred(L().hint_y, sel->mods.warn ? C().mods_warn : C().mods_note, mods_line(sel->mods));
     } else if (s.step == Step::List && selected_number() > 0) {
-        nm::text_centred(L().center_x, L().hint_y, C().hint, text(T().delete_hint.c_str()));
+        delete_hint_draw();
     }
     info_draw();
 }
@@ -746,6 +778,9 @@ extern "C" void Pc_SaveScreen_Update(int kind, int entering) {
             if (++s.refresh >= L().refresh_ticks) {
                 s.refresh = 0;
                 refresh_rows(selected_number());
+            }
+            if (selected_number() > 0) {
+                PcSaveGame_AskTouchDelete();
             }
             update_list(in, del);
             break;

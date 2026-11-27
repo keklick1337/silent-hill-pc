@@ -103,6 +103,8 @@
     "ui.save.data": "Données",
     "ui.save.delete_failed": "Échec de la suppression !",
     "ui.save.delete_hint": "Select / Suppr : supprimer",
+    "ui.save.delete_hint_pad": "{button} : supprimer",
+    "ui.save.delete_hint_touch": "Appui long ou corbeille : supprimer",
     "ui.save.deleted": "Supprimée.",
     "ui.save.difficulty.easy": "Facile",
     "ui.save.difficulty.hard": "Difficile",

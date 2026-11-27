@@ -103,6 +103,8 @@
     "ui.save.data": "Datos",
     "ui.save.delete_failed": "¡Error al borrar!",
     "ui.save.delete_hint": "Select / Supr: borrar",
+    "ui.save.delete_hint_pad": "{button}: borrar",
+    "ui.save.delete_hint_touch": "Mantén pulsado o papelera: borrar",
     "ui.save.deleted": "Borrada.",
     "ui.save.difficulty.easy": "Fácil",
     "ui.save.difficulty.hard": "Difícil",

@@ -103,6 +103,8 @@
     "ui.save.data": "Data",
     "ui.save.delete_failed": "Failed to delete!",
     "ui.save.delete_hint": "Select / Delete: delete",
+    "ui.save.delete_hint_pad": "{button}: delete",
+    "ui.save.delete_hint_touch": "Hold a save or tap the bin: delete",
     "ui.save.deleted": "Deleted.",
     "ui.save.difficulty.easy": "Easy",
     "ui.save.difficulty.hard": "Hard",

@@ -103,6 +103,8 @@
     "ui.save.data": "Daten",
     "ui.save.delete_failed": "Löschen fehlgeschlagen!",
     "ui.save.delete_hint": "Select / Entf: löschen",
+    "ui.save.delete_hint_pad": "{button}: löschen",
+    "ui.save.delete_hint_touch": "Gedrückt halten oder Papierkorb: löschen",
     "ui.save.deleted": "Gelöscht.",
     "ui.save.difficulty.easy": "Leicht",
     "ui.save.difficulty.hard": "Schwer",

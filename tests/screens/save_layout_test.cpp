@@ -83,6 +83,31 @@ SH_TEST(save_layout_refuses_bad_files) {
     SH_CHECK(ok.value().texts.no == "ui.save.no" && ok.value().location_keys.size() == 1);
 }
 
+SH_TEST(save_layout_delete_hint_by_device) {
+    const SaveScreenTexts t;
+    SH_CHECK(save_hint_device(false, false) == SaveHintDevice::Keys);
+    SH_CHECK(save_hint_device(false, true) == SaveHintDevice::Touch);
+    // A pad in use names its button even on a phone.
+    SH_CHECK(save_hint_device(true, true) == SaveHintDevice::Pad);
+    SH_CHECK(save_hint_device(true, false) == SaveHintDevice::Pad);
+    SH_CHECK(delete_hint_key(t, SaveHintDevice::Keys) == "ui.save.delete_hint");
+    SH_CHECK(delete_hint_key(t, SaveHintDevice::Touch) == "ui.save.delete_hint_touch");
+    SH_CHECK(delete_hint_key(t, SaveHintDevice::Pad) == "ui.save.delete_hint_pad");
+    const auto loaded = load_save_layout(std::filesystem::path(SH_PROJECT_ROOT) / "gamedata", {}, nullptr);
+    SH_CHECK(static_cast<bool>(loaded));
+    SH_CHECK(loaded.value().texts.delete_hint_touch == t.delete_hint_touch &&
+             loaded.value().texts.delete_hint_pad == t.delete_hint_pad);
+}
+
+SH_TEST(save_layout_split_at_button) {
+    const ButtonSplit a = split_at_button("{button}: delete");
+    SH_CHECK(a.found && a.before.empty() && a.after == ": delete");
+    const ButtonSplit b = split_at_button("Löschen mit {button}");
+    SH_CHECK(b.found && b.before == "Löschen mit " && b.after.empty());
+    const ButtonSplit c = split_at_button("Select: delete");
+    SH_CHECK(!c.found && c.before == "Select: delete" && c.after.empty());
+}
+
 #include "engine/screens/warning_layout.h"
 
 SH_TEST(warning_layout_json_matches_defaults) {

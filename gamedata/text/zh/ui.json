@@ -103,6 +103,8 @@
     "ui.save.data": "数据",
     "ui.save.delete_failed": "删除失败！",
     "ui.save.delete_hint": "Select / Delete：删除",
+    "ui.save.delete_hint_pad": "{button}：删除",
+    "ui.save.delete_hint_touch": "长按 / 垃圾桶：删除",
     "ui.save.deleted": "已删除。",
     "ui.save.difficulty.easy": "简单",
     "ui.save.difficulty.hard": "困难",

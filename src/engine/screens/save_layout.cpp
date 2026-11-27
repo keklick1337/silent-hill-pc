@@ -118,6 +118,8 @@ const TextKey kTextKeys[] = {
     {"time", &SaveScreenTexts::time},
     {"save_count", &SaveScreenTexts::save_count},
     {"delete_hint", &SaveScreenTexts::delete_hint},
+    {"delete_hint_touch", &SaveScreenTexts::delete_hint_touch},
+    {"delete_hint_pad", &SaveScreenTexts::delete_hint_pad},
     {"mods_line", &SaveScreenTexts::mods_line},
     {"mod_missing", &SaveScreenTexts::mod_missing},
     {"mod_disabled", &SaveScreenTexts::mod_disabled},
@@ -263,6 +265,34 @@ Result<SaveScreenLayout> load_save_layout(const std::filesystem::path& gamedata_
         return Result<SaveScreenLayout>::fail(file + ": " + parsed.error());
     }
     return parsed;
+}
+
+SaveHintDevice save_hint_device(bool pad_used_last, bool touch_controls) {
+    if (pad_used_last) return SaveHintDevice::Pad;
+    return touch_controls ? SaveHintDevice::Touch : SaveHintDevice::Keys;
+}
+
+const std::string& delete_hint_key(const SaveScreenTexts& texts, SaveHintDevice device) {
+    switch (device) {
+        case SaveHintDevice::Touch: return texts.delete_hint_touch;
+        case SaveHintDevice::Pad: return texts.delete_hint_pad;
+        case SaveHintDevice::Keys: break;
+    }
+    return texts.delete_hint;
+}
+
+ButtonSplit split_at_button(std::string_view text) {
+    constexpr std::string_view kButton = "{button}";
+    ButtonSplit out;
+    const std::size_t at = text.find(kButton);
+    if (at == std::string_view::npos) {
+        out.before = std::string(text);
+        return out;
+    }
+    out.before = std::string(text.substr(0, at));
+    out.after = std::string(text.substr(at + kButton.size()));
+    out.found = true;
+    return out;
 }
 
 }  // namespace sh::screens

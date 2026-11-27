@@ -37,7 +37,10 @@ struct SaveScreenTexts {
     std::string saved = "ui.save.saved", save_failed = "ui.save.save_failed";
     std::string new_save_info = "ui.save.new_save_info";
     std::string data = "ui.save.data", time = "ui.save.time", save_count = "ui.save.save_count";
-    std::string delete_hint = "ui.save.delete_hint";
+    // The line under the list that says how to delete: with the keys (and the pad's Select), on a touch screen, on a
+    // pad ({button}: the pad button that deletes, drawn as its picture).
+    std::string delete_hint = "ui.save.delete_hint", delete_hint_touch = "ui.save.delete_hint_touch",
+                delete_hint_pad = "ui.save.delete_hint_pad";
     // A save's mods against this run's (engine/mods/save_mods_check.h): the line under the list, the question.
     std::string mods_line = "ui.save.mods_line", mod_missing = "ui.save.mod_missing",
                 mod_disabled = "ui.save.mod_disabled", mod_older = "ui.save.mod_older", mod_newer = "ui.save.mod_newer",
@@ -48,6 +51,19 @@ struct SaveScreenTexts {
     std::string newer_line = "ui.save.newer_line", newer_refused = "ui.save.newer_refused",
                 newer_data = "ui.save.newer_data";
 };
+
+// The device the delete hint is for: the keyboard and mouse, a touch screen, a pad (the one used last).
+enum class SaveHintDevice { Keys, Touch, Pad };
+SaveHintDevice save_hint_device(bool pad_used_last, bool touch_controls);
+// The text key of the delete hint for the device.
+const std::string& delete_hint_key(const SaveScreenTexts& texts, SaveHintDevice device);
+
+// A hint cut around its "{button}": the text before and after it; `found` false keeps the whole text in `before`.
+struct ButtonSplit {
+    std::string before, after;
+    bool found = false;
+};
+ButtonSplit split_at_button(std::string_view text);
 
 struct SaveScreenLayout {
     int visible_rows = 5;
