@@ -6,7 +6,7 @@ Every function a script can call, by table. The same text is what the in-game Lu
 
 **Units.** Positions and lengths are Q12 integers (4096 = 1 m, Y grows downwards), angles Q12 (4096 = a full turn), times Q12 seconds, health Q12 (409600 = 100), unless a line says otherwise. A character is its slot number: 0 the player, 1 and up the others. Items, flags, characters, sounds and messages are given by name.
 
-**Coverage.** 1075 functions are listed, 785 of them described. The rest are listed by signature under "Not described yet": they exist and can be called, but nobody has written down what they do; nearly all of them are helpers of the base game's own map and character scripts, and reading those scripts (`gamedata/maps/*/events.lua`, `gamedata/chara/*/behavior.lua`) is the way to learn them. `...` in a signature means the arguments have not been written down either.
+**Coverage.** 1078 functions are listed, 788 of them described. The rest are listed by signature under "Not described yet": they exist and can be called, but nobody has written down what they do; nearly all of them are helpers of the base game's own map and character scripts, and reading those scripts (`gamedata/maps/*/events.lua`, `gamedata/chara/*/behavior.lua`) is the way to learn them. `...` in a signature means the arguments have not been written down either.
 
 ## Contents
 
@@ -25,7 +25,7 @@ Every function a script can call, by table. The same text is what the in-game Lu
 - [`sh.effects`](#sheffects) — 14 of 23 described
 - [`sh.engine`](#shengine) — 1 of 1 described
 - [`sh.entity`](#shentity) — 78 of 239 described
-- [`sh.event`](#shevent) — 28 of 32 described
+- [`sh.event`](#shevent) — 30 of 34 described
 - [`sh.flag`](#shflag) — 4 of 4 described
 - [`sh.game`](#shgame) — 29 of 30 described
 - [`sh.hooks`](#shhooks) — 5 of 5 described
@@ -50,7 +50,7 @@ Every function a script can call, by table. The same text is what the in-game Lu
 - [`sh.savegame`](#shsavegame) — 0 of 2 described
 - [`sh.screen`](#shscreen) — 9 of 18 described
 - [`sh.session`](#shsession) — 2 of 2 described
-- [`sh.sound`](#shsound) — 14 of 25 described
+- [`sh.sound`](#shsound) — 15 of 26 described
 - [`sh.timer`](#shtimer) — 5 of 5 described
 - [`sh.ui`](#shui) — 3 of 3 described
 - [`sh.vec`](#shvec) — 4 of 4 described
@@ -532,6 +532,8 @@ The step machine of a map event and its per-tick steppers.
 | `sh.event.path_point_set(abs, slot, idx, angle, x, z)` | Sets a point of the event's path. |
 | `sh.event.path_walk_player(anim, count, inc_sub_step)` | Walks Harry along the event's path points. |
 | `sh.event.point_position()` | The active event's point of interest, Q12. |
+| `sh.event.run(fn) -> bool` | Runs fn as the handler of an event of the script's own: from the next tick the game is in the event state (no other event starts, the world stands still while fn draws a paper map or holds the music) and calls fn() once a tick inside its update, where the event steppers (sh.event_step_get, sh.event_step_increment_after_fade, sh.event_msg, sh.event_waypoint_player) and the drawing of a map event (sh.map_screen_vertex_draw) work as in a handler of maps/<map>/events.lua. The event ends when fn returns true, or fails. It starts once no other event runs and the player is free (not frozen); false when an event of a script is asked for or runs already. A coroutine waits for it with sh.event.running(). Example: sh.event.run(function() if sh.event_step_get(0) == 0 then sh.event_step_increment_after_fade(2, true, 0, 0, false) return false end return true end). |
+| `sh.event.running() -> bool` | True while an event started with sh.event.run is asked for or runs. |
 | `sh.event.set_state_timer(value)` | Sets: the timer of the system state (the first step word of the event). |
 | `sh.event.set_step_timer(value)` | Sets: the timer of the event's step (the second step word of the event). |
 | `sh.event.set_sys_state(value)` | Sets: the system state the game is in. |
@@ -1068,6 +1070,7 @@ Sounds by registry name: playing, positions, the sound driver.
 | --- | --- |
 | `sh.sound.bgm_change(idx)` | Chooses the room's music track. |
 | `sh.sound.exists(name) -> bool` | True when the registry has the sound. |
+| `sh.sound.fade(sound, level[, seconds[, stop]]) -> bool` | Moves a sound that plays a file (a "file" entry of sounds/*.json, or sh.sound.swap) to level of its volume (0 silent, 1 as it plays, up to 4) over seconds (0 or left out: at once), evenly in the mix, so there is no step in what is heard; with stop it ends when it gets there. A sound that is not playing keeps the level for its next play: sh.sound.fade(name, 0), sh.sound.play(name, 0, 0), sh.sound.fade(name, 1, 1.5) is a fade-in from silence. True when the sound was playing. The game's bank sounds are not changed. Example: sh.sound.fade("mymod:hum", 0, 2.0, true). |
 | `sh.sound.id(name) -> id` | The number of a sound by registry name; an unknown name is an error. |
 | `sh.sound.music_channels()` | The sound driver's count of busy music channels; 0 when the track stopped. |
 | `sh.sound.music_layer_volume_set(layer, vol)` | Sets the driver's volume of one music layer (0..255) at once. |

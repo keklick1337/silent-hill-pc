@@ -4300,6 +4300,18 @@
     "sh.world.hush": {
       "signature": "sh.world.hush()",
       "description": "Ends the message of sh.world.say at once (a script that lets the player skip a line)."
+    },
+    "sh.event.run": {
+      "signature": "sh.event.run(fn) -> bool",
+      "description": "Runs fn as the handler of an event of the script's own: from the next tick the game is in the event state (no other event starts, the world stands still while fn draws a paper map or holds the music) and calls fn() once a tick inside its update, where the event steppers (sh.event_step_get, sh.event_step_increment_after_fade, sh.event_msg, sh.event_waypoint_player) and the drawing of a map event (sh.map_screen_vertex_draw) work as in a handler of maps/<map>/events.lua. The event ends when fn returns true, or fails. It starts once no other event runs and the player is free (not frozen); false when an event of a script is asked for or runs already. A coroutine waits for it with sh.event.running(). Example: sh.event.run(function() if sh.event_step_get(0) == 0 then sh.event_step_increment_after_fade(2, true, 0, 0, false) return false end return true end)."
+    },
+    "sh.event.running": {
+      "signature": "sh.event.running() -> bool",
+      "description": "True while an event started with sh.event.run is asked for or runs."
+    },
+    "sh.sound.fade": {
+      "signature": "sh.sound.fade(sound, level[, seconds[, stop]]) -> bool",
+      "description": "Moves a sound that plays a file (a \"file\" entry of sounds/*.json, or sh.sound.swap) to level of its volume (0 silent, 1 as it plays, up to 4) over seconds (0 or left out: at once), evenly in the mix, so there is no step in what is heard; with stop it ends when it gets there. A sound that is not playing keeps the level for its next play: sh.sound.fade(name, 0), sh.sound.play(name, 0, 0), sh.sound.fade(name, 1, 1.5) is a fade-in from silence. True when the sound was playing. The game's bank sounds are not changed. Example: sh.sound.fade(\"mymod:hum\", 0, 2.0, true)."
     }
   }
 }

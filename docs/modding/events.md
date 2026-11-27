@@ -61,6 +61,7 @@ Units as in the rest of the API: positions Q12 (4096 = 1 m, Y grows downwards), 
 | `menu.open` | | `menu` | a menu or a screen of the game opened (`options`, `inventory`, `map`, `save`, ...) |
 | `cutscene.start` | | `id` | a cutscene started |
 | `cutscene.end` | | `id` | control returned after a cutscene |
+| `radio.static` | C | `map`, `heard` (monsters in the radio's reach, the three nearest at most), `nearest_slot` (−1 when none), `nearest` (Q12, −1 when none) | every tick the radio is switched on, before its noise sounds. Cancelled: the radio's own noise is silent this tick (a script sounds its own, `sh.sound.fade`) |
 | `input.action` | C | `action` | an input action was pressed. Cancelled: the press is swallowed until release |
 
 How some events are found, and what they do not cover:
