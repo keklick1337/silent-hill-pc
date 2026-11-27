@@ -295,7 +295,8 @@ void SoundDriver::play_file_effect(std::uint16_t id, int balance, std::uint8_t v
     if (right < 0) {
         right = 0;
     }
-    host_->effect_file_play(id, scaled_effect_volume(left), scaled_effect_volume(right), cents);
+    // A file's gain is in the driver's finer units (<< 7, as a voice's volume): a full level is the file as it is.
+    host_->effect_file_play(id, scaled_effect_volume(s16(left << 7)), scaled_effect_volume(s16(right << 7)), cents);
 }
 
 int SoundDriver::play_effect(std::uint16_t id, int balance, std::uint8_t volume) {
@@ -372,7 +373,10 @@ void SoundDriver::update_effect(std::uint16_t id, int balance, std::uint8_t volu
     if (host_->effect_is_file(id)) {
         std::int16_t level = s16(s_.effects_volume + (e != nullptr ? e->volume : 0));
         level = s16(level - (level * volume) / 255);
-        host_->effect_file_volume(id, scaled_effect_volume(level), scaled_effect_volume(level));
+        if (level < 0) {
+            level = 0;
+        }
+        host_->effect_file_volume(id, scaled_effect_volume(s16(level << 7)), scaled_effect_volume(s16(level << 7)));
         return;
     }
     if (e == nullptr) {
