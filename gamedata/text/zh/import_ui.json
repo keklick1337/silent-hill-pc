@@ -71,6 +71,10 @@
     "ui.import.prepare_areas": "正在组装地图区域...",
     "ui.import.prepare_textures": "正在准备纹理...",
     "ui.import.prepare_materials": "正在列出材质...",
-    "ui.import.prepare_starting": "正在启动游戏..."
+    "ui.import.prepare_starting": "正在启动游戏...",
+    "ui.import.err_empty_touch": "尚未选择文件。点按“浏览”，选择你的光盘镜像的 .zip 文件。",
+    "ui.import.picker_opening": "正在读取 {0}... 文件较大时可能需要几分钟。",
+    "ui.import.err_document_unreadable": "无法打开所选文件 {0}。请用“浏览”重新选择；如果文件在云端，请先下载到设备上。",
+    "ui.import.err_no_access_touch": "无法打开 {0}：在 Android 上，游戏只能读取自己文件夹中的文件。请用“浏览”选择文件。"
   }
 }

@@ -106,6 +106,14 @@ constexpr std::array<Entry, static_cast<std::size_t>(Str::Count_)> kTable = {{
     {"ui.import.prepare_textures", "Preparing the textures..."},
     {"ui.import.prepare_materials", "Listing the materials..."},
     {"ui.import.prepare_starting", "Starting the game..."},
+    {"ui.import.err_empty_touch",
+     "No file is chosen yet. Tap Browse and choose the .zip of your disc image."},
+    {"ui.import.picker_opening",
+     "Reading {0}... A large file can take a few minutes."},
+    {"ui.import.err_document_unreadable",
+     "Cannot open the chosen file {0}. Choose it again with Browse; if it is kept in a cloud, download it to the device first."},
+    {"ui.import.err_no_access_touch",
+     "Cannot open {0}: on Android the game reads files only in its own folder. Choose the file with Browse."},
 }};
 
 // The Local text, by Str; empty where the translation has no string.

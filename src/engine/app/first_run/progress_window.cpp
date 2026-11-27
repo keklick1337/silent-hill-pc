@@ -76,7 +76,7 @@ struct DialogState {
     SDL_DialogFileFilter filter{};
 };
 
-void SDLCALL on_dialog(void* userdata, const char* const* files, int) {
+[[maybe_unused]] void SDLCALL on_dialog(void* userdata, const char* const* files, int) {
     std::unique_ptr<std::shared_ptr<DialogState>> holder(static_cast<std::shared_ptr<DialogState>*>(userdata));
     DialogState& d = **holder;
     std::lock_guard<std::mutex> lock(d.mutex);
@@ -517,10 +517,12 @@ float ProgressWindow::Screen::picker_body(float y, bool paint) {
     const std::string browse = iu::format(lang_, iu::Str::ActionBrowse);
     const float browse_w = std::max(120.0f, paint_.width(browse, 15.0f) + 40.0f);
     const bool side_by_side = x1 - x0 - browse_w - kGap >= 220.0f;
-    bool dialog_open = false;
+    const std::string& note = picker_ ? picker_->note() : std::string();
+    // No second dialog while one is open or the document it gave is still being read.
+    bool dialog_open = !note.empty();
     if (dialog_) {
         std::lock_guard<std::mutex> lock(dialog_->mutex);
-        dialog_open = dialog_->pending;
+        dialog_open = dialog_open || dialog_->pending;
     }
     const float field_top = y - start;
     if (side_by_side) {
@@ -551,6 +553,9 @@ float ProgressWindow::Screen::picker_body(float y, bool paint) {
             y += 18.0f;
         }
         if (paint) paint_.fill(paint_.box(x0, top + 1.0f, x0 + 3.0f, y - 1.0f), kRed, 220);
+    } else if (!note.empty()) {
+        y += 14.0f;
+        paragraph(note, y, 13.0f, 18.0f, kGold, paint);
     }
     y += 12.0f;
     return y - start;
@@ -671,14 +676,31 @@ void ProgressWindow::Screen::open_dialog() {
         dialog_->pending = true;
     }
     text_input(false);
+#ifdef __ANDROID__
+    // The activity's own request (SilentHillActivity.pickDocument), answered through takeDocument in pick(): the
+    // answer waits in the activity, so it also reaches a process the system restarted while the picker was open,
+    // and the picker offers every file, whatever type its provider reports (the check names a wrong one).
+    if (activity_call("pickDocument", std::string()) != "1") {
+        std::lock_guard<std::mutex> lock(dialog_->mutex);
+        dialog_->pending = false;
+        dialog_->answered = true;
+        dialog_->path.clear();
+        dialog_->error = "?";
+    }
+#else
     SDL_ShowOpenFileDialog(on_dialog, new std::shared_ptr<DialogState>(dialog_), window_, &dialog_->filter, 1, nullptr,
                            false);
+#endif
 }
 
 void ProgressWindow::Screen::submit() {
     picker_->set_text(edit_.text());
     synced_ = edit_.text();
-    if (!picker_->submit()) scroll_ = 1e9f;  // the error is at the bottom of the body
+    if (!picker_->submit()) {
+        scroll_ = 1e9f;  // the error is at the bottom of the body
+        // A phone with no file chosen: the error names Browse, and the focus goes there.
+        if (touch_screen() && picker_->text().empty() && picker_->note().empty()) set_focus(Target::Browse);
+    }
 }
 
 void ProgressWindow::Screen::activate(Target t) {
@@ -1002,6 +1024,7 @@ void ProgressWindow::Screen::pick(iu::ImagePicker& picker, iu::Lang lang, const 
     dialog_ = std::make_shared<DialogState>();
     dialog_->filter_name = iu::format(lang, iu::Str::PickerFilter);
     dialog_->filter = SDL_DialogFileFilter{dialog_->filter_name.c_str(), "cue;bin;iso;img;zip"};
+    picker.set_touch(touch_screen());
     edit_.set(picker.text());
     synced_ = picker.text();
     scroll_ = picker.error().empty() ? 0.0f : 1e9f;
@@ -1026,6 +1049,27 @@ void ProgressWindow::Screen::pick(iu::ImagePicker& picker, iu::Lang lang, const 
                 handle_picker(e);
             } while (SDL_PollEvent(&e));
         }
+#ifdef __ANDROID__
+        {
+            // Asked on every turn, not only after Browse: a pick made before the system restarted the app is
+            // answered to this run.
+            const iu::PickAnswer answer = iu::parse_pick_answer(activity_call("takeDocument", std::string()));
+            if (answer.kind != iu::PickAnswer::Kind::Waiting) {
+                const bool was_opening = !picker.note().empty();
+                picker.apply(answer);
+                if (answer.kind != iu::PickAnswer::Kind::Opening) {
+                    std::lock_guard<std::mutex> lock(dialog_->mutex);
+                    dialog_->pending = false;
+                    if (answer.kind == iu::PickAnswer::Kind::Path && picker.error().empty()) {
+                        set_focus(Target::Import);
+                    }
+                    if (!picker.error().empty()) scroll_ = 1e9f;
+                } else if (!was_opening) {
+                    scroll_ = 1e9f;
+                }
+            }
+        }
+#endif
         {
             std::lock_guard<std::mutex> lock(dialog_->mutex);
             if (dialog_->answered) {

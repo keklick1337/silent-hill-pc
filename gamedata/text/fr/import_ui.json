@@ -71,6 +71,10 @@
     "ui.import.prepare_areas": "Assemblage des zones des cartes...",
     "ui.import.prepare_textures": "Préparation des textures...",
     "ui.import.prepare_materials": "Inventaire des matériaux...",
-    "ui.import.prepare_starting": "Lancement du jeu..."
+    "ui.import.prepare_starting": "Lancement du jeu...",
+    "ui.import.err_empty_touch": "Aucun fichier n'est encore choisi. Touchez Parcourir et choisissez le .zip de l'image de votre disque.",
+    "ui.import.picker_opening": "Lecture de {0}... Un gros fichier peut prendre quelques minutes.",
+    "ui.import.err_document_unreadable": "Impossible d'ouvrir le fichier choisi {0}. Choisissez-le de nouveau avec Parcourir ; s'il est dans un cloud, téléchargez-le d'abord sur l'appareil.",
+    "ui.import.err_no_access_touch": "Impossible d'ouvrir {0} : sous Android, le jeu ne lit que les fichiers de son propre dossier. Choisissez le fichier avec Parcourir."
   }
 }

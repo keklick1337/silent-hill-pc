@@ -71,6 +71,10 @@
     "ui.import.prepare_areas": "Harita alanları birleştiriliyor...",
     "ui.import.prepare_textures": "Dokular hazırlanıyor...",
     "ui.import.prepare_materials": "Malzemeler listeleniyor...",
-    "ui.import.prepare_starting": "Oyun başlatılıyor..."
+    "ui.import.prepare_starting": "Oyun başlatılıyor...",
+    "ui.import.err_empty_touch": "Henüz dosya seçilmedi. Gözat'a dokunun ve disk kalıbınızın .zip dosyasını seçin.",
+    "ui.import.picker_opening": "{0} okunuyor... Büyük bir dosya birkaç dakika sürebilir.",
+    "ui.import.err_document_unreadable": "Seçilen {0} dosyası açılamıyor. Gözat ile yeniden seçin; dosya buluttaysa önce cihaza indirin.",
+    "ui.import.err_no_access_touch": "{0} açılamıyor: Android'de oyun yalnızca kendi klasöründeki dosyaları okur. Dosyayı Gözat ile seçin."
   }
 }

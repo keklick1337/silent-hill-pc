@@ -71,6 +71,10 @@
     "ui.import.prepare_areas": "맵 구역을 조립하는 중...",
     "ui.import.prepare_textures": "텍스처를 준비하는 중...",
     "ui.import.prepare_materials": "재질 목록을 만드는 중...",
-    "ui.import.prepare_starting": "게임을 시작하는 중..."
+    "ui.import.prepare_starting": "게임을 시작하는 중...",
+    "ui.import.err_empty_touch": "아직 파일을 고르지 않았습니다. 찾아보기를 눌러 디스크 이미지의 .zip 파일을 고르세요.",
+    "ui.import.picker_opening": "{0} 읽는 중... 큰 파일은 몇 분이 걸릴 수 있습니다.",
+    "ui.import.err_document_unreadable": "고른 파일 {0}을(를) 열 수 없습니다. 찾아보기로 다시 고르세요. 클라우드에 있는 파일이라면 먼저 기기에 내려받으세요.",
+    "ui.import.err_no_access_touch": "{0}을(를) 열 수 없습니다: Android에서는 게임이 자기 폴더의 파일만 읽을 수 있습니다. 찾아보기로 파일을 고르세요."
   }
 }

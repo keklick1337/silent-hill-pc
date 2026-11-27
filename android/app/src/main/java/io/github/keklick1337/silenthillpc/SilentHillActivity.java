@@ -220,7 +220,11 @@ public class SilentHillActivity extends SDLActivity {
     public static String openDocument(String uriText) {
         Context context = SDL.getContext();
         Uri uri = Uri.parse(uriText);
-        String name = displayName(context, uri);
+        return openDocument(context, uri, displayName(context, uri));
+    }
+
+    private static String openDocument(Context context, Uri uri, String name) {
+        String uriText = uri.toString();
         try {
             ParcelFileDescriptor document = context.getContentResolver().openFileDescriptor(uri, "r");
             if (document == null) {
@@ -300,6 +304,73 @@ public class SilentHillActivity extends SDLActivity {
         return "";
     }
 
+    // ---- the disc image of the import screen (src/engine/app/first_run/progress_window.cpp calls these through JNI)
+
+    private static final int REQUEST_DOCUMENT = 0x5349;
+    /**
+     * The answer to pickDocument, read by src/import/ui/picker.h (parse_pick_answer): null while nothing is picked,
+     * "~name" while the picked document is opened or copied, "-" for a cancelled pick, "!reason" when no picker
+     * opened, "?name" for a document that cannot be opened, else the path openDocument made. It is static, and set
+     * from onActivityResult: when the system ended the process while its picker was in front, the result comes to
+     * the new process, whose import screen finds it here.
+     */
+    private static volatile String sPickedDocument;
+
+    /**
+     * Opens the system's document picker for any openable file; "1" when it was asked for. No MIME types are named:
+     * a provider may report another type for a .zip or a .bin than the system's table has, and the picker would
+     * grey such a file out. The answer comes through takeDocument.
+     */
+    public static String pickDocument(String unused) {
+        Context context = SDL.getContext();
+        if (!(context instanceof SilentHillActivity)) {
+            return "0";
+        }
+        SilentHillActivity activity = (SilentHillActivity) context;
+        sPickedDocument = null;
+        activity.runOnUiThread(() -> {
+            try {
+                Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+                intent.addCategory(Intent.CATEGORY_OPENABLE);
+                intent.setType("*/*");
+                activity.startActivityForResult(intent, REQUEST_DOCUMENT);
+            } catch (ActivityNotFoundException e) {
+                Log.e(TAG, "no document picker", e);
+                sPickedDocument = "!" + e.getMessage();
+            }
+        });
+        return "1";
+    }
+
+    /** The answer of pickDocument ("" while there is none); a final one is given once, "~name" until it is final. */
+    public static String takeDocument(String unused) {
+        String answer = sPickedDocument;
+        if (answer == null) {
+            return "";
+        }
+        if (!answer.startsWith("~")) {
+            sPickedDocument = null;
+        }
+        return answer;
+    }
+
+    private void onDocumentResult(int resultCode, Intent data) {
+        Uri uri = (resultCode == RESULT_OK && data != null) ? data.getData() : null;
+        if (uri == null) {
+            Log.i(TAG, "the document picker gave no file (result " + resultCode + ")");
+            sPickedDocument = "-";
+            return;
+        }
+        Context context = getApplicationContext();
+        String name = displayName(context, uri);
+        sPickedDocument = "~" + name;
+        // Opening may copy the whole image, and a cloud provider downloads it first: not on the UI thread.
+        new Thread(() -> {
+            String path = openDocument(context, uri, name);
+            sPickedDocument = path != null ? path : "?" + name;
+        }, "document-open").start();
+    }
+
     // ---- a folder of mods (src/engine/app/mod_import_picker.cpp calls these through JNI)
 
     private static final int REQUEST_MOD_FOLDER = 0x5348;
@@ -340,6 +411,10 @@ public class SilentHillActivity extends SDLActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == REQUEST_DOCUMENT) {
+            onDocumentResult(resultCode, data);
+            return;
+        }
         if (requestCode != REQUEST_MOD_FOLDER) {
             super.onActivityResult(requestCode, resultCode, data);
             return;

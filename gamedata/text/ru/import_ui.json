@@ -71,6 +71,10 @@
     "ui.import.prepare_areas": "Сборка областей карт...",
     "ui.import.prepare_textures": "Подготовка текстур...",
     "ui.import.prepare_materials": "Составление списка материалов...",
-    "ui.import.prepare_starting": "Запуск игры..."
+    "ui.import.prepare_starting": "Запуск игры...",
+    "ui.import.err_empty_touch": "Файл ещё не выбран. Нажмите «Обзор» и выберите .zip с образом диска.",
+    "ui.import.picker_opening": "Чтение {0}... Большой файл может читаться несколько минут.",
+    "ui.import.err_document_unreadable": "Не удаётся открыть выбранный файл {0}. Выберите его ещё раз кнопкой «Обзор»; если он лежит в облаке, сначала скачайте его на устройство.",
+    "ui.import.err_no_access_touch": "Не удаётся открыть {0}: на Android игра читает файлы только из своей папки. Выберите файл кнопкой «Обзор»."
   }
 }

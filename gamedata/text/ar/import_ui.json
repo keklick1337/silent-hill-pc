@@ -71,6 +71,10 @@
     "ui.import.prepare_areas": "تجميع مناطق الخرائط...",
     "ui.import.prepare_textures": "تحضير الخامات...",
     "ui.import.prepare_materials": "إعداد قائمة المواد...",
-    "ui.import.prepare_starting": "بدء اللعبة..."
+    "ui.import.prepare_starting": "بدء اللعبة...",
+    "ui.import.err_empty_touch": "لم يُختر أي ملف بعد. اضغط «استعراض» واختر ملف .zip الخاص بصورة قرصك.",
+    "ui.import.picker_opening": "جارٍ قراءة {0}... قد يستغرق الملف الكبير بضع دقائق.",
+    "ui.import.err_document_unreadable": "تعذر فتح الملف المختار {0}. اختره مرة أخرى بزر «استعراض»؛ وإن كان محفوظًا في خدمة سحابية فنزّله إلى الجهاز أولًا.",
+    "ui.import.err_no_access_touch": "تعذر فتح {0}: في Android لا تقرأ اللعبة الملفات إلا من مجلدها الخاص. اختر الملف بزر «استعراض»."
   }
 }

@@ -182,6 +182,13 @@ struct ImageChoice {
     std::string error;  // set when an image named by --image or import_image is unusable
 };
 
+// Android: an app reads by path only its own folders; any other file reaches it through the system's picker.
+#ifdef __ANDROID__
+constexpr bool kScopedStorage = true;
+#else
+constexpr bool kScopedStorage = false;
+#endif
+
 // --image, then import_image, then a search of `dirs`.
 ImageChoice choose_image(const fs::path& arg, const fs::path& config_image, const std::vector<fs::path>& dirs,
                          ui::Lang lang) {
@@ -193,6 +200,9 @@ ImageChoice choose_image(const fs::path& arg, const fs::path& config_image, cons
         ui::ImageCheck check = ui::check_image(u8(named));
         if (check.ok()) {
             choice.image = std::move(check);
+        } else if (kScopedStorage && (check.problem == ui::Problem::NotFound || check.problem == ui::Problem::Unreadable)) {
+            // Most likely a path on the shared storage, which the system hides from the app.
+            choice.error = ui::format(lang, ui::Str::ErrNoAccessTouch, {u8(check.path)});
         } else {
             choice.error = ui::describe(lang, check);
         }
@@ -903,11 +913,12 @@ int run(const PcFirstRunArgs& args, PcFirstRunResult& result) {
         if (code == 0 && picked && !sh::first_run::is_picked_document(u8(image->path))) {
             remember_image(config_path, image->path);
         }
-        // A copy of a document the dialog gave is needed by this import only; another pick makes a new one.
-        sh::first_run::forget_picked_documents();
         if (code != 1 || failure.empty()) {
+            // A copy of a document the dialog gave is needed by this import only.
+            sh::first_run::forget_picked_documents();
             return code;
         }
+        // Back to the picker: the field still names the copy, so it stays for another Import.
         picker.fail(failure);
         image.reset();
     }

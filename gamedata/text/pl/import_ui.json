@@ -71,6 +71,10 @@
     "ui.import.prepare_areas": "Składanie obszarów map...",
     "ui.import.prepare_textures": "Przygotowanie tekstur...",
     "ui.import.prepare_materials": "Spisywanie materiałów...",
-    "ui.import.prepare_starting": "Uruchamianie gry..."
+    "ui.import.prepare_starting": "Uruchamianie gry...",
+    "ui.import.err_empty_touch": "Nie wybrano jeszcze pliku. Dotknij Przeglądaj i wybierz plik .zip z obrazem swojej płyty.",
+    "ui.import.picker_opening": "Odczytywanie {0}... Duży plik może zająć kilka minut.",
+    "ui.import.err_document_unreadable": "Nie można otworzyć wybranego pliku {0}. Wybierz go ponownie przyciskiem Przeglądaj; jeśli jest w chmurze, najpierw pobierz go na urządzenie.",
+    "ui.import.err_no_access_touch": "Nie można otworzyć {0}: w systemie Android gra odczytuje pliki tylko z własnego folderu. Wybierz plik przyciskiem Przeglądaj."
   }
 }

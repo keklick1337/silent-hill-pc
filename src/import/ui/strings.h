@@ -94,6 +94,12 @@ enum class Str {
     PrepareMaterials,
     PrepareStarting,
 
+    // A phone again: what Import and the system's picker can answer there.
+    ErrEmptyTouch,
+    PickerOpening,          // {0} = file name; shown while the chosen document is opened or copied
+    ErrDocumentUnreadable,  // {0} = file name
+    ErrNoAccessTouch,       // {0} = path named by --image or import_image
+
     Count_
 };
 

@@ -71,6 +71,10 @@
     "ui.import.prepare_areas": "マップのエリアを組み立て中...",
     "ui.import.prepare_textures": "テクスチャを準備中...",
     "ui.import.prepare_materials": "マテリアルを一覧にしています...",
-    "ui.import.prepare_starting": "ゲームを起動中..."
+    "ui.import.prepare_starting": "ゲームを起動中...",
+    "ui.import.err_empty_touch": "ファイルがまだ選ばれていません。「参照」をタップして、ディスクイメージの .zip を選んでください。",
+    "ui.import.picker_opening": "{0} を読み込み中... 大きなファイルは数分かかることがあります。",
+    "ui.import.err_document_unreadable": "選んだファイル {0} を開けません。「参照」でもう一度選んでください。クラウド上にある場合は、先に端末へダウンロードしてください。",
+    "ui.import.err_no_access_touch": "{0} を開けません：Android ではゲームは自分のフォルダー内のファイルしか読み込めません。「参照」でファイルを選んでください。"
   }
 }
