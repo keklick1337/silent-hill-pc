@@ -7,6 +7,8 @@
 #include "engine/save/game_saves.h"
 #include "engine/save/save_c.h"
 #include "engine/save/save_file.h"
+#include "engine/save/save_service.h"
+#include "engine/save/save_store.h"
 #include "engine/version/engine_version.h"
 #include "framework/sh_test.h"
 
@@ -14,6 +16,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <filesystem>
+#include <optional>
 #include <string>
 #include <system_error>
 #include <vector>
@@ -43,15 +46,30 @@ public:
     int blood = -1;
 };
 
+// The file's bytes, or nothing (the failure is reported).
+std::vector<std::uint8_t> bytes_of(const fs::path& path) {
+    auto bytes = sh::save::read_whole_file(path);
+    SH_CHECK(static_cast<bool>(bytes));
+    return bytes ? std::move(bytes.value()) : std::vector<std::uint8_t>();
+}
+
+std::optional<sh::save::SaveFile> file_of(const fs::path& path) {
+    auto file = sh::save::decode(bytes_of(path));
+    SH_CHECK(static_cast<bool>(file));
+    return file ? std::optional<sh::save::SaveFile>(std::move(file.value())) : std::nullopt;
+}
+
 std::string meta_of(const fs::path& path) {
-    const auto file = sh::save::decode(sh::save::read_whole_file(path).value()).value();
-    const sh::save::Chunk* meta = file.find(sh::save::kTagMeta);
-    return std::string(meta->data.begin(), meta->data.end());
+    const auto file = file_of(path);
+    const sh::save::Chunk* meta = file ? file->find(sh::save::kTagMeta) : nullptr;
+    SH_CHECK(!file || meta != nullptr);
+    return meta != nullptr ? std::string(meta->data.begin(), meta->data.end()) : std::string();
 }
 
 // The file's META "game_version" replaced, as a newer game would have written it.
 void set_version(const fs::path& path, const std::string& version) {
-    auto file = sh::save::decode(sh::save::read_whole_file(path).value()).value();
+    auto file = file_of(path);
+    if (!file) return;
     std::string meta = meta_of(path);
     const std::string key = "\"game_version\": \"";
     const std::size_t at = meta.find(key);
@@ -59,8 +77,8 @@ void set_version(const fs::path& path, const std::string& version) {
     if (at == std::string::npos) return;
     const std::size_t end = meta.find('"', at + key.size());
     meta.replace(at + key.size(), end - at - key.size(), version);
-    file.put(sh::save::kTagMeta, std::vector<std::uint8_t>(meta.begin(), meta.end()));
-    SH_CHECK(static_cast<bool>(sh::save::write_file_atomic(path, sh::save::encode(file))));
+    file->put(sh::save::kTagMeta, std::vector<std::uint8_t>(meta.begin(), meta.end()));
+    SH_CHECK(static_cast<bool>(sh::save::write_file_atomic(path, sh::save::encode(*file))));
 }
 
 }  // namespace
@@ -89,6 +107,12 @@ SH_TEST(game_saves_session_round_trip) {
     saves.set_host(&host);
     const std::string exe = dir.string() + "/";
     saves.open(exe.c_str(), "", (dir / "gamedata").string().c_str());
+    // The store is opened once a process: another test may have opened it in its own folder first. It starts empty.
+    const fs::path root = sh::save::active_store().root();
+    const bool in_temp = root.lexically_normal().generic_string().starts_with(
+        fs::temp_directory_path().lexically_normal().generic_string());
+    SH_CHECK(in_temp);
+    if (in_temp) fs::remove_all(root, ec);
 
     const int written = saves.save(0);
     SH_CHECK(written >= 1);
@@ -121,7 +145,7 @@ SH_TEST(game_saves_session_round_trip) {
     SH_CHECK(outcome == 2);
 
     // The save says which version of the game made it.
-    const fs::path first = dir / ".savegames" / "save_0001.sav";
+    const fs::path first = sh::save::active_store().save_path(1);
     const std::string version(sh::version::kText);
     SH_CHECK(written == 1 && meta_of(first).find("\"game_version\": \"" + version + "\"") != std::string::npos);
 
@@ -130,9 +154,9 @@ SH_TEST(game_saves_session_round_trip) {
     save.map = 7;
     const int second = saves.save(0);
     SH_CHECK(second == 2);
-    const fs::path later = dir / ".savegames" / "save_0002.sav";
+    const fs::path later = sh::save::active_store().save_path(2);
     set_version(later, "9.9.9");
-    const auto later_bytes = sh::save::read_whole_file(later).value();
+    const auto later_bytes = bytes_of(later);
     save.map = 9;
     const std::uint32_t running = sh::save::GameSaves::fingerprint();
     SH_CHECK(saves.load(second) == -2);
@@ -143,7 +167,7 @@ SH_TEST(game_saves_session_round_trip) {
     SH_CHECK(ShSave_ListLoadable(numbers, 4, &listed) == 1 && numbers[0] == 1 && listed == 2);
     SH_CHECK(ShSave_ListNewest(numbers, 4) == 1 && numbers[0] == 1);
     SH_CHECK(saves.load(numbers[0]) == 1 && save.map == 3);
-    SH_CHECK(sh::save::read_whole_file(later).value() == later_bytes);
+    SH_CHECK(bytes_of(later) == later_bytes);
     // A version that does not parse is refused the same way; the same numbers with a suffix load.
     set_version(later, "next");
     SH_CHECK(saves.load(second) == -2);
@@ -157,7 +181,7 @@ SH_TEST(game_saves_session_round_trip) {
 
     // A quick save and a save file of a newer game are refused too.
     SH_CHECK(saves.quick_save(0) == 1);
-    const fs::path quick = dir / ".savegames" / "quick" / "quick_01.sav";
+    const fs::path quick = sh::save::active_store().quick_path(0);
     SH_CHECK(meta_of(quick).find("\"game_version\": \"" + version + "\"") != std::string::npos);
     set_version(quick, "9.9.9");
     SH_CHECK(sh::save::GameSaves::quick_state(0) == -2 && saves.quick_load(0) == -2);
@@ -170,5 +194,6 @@ SH_TEST(game_saves_session_round_trip) {
     game.autosave = sh::game::SaveRecord{};
     game.settings = sh::game::Settings{};
     saves.set_host(nullptr);
+    if (in_temp) fs::remove_all(root, ec);
     fs::remove_all(dir, ec);
 }
