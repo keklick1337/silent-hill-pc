@@ -8,7 +8,7 @@ The game carries its own modding tools: an editor that stops the game and lets y
 
 *Options > Interface > Modding Tools (F2)*, or `modding_tools = 1` in `config.cfg`. Then **F2** during free gameplay (or the console command `editor`) opens the editor. It opens only while the player controls Harry: not in a cutscene, a message, a menu or the pause.
 
-While the editor is open the game stands still: no AI, no events, no timers. Leaving it (F2, `editor off`) restores everything the editor borrowed — fog, draw distance, brightness, the camera — and the game continues unchanged. Only explicit actions change the game: "Place player here", "Teleport player", "Warp".
+While the editor is open the game stands still: no AI, no events, no timers. Leaving it (F2, `editor off`) restores everything the editor borrowed — fog, draw distance, brightness, the camera — and the game continues unchanged. Only explicit actions change the game: "Place player here", "Teleport player", "Warp", and the edits of the placement editor, which last until the map is loaded again.
 
 ## The editor
 
@@ -63,6 +63,41 @@ The inspector's *live* switch (on by default) shows what runs now rather than wh
 
 The world inspector (*Panels*) reacts to a click on the world: for a character it shows its model and textures, for a world object or a cell the model name, its glb, the file and the mod it comes from, vertex and triangle counts and the materials.
 
+### Placement editor
+
+*Panels > World > Placement editor*, with the overlay *Placement editor: selection, handles, cursor, path*. It moves, turns and resizes the things placed on the loaded map in the running game, and gives the line of the file as it should stand afterwards. It writes no file: you copy the line into your mod and read the mod again (`mods reload`).
+
+**The list.** Every thing of the map by kind, each kind with a switch: world objects, pickups a script placed, monsters and other characters in the world, script zones (`sh.world.mark`), the map's event triggers, map points, spawn rows. *only within N m* keeps what lies near the camera; switched off, the list holds the whole map. The search box matches the name, the kind and what the thing does. A click on a row selects it, a double click also flies the camera there. A thing whose flags or cells shut it now is marked *(off now)*.
+
+**Selecting in the world.** With *click selects* on, a left click on a thing selects it (for a zone, a click inside its circle); the selected thing is drawn white with its name.
+
+**Moving and turning.** Tool *move* (key 1): drag the yellow dot to move the thing on its level, the red and blue handles to move it along x or z only, the green handle for its height. Tool *rotate* (key 2): drag the green ring to turn it about the vertical, the red and blue rings for the other two angles. Ctrl moves by the step of the fields and turns by 15 degrees. The fields under the tools hold the same numbers (x, y, z in metres, y grows down; three angles in degrees): drag a field or double-click it to type; *step* sets how far a drag of a field moves. The thing moves in the game as the numbers change.
+
+**Zones.** A script zone is drawn as its circle with its label; a box trigger of the map as its box. Drag the orange dot on the edge, or the edge of a circle itself, to resize it, or use the *radius* field (*half x*, *half z* for a box, kept in quarter metres as the map stores them). For a script zone the editor moves the mark the script drew of it: the script's own test changes when its file does.
+
+**Step back.** *Undo* (Ctrl+Z) and *Redo* (Ctrl+Shift+Z) step through the edits of the map, one drag a step. *Reset to the file* gives the selected thing what it had before its first edit. A map load puts everything back as the files say.
+
+**Where it is written.** Under the fields: the file that holds the thing, base data or a mod's, with the line.
+
+| Kind | Where the editor finds it |
+| --- | --- |
+| world object | every `maps/<map>/world_objects.json` that has a record of that name (the base file and each mod's), with the line; the one holding `"position"` is marked |
+| script pickup, script zone, script-spawned character | the script file and line of the call that made it (`sh.world.pickup_create`, `sh.world.mark`, `sh.entity.spawn`) with the function that called it, and the line of that file whose numbers are its place (and, for a zone, the line with its label and radius) |
+| map trigger, map point | the point's entry of `points.json`; a mod changes it in its `map.json` |
+| spawn row | `spawns.json` and `spawn_overrides.json` |
+
+The engine notes the script line when the thing is made, so a mod needs nothing for it. The line with the numbers is found by the numbers themselves: a place written as two literals on one line (a row of a table, a `{ x = ..., z = ... }` constant) is found; one computed in the script is not, and the editor then gives the new numbers to put by hand. When several lines match, *next matching line* steps through them. *Open in the Lua editor* opens the script.
+
+**The corrected line.** After an edit the panel shows each place to change: the file and line, the old text in red and the new in green. Only the changed numbers are rewritten, in the form the file wrote them (metres stay metres, a Q12 integer stays an integer); the rest of the line and its comment stay. *Copy* puts the new line on the clipboard and prints file, old and new to the log; for a world object *Copy the whole record* gives the record with every other key as the file has it, and for a base object a second entry gives the record a mod writes to patch it by name. *Copy all* and *Print to the console* take every entry.
+
+**The cursor point** is a point of its own, for places with no ground under them. *Place by a click* puts it on the surface under the next click, *At the player* and *In front of the camera* where they say; then drag its handles or its three fields. *snap to the ground* keeps it on the surface under the pointer; *free height* keeps its height on a drag, and the green handle changes it. Its place is shown in metres and in the game's integers, and *Copy* gives the row a script writes: `{ x = -40, y = -2, z = -74729 } -- -0.01, -0.0005, -18.2444 m`. *Player to the cursor* teleports the player there.
+
+**The path.** *Add point* drops a point at the cursor and the cursor stays for the next one. The points are joined by a line with each segment's length and the running total; a click on a point's dot (or its row) puts the handles on it, the *x* of its row deletes it. Type a *speed* to read the time each segment and the whole path take, or a *time* to read the speed it needs. The table is copied as Lua in the game's integers, as Lua in metres or as JSON, and printed to the log.
+
+**Teleporting.** *Player here*, *Player to the cursor* and the room buttons of the menu bar hold the player at the place until its floor has loaded. Every teleport of the tools and of the console (`tp`, `goto`) takes the play camera along in the same frame: it is put behind the player as after a map load, and the camera zone of the place takes over from there. `sh.player.set_pos` of a script does not move the camera: a scene sets its own.
+
+The console command `edit` does all of this for scripted runs (`help edit`), and `editormouse` clicks and drags at a place of the picture or at a world point where no pointer exists.
+
 ### Asset panels
 
 *Panels > Assets*:
@@ -114,7 +149,7 @@ Switching mods on and off and their order always need a restart.
 | `debugmenu <menu id>` | open any menu (`options`, `options.mods`, a mod's page) |
 | `version` | the engine version, the build and the mod API version |
 | `pos` | Harry's position, heading, map and room |
-| `tp x y z` | teleport Harry |
+| `tp x y z` | teleport Harry; the camera goes with him |
 | `map [name]` | warp to a map, or show the current one and the list |
 | `give <item>` | give an item, weapon or ammunition by name |
 | `equip <weapon>` | take an owned weapon in hand |
@@ -130,7 +165,8 @@ Switching mods on and off and their order always need a restart.
 | `shot [file]` | save a screenshot |
 | `log` | log categories and levels |
 | `sounds` | what sounds now: the radio (on or off, whom its two static channels follow, the monsters in reach) and every sound file playing with its level |
-| `editor`, `editorview`, `editorroom`, `editorcam`, `editorpick`, `editortexture`, `editormodel`, `luaedit` | drive the editor from the console, for scripted runs |
+| `editor`, `editorview`, `editorroom`, `editorcam`, `editorpick`, `editormouse`, `editortexture`, `editormodel`, `luaedit` | drive the editor from the console, for scripted runs |
+| `edit list\|select\|set\|rot\|radius\|undo\|reset\|origin\|copy\|cursor\|path\|tp ...` | the placement editor: select a thing of the map, move, turn and resize it, print where it is written and its corrected line; the cursor point and the path |
 
 A file of console commands can be run at start with `-consolecmd <file>`; a line that begins with `@N` runs N seconds after the start, one with `@+N` N sixtieths of a second of game time after the line before it. Mods add their own commands with [`sh.console.register`](scripting.md#console-commands-shconsole).
 

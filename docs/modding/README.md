@@ -13,7 +13,7 @@ A mod is a folder with a `mod.json` and files laid out like the game's own `game
 | [Scripting](scripting.md) | Lua in a mod: the sandbox, `scripts/main.lua`, script layers, menus and option pages, settings, console commands, talking to other mods |
 | [Events](events.md) | the event bus `sh.hooks` and the catalogue of game events |
 | [Lua API reference](lua-api.md) | every function of the `sh` table |
-| [Tools](tools.md) | the built-in editor (F2), its panels, the Lua editor, console commands for modders |
+| [Tools](tools.md) | the built-in editor (F2), its panels, the placement editor (move, turn and resize what is placed on a map and copy the corrected line), the Lua editor, console commands for modders |
 | [Making a mod in the editor](editor.md) | the Mod panel: a new mod, triggers, spawns and pickups placed on a map, scripts, saving and reloading |
 | [Replacing a character model](rig-transfer.md) | the `rig_transfer` tool: your own model on a skeleton of the game |
 | [Translating the game](translation.md) | adding a language or changing a translation |
