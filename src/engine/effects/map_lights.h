@@ -38,6 +38,9 @@ struct MapLight {
     bool gi = true;
     std::vector<std::string> flags_set;    // every one set (event flag names; "when": "flag:<name>")
     std::vector<std::string> flags_clear;  // every one clear ("when": "!flag:<name>")
+    // "when" terms with alternatives ("!flag:A|flag:B"): of each group at least one holds. An entry is a flag's
+    // name, with '!' before it when the flag has to be clear.
+    std::vector<std::vector<std::string>> any_of;
     // A lamp placed by hand where the original only draws the fixture: shown only with the setting extra_lights.
     bool extra = false;
     // Follows a bone of Harry ("RightHand"; the only skeleton the frame knows by name). -1: placed in the world.
@@ -67,6 +70,7 @@ struct MapSun {
     std::vector<MapCeiling> ceilings;
     std::vector<std::string> flags_set;
     std::vector<std::string> flags_clear;
+    std::vector<std::vector<std::string>> any_of;  // as MapLight::any_of
 };
 
 // A light at each lamp glow the original draws (the halo sprites of the cells' lamps): the default for every map is

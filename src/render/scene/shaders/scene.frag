@@ -86,8 +86,24 @@ SH_SAMPLER(4) uniform sampler2D s_rtShadow;
 SH_SAMPLER(5) uniform sampler2D s_rtReflect;
 SH_SAMPLER(6) uniform sampler2D s_rtGi;
 
-vec4 RtAt(sampler2D s) { return texelFetch(s, ivec2(gl_FragCoord.xy), 0); }
 bool RtHere(vec4 r) { return r.a > 0.0 && abs(r.a - v_viewpos.z) <= 2.0 + 0.004 * v_viewpos.z; }
+// The rays of a pixel in a gap between two map faces (the seam lines drawn over it, 6.5) or on a face's very edge
+// went past this surface, so its result is another surface's: the nearest pixel traced for this one stands in, or
+// the gap would stay unlit, a dark line across ground the sun or a lamp lights.
+vec4 RtAt(sampler2D s) {
+    ivec2 at = ivec2(gl_FragCoord.xy);
+    vec4 r = texelFetch(s, at, 0);
+    if (RtHere(r)) return r;
+    const ivec2 kNear[12] = ivec2[12](ivec2(1, 0), ivec2(-1, 0), ivec2(0, 1), ivec2(0, -1), ivec2(1, 1), ivec2(-1, 1),
+                                      ivec2(1, -1), ivec2(-1, -1), ivec2(2, 0), ivec2(-2, 0), ivec2(0, 2),
+                                      ivec2(0, -2));
+    ivec2 last = textureSize(s, 0) - 1;
+    for (int i = 0; i < 12; ++i) {
+        vec4 q = texelFetch(s, clamp(at + kNear[i], ivec2(0), last), 0);
+        if (RtHere(q)) return q;
+    }
+    return r;
+}
 
 // The posed meshes mirrored in the water's plane, drawn with the frame's own projection (SceneRenderer::reflect).
 SH_SAMPLER(3) uniform sampler2D s_reflect;

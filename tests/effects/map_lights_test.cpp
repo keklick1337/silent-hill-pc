@@ -85,6 +85,22 @@ SH_TEST(map_lights_when_and_extra) {
     SH_CHECK(!fx::parse_map_lights(R"({"lights": [{"name": "A", "position": [0, 0, 0], "extra": 1}]})"));
 }
 
+// A condition with alternatives ("A is clear or B is set") is a group of which one has to hold; the plain
+// conditions beside it keep their lists.
+SH_TEST(map_lights_when_alternatives) {
+    const sh::Result<fx::MapLights> r = fx::parse_map_lights(R"({
+        "sun": {"direction": [0, 1, 0], "when": ["!flag:DarknessFell|flag:WokeUp", "flag:Other"]}
+    })");
+    SH_CHECK(r);
+    if (!r) return;
+    const fx::MapLights& m = r.value();
+    SH_CHECK(m.sun && m.sun->flags_set.size() == 1 && m.sun->flags_set[0] == "Other" && m.sun->flags_clear.empty());
+    SH_CHECK(m.sun && m.sun->any_of.size() == 1 && m.sun->any_of[0].size() == 2);
+    SH_CHECK(m.sun && m.sun->any_of[0][0] == "!DarknessFell" && m.sun->any_of[0][1] == "WokeUp");
+    SH_CHECK(!fx::parse_map_lights(R"({"sun": {"direction": [0, 1, 0], "when": "flag:A|"}})"));
+    SH_CHECK(!fx::parse_map_lights(R"({"sun": {"direction": [0, 1, 0], "when": "flag:A|B"}})"));
+}
+
 SH_TEST(map_lights_fire_lights_parse) {
     std::ifstream in(std::string(SH_PROJECT_ROOT) + "/gamedata/effects/fire_lights.json", std::ios::binary);
     const std::string text((std::istreambuf_iterator<char>(in)), std::istreambuf_iterator<char>());

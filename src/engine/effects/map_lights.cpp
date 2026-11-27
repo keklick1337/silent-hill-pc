@@ -54,19 +54,35 @@ bool bool_or(const json::Value& parent, std::string_view key, bool fallback) {
 }
 
 // "when": one condition or a list of them, all of which must hold: "flag:<name>" (the event flag is set) or
-// "!flag:<name>" (it is clear). The same lists as flags_set and flags_clear, which stay for older files.
-void when_of(const json::Value& parent, std::vector<std::string>* set, std::vector<std::string>* clear) {
+// "!flag:<name>" (it is clear). The same lists as flags_set and flags_clear, which stay for older files. A condition
+// may give alternatives with '|' ("!flag:A|flag:B": A is clear or B is set); those go to `any`.
+void when_of(const json::Value& parent, std::vector<std::string>* set, std::vector<std::string>* clear,
+             std::vector<std::vector<std::string>>* any) {
     const json::Value* v = parent.find("when");
     if (v == nullptr) return;
+    constexpr const char* kShape = "a condition is \"flag:<name>\" or \"!flag:<name>\", alternatives joined by '|'";
     auto term = [&](const json::Value& t) {
-        if (!t.is_string()) parse::fail(t, "a condition is \"flag:<name>\" or \"!flag:<name>\"");
-        std::string_view text = t.string();
-        const bool negated = !text.empty() && text.front() == '!';
-        if (negated) text.remove_prefix(1);
-        constexpr std::string_view kFlag = "flag:";
-        if (text.substr(0, kFlag.size()) != kFlag || text.size() == kFlag.size())
-            parse::fail(t, "a condition is \"flag:<name>\" or \"!flag:<name>\"");
-        (negated ? clear : set)->emplace_back(text.substr(kFlag.size()));
+        if (!t.is_string()) parse::fail(t, kShape);
+        std::vector<std::string> group;
+        std::string_view rest = t.string();
+        for (;;) {
+            const std::size_t bar = rest.find('|');
+            std::string_view text = rest.substr(0, bar);
+            const bool negated = !text.empty() && text.front() == '!';
+            if (negated) text.remove_prefix(1);
+            constexpr std::string_view kFlag = "flag:";
+            if (text.substr(0, kFlag.size()) != kFlag || text.size() == kFlag.size()) parse::fail(t, kShape);
+            group.push_back((negated ? "!" : "") + std::string(text.substr(kFlag.size())));
+            if (bar == std::string_view::npos) break;
+            rest.remove_prefix(bar + 1);
+        }
+        if (group.size() > 1) {
+            any->push_back(std::move(group));
+        } else if (group[0].front() == '!') {
+            clear->emplace_back(group[0].substr(1));
+        } else {
+            set->push_back(std::move(group[0]));
+        }
     };
     if (v->is_array()) {
         for (const json::Value& t : v->array()) term(t);
@@ -139,7 +155,7 @@ MapLight light_of(const json::Value& v) {
     l.gi = bool_or(v, "gi", true);
     l.flags_set = names_of(v, "flags_set");
     l.flags_clear = names_of(v, "flags_clear");
-    when_of(v, &l.flags_set, &l.flags_clear);
+    when_of(v, &l.flags_set, &l.flags_clear, &l.any_of);
     l.extra = bool_or(v, "extra", false);
     if (const json::Value* b = v.find("bone")) {
         if (!b->is_string() || (l.bone = harry_bone_index(b->string())) < 0)
@@ -357,7 +373,7 @@ Result<MapLights> parse_map_lights(std::string_view json_text) try {
             s.angular_radius = number_or(*sun, "angular_radius", 0.5f, 0.0, 10.0);
             s.flags_set = names_of(*sun, "flags_set");
             s.flags_clear = names_of(*sun, "flags_clear");
-            when_of(*sun, &s.flags_set, &s.flags_clear);
+            when_of(*sun, &s.flags_set, &s.flags_clear, &s.any_of);
             if (const json::Value* list = sun->find("ceilings")) s.ceilings = ceilings_of(*list);
         }
         if (sky != nullptr && !sky->is_null()) {

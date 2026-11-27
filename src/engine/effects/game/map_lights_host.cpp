@@ -134,14 +134,23 @@ Loaded& loaded() {
     return l;
 }
 
-bool flags_hold(const std::vector<std::string>& set, const std::vector<std::string>& clear) {
+bool flag_set(const char* name) {
+    const int f = sh::ids::flag_number(name);
+    return f >= 0 && sh::game_state::event_flag(f);
+}
+
+bool flags_hold(const std::vector<std::string>& set, const std::vector<std::string>& clear,
+                const std::vector<std::vector<std::string>>& any_of) {
     for (const std::string& n : set) {
-        const int f = sh::ids::flag_number(n.c_str());
-        if (f < 0 || !sh::game_state::event_flag(f)) return false;
+        if (!flag_set(n.c_str())) return false;
     }
     for (const std::string& n : clear) {
-        const int f = sh::ids::flag_number(n.c_str());
-        if (f >= 0 && sh::game_state::event_flag(f)) return false;
+        if (flag_set(n.c_str())) return false;
+    }
+    for (const std::vector<std::string>& group : any_of) {
+        bool one = false;
+        for (const std::string& n : group) one = one || (n[0] == '!' ? !flag_set(n.c_str() + 1) : flag_set(n.c_str()));
+        if (!one) return false;
     }
     return true;
 }
@@ -288,7 +297,7 @@ void describe_map_lights() {
     for (std::size_t li = 0; li < data.lights.size(); ++li) {
         const MapLight& l = data.lights[li];
         if (l.extra && !extra) continue;
-        if (!flags_hold(l.flags_set, l.flags_clear)) continue;
+        if (!flags_hold(l.flags_set, l.flags_clear, l.any_of)) continue;
         float level = 1.0f;
         if (!l.while_effect.empty()) {
             level = ease_followed(li, map, effect_brightness(l.while_effect), l.flicker, dt, time);
@@ -320,7 +329,7 @@ void describe_map_lights() {
         out.extra = l.extra;
         f.lights.push_back(out);
     }
-    if (data.sun && flags_hold(data.sun->flags_set, data.sun->flags_clear)) {
+    if (data.sun && flags_hold(data.sun->flags_set, data.sun->flags_clear, data.sun->any_of)) {
         const MapSun& s = *data.sun;
         f.sun.on = true;
         f.sun.direction = s.direction;
