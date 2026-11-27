@@ -8,12 +8,14 @@
 #include "engine/script/script_host.h"
 #include "engine/game_state/session.h"
 #include "engine/gameflow/state_names.h"
+#include "engine/world/script_origin.h"
 
 #include <algorithm>
 #include <cmath>
 #include <numbers>
 #include <string>
 #include <string_view>
+#include <utility>
 
 extern "C" {
 #include "lauxlib.h"
@@ -218,6 +220,13 @@ int l_spawn(lua_State* L) {
         lua_pushstring(L, err[0] != '\0' ? err : "the character could not be spawned");
         return 2;
     }
+    sh::world::ScriptSpawn made;
+    made.chara = chara;
+    made.owner = caller_mod(L);
+    made.x = x;
+    made.z = z;
+    made.origin = caller_origin(L);
+    sh::world::note_script_spawn(slot, std::move(made));
     lua_pushinteger(L, slot);
     return 1;
 }

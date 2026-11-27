@@ -12,6 +12,7 @@
 
 #pragma once
 
+#include "engine/world/script_origin.h"
 #include "formats/common/status.h"
 
 #include <array>
@@ -38,6 +39,7 @@ struct PickupSpec {
     // model = false in the script: nothing is drawn for it (the mod shows the thing itself, a world object of its own
     // model); it is still taken up where it lies.
     bool unseen = false;
+    ScriptOrigin origin;  // the script call that made it (the modding tools show it)
 };
 
 // What the game made of the names (filled by the Resolver); the bridge uses these numbers every frame.
@@ -81,6 +83,10 @@ public:
     // A pickup created without a height lies on the ground once the host could sample it (collision loads after the
     // map script ran); until then it is neither drawn nor reachable.
     bool place_on_ground(std::string_view id, std::int32_t height);
+    // Moves a pickup where it lies now (the modding tools' placement editor); it keeps the height given, not the
+    // ground's. False when there is none.
+    bool set_pose(std::string_view id, const std::array<std::int32_t, 3>& position,
+                  const std::array<std::int16_t, 3>& rotation);
     std::size_t remove_owner(std::string_view owner);
 
     bool empty() const { return pickups_.empty(); }
@@ -125,6 +131,7 @@ struct ScriptMark {
     std::string kind;   // free text the overlay shows ("trigger", "save", "door")
     std::int32_t x = 0, z = 0;  // Q12
     std::int32_t radius = 0;    // Q12
+    ScriptOrigin origin;        // the script call that made it
 };
 void set_script_mark(ScriptMark mark);
 // Removes one mark of `owner` (or all of them with an empty id); true when one went.

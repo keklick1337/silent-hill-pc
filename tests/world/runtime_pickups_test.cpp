@@ -362,9 +362,9 @@ SH_TEST(runtime_pickups_unseen_take_and_marks) {
 
     sw::request_pickup_take("mod:key");
     SH_CHECK(sw::pending_pickup_take() == "mod:key");
-    sw::set_script_mark({"mod", "lever", "the lever", "action", m(1), m(2), m(1.5)});
-    sw::set_script_mark({"mod", "lever", "the lever moved", "action", m(3), m(2), m(1.5)});
-    sw::set_script_mark({"other", "lever", "", "", 0, 0, 0});
+    sw::set_script_mark({"mod", "lever", "the lever", "action", m(1), m(2), m(1.5), {}});
+    sw::set_script_mark({"mod", "lever", "the lever moved", "action", m(3), m(2), m(1.5), {}});
+    sw::set_script_mark({"other", "lever", "", "", 0, 0, 0, {}});
     SH_CHECK(sw::script_marks().size() == 2 && sw::script_marks()[0].label == "the lever moved");
     SH_CHECK(sw::clear_script_marks("other", "") && sw::script_marks().size() == 1);
     reg.begin_map("map2_s02");

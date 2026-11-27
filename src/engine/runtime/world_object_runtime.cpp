@@ -363,6 +363,20 @@ Result<void> WorldObjectRuntime::set_position(std::string_view name, std::int32_
     return Result<void>::ok();
 }
 
+Result<void> WorldObjectRuntime::tool_set_pose(std::string_view name, const Pose& pose) {
+    std::string why;
+    const WorldObjectDef* def = nullptr;
+    const int index = find(name, &def, &why);
+    if (index < 0) {
+        return Result<void>::fail(why);
+    }
+    const auto i = static_cast<std::size_t>(index);
+    states_[i].position = pose.position;
+    states_[i].rotation = pose.rotation;
+    gs::world_object_record_set_pose(i, pose.position, pose.rotation);
+    return Result<void>::ok();
+}
+
 Result<void> WorldObjectRuntime::set_rotation(std::string_view name, std::int32_t x, std::int32_t y,
                                               std::int32_t z) {
     std::string why;

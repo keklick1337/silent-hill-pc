@@ -49,6 +49,7 @@ add_library(sh_world STATIC
     solid_objects.cpp
     disc_poses.cpp
     runtime_pickups.cpp
+    script_origin.cpp
     carried_lights.cpp
     script_event.cpp
     world_script.cpp

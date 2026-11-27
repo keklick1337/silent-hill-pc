@@ -102,6 +102,19 @@ Result<std::string> PickupRegistry::create(PickupSpec spec) {
     return Result<std::string>::ok(pickups_.back().spec.id);
 }
 
+bool PickupRegistry::set_pose(std::string_view id, const std::array<std::int32_t, 3>& position,
+                              const std::array<std::int16_t, 3>& rotation) {
+    const auto it = std::find_if(pickups_.begin(), pickups_.end(), [&](const Pickup& p) { return p.spec.id == id; });
+    if (it == pickups_.end()) {
+        return false;
+    }
+    it->spec.position = position;
+    it->spec.rotation = rotation;
+    it->spec.ground = false;
+    ++revision_;
+    return true;
+}
+
 bool PickupRegistry::remove(std::string_view id) {
     const auto it = std::find_if(pickups_.begin(), pickups_.end(), [&](const Pickup& p) { return p.spec.id == id; });
     if (it == pickups_.end()) {

@@ -53,6 +53,9 @@ public:
         std::array<std::int16_t, 3> rotation{};
     };
     Result<Pose> pose(std::string_view name);
+    // The modding tools' placement editor moves any object where it stands now, a "script" one or not; the data and
+    // the script are not asked. A script that moves the object itself puts it back on its next update.
+    Result<void> tool_set_pose(std::string_view name, const Pose& pose);
 
     // Every object of the loaded map as it stands now, in file order (the state dump).
     struct ObjectInfo {

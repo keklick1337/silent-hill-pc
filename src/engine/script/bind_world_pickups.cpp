@@ -157,6 +157,7 @@ int l_pickup_create(lua_State* L) {
     luaL_checktype(L, 1, LUA_TTABLE);
     sw::PickupSpec spec;
     spec.owner = caller_mod(L);
+    spec.origin = caller_origin(L);
     for (const auto& [key, out] : {std::pair<const char*, std::string*>{"item", &spec.item},
                                    {"id", &spec.id},
                                    {"flag", &spec.flag},
@@ -316,6 +317,7 @@ int l_pickup_take(lua_State* L) {
 int l_mark(lua_State* L) {
     sw::ScriptMark mark;
     mark.owner = caller_mod(L);
+    mark.origin = caller_origin(L);
     mark.id = id_arg(L, 1);
     luaL_checktype(L, 2, LUA_TTABLE);
     auto num = [&](const char* k) {

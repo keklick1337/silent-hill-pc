@@ -117,6 +117,7 @@ void runtime_pickups_begin_map(std::string_view map) {
     PickupRegistry& reg = pickups();
     reg.set_resolver(&resolver);
     reg.begin_map(map);
+    clear_script_spawns();
     Records& rec = records();
     rec.live.clear();
     rec.revision = ~0ull;

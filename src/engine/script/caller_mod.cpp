@@ -41,4 +41,25 @@ std::string caller_mod(lua_State* L) {
     return owner;
 }
 
+sh::world::ScriptOrigin caller_origin(lua_State* L) {
+    sh::world::ScriptOrigin origin;
+    lua_Debug ar;
+    // Level 1 is the function that called the C function; a few more levels name who called that.
+    for (int level = 1; level <= 4 && lua_getstack(L, level, &ar) != 0; ++level) {
+        if (lua_getinfo(L, "Sl", &ar) == 0 || ar.source == nullptr || ar.source[0] != '@' || ar.currentline <= 0) {
+            continue;  // a C function or a chunk without a file between two script frames
+        }
+        const std::string file = ar.source + 1;
+        if (!origin.known()) {
+            origin.file = file;
+            origin.line = ar.currentline;
+            continue;
+        }
+        const std::size_t slash = file.find_last_of("/\\");
+        if (!origin.via.empty()) origin.via += " < ";
+        origin.via += (slash == std::string::npos ? file : file.substr(slash + 1)) + ":" + std::to_string(ar.currentline);
+    }
+    return origin;
+}
+
 }  // namespace sh::script
