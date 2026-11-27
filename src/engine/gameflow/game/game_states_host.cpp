@@ -13,6 +13,7 @@
 
 #include "engine/app/pc_paths.h"
 #include "engine/game_state/game_state.h"
+#include "engine/game_state/game_state_world.h"
 #include "engine/game_state/session.h"
 #include "engine/gameflow/flow_data.h"
 #include "engine/gameflow/game/game_link.h"
@@ -20,6 +21,7 @@
 #include "engine/gameflow/game_states.h"
 #include "engine/gameflow/map_event_state.h"
 #include "engine/world/runtime_pickups.h"
+#include "engine/world/script_event.h"
 #include "engine/gameflow/menu_states.h"
 #include "engine/gameflow/world_frame.h"
 #include "engine/ids/game_numbers.h"
@@ -319,6 +321,14 @@ public:
     bool run_event_script(int param) override {
         // A mod's runtime pickup runs the game's item prompt under a synthetic event record.
         if (link::runtime_pickups_run_event()) {
+            return true;
+        }
+        // A script's own event (sh.event.run): its function is the event's handler until it says it is done.
+        if (gs::script_event_current()) {
+            if (sh::world::script_event_tick()) {
+                sh::world::script_event_end();
+                return false;
+            }
             return true;
         }
         // The overlays' tables have no length (map0_s02 has 7); a stale parameter must not call past the end.

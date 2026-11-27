@@ -66,6 +66,10 @@ const char* item_world_model(const char* name);  // the item's world model, null
 void start_pickup_event();
 // That synthetic event is the current map event.
 bool pickup_event_current();
+// Starts the synthetic button event a script's own event runs under (sh.event.run, engine/world/script_event.h).
+void start_script_event();
+// That synthetic event is the current map event.
+bool script_event_current();
 // Starts a synthetic button event that shows message `message` of the map (a mod's sh.world.message), like a
 // message event of the map data: the world stops until the message is read.
 void start_message_event(int message);

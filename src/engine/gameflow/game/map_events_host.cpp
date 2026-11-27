@@ -27,6 +27,7 @@
 #include "engine/player/player.h"
 #include "engine/script/sh_script.h"
 #include "engine/world/runtime_pickups.h"
+#include "engine/world/script_event.h"
 
 namespace {
 
@@ -230,6 +231,12 @@ extern "C" void Event_Update(unsigned int disableButtonEvents) {
         gf::map_event_state().sys_state = static_cast<std::int32_t>(gf::GameState::None);
         return;
     }
+    // A script's own event (sh.event.run) that lost its place since the last scan (a map change, another event) is
+    // forgotten; asked before this scan writes the event of the frame.
+    if (sh::world::script_event_active() && !sh::world::script_event_requested() &&
+        !sh::game_state::script_event_current()) {
+        sh::world::script_event_end();
+    }
     const Outputs before = current_outputs();
     const auto& list = convert_events();
     const gf::TriggerFrame frame = make_frame(disableButtonEvents != 0, list.size());
@@ -259,6 +266,13 @@ extern "C" void Event_Update(unsigned int disableButtonEvents) {
         const std::string id = sh::world::pending_pickup_take();
         sh::world::clear_pickup_take();
         link::runtime_pickups_start(id);
+    }
+    // A script's own event (sh.event.run) starts when nothing else runs.
+    if (sh::world::script_event_requested() && !frame.player_busy &&
+        gf::map_event_state().sys_state == static_cast<std::int32_t>(gf::GameState::None)) {
+        sh::world::script_event_begin();
+        sh::game_state::start_script_event();
+        return;
     }
     // An event a script queued outside a running event starts when the scan picked none (map_event_state.h).
     if (gf::MapEventState& s = gf::map_event_state(); s.queued_event != nullptr && !frame.player_busy &&

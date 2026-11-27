@@ -557,6 +557,8 @@ public:
 
     // Map handlers: a global function of the handler's name (from handlers.json) called once
     // per tick. has_global is a cheap existence check the dispatcher uses before every call.
+    // Goes false when the host closes: what outlives it (a queued call) asks before touching its state.
+    std::weak_ptr<bool> alive() const { return alive_; }
     bool has_global(std::string_view name);
     bool call_global(std::string_view name);
 
@@ -588,6 +590,9 @@ public:
      * logged, copied to `error` (when given) and gives false. Works from inside a call into this state. */
     bool call_ref(int ref, const std::function<int(lua_State*)>& push, const std::function<void(lua_State*)>& take,
                   std::string* error);
+
+    /* Gives back a registry ref taken in this state (luaL_ref); nothing when the state is closed. */
+    void drop_ref(int ref);
 
     /* The modding tools' Lua line: runs `code` in this state's globals under the
      * instruction budget, as an expression first ("return <code>") and as a statement when that does not

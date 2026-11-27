@@ -16,6 +16,7 @@
 
 #include "engine/ids/game_numbers.h"
 #include "engine/mods/mods.h"
+#include "engine/world/script_event.h"
 
 // The vendored lua.h carries no extern "C" guard of its own, so wrap it here.
 extern "C" {
@@ -308,6 +309,51 @@ int l_map_event_set(lua_State* L) {
     const int complete = opt_flag_arg(L, 4, -1);
     map_event_set(static_cast<int>(sys_state), static_cast<int>(param), static_cast<int>(map_idx), complete);
     return 0;
+}
+
+// sh.event.run(fn) -> bool: fn becomes the handler of an event of the script's own. From the next tick the game is in
+// the event state and calls fn() once a tick inside its update, where the event steppers and the drawing of an event
+// work as in a handler of the map; the event ends when fn returns true (or fails). False when an event of a script
+// is asked for or runs already; it starts once no other event runs and the player is free.
+int l_event_run(lua_State* L) {
+    luaL_checktype(L, 1, LUA_TFUNCTION);
+    if (sh::world::script_event_active()) {
+        lua_pushboolean(L, 0);
+        return 1;
+    }
+    Host* h = host_of(L);
+    lua_pushvalue(L, 1);
+    const int ref = luaL_ref(L, LUA_REGISTRYINDEX);
+    // The reference is given back when the event is forgotten, unless the script's state went first.
+    struct Handler {
+        Host* host;
+        std::weak_ptr<bool> alive;
+        int ref;
+        Handler(Host* h, std::weak_ptr<bool> a, int r) : host(h), alive(std::move(a)), ref(r) {}
+        Handler(const Handler&) = delete;
+        Handler& operator=(const Handler&) = delete;
+        ~Handler() {
+            const std::shared_ptr<bool> a = alive.lock();
+            if (a && *a) host->drop_ref(ref);
+        }
+    };
+    const auto handler = std::make_shared<Handler>(h, h->alive(), ref);
+    const bool ok = sh::world::script_event_request([handler]() {
+        const std::shared_ptr<bool> a = handler->alive.lock();
+        if (!a || !*a) return true;
+        bool done = false;
+        const bool called = handler->host->call_ref(
+            handler->ref, nullptr, [&done](lua_State* s) { done = lua_toboolean(s, -1) != 0; }, nullptr);
+        return !called || done;
+    });
+    lua_pushboolean(L, ok ? 1 : 0);
+    return 1;
+}
+
+// sh.event.running() -> bool: an event of a script (sh.event.run) is asked for or runs.
+int l_event_running(lua_State* L) {
+    lua_pushboolean(L, sh::world::script_event_active() ? 1 : 0);
+    return 1;
 }
 
 int l_event_point(lua_State* L) {
@@ -2522,6 +2568,7 @@ void Host::close_state() {
     lua_hooks_.clear();  // the refs die with the state
     if (L_ != nullptr) {
         remove_console_family(this);
+        sh::world::script_event_end();
         lua_close(L_);
         L_ = nullptr;
     }
@@ -2622,6 +2669,18 @@ void Host::open_sandbox() {
     lua_pop(L_, 1);
     install_world_family(L_, this);
     install_world_pickup_family(L_, this);
+    if (lua_getfield(L_, -1, "event") != LUA_TTABLE) {
+        lua_pop(L_, 1);
+        lua_newtable(L_);
+        lua_pushvalue(L_, -1);
+        lua_setfield(L_, -3, "event");
+    }
+    for (const auto& f : {std::pair<const char*, lua_CFunction>{"run", l_event_run}, {"running", l_event_running}}) {
+        lua_pushlightuserdata(L_, this);
+        lua_pushcclosure(L_, f.second, 1);
+        lua_setfield(L_, -2, f.first);
+    }
+    lua_pop(L_, 1);
     /* The raw bridge: only with script_raw_api = 1. */
     if (config_.game.raw_api_enabled != nullptr && config_.game.raw_api_enabled() != 0) {
         lua_pushlightuserdata(L_, this);
@@ -3422,6 +3481,10 @@ bool Host::call_global_int(std::string_view name, std::initializer_list<long lon
     }
     *result = static_cast<long long>(v);
     return true;
+}
+
+void Host::drop_ref(int ref) {
+    if (L_ != nullptr) luaL_unref(L_, LUA_REGISTRYINDEX, ref);
 }
 
 bool Host::call_ref(int ref, const std::function<int(lua_State*)>& push,

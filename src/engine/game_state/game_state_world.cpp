@@ -78,6 +78,7 @@ constexpr std::uint32_t kNoParam = 0xFF;
 constexpr std::int32_t kReadMessageState = 7;
 sh::maps::MapEventRecord g_pickup_event;
 sh::maps::MapEventRecord g_message_event;
+sh::maps::MapEventRecord g_script_event;
 
 }  // namespace
 
@@ -162,6 +163,18 @@ void start_pickup_event() {
     e.sys_state = kEventCallbackState;
     e.param = kNoParam;
 }
+
+void start_script_event() {
+    g_script_event = sh::maps::MapEventRecord{};
+    g_script_event.trigger = static_cast<std::uint8_t>(kActivationButton << 4);
+    g_script_event.action = static_cast<std::uint32_t>(kEventCallbackState & 0x1F) | kNoParam << 5;
+    sh::gameflow::MapEventState& e = sh::gameflow::map_event_state();
+    e.event = &g_script_event;
+    e.sys_state = kEventCallbackState;
+    e.param = kNoParam;
+}
+
+bool script_event_current() { return sh::gameflow::map_event_state().event == &g_script_event; }
 
 void start_message_event(int message) {
     g_message_event = sh::maps::MapEventRecord{};

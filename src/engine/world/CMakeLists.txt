@@ -49,6 +49,7 @@ add_library(sh_world STATIC
     solid_objects.cpp
     disc_poses.cpp
     runtime_pickups.cpp
+    script_event.cpp
     world_script.cpp
     cell_grid.cpp
     cell_stream.cpp
