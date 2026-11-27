@@ -8,6 +8,8 @@
 #include "input/bind/bind_capture.h"
 
 #include <array>
+#include <string>
+#include <vector>
 
 using namespace sh::input;
 
@@ -24,7 +26,7 @@ struct Devices {
         in.mouse_buttons = mouse;
         in.wheel_up = wheel_up;
         in.wheel_down = wheel_down;
-        in.pad_button = pad;
+        in.pad_buttons = pad;
         in.pad_connected = connected;
         in.key_name = [](int position) -> std::string {
             if (position == kKeyW) return "W";
@@ -36,7 +38,7 @@ struct Devices {
     }
     unsigned mouse = 0;
     bool wheel_up = false, wheel_down = false;
-    const char* pad = "";
+    std::vector<std::string> pad;
     bool connected = true;
 };
 
@@ -169,17 +171,19 @@ SH_TEST(bind_capture_mouse_and_wheel_follow_the_cell_and_the_filter) {
 SH_TEST(bind_capture_pad_cells) {
     BindCapture cap;
     Devices d;
-    d.pad = "a";  // the button that chose the cell
+    d.pad = {"a"};  // the button that chose the cell
     cap.begin({true, false, false}, CaptureFilter::KeysAndMouse, 1000);
     SH_CHECK(cap.step(d.at(1000)).status == Status::Waiting);
-    d.pad = "";
+    d.pad = {};
     SH_CHECK(cap.step(d.at(1016)).status == Status::Waiting);
-    d.pad = "leftshoulder";
-    const auto got = cap.step(d.at(1032));
+    d.pad = {"leftshoulder"};
+    SH_CHECK(cap.step(d.at(1032)).status == Status::Waiting);  // taken when it is let go
+    d.pad = {};
+    const auto got = cap.step(d.at(1048));
     SH_CHECK(got.status == Status::Captured && got.name == "leftshoulder");
 
     cap.begin({true, false, false}, CaptureFilter::KeysAndMouse, 1000);
-    d.pad = "";
+    d.pad = {};
     SH_CHECK(cap.step(d.at(9000)).status == Status::Waiting);
     SH_CHECK(cap.step(d.at(9001)).status == Status::Cancelled);  // nothing pressed for 8 seconds
 
@@ -190,4 +194,83 @@ SH_TEST(bind_capture_pad_cells) {
     cap.begin({true, false, false}, CaptureFilter::KeysAndMouse, 0);
     d.keys[kEscape] = 1;
     SH_CHECK(cap.step(d.at(16)).status == Status::Cancelled);
+}
+
+namespace {
+
+struct PadHeld {
+    std::vector<std::string> names;
+    CaptureInput at(std::uint32_t now_ms) const {
+        CaptureInput in;
+        in.now_ms = now_ms;
+        in.pad_buttons = names;
+        in.pad_connected = true;
+        return in;
+    }
+};
+
+}  // namespace
+
+SH_TEST(bind_capture_pad_takes_what_was_held_when_it_is_let_go) {
+    BindCapture cap;
+    PadHeld p;
+    CaptureTarget chord_cell{true, false, false, true};
+    cap.begin(chord_cell, CaptureFilter::KeysAndMouse, 0);
+    SH_CHECK(cap.step(p.at(0)).status == Status::Waiting);  // armed: nothing held
+
+    // One button, then a second while the first is held: shown live, taken on release.
+    p.names = {"leftshoulder"};
+    SH_CHECK(cap.step(p.at(16)).status == Status::Waiting);
+    SH_CHECK((cap.pad_held() == std::vector<std::string>{"leftshoulder"}));
+    p.names = {"leftshoulder", "rightshoulder"};
+    SH_CHECK(cap.step(p.at(300)).status == Status::Waiting);
+    SH_CHECK((cap.pad_held() == std::vector<std::string>{"leftshoulder", "rightshoulder"}));
+    p.names = {"rightshoulder"};  // let go one at a time
+    SH_CHECK(cap.step(p.at(400)).status == Status::Waiting);
+    p.names = {};
+    auto got = cap.step(p.at(416));
+    SH_CHECK(got.status == Status::Captured && got.name == "leftshoulder+rightshoulder");
+
+    // Pressed in the other order, the pair keeps the order of the presses.
+    cap.begin(chord_cell, CaptureFilter::KeysAndMouse, 0);
+    cap.step(p.at(0));
+    p.names = {"rightshoulder"};
+    cap.step(p.at(16));
+    p.names = {"leftshoulder", "rightshoulder"};  // the devices list the left one first
+    cap.step(p.at(32));
+    p.names = {};
+    got = cap.step(p.at(48));
+    SH_CHECK(got.status == Status::Captured && got.name == "rightshoulder+leftshoulder");
+
+    // A single button pressed and let go is that button.
+    cap.begin(chord_cell, CaptureFilter::KeysAndMouse, 0);
+    cap.step(p.at(0));
+    p.names = {"y"};
+    cap.step(p.at(16));
+    p.names = {};
+    got = cap.step(p.at(32));
+    SH_CHECK(got.status == Status::Captured && got.name == "y");
+
+    // A cell without combinations takes the first button of the two.
+    cap.begin({true, false, false, false}, CaptureFilter::KeysAndMouse, 0);
+    cap.step(p.at(0));
+    p.names = {"x"};
+    cap.step(p.at(16));
+    p.names = {"a", "x"};
+    cap.step(p.at(32));
+    SH_CHECK((cap.pad_held() == std::vector<std::string>{"x"}));
+    p.names = {};
+    got = cap.step(p.at(48));
+    SH_CHECK(got.status == Status::Captured && got.name == "x");
+
+    // Holding a button keeps the capture open past the idle time-out; nothing held for it cancels.
+    cap.begin(chord_cell, CaptureFilter::KeysAndMouse, 0);
+    cap.step(p.at(0));
+    p.names = {"b"};
+    SH_CHECK(cap.step(p.at(9000)).status == Status::Waiting);
+    p.names = {};
+    SH_CHECK(cap.step(p.at(9016)).status == Status::Captured);
+    cap.begin(chord_cell, CaptureFilter::KeysAndMouse, 0);
+    SH_CHECK(cap.step(p.at(0)).status == Status::Waiting);
+    SH_CHECK(cap.step(p.at(8001)).status == Status::Cancelled);
 }

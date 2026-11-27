@@ -4,6 +4,7 @@
 #include "input/bind/bind_table.h"
 
 #include "engine/log/sh_log.h"
+#include "input/bind/pad_chord.h"
 
 #include <algorithm>
 #include <cctype>
@@ -15,6 +16,16 @@ bool same_ignoring_case(std::string_view a, std::string_view b) {
     return a.size() == b.size() && std::equal(a.begin(), a.end(), b.begin(), [](char x, char y) {
                return std::tolower(static_cast<unsigned char>(x)) == std::tolower(static_cast<unsigned char>(y));
            });
+}
+
+// The same input, a combination in either order too.
+bool same_bind(std::string_view a, std::string_view b) {
+    const std::vector<std::string> pa = chord_parts(a), pb = chord_parts(b);
+    if (pa.size() != pb.size() || pa.size() < 2) {
+        return same_ignoring_case(a, b);
+    }
+    return (same_ignoring_case(pa[0], pb[0]) && same_ignoring_case(pa[1], pb[1])) ||
+           (same_ignoring_case(pa[0], pb[1]) && same_ignoring_case(pa[1], pb[0]));
 }
 
 // The four walking actions are the stick's on a controller, and the screen names them by direction.
@@ -51,6 +62,7 @@ std::vector<BindRow> build_rows() {
         r.shared = (a.flags & kFlagGlobal) != 0;
         r.mouse = (a.flags & kFlagMouse) != 0;
         r.wheel = (a.flags & kFlagWheel) != 0;
+        r.chord = (a.flags & kFlagPadChord) != 0;
         rows.push_back(std::move(r));
     }
     return rows;
@@ -109,7 +121,7 @@ bool BindTable::is_duplicate(int row_index, BindColumn column) const {
                 continue;
             }
             const std::string other = value(r, c);
-            if (!is_unbound(other) && same_ignoring_case(other, mine)) {
+            if (!is_unbound(other) && same_bind(other, mine)) {
                 return true;
             }
         }
@@ -195,6 +207,10 @@ std::string BindTable::rebind_toast(int row_index, BindColumn column) const {
 }
 
 std::string bind_display_name(std::string_view value) {
+    if (is_chord(value)) {
+        const std::vector<std::string> parts = chord_parts(value);
+        return bind_display_name(parts[0]) + " + " + bind_display_name(parts[1]);
+    }
     struct Rename {
         std::string_view from, to;
     };

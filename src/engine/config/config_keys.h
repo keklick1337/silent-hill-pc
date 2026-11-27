@@ -464,7 +464,7 @@ inline constexpr KeyPrefix kKeyPrefixes[] = {
     {"launcher_", false, Hook::None},  // belongs to no part of the game
 };
 
-using BindSlot = char[24];
+using BindSlot = char[PC_BIND_SLOT_LEN];
 
 // A bind of one control scheme: the key sets the classic scheme, the key + "_altcam" the alternate one.
 struct SchemeBind {
@@ -542,13 +542,35 @@ inline constexpr SchemeBind kSchemeBinds[] = {
     {"pad_quick_heal", &ControlScheme::padQuickHeal, "NONE", "NONE"},
     {"key_reload_2", &ControlScheme::keyReload2, "NONE", "NONE"},
     {"key_quick_turn", &ControlScheme::keyQuickTurn, "NONE", "NONE"},
-    {"pad_quick_turn", &ControlScheme::padQuickTurn, "leftshoulder", "leftshoulder"},
+    {"pad_quick_turn", &ControlScheme::padQuickTurn, "leftshoulder+rightshoulder", "leftshoulder"},
     {"key_rear_look", &ControlScheme::keyRearLook, "NONE", "NONE"},
     {"pad_rear_look", &ControlScheme::padRearLook, "NONE", "NONE"},
     {"key_flashlight", &ControlScheme::keyFlashlight, "F", "F"},
     {"pad_flashlight", &ControlScheme::padFlashlight, "NONE", "NONE"},
 };
 // clang-format on
+
+// A scheme bind whose built-in value changed: a file written before `version` that still holds `was` moves to `now`
+// (pc_config.cpp's migrate).
+struct BindMigration {
+    int version;
+    std::string_view key;
+    BindSlot ControlScheme::* slot;
+    bool altcam;  // the "_altcam" copy, else the classic one
+    std::string_view was;
+    std::string_view now;
+};
+
+inline constexpr BindMigration kBindMigrations[] = {
+    // The original turns Harry round on both side step buttons together, and L1 is its side step left: the quick
+    // turn on L1 alone stepped and turned at once. The alternate cameras have no side step on L1 and keep theirs.
+    {12, "pad_quick_turn", &ControlScheme::padQuickTurn, false, "leftshoulder", "leftshoulder+rightshoulder"},
+};
+
+// Whether a slot holding `value` in a file of version `from` takes the migration's new value.
+constexpr bool bind_migrates(const BindMigration& m, int from, std::string_view value) {
+    return from < m.version && value == m.was;
+}
 
 // A bind outside the schemes.
 struct GlobalBind {

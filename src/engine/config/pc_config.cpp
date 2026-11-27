@@ -441,6 +441,12 @@ void migrate(int from) {
             PcConfig_SaveKeyValue("key_exit_game", "NONE");
         }
     }
+    for (const sh::config::BindMigration& m : sh::config::kBindMigrations) {
+        char* slot = schemes[m.altcam ? 1 : 0]->*m.slot;
+        if (!sh::config::bind_migrates(m, from, slot)) continue;
+        std::snprintf(slot, sizeof(sh::config::BindSlot), "%.*s", static_cast<int>(m.now.size()), m.now.data());
+        save_slot(m.key.data(), m.altcam ? 1 : 0, slot);
+    }
     PcActions_FinishLoad(from < 8);
     c.configVersion = PC_CONFIG_VERSION;
     PcConfig_SaveKeyValue("config_version", std::to_string(PC_CONFIG_VERSION).c_str());

@@ -3,6 +3,8 @@
 
 #include "input/bind/bind_capture.h"
 
+#include "input/bind/pad_chord.h"
+
 #include <algorithm>
 
 namespace sh::input {
@@ -56,7 +58,10 @@ void BindCapture::begin(const CaptureTarget& target, CaptureFilter filter, std::
     target_ = target;
     filter_ = filter;
     started_ms_ = now_ms;
+    idle_since_ms_ = now_ms;
     armed_ = false;
+    pad_order_.clear();
+    pad_chosen_.clear();
 }
 
 BindCapture::Result BindCapture::step(const CaptureInput& in) {
@@ -67,14 +72,40 @@ BindCapture::Result BindCapture::step_pad(const CaptureInput& in) {
     if (held(in.keys, kEscape)) {
         return cancelled();
     }
-    if (in.now_ms - started_ms_ > kPadTimeoutMs || !in.pad_connected) {
+    if (!in.pad_connected) {
         return cancelled();
     }
-    if (in.pad_button.empty()) {
-        armed_ = true;
+    if (!armed_) {
+        if (in.now_ms - started_ms_ > kPadTimeoutMs) {
+            return cancelled();
+        }
+        armed_ = in.pad_buttons.empty();
         return waiting();
     }
-    return armed_ ? captured(std::string(in.pad_button)) : waiting();
+
+    std::erase_if(pad_order_, [&](const std::string& name) {
+        return std::find(in.pad_buttons.begin(), in.pad_buttons.end(), name) == in.pad_buttons.end();
+    });
+    for (const std::string& name : in.pad_buttons) {
+        if (std::find(pad_order_.begin(), pad_order_.end(), name) == pad_order_.end()) {
+            pad_order_.push_back(name);
+        }
+    }
+
+    if (pad_order_.empty()) {
+        if (!pad_chosen_.empty()) {
+            return captured(chord_value(pad_chosen_));
+        }
+        return in.now_ms - idle_since_ms_ > kPadTimeoutMs ? cancelled() : waiting();
+    }
+    idle_since_ms_ = in.now_ms;
+    // The first inputs held together, as many as the cell takes; letting one go and pressing another keeps them.
+    const std::size_t takes = target_.chord ? kChordMaxButtons : 1;
+    if (pad_chosen_.size() < takes && pad_order_.size() > pad_chosen_.size()) {
+        pad_chosen_.assign(pad_order_.begin(),
+                           pad_order_.begin() + static_cast<std::ptrdiff_t>(std::min(takes, pad_order_.size())));
+    }
+    return waiting();
 }
 
 BindCapture::Result BindCapture::step_keys(const CaptureInput& in) {

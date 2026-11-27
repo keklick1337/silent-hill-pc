@@ -12,6 +12,7 @@
 
 #include <string>
 #include <string_view>
+#include <vector>
 
 namespace sh::input {
 
@@ -22,6 +23,8 @@ NavState poll_menu_nav(MenuNav& nav);
 // Starts listening for the new input of a cell of the bind table.
 void begin_bind_capture(int row, BindColumn column, CaptureFilter filter);
 BindCapture::Result update_bind_capture();
+// What a controller capture holds so far (one name, or two held together), for the cell to show while listening.
+const std::vector<std::string>& bind_capture_pad_held();
 
 bool controller_connected();
 

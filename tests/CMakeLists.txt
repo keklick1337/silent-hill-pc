@@ -93,6 +93,7 @@ set(SH_TEST_INPUT_BIND_TABLE "${CMAKE_CURRENT_SOURCE_DIR}/input/bind_table_test.
 if(SH_TEST_INPUT_BIND_TABLE IN_LIST SH_TEST_SOURCES)
     target_sources(sh_tests PRIVATE "${PROJECT_SOURCE_DIR}/src/input/bind/bind_table.cpp"
                                     "${PROJECT_SOURCE_DIR}/src/input/bind/bind_capture.cpp"
+                                    "${PROJECT_SOURCE_DIR}/src/input/bind/pad_chord.cpp"
                                     "${PROJECT_SOURCE_DIR}/src/input/bind/console_binds.cpp"
                                     "${PROJECT_SOURCE_DIR}/src/input/glyphs/glyph_table.cpp"
                                     "${PROJECT_SOURCE_DIR}/src/input/pointer_math.cpp"

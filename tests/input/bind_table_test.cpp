@@ -2,7 +2,7 @@
 // Copyright 2026 Vladislav Tislenko (keklick1337)
 //
 // The Controls screen's table (src/input/bind/bind_table.h) over a store in memory that behaves as the game's:
-// 23-character fields, the actions' own config lines, separate values for the alternate cameras.
+// 31-character fields, the actions' own config lines, separate values for the alternate cameras.
 
 #include "framework/sh_test.h"
 
@@ -79,7 +79,7 @@ public:
         if (!known(key)) {
             return false;
         }
-        values_[storage_key(key, scheme)] = std::string(v.substr(0, 23));
+        values_[storage_key(key, scheme)] = std::string(v.substr(0, 31));
         return true;
     }
     std::optional<BindLine> action_line(std::string_view key, BindScheme scheme) const override {
@@ -258,9 +258,9 @@ SH_TEST(bind_table_set_writes_a_pad_line_under_the_scheme_key) {
 SH_TEST(bind_table_values_are_cut_to_the_field) {
     MemoryStore store;
     BindTable t(store);
-    t.set(row_of("Map"), BindColumn::Pad1, "abcdefghijklmnopqrstuvwxyz");
-    SH_CHECK(t.value(row_of("Map"), BindColumn::Pad1) == "abcdefghijklmnopqrstuvw");
-    SH_CHECK(store.written.back().value == "abcdefghijklmnopqrstuvw");
+    t.set(row_of("Map"), BindColumn::Pad1, "abcdefghijklmnopqrstuvwxyz0123456789");
+    SH_CHECK(t.value(row_of("Map"), BindColumn::Pad1) == "abcdefghijklmnopqrstuvwxyz01234");
+    SH_CHECK(store.written.back().value == "abcdefghijklmnopqrstuvwxyz01234");
 }
 
 SH_TEST(bind_table_duplicates_are_per_device_and_scheme) {
@@ -360,4 +360,29 @@ SH_TEST(bind_table_toast_and_display_names) {
     SH_CHECK(bind_display_name("Left") == "Left");
     SH_CHECK(bind_display_name("Left ") == "Left ");
     SH_CHECK(bind_display_name("").empty());
+}
+
+SH_TEST(bind_table_chords_in_the_quick_action_rows) {
+    // The quick actions read their controller binds through the chord resolver; the PS1 button rows do not.
+    for (const char* label : {"Flashlight", "Reload", "Quick Turn", "Rear Look", "Cycle Weapons", "Quick Heal"}) {
+        SH_CHECK(BindTable::row(row_of(label))->chord);
+    }
+    for (const char* label : {"Sidestep Left", "Run", "Change Camera", "Quick Save"}) {
+        SH_CHECK(!BindTable::row(row_of(label))->chord);
+    }
+
+    MemoryStore store;
+    BindTable t(store);
+    const int turn = row_of("Quick Turn"), heal = row_of("Quick Heal");
+    t.set(turn, BindColumn::Pad1, "leftshoulder+rightshoulder");
+    SH_CHECK(t.value(turn, BindColumn::Pad1) == "leftshoulder+rightshoulder");
+    SH_CHECK((store.written.back() == BindLine{"pad_quick_turn", "leftshoulder+rightshoulder"}));
+    // The same two buttons in the other order are the same bind; one of them alone is not.
+    t.set(heal, BindColumn::Pad1, "rightshoulder+leftshoulder");
+    SH_CHECK(t.is_duplicate(turn, BindColumn::Pad1) && t.is_duplicate(heal, BindColumn::Pad1));
+    t.set(heal, BindColumn::Pad1, "leftshoulder");
+    SH_CHECK(!t.is_duplicate(turn, BindColumn::Pad1));
+
+    SH_CHECK(bind_display_name("leftshoulder+rightshoulder") == "leftshoulder + rightshoulder");
+    SH_CHECK(bind_display_name("Left Shift") == "L-Shift");
 }

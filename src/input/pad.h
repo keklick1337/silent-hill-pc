@@ -6,6 +6,8 @@
 
 #include <array>
 #include <cstdint>
+#include <string>
+#include <vector>
 
 namespace sh::input {
 
@@ -153,6 +155,7 @@ bool controller_button_held(int sdlButton);
 bool controller_bind_held(int bind);
 const char* connected_controller_name();  // nullptr when none
 const char* held_bind_name();             // a held button or trigger, nullptr when none
+void held_bind_names(std::vector<std::string>& out);  // every held button and trigger
 int controller_axis(int sdlAxis);         // the pad pushed furthest
 
 } // namespace sh::input

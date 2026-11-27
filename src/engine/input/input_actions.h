@@ -69,6 +69,7 @@ enum ActionFlags : unsigned {
     kFlagSingleSlot = 1u << 3,  // no secondary slot
     kFlagPcOnly = 1u << 4,      // no PS1 bit: projected onto a legacy field
     kFlagAltcamOnly = 1u << 5,  // does something only with an alternate camera
+    kFlagPadChord = 1u << 6,    // the controller slot also takes two buttons together (input/bind/pad_chord.h)
 };
 
 struct ActionInfo {

@@ -10,6 +10,8 @@ namespace {
 
 constexpr unsigned kKey = kFlagMouse | kFlagWheel;
 constexpr unsigned kPc = kFlagPcOnly | kFlagSingleSlot;
+// The binds the quick actions read (input/pc_quick_actions.cpp), whose controller slot takes a combination.
+constexpr unsigned kPcChord = kPc | kFlagPadChord;
 
 // Order is the bind screen's row order. Defaults: {classic, altcam} x {primary, secondary}.
 constexpr std::array<ActionInfo, kActionCount> kActions = {{
@@ -35,14 +37,18 @@ constexpr std::array<ActionInfo, kActionCount> kActions = {{
      {{{"M", "NONE"}, {"M", "NONE"}}}},
     {"pause", "Pause", kKey, "key_start", "key_start_2", "pad_start", "pad_start_2",
      {{{"Pause", "NONE"}, {"Pause", "NONE"}}}},
-    {"flashlight", "Flashlight", kPc, "key_flashlight", "", "pad_flashlight", "", {{{"F", "NONE"}, {"F", "NONE"}}}},
-    {"reload", "Reload", kFlagPcOnly, "key_reload", "key_reload_2", "pad_reload", "", {{{"R", "NONE"}, {"R", "NONE"}}}},
-    {"quick_turn", "Quick Turn", kPc, "key_quick_turn", "", "pad_quick_turn", "", {{{"NONE", "NONE"}, {"NONE", "NONE"}}}},
-    {"rear_look", "Rear Look", kPc | kFlagAltcamOnly, "key_rear_look", "", "pad_rear_look", "",
+    {"flashlight", "Flashlight", kPcChord, "key_flashlight", "", "pad_flashlight", "",
+     {{{"F", "NONE"}, {"F", "NONE"}}}},
+    {"reload", "Reload", kFlagPcOnly | kFlagPadChord, "key_reload", "key_reload_2", "pad_reload", "",
+     {{{"R", "NONE"}, {"R", "NONE"}}}},
+    {"quick_turn", "Quick Turn", kPcChord, "key_quick_turn", "", "pad_quick_turn", "",
      {{{"NONE", "NONE"}, {"NONE", "NONE"}}}},
-    {"cycle_weapons", "Cycle Weapons", kPc, "key_cycle_weapons", "", "pad_cycle_weapons", "",
+    {"rear_look", "Rear Look", kPcChord | kFlagAltcamOnly, "key_rear_look", "", "pad_rear_look", "",
      {{{"NONE", "NONE"}, {"NONE", "NONE"}}}},
-    {"quick_heal", "Quick Heal", kPc, "key_quick_heal", "", "pad_quick_heal", "", {{{"NONE", "NONE"}, {"NONE", "NONE"}}}},
+    {"cycle_weapons", "Cycle Weapons", kPcChord, "key_cycle_weapons", "", "pad_cycle_weapons", "",
+     {{{"NONE", "NONE"}, {"NONE", "NONE"}}}},
+    {"quick_heal", "Quick Heal", kPcChord, "key_quick_heal", "", "pad_quick_heal", "",
+     {{{"NONE", "NONE"}, {"NONE", "NONE"}}}},
     {"change_camera", "Change Camera", kPc, "key_change_cam", "", "pad_change_cam", "", {{{"F9", "NONE"}, {"F9", "NONE"}}}},
     {"swap_shoulder", "Swap Shoulder", kPc | kFlagGlobal | kFlagMouse, "key_swap_shoulder", "", "pad_swap_shoulder", "",
      {{{"Mouse3", "NONE"}, {"Mouse3", "NONE"}}}},

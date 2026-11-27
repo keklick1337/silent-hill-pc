@@ -41,6 +41,7 @@ struct BindRow {
     bool shared = false;           // one value for both schemes
     bool mouse = false;            // the keyboard cells take mouse buttons
     bool wheel = false;            // ...and the wheel
+    bool chord = false;            // the controller cells take two buttons together ("a+b")
 
     bool has(BindColumn c) const { return !slot[static_cast<std::size_t>(c)].empty(); }
     const std::string& key(BindColumn c) const { return slot[static_cast<std::size_t>(c)]; }

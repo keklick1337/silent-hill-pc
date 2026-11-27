@@ -310,3 +310,24 @@ SH_TEST(player_control_2d_travels_along_the_screen) {
     SH_CHECK(r.at(V::StepSpeed) == 6144);
 }
 
+
+SH_TEST(player_quick_turn_request_leaves_both_step_taps_to_the_legs) {
+    namespace lower = sh::game::harry::lower;
+    sh::test::FakePlayerRecord r;
+    r.at(V::DeltaTime) = 136;
+    r.at(V::MovementOriginal) = 1;
+    r.at(V::LowerBody) = lower::kWalkForward;
+    Player p(r);
+    // A quick turn bind on its own (a key): the legs turn round to the right.
+    r.at(V::QuickTurnRequest) = 1;
+    p.behave();
+    SH_CHECK(r.at(V::QuickTurnRequest) == 0 && r.at(V::LowerBody) == lower::kQuickTurnRight);
+    // On the two side step buttons the original's own quick turn takes it, with its own direction and rules
+    // (behavior.lua): the request does not turn first.
+    r.at(V::LowerBody) = lower::kWalkForward;
+    r.at(V::StepLeftTap) = 1;
+    r.at(V::StepRightTap) = 2;
+    r.at(V::QuickTurnRequest) = 1;
+    p.behave();
+    SH_CHECK(r.at(V::QuickTurnRequest) == 0 && r.at(V::LowerBody) == lower::kWalkForward);
+}

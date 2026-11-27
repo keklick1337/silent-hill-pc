@@ -5,6 +5,7 @@
 #include <array>
 #include <cstdio>
 #include <string>
+#include <vector>
 
 #include "engine/app/pc_paths.h"
 #include "engine/debug/overlay/debug_overlay.h"
@@ -15,6 +16,7 @@
 #include "i18n/localization.h"
 #include "input/bind/bind_input.h"
 #include "input/bind/bind_table.h"
+#include "input/bind/pad_chord.h"
 #include "input/glyphs/glyph_sheet.h"
 #include "input/mouse_pointer.h"
 
@@ -188,6 +190,35 @@ void draw_value(Glyph glyph, const sc::InputName& alone, const sc::InputName& be
     const int end = column.x + column.w;
     if (x < end && !name.empty()) {
         nm::text_fitted(x, y, color, name.c_str(), end - x, pan);
+    }
+}
+
+// Controller inputs held together, each by its icon (its name where the sheet has none) with " + " between them.
+void draw_pad_inputs(const std::vector<std::string>& parts, GlyphSet icon_set, int slot, int y, int color, bool pan) {
+    if (parts.size() == 1) {
+        const sc::InputName name = sc::pad_input_name(parts[0], pad_labels(icon_set));
+        draw_value(sh::input::glyph_for_pad(icon_set, parts[0]), name, name, slot, y, color, pan);
+        return;
+    }
+    const sc::ControlsScreenLayout& l = layout();
+    const sc::ControlsColumn& column = l.columns[static_cast<std::size_t>(slot)];
+    const int end = column.x + column.w;
+    int x = column.x;
+    for (std::size_t i = 0; i < parts.size() && x < end; i++) {
+        if (i > 0) {
+            x += l.icon_text_dx;
+            nm::text(x, y, color, "+");
+            x += nm::text_width("+") + l.icon_text_dx;
+        }
+        const int icon_w = draw_cell_icon(sh::input::glyph_for_pad(icon_set, parts[i]), x, y, color);
+        if (icon_w > 0) {
+            x += icon_w;
+            continue;
+        }
+        const std::string name = name_text(sc::pad_input_name(parts[i], pad_labels(icon_set)));
+        if (x < end && !name.empty()) {
+            x += nm::text_fitted(x, y, color, name.c_str(), end - x, false);
+        }
     }
 }
 
@@ -664,7 +695,13 @@ void BindingsScreen::draw_cell(int index, int slot, int y, bool selected) {
         return;
     }
     if (selected && capturing_) {
-        nm::text(column_x, y, c.selected, texts().listening.c_str());
+        // What the controller holds so far, live: the capture takes it when the buttons are let go.
+        const std::vector<std::string>& held = sh::input::bind_capture_pad_held();
+        if (sh::input::is_pad_column(column) && !held.empty()) {
+            draw_pad_inputs(held, icon_set_, slot, y, c.selected, false);
+        } else {
+            nm::text(column_x, y, c.selected, texts().listening.c_str());
+        }
         return;
     }
 
@@ -691,8 +728,9 @@ void BindingsScreen::draw_cell(int index, int slot, int y, bool selected) {
             nm::text(column_x, y, color, texts().unbound.c_str());
             break;
         case sc::BindDevice::Pad: {
-            const sc::InputName name = sc::pad_input_name(value, pad_labels(icon_set_));
-            draw_value(sh::input::glyph_for_pad(icon_set_, value), name, name, slot, y, color, selected);
+            const std::vector<std::string> parts = sh::input::chord_parts(bound);
+            draw_pad_inputs(parts.size() > 1 ? parts : std::vector<std::string>{bound}, icon_set_, slot, y, color,
+                            selected);
             break;
         }
         case sc::BindDevice::Mouse:

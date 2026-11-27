@@ -22,8 +22,8 @@ using sh::input::ControllerBindings;
 // A pad button of the game and the config's two names for what presses it (the second is the spare assignment).
 struct ButtonNames {
     int ControllerBindings::* button;
-    char (ControlScheme::* first)[24];
-    char (ControlScheme::* spare)[24];
+    char (ControlScheme::* first)[PC_BIND_SLOT_LEN];
+    char (ControlScheme::* spare)[PC_BIND_SLOT_LEN];
 };
 
 constexpr ButtonNames kButtons[] = {

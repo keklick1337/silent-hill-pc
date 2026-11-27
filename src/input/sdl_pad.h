@@ -7,6 +7,8 @@
 
 #include <array>
 #include <cstdint>
+#include <string>
+#include <vector>
 
 #include "engine/game_state/raw_pad.h"
 #include "input/pad.h"
@@ -53,6 +55,7 @@ public:
     bool bindHeld(int buttonOrAxis) const;
     const char* connectedName() const;
     const char* heldBindName() const;
+    void heldBindNames(std::vector<std::string>& out) const;
     int axisValue(int sdlAxis) const;
 
     const std::uint8_t* keyboardState() const { return keys_; }

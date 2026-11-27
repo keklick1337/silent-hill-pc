@@ -649,6 +649,28 @@ const char* PadSystem::heldBindName() const
     return nullptr;
 }
 
+// Every bind name held on any pad, buttons in SDL's order and then the triggers, each name once.
+void PadSystem::heldBindNames(std::vector<std::string>& out) const
+{
+    out.clear();
+    const auto add = [&out](const char* name) {
+        if (name != nullptr && std::find(out.begin(), out.end(), name) == out.end())
+            out.emplace_back(name);
+    };
+    for (int i = 0; i < kPorts; ++i)
+    {
+        if (!live(i))
+            continue;
+        SDL_Gamepad* g = slots_[i].gamepad;
+        for (int b = SDL_GAMEPAD_BUTTON_SOUTH; b <= SDL_GAMEPAD_BUTTON_DPAD_RIGHT; ++b)
+            if (SDL_GetGamepadButton(g, static_cast<SDL_GamepadButton>(b)))
+                add(SDL_GetGamepadStringForButton(static_cast<SDL_GamepadButton>(b)));
+        for (SDL_GamepadAxis trigger : {SDL_GAMEPAD_AXIS_LEFT_TRIGGER, SDL_GAMEPAD_AXIS_RIGHT_TRIGGER})
+            if (SDL_GetGamepadAxis(g, trigger) > kHalfScale)
+                add(SDL_GetGamepadStringForAxis(trigger));
+    }
+}
+
 // Signed axis of the pad pushed furthest.
 int PadSystem::axisValue(int sdlAxis) const
 {
@@ -677,6 +699,7 @@ bool controller_button_held(int sdlButton) { return PadSystem::instance().button
 bool controller_bind_held(int bind) { return PadSystem::instance().bindHeld(bind); }
 const char* connected_controller_name() { return PadSystem::instance().connectedName(); }
 const char* held_bind_name() { return PadSystem::instance().heldBindName(); }
+void held_bind_names(std::vector<std::string>& out) { PadSystem::instance().heldBindNames(out); }
 int controller_axis(int sdlAxis) { return PadSystem::instance().axisValue(sdlAxis); }
 
 } // namespace sh::input

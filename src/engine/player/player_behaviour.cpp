@@ -91,10 +91,13 @@ void Player::behave() {
     if (get(V::Demo) != 0 || (get(V::MovementOriginal) != 0 && !alt_camera && !control_2d)) {
         // The quick turn button: the legs' animated half turn, from walking, running, standing or aimed
         // movement, never while the legs hand over between walk and run (the hand-over would overwrite it).
+        // Both side step taps are the original's own quick turn, which the legs' machine takes with its rules
+        // (left with the stick turning left, none while attacking): a bind on the same two buttons leaves it to it.
         if (get(V::QuickTurnRequest) != 0) {
             set(V::QuickTurnRequest, 0);
             const std::int64_t legs = get(V::LowerBody);
-            if (get(V::WalkRunBlend) == 0 &&
+            const bool original_turn = get(V::StepLeftTap) != 0 && get(V::StepRightTap) != 0;
+            if (!original_turn && get(V::WalkRunBlend) == 0 &&
                 (legs <= lower::kRunLeft || (legs >= lower::kAim && legs <= lower::kAimRunLeft))) {
                 set(V::LowerBody, (legs < lower::kAim ? 0 : lower::kAim) + lower::kQuickTurnRight);
                 set(V::BodyStateStep, 0);

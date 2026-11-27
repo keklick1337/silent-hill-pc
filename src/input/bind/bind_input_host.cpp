@@ -98,6 +98,7 @@ void begin_bind_capture(int row, BindColumn column, CaptureFilter filter) {
     if (const BindRow* r = BindTable::row(row)) {
         target.mouse = r->mouse;
         target.wheel = r->wheel;
+        target.chord = target.pad && r->chord;
     }
     s_capture.begin(target, filter, static_cast<std::uint32_t>(SDL_GetTicks()));
 }
@@ -110,8 +111,9 @@ BindCapture::Result update_bind_capture() {
     // A notch is latched for two frames; the first of them is the notch arriving.
     in.wheel_up = wheel().upFrames == 2;
     in.wheel_down = wheel().downFrames == 2;
-    const char* held = held_bind_name();
-    in.pad_button = held != nullptr ? held : "";
+    static std::vector<std::string> s_held;
+    held_bind_names(s_held);
+    in.pad_buttons = s_held;
     in.pad_connected = controller_connected();
     in.key_name = [](int position) {
         const char* name = SDL_GetScancodeName(static_cast<SDL_Scancode>(position));
@@ -119,6 +121,8 @@ BindCapture::Result update_bind_capture() {
     };
     return s_capture.step(in);
 }
+
+const std::vector<std::string>& bind_capture_pad_held() { return s_capture.pad_held(); }
 
 std::string key_cap_of(std::string_view saved_name) {
     const std::string name(saved_name);

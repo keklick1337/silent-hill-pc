@@ -17,8 +17,8 @@
 namespace sh::input {
 namespace {
 
-// Bind names live in 24-byte fields of the configuration.
-constexpr std::size_t kFieldSize = 24;
+// Bind names live in fixed fields of the configuration.
+constexpr std::size_t kFieldSize = PC_BIND_SLOT_LEN;
 
 int scheme_index(BindScheme s) { return s == BindScheme::AltCamera ? 1 : 0; }
 

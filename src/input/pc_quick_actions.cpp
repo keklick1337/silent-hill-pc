@@ -11,6 +11,7 @@
 #include "engine/input/frame_edge.h"
 #include "engine/items/quick_actions.h"
 #include "input/pad.h"
+#include "input/bind/pad_chord.h"
 #include "input/camera_style.h"
 #include "input/touch/touch_controls.h"
 
@@ -57,25 +58,27 @@ bool pad_clicked(int button) {
     return pad_edges().edge(button, sh::input::controller_bind_held(button), s_inputFrame);
 }
 
-int pad_button(const char* name) {
-    return name[0] != '\0' ? sh::input::lookup_controller_bind(name, SDL_GAMEPAD_BUTTON_INVALID)
-                           : SDL_GAMEPAD_BUTTON_INVALID;
-}
+// The binds of one control scheme (0 classic, 1 alternate cameras), resolved again when the binds change. The
+// controller's go through one resolver, so a combination ("leftshoulder+rightshoulder") keeps its buttons' own
+// binds quiet.
+enum PadSlot : std::size_t { kPadReload, kPadCycle, kPadHeal, kPadQuickTurn, kPadFlashlight, kPadRearLook, kPadSlots };
 
-// The binds of one control scheme (0 classic, 1 alternate cameras), resolved again when the binds change.
 struct Binds {
     SDL_Scancode reload = SDL_SCANCODE_UNKNOWN, reload2 = SDL_SCANCODE_UNKNOWN, cycle = SDL_SCANCODE_UNKNOWN,
                  heal = SDL_SCANCODE_UNKNOWN, quick_turn = SDL_SCANCODE_UNKNOWN, flashlight = SDL_SCANCODE_UNKNOWN,
                  rear_look = SDL_SCANCODE_UNKNOWN;
-    int pad_reload = -1, pad_cycle = -1, pad_heal = -1, pad_quick_turn = -1, pad_flashlight = -1, pad_rear_look = -1;
+    sh::input::ChordResolver pad;
 };
 
-const Binds& binds(int scheme) {
+Binds& binds(int scheme) {
     static Binds s_binds[2];
     static int s_gen = -1;
     if (s_gen != g_PcBindsGen) {
         s_gen = g_PcBindsGen;
         const ControlScheme* sc[2] = {&g_PcConfig.classic, &g_PcConfig.altcam};
+        const auto lookup = [](const std::string& name) {
+            return sh::input::lookup_controller_bind(name.c_str(), SDL_GAMEPAD_BUTTON_INVALID);
+        };
         for (int i = 0; i < 2; ++i) {
             Binds& b = s_binds[i];
             b.reload = SDL_GetScancodeFromName(sc[i]->keyReload);
@@ -85,15 +88,29 @@ const Binds& binds(int scheme) {
             b.quick_turn = SDL_GetScancodeFromName(sc[i]->keyQuickTurn);
             b.flashlight = SDL_GetScancodeFromName(sc[i]->keyFlashlight);
             b.rear_look = SDL_GetScancodeFromName(sc[i]->keyRearLook);
-            b.pad_reload = pad_button(sc[i]->padReload);
-            b.pad_cycle = pad_button(sc[i]->padCycleWeapons);
-            b.pad_heal = pad_button(sc[i]->padQuickHeal);
-            b.pad_quick_turn = pad_button(sc[i]->padQuickTurn);
-            b.pad_flashlight = pad_button(sc[i]->padFlashlight);
-            b.pad_rear_look = pad_button(sc[i]->padRearLook);
+            std::vector<sh::input::PadBind> pad(kPadSlots);
+            pad[kPadReload] = sh::input::parse_pad_bind(sc[i]->padReload, lookup);
+            pad[kPadCycle] = sh::input::parse_pad_bind(sc[i]->padCycleWeapons, lookup);
+            pad[kPadHeal] = sh::input::parse_pad_bind(sc[i]->padQuickHeal, lookup);
+            pad[kPadQuickTurn] = sh::input::parse_pad_bind(sc[i]->padQuickTurn, lookup);
+            pad[kPadFlashlight] = sh::input::parse_pad_bind(sc[i]->padFlashlight, lookup);
+            pad[kPadRearLook] = sh::input::parse_pad_bind(sc[i]->padRearLook, lookup);
+            b.pad.set_binds(std::move(pad));
         }
     }
     return s_binds[scheme];
+}
+
+// Steps the controller binds of the scheme in use once a frame; the other scheme forgets what it saw held.
+void step_pad_binds(int scheme) {
+    static int s_scheme = -1;
+    Binds& b = binds(scheme);
+    if (scheme != s_scheme) {
+        b.pad.reset();
+        s_scheme = scheme;
+    }
+    b.pad.step(static_cast<std::uint32_t>(SDL_GetTicks()),
+               [](int bind) { return sh::input::controller_bind_held(bind); });
 }
 
 // The wheel through an event watch: it still reports while the window grabs the mouse.
@@ -169,17 +186,18 @@ void Pc_ExtraActionsUpdate(void) {
     static bool s_watch = false;
     ++s_inputFrame;
     const int scheme = g_DebugThirdPersonCam ? 1 : 0;
+    step_pad_binds(scheme);
     const Binds& b = binds(scheme);
 
-    // A key press skips its pad bind's sample that frame, as it always did. The reload binds are all sampled
-    // every frame: a stale previous state there produced phantom reloads on aim entry.
+    // The controller's binds are stepped every frame above whatever the keys do: a stale previous state there
+    // produced phantom reloads on aim entry.
     sh::items::QuickActionPresses p;
-    p.cycle_weapons = key_clicked(b.cycle) || pad_clicked(b.pad_cycle);
-    p.quick_heal = key_clicked(b.heal) || pad_clicked(b.pad_heal);
-    p.quick_turn = key_clicked(b.quick_turn) || pad_clicked(b.pad_quick_turn);
-    p.flashlight = key_clicked(b.flashlight) || pad_clicked(b.pad_flashlight);
+    p.cycle_weapons = key_clicked(b.cycle) || b.pad.clicked(kPadCycle);
+    p.quick_heal = key_clicked(b.heal) || b.pad.clicked(kPadHeal);
+    p.quick_turn = key_clicked(b.quick_turn) || b.pad.clicked(kPadQuickTurn);
+    p.flashlight = key_clicked(b.flashlight) || b.pad.clicked(kPadFlashlight);
     const bool reload_key = key_clicked(b.reload), reload_key2 = key_clicked(b.reload2),
-               reload_pad = pad_clicked(b.pad_reload);
+               reload_pad = b.pad.clicked(kPadReload);
     p.reload = reload_key || reload_key2 || reload_pad;
 
     if (!s_watch) {
@@ -197,8 +215,8 @@ void Pc_RearLookUpdate(void) {
     const int scheme = g_DebugThirdPersonCam ? 1 : 0;
     const Binds& b = binds(scheme);
     const bool* keys = SDL_GetKeyboardState(nullptr);
-    const bool held = (keys != nullptr && b.rear_look != SDL_SCANCODE_UNKNOWN && keys[b.rear_look]) ||
-                      (b.pad_rear_look >= 0 && sh::input::controller_button_held(b.pad_rear_look));
+    const bool held =
+        (keys != nullptr && b.rear_look != SDL_SCANCODE_UNKNOWN && keys[b.rear_look]) || b.pad.held(kPadRearLook);
     // TPS/OTS only (not first person, not classic), gameplay only; cleared otherwise so it never latches.
     g_PcRearLookActive = (held && g_DebugThirdPersonCam && !sh::input::camera_styles().first_person() && in_gameplay() && !Pc_ConsoleIsOpen() &&
                           !g_PcDebugMenuActive)

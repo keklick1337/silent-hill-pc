@@ -2,9 +2,10 @@
 // Copyright 2026 Vladislav Tislenko (keklick1337)
 //
 // The two input loops of a rebinding screen, as plain state machines over a snapshot of the devices: menu
-// navigation with key repeat, and "press the input you want" capture. The screen reads the devices itself
-// (bind_input.h) so that it keeps working whatever the game's own binds are - a bad bind cannot lock the player
-// out of the screen that fixes it.
+// navigation with key repeat, and "press the input you want" capture. A controller cell is captured when its buttons
+// are let go: the one held, or the two held together where the cell takes a combination (input/bind/pad_chord.h). The
+// screen reads the devices itself (bind_input.h) so that it keeps working whatever the game's own binds are - a bad
+// bind cannot lock the player out of the screen that fixes it.
 
 #pragma once
 
@@ -14,6 +15,7 @@
 #include <span>
 #include <string>
 #include <string_view>
+#include <vector>
 
 namespace sh::input {
 
@@ -51,6 +53,7 @@ struct CaptureTarget {
     bool pad = false;    // a controller cell
     bool mouse = false;  // a keyboard cell that takes mouse buttons
     bool wheel = false;  // ...and the wheel
+    bool chord = false;  // a controller cell that takes two buttons held together
 };
 
 // One frame of the devices.
@@ -60,7 +63,7 @@ struct CaptureInput {
     unsigned mouse_buttons = 0;          // bit n-1 = MouseN, n in 1..5
     bool wheel_up = false;               // a notch arrived this frame
     bool wheel_down = false;
-    std::string_view pad_button;         // name of a held controller input, "" for none
+    std::span<const std::string> pad_buttons;  // names of the held controller inputs, in the devices' order
     bool pad_connected = false;
     // Config name of a keyboard position, "" when it has none.
     std::function<std::string(int position)> key_name;
@@ -68,6 +71,8 @@ struct CaptureInput {
 
 class BindCapture {
 public:
+    // A controller capture with nothing held for this long gives up (a pad has no button of its own to cancel with;
+    // the keyboard's Escape also cancels).
     static constexpr std::uint32_t kPadTimeoutMs = 8000;
 
     enum class Status { Waiting, Cancelled, Captured };
@@ -78,6 +83,8 @@ public:
 
     void begin(const CaptureTarget& target, CaptureFilter filter, std::uint32_t now_ms);
     Result step(const CaptureInput& in);
+    // The controller inputs the capture holds so far, in the order they went down: what the cell shows live.
+    const std::vector<std::string>& pad_held() const { return pad_chosen_; }
 
 private:
     static constexpr std::size_t kPositions = 512;
@@ -89,6 +96,9 @@ private:
     CaptureFilter filter_ = CaptureFilter::KeysAndMouse;
     std::uint32_t started_ms_ = 0;
     bool armed_ = false;  // every input has been let go since the capture began
+    std::uint32_t idle_since_ms_ = 0;      // a controller capture: since when nothing has been held
+    std::vector<std::string> pad_order_;   // held controller inputs, in the order they went down
+    std::vector<std::string> pad_chosen_;  // the inputs held together that the capture takes
     std::array<std::uint8_t, kPositions> last_keys_{};
 };
 

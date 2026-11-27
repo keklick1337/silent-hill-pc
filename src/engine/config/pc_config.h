@@ -15,33 +15,39 @@ extern "C" {
 //   4, 5: no step                        6: pad_reload / pad_quick_turn filled where unbound
 //   7: Space / Escape / Tab / M binds    8: keyboard binds become action_* lines
 //   9: fps_cap 30 -> 60                  10: texture_upscale 8 and 16 -> 4
-#define PC_CONFIG_VERSION 11
+//   11: msg_voice_tail_ms 1000 -> 500    12: pad_quick_turn leftshoulder -> leftshoulder+rightshoulder (classic)
+#define PC_CONFIG_VERSION 12
+
+// Bytes of one bind slot: a name, or two joined by '+' ("leftshoulder+rightshoulder").
+#define PC_BIND_SLOT_LEN 32
+typedef char PcBindSlot[PC_BIND_SLOT_LEN];
 
 // One control scheme. A keyboard slot holds an SDL scancode name or "MouseN", a controller slot an SDL gamepad
-// button name; "NONE" or "" is unbound. The *2 slots are the second binding of the same button.
+// button name, or two of them joined by '+' for a combination (input/bind/pad_chord.h); "NONE" or "" is unbound. The
+// *2 slots are the second binding of the same button.
 typedef struct {
-    char keyUp[24], keyDown[24], keyLeft[24], keyRight[24];
-    char keyCross[24], keyCircle[24], keyTriangle[24], keySquare[24];
-    char keyL1[24], keyR1[24], keyL2[24], keyR2[24], keyL3[24], keyR3[24];
-    char keyStart[24], keySelect[24];
-    char keyUp2[24], keyDown2[24], keyLeft2[24], keyRight2[24];
-    char keyCross2[24], keyCircle2[24], keyTriangle2[24], keySquare2[24];
-    char keyL12[24], keyR12[24], keyL22[24], keyR22[24], keyL32[24], keyR32[24];
-    char keyStart2[24], keySelect2[24];
-    char padCross[24], padCircle[24], padTriangle[24], padSquare[24];
-    char padL1[24], padR1[24], padL2[24], padR2[24], padL3[24], padR3[24];
-    char padStart[24], padSelect[24];
-    char padCross2[24], padCircle2[24], padTriangle2[24], padSquare2[24];
-    char padL12[24], padR12[24], padL22[24], padR22[24], padL32[24], padR32[24];
-    char padStart2[24], padSelect2[24];
-    char keyChangeCam[24], padChangeCam[24];
-    char keyReload[24], padReload[24];
-    char keyCycleWeapons[24], padCycleWeapons[24];
-    char keyQuickHeal[24], padQuickHeal[24];
-    char keyReload2[24];
-    char keyQuickTurn[24], padQuickTurn[24];
-    char keyRearLook[24], padRearLook[24];
-    char keyFlashlight[24], padFlashlight[24];
+    PcBindSlot keyUp, keyDown, keyLeft, keyRight;
+    PcBindSlot keyCross, keyCircle, keyTriangle, keySquare;
+    PcBindSlot keyL1, keyR1, keyL2, keyR2, keyL3, keyR3;
+    PcBindSlot keyStart, keySelect;
+    PcBindSlot keyUp2, keyDown2, keyLeft2, keyRight2;
+    PcBindSlot keyCross2, keyCircle2, keyTriangle2, keySquare2;
+    PcBindSlot keyL12, keyR12, keyL22, keyR22, keyL32, keyR32;
+    PcBindSlot keyStart2, keySelect2;
+    PcBindSlot padCross, padCircle, padTriangle, padSquare;
+    PcBindSlot padL1, padR1, padL2, padR2, padL3, padR3;
+    PcBindSlot padStart, padSelect;
+    PcBindSlot padCross2, padCircle2, padTriangle2, padSquare2;
+    PcBindSlot padL12, padR12, padL22, padR22, padL32, padR32;
+    PcBindSlot padStart2, padSelect2;
+    PcBindSlot keyChangeCam, padChangeCam;
+    PcBindSlot keyReload, padReload;
+    PcBindSlot keyCycleWeapons, padCycleWeapons;
+    PcBindSlot keyQuickHeal, padQuickHeal;
+    PcBindSlot keyReload2;
+    PcBindSlot keyQuickTurn, padQuickTurn;
+    PcBindSlot keyRearLook, padRearLook;
+    PcBindSlot keyFlashlight, padFlashlight;
 } ControlScheme;
 
 // Each field is described by its key in config_keys.h. The order of the fields is the layout other code and the
@@ -218,14 +224,14 @@ typedef struct {
     // classic is the original camera; altcam is every alternate camera, its keys end in "_altcam".
     ControlScheme classic;
     ControlScheme altcam;
-    char keyQuickSave[24], keyQuickLoad[24];
-    char padQuickSave[24], padQuickLoad[24];
-    char keyDebugMenu[24];
-    char padDebugMenu[24];
-    char keySwapShoulder[24];
-    char padSwapShoulder[24];
-    char keyConsole[24];
-    char keyExitGame[24];
+    PcBindSlot keyQuickSave, keyQuickLoad;
+    PcBindSlot padQuickSave, padQuickLoad;
+    PcBindSlot keyDebugMenu;
+    PcBindSlot padDebugMenu;
+    PcBindSlot keySwapShoulder;
+    PcBindSlot padSwapShoulder;
+    PcBindSlot keyConsole;
+    PcBindSlot keyExitGame;
     char languageCode[16];
     int menuStyle;
     char savegameDir[512];
