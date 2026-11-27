@@ -3,6 +3,8 @@
 
 #include "engine/world/runtime_pickups.h"
 
+#include "engine/world/carried_lights.h"
+
 #include <algorithm>
 
 namespace sh::world {
@@ -41,6 +43,7 @@ void PickupRegistry::begin_map(std::string_view map) {
     clear_script_message();
     clear_pickup_take();
     script_marks_store().clear();
+    clear_carried_lights();
     map_ = std::string(map);
     map_loaded_ = !map_.empty();
     if (!pickups_.empty()) {

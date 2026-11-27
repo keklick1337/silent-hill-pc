@@ -11,6 +11,7 @@
 #include "engine/script/bind_world.h"
 #include "engine/script/bind_console.h"
 #include "engine/script/bind_timers.h"
+#include "engine/script/bind_lights.h"
 #include "engine/script/bind_world_pickups.h"
 #include "engine/script/caller_mod.h"
 
@@ -2669,6 +2670,7 @@ void Host::open_sandbox() {
     lua_pop(L_, 1);
     install_world_family(L_, this);
     install_world_pickup_family(L_, this);
+    install_light_family(L_, this);
     if (lua_getfield(L_, -1, "event") != LUA_TTABLE) {
         lua_pop(L_, 1);
         lua_newtable(L_);

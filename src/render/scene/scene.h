@@ -80,6 +80,9 @@ struct FrameLight {
     bool gi = true;  // it bounces (rt_gi)
     // A lamp of the extra_lights setting: drawn by every renderer, also where the map's other lights are off.
     bool extra = false;
+    // A light a script gave a character to carry (sh.light.carry): part of the story, so it is shaded by every
+    // renderer whatever the light settings are.
+    bool carried = false;
 };
 
 // The map's sun and sky for the modern lighting, daytime maps only (lights.json "sun" and "sky").

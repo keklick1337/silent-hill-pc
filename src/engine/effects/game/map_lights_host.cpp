@@ -16,13 +16,16 @@
 
 #include "engine/camera/camera_types.h"
 #include "engine/camera/view_system.h"
+#include "engine/effects/map_lighting_config.h"
 #include "engine/effects/map_lights.h"
 #include "engine/effects/named_effects_host.h"
 #include "engine/game_state/game_state.h"
 #include "engine/game_state/session.h"
+#include "engine/gameflow/anim_slots.h"
 #include "engine/ids/game_numbers.h"
 #include "engine/log/sh_log.h"
 #include "engine/mods/data_reload.h"
+#include "engine/world/carried_lights.h"
 #include "render/gpu/render_state.h"
 #include "render/scene/scene.h"
 
@@ -189,10 +192,11 @@ std::array<float, 3> held_shadow_axis(const std::array<float, 3>& flame) {
     return {dx / h * c, s, dz / h * c};
 }
 
-// A point of a bone of Harry (offset in metres in the bone's space) in world units.
-std::array<float, 3> on_bone(int bone, const std::array<float, 3>& offset, std::array<float, 3>* axis) {
-    auto& bones = sh::game::session().system.characters.player_bones;
-    const sh::camera::Matrix m = sh::camera::frame_world(&bones[bone]);
+// A point of a bone (offset in metres in the bone's space) in world units; `axis`, when given, is turned from the
+// bone's space into the world's.
+std::array<float, 3> on_frame(sh::camera::FrameRecord* frame, const std::array<float, 3>& offset,
+                              std::array<float, 3>* axis) {
+    const sh::camera::Matrix m = sh::camera::frame_world(frame);
     std::array<float, 3> out{};
     for (int r = 0; r < 3; ++r) {
         float v = static_cast<float>(m.t[r]);
@@ -205,6 +209,63 @@ std::array<float, 3> on_bone(int bone, const std::array<float, 3>& offset, std::
         if (axis) (*axis)[static_cast<std::size_t>(r)] = a;
     }
     return out;
+}
+
+// A point of a bone of Harry.
+std::array<float, 3> on_bone(int bone, const std::array<float, 3>& offset, std::array<float, 3>* axis) {
+    auto& bones = sh::game::session().system.characters.player_bones;
+    return on_frame(reinterpret_cast<sh::camera::FrameRecord*>(&bones[bone]), offset, axis);
+}
+
+// The bones the character in `slot` is posed on and how many they are: the player's own, another character's from
+// the animation slot of its type. Null while the slot is empty or its type has no animations in.
+sh::camera::FrameRecord* bones_of_slot(int slot, int* count) {
+    if (slot == 0) {
+        auto& bones = sh::game::session().system.characters.player_bones;
+        *count = static_cast<int>(std::size(bones));
+        return reinterpret_cast<sh::camera::FrameRecord*>(&bones[0]);
+    }
+    const int type = sh::game_state::chara_id(slot);
+    if (type <= 0) return nullptr;
+    const sh::gameflow::AnimSlotTable& table = sh::gameflow::anim_slot_table();
+    const int index = table.chara_slot_of(type);
+    if (!table.has_slot(index)) return nullptr;
+    const sh::gameflow::AnimSlot& held = table.slots[static_cast<std::size_t>(index)];
+    if (held.bone_coords == nullptr || held.active_header == nullptr || held.active_chara != type) return nullptr;
+    // The animation file's own bone count (its header), as the slot logic reads it.
+    *count = static_cast<const std::uint8_t*>(held.active_header)[6];
+    return static_cast<sh::camera::FrameRecord*>(held.bone_coords);
+}
+
+// The lights the scripts gave characters to carry (sh.light.carry), each at its bone as the frame poses it.
+void describe_carried_lights(sh::scene::Frame& f) {
+    for (const sh::world::CarriedLight& l : sh::world::carried_lights()) {
+        int count = 0;
+        sh::camera::FrameRecord* bones = bones_of_slot(l.slot, &count);
+        const int bone = l.bone >= 0 ? l.bone : fx::harry_bone_index(l.bone_name);
+        if (bones == nullptr || bone < 0 || bone >= count) continue;
+        sh::scene::FrameLight out;
+        std::array<float, 3> axis = l.direction;
+        const bool spot = axis[0] != 0.0f || axis[1] != 0.0f || axis[2] != 0.0f;
+        out.position = on_frame(bones + bone, l.position, spot ? &axis : nullptr);
+        if (spot) {
+            const float len = std::sqrt(axis[0] * axis[0] + axis[1] * axis[1] + axis[2] * axis[2]);
+            if (len <= 0.0f) continue;
+            for (float& a : axis) a /= len;
+            out.direction = axis;
+            out.shadow_axis = axis;
+            out.cos_inner = std::cos(l.cone_inner * 3.14159265f / 180.0f);
+            out.cos_outer = std::cos(l.cone_outer * 3.14159265f / 180.0f);
+        }
+        for (std::size_t i = 0; i < 3; ++i) out.color[i] = l.color[i] * l.intensity;
+        out.range = l.range * kUnitsPerMetre;
+        out.radius = l.radius * kUnitsPerMetre;
+        out.near_clip = kHeldNearClip;
+        out.casts_shadows = l.casts_shadows;
+        out.gi = l.gi;
+        out.carried = true;
+        f.lights.push_back(out);
+    }
 }
 
 }  // namespace
@@ -272,6 +333,7 @@ void describe_map_lights() {
             f.sun.ceilings.push_back({c.rect[0] * kUnitsPerMetre, c.rect[1] * kUnitsPerMetre, c.rect[2] * kUnitsPerMetre,
                                       c.rect[3] * kUnitsPerMetre, c.height * kUnitsPerMetre});
     }
+    describe_carried_lights(f);
     for (const auto& [key, l] : effect_lights_shown()) {
         sh::scene::FrameLight out;
         out.position = l.position;

@@ -15,6 +15,7 @@ add_library(sh_script STATIC
     bind_engine.cpp
     bind_flags.cpp
     bind_hooks.cpp
+    bind_lights.cpp
     bind_menu.cpp
     bind_mods.cpp
     bind_player.cpp

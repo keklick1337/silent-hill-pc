@@ -2,6 +2,7 @@
 // and lets the player reach, and the sh.world.pickup_* functions of the script host (owner namespaces of mods).
 
 #include "engine/script/script_host.h"
+#include "engine/world/carried_lights.h"
 #include "engine/world/runtime_pickups.h"
 #include "framework/sh_test.h"
 
@@ -368,4 +369,74 @@ SH_TEST(runtime_pickups_unseen_take_and_marks) {
     SH_CHECK(sw::clear_script_marks("other", "") && sw::script_marks().size() == 1);
     reg.begin_map("map2_s02");
     SH_CHECK(sw::pending_pickup_take().empty() && sw::script_marks().empty());
+}
+
+// A light a script gives a character to carry (sh.light.carry): kept per mod and id, replaced by a second call with
+// the same id, refused when its numbers make no light, dropped by its mod or by the next map.
+SH_TEST(carried_lights_script_api) {
+    ScriptDir dir("carried_lights");
+    dir.write("mods/story/mod.json", R"({"id": "story", "version": "1.0.0", "scripts": true})");
+    dir.write("mods/story/scripts/main.lua", R"lua(
+        function on_map_load(map)
+            sh.log("a " .. tostring(sh.light.carry("lamp", {slot = 1, bone = 1, position = {-0.08, -0.28, 0.12},
+                                                            direction = {0, 0.26, 0.97}, cone = {17, 30},
+                                                            color = {1, 0.9, 0.8}, intensity = 1.5, range = 9})))
+            sh.log("b " .. tostring(sh.light.carry("lamp", {slot = 2, cone = 25})))
+            sh.log("c " .. tostring(sh.light.carry("own", {})))
+            local bad, why = sh.light.carry("bad", {cone = {40, 30}})
+            sh.log("d " .. tostring(bad) .. " " .. tostring(why))
+            local none, err = sh.light.carry("dark", {range = 0})
+            sh.log("e " .. tostring(none) .. " " .. tostring(err ~= nil))
+            sh.log("f " .. tostring(sh.light.drop("own")) .. " " .. tostring(sh.light.drop("own")))
+        end
+    )lua");
+    dir.write("mods/zother/mod.json", R"({"id": "zother", "version": "1.0.0", "scripts": true})");
+    dir.write("mods/zother/scripts/main.lua", R"lua(
+        function on_map_load(map)
+            sh.log("g " .. tostring(sh.light.drop()))
+            sh.light.carry("lamp", {bone = "RightHand"})
+        end
+    )lua");
+
+    FakeResolver names;
+    sw::PickupRegistry& reg = sw::pickups();
+    reg.set_resolver(&names);
+    reg.begin_map("map4_s01");
+
+    std::vector<std::string> lines;
+    sh::script::HostConfig c;
+    c.gamedata_dir = dir.root / "base";
+    c.mods_dir = dir.root / "mods";
+    c.log = [&](int, const std::string& msg) { lines.push_back(msg); };
+    sh::script::Host host(c);
+    SH_CHECK(host.load().value());
+    host.on_map_load("map4_s01");
+    const auto has = [&](const std::string& part) {
+        for (const std::string& l : lines) {
+            if (l.find(part) != std::string::npos) {
+                return true;
+            }
+        }
+        return false;
+    };
+    SH_CHECK(has("a true") && has("b true") && has("c true"));
+    SH_CHECK(has("d nil cone: 0 <= inner <= outer < 90 degrees"));
+    SH_CHECK(has("e nil true"));
+    SH_CHECK(has("f true false"));
+    SH_CHECK(has("g false"));  // another mod's lights are not its to drop
+
+    const std::vector<sw::CarriedLight>& lights = sw::carried_lights();
+    SH_CHECK(lights.size() == 2);
+    if (lights.size() == 2) {
+        const sw::CarriedLight& lamp = lights[0];
+        SH_CHECK(lamp.owner == "story" && lamp.id == "lamp" && lamp.slot == 2);  // the second call replaced the first
+        SH_CHECK(lamp.bone < 0 && lamp.bone_name == "Torso");
+        SH_CHECK(lamp.cone_outer == 25.0f && lamp.cone_inner > 14.9f && lamp.cone_inner < 15.1f);
+        SH_CHECK(lamp.direction[0] == 0.0f && lamp.direction[1] == 0.0f && lamp.direction[2] == 0.0f);
+        SH_CHECK(lights[1].owner == "zother" && lights[1].bone_name == "RightHand" && lights[1].slot == 0);
+    }
+    reg.begin_map("map2_s02");
+    SH_CHECK(sw::carried_lights().empty());
+    reg.begin_map("");
+    reg.set_resolver(nullptr);
 }

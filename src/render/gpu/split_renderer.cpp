@@ -126,16 +126,22 @@ bool reach_outside(const LightFrustum& f, const std::array<float, 3>& c, float r
     return false;
 }
 
+// Which of the frame's lights a pass takes: all of them; only the lamps of extra_lights, the light that takes the
+// flashlight's shadow map and the lights characters carry (the map's other lights are off); or only the carried
+// ones (every light setting is off: a light a script gave a character still shines).
+enum class LightSet { All, Extra, Carried };
+
 // The frame's map lights and sun in view space (rt_lights): only lights that can reach a point the fog leaves
-// visible (and, with `frustum`, one inside the view), the nearest first, at most kMaxRayLights. extra_only: just the
-// lamps of extra_lights and the light that takes the flashlight's shadow map (frame light `shadowed`), without the
-// sun (the map's other lights are off).
-void describe_lights(const scene::Frame& frame, float fog_far, rhi::RayTracer::View* rv, bool extra_only = false,
+// visible (and, with `frustum`, one inside the view), the nearest first, at most kMaxRayLights. Any set but All
+// comes without the sun; `shadowed` is the frame light that has the flashlight's shadow map.
+void describe_lights(const scene::Frame& frame, float fog_far, rhi::RayTracer::View* rv, LightSet set = LightSet::All,
                      std::int32_t shadowed = -1, const LightFrustum& frustum = {}) {
+    const bool extra_only = set != LightSet::All;
     rv->mapLights.clear();
     for (std::size_t i = 0; i < frame.lights.size(); ++i) {
         const scene::FrameLight& l = frame.lights[i];
-        if (extra_only && !l.extra && static_cast<std::int32_t>(i) != shadowed) continue;
+        if (set == LightSet::Extra && !l.extra && !l.carried && static_cast<std::int32_t>(i) != shadowed) continue;
+        if (set == LightSet::Carried && !l.carried) continue;
         rhi::RayTracer::View::Light out;
         const std::array<float, 3> p = to_view(frame.camera, l.position, true);
         const float dist = std::sqrt(p[0] * p[0] + p[1] * p[1] + p[2] * p[2]);
@@ -282,9 +288,18 @@ void describe_scene_lights(const scene::Frame& frame, float fog_far, bool traced
     scene::LightBlock& b = view->lights;
     b = {};
     const bool all = atmosphere && s.map_lights != 0;
-    if ((all || render::graphics().extra_lights != 0) && !traced) {
+    const bool extra = render::graphics().extra_lights != 0;
+    const bool carried =
+        std::any_of(frame.lights.begin(), frame.lights.end(), [](const scene::FrameLight& l) { return l.carried; });
+    if ((all || extra || carried) && !traced) {
         rhi::RayTracer::View lights;
-        describe_lights(frame, fog_far, &lights, !all, shadowed, frustum);
+        LightSet set = LightSet::Carried;
+        if (all) {
+            set = LightSet::All;
+        } else if (extra) {
+            set = LightSet::Extra;
+        }
+        describe_lights(frame, fog_far, &lights, set, shadowed, frustum);
         // The same transform gives the same numbers: the block's entry of the light the shadow map belongs to.
         std::array<float, 3> shadowed_at{};
         if (shadowed >= 0)
@@ -709,7 +724,8 @@ void SplitRenderer::note_world(const scene::Frame& frame, const scene::View& vie
     const bool all_lights = (g.ray_tracing != 0 && g.rt_lights != 0) || a.map_lights != 0;
     if (all_lights || g.extra_lights != 0) {
         rhi::RayTracer::View lights;
-        describe_lights(frame, fog_opaque_distance(view), &lights, !all_lights, -1, light_frustum(frame, view));
+        describe_lights(frame, fog_opaque_distance(view), &lights, all_lights ? LightSet::All : LightSet::Extra, -1,
+                        light_frustum(frame, view));
         for (const rhi::RayTracer::View::Light& l : lights.mapLights) {
             if (in.lights >= rhi::kAtmosphereLights) break;
             in.lightPos[static_cast<std::size_t>(in.lights)] = l.position;
