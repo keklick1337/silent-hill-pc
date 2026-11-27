@@ -63,10 +63,10 @@ public:
         last_distance_ = last_distance;
     }
 
-    /* One phase of the walk. `point_at(i)` returns waypoint i; like the original it may be asked for the
-     * point just past the last one. `walk_anim` is the walking animation, `final_heading` the heading to end
-     * with (any Q12 angle), `count` the number of waypoints, `delta_time` the frame time in Q12 seconds. True
-     * when the walk has ended on this call. */
+    /* One phase of the walk. `point_at(i)` returns waypoint i, 0 <= i < count (the original also read the point
+     * just past the last one, for a distance nothing used). `walk_anim` is the walking animation, `final_heading`
+     * the heading to end with (any Q12 angle), `count` the number of waypoints, `delta_time` the frame time in Q12
+     * seconds. True when the walk has ended on this call. */
     template <class PointAt>
     bool step(PathWalkActor& a, std::int32_t walk_anim, PointAt&& point_at, std::int32_t final_heading,
               std::int32_t count, std::int32_t delta_time) {
@@ -148,7 +148,10 @@ public:
                 // (the last waypoint must be reached by distance).
                 if (distance < reach || (last_distance_ < distance && next_ != count - 1)) {
                     ++next_;
-                    distance = distance_to(a, point_at(next_));
+                    // Past the last waypoint there is no point to measure (phase 4 measures again before use).
+                    if (next_ < count) {
+                        distance = distance_to(a, point_at(next_));
+                    }
                     a.phase = next_ == count ? 6 : 4;
                 }
                 last_distance_ = distance;

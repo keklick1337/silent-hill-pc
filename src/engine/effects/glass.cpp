@@ -155,6 +155,9 @@ void GlassEffects::spawn(GlassHost& host, const Vec3& from, const Vec3& to, std:
 
 bool GlassEffects::update(GlassHost& host, int slot, GlassShard& shard) const {
     const std::int32_t dt = host.delta_time();
+    // The shard's burst group, read before a landing frees the slot (state 0): the quad of that last frame keeps the
+    // pane it flew from instead of an entry before the table.
+    const int group = shard.state - 23;
 
     if ((shard.variant & 0x80) != 0) {
         // At rest: count down, then relaunch with fresh spin derived from the velocity.
@@ -242,7 +245,7 @@ bool GlassEffects::update(GlassHost& host, int slot, GlassShard& shard) const {
 
     // ---- the quad ----
 
-    const GlassPane pane = host.pane(shard.state - 23);
+    const GlassPane pane = host.pane(group);
 
     const std::int32_t size2 = (shard.variant & 0x80) != 0 ? square((shard.variant - 0x80) >> 4)
                                                            : square(shard.variant >> 4);

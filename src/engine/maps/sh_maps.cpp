@@ -88,9 +88,13 @@ extern "C" int ShMaps_Load(const char* map, ShMapData* out) {
     out->header = d.header;
     out->spawns = d.spawns;
     out->pointCount = static_cast<std::uint16_t>(std::min<std::size_t>(d.points.size(), SH_MAP_POINTS_MAX));
-    std::memcpy(out->points, d.points.data(), out->pointCount * sizeof(ShMapPoint));
+    if (out->pointCount != 0) {  // an empty vector's data() may be null, which memcpy must not get
+        std::memcpy(out->points, d.points.data(), out->pointCount * sizeof(ShMapPoint));
+    }
     out->eventCount = static_cast<std::uint16_t>(std::min<std::size_t>(d.events.size(), SH_MAP_EVENTS_MAX));
-    std::memcpy(out->events, d.events.data(), out->eventCount * sizeof(ShMapEvent));
+    if (out->eventCount != 0) {
+        std::memcpy(out->events, d.events.data(), out->eventCount * sizeof(ShMapEvent));
+    }
     std::memcpy(out->cameras, d.cameras.data(), sizeof out->cameras);
     std::memcpy(out->collision, d.collision.data(), sizeof out->collision);
     sh::maps::MapRuntime::Kinds kinds;

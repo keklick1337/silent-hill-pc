@@ -1,6 +1,7 @@
 // Animation slots on a fake host: buffer chaining, reuse, copy from another group, requests, overlap
 // clearing and the bone-coordinate chain, checked against hand-computed slot states.
 
+#include <cstdint>
 #include <string>
 #include <vector>
 
@@ -22,8 +23,15 @@ public:
     int groupChara[4] = {0, 7, 8, 9};
     std::int32_t anim_file_size(int chara) const override { return chara * 0x800; }
     int bone_count(const void*) const override { return bones; }
-    void* coord_advance(void* c, int n) const override { return static_cast<int*>(c) + n; }
-    bool coord_past_end(const void* c, int b) const override { return static_cast<const int*>(c) + b + 1 >= g_coords + 40; }
+    // As addresses: a slot that has no coordinates yet (null) is advanced too, and null + n is no pointer arithmetic.
+    void* coord_advance(void* c, int n) const override {
+        return reinterpret_cast<void*>(reinterpret_cast<std::uintptr_t>(c) +
+                                       static_cast<std::uintptr_t>(n) * sizeof(int));
+    }
+    bool coord_past_end(const void* c, int b) const override {
+        return reinterpret_cast<std::uintptr_t>(c) + static_cast<std::uintptr_t>(b + 1) * sizeof(int) >=
+               reinterpret_cast<std::uintptr_t>(g_coords + 40);
+    }
     void* coord_buffer_start() const override { return g_coords; }
     void* coord_buffer_spill() const override { return g_coords + 80; }
     void bind_bones(void*, void* c) override { log.push_back("bind " + std::to_string(static_cast<int*>(c) - g_coords)); }

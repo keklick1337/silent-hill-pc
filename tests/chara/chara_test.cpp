@@ -382,7 +382,7 @@ SH_TEST(sounds_and_params) {
 
     // Unknown character or bad slot: no value, the caller keeps its original.
     SH_CHECK(library.value().sfx(99, PC_CHARA_SFX_FOOTSTEP) == -1);
-    SH_CHECK(library.value().sfx(1, (Pc_CharaSfxSlot)99) == -1);
+    SH_CHECK(library.value().sfx(1, (Pc_CharaSfxSlot)6) == -1);  // past the last slot, still a value of the enum
     SH_CHECK(!library.value().character(99).valid());
     SH_CHECK(library.value().character(99).sfx("footstep", 1311) == 1311);
     SH_CHECK(library.value().character(99).param_q12("health", 5) == 5);
