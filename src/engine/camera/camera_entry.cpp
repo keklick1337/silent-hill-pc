@@ -338,6 +338,14 @@ void vcSetCameraUseWarp(const cam::Vec3* chr_pos, std::int16_t chr_ang_y) {
     s.system.process.sys_flags &= ~sh::game::sys_flag::kOnCameraRail;
 }
 
+// The camera behind a character that was put somewhere else at once (the console's and the modding tools'
+// teleports): placed as after a map load, so it does not travel there from where it stood. The zone at the new place
+// takes over on the next camera update.
+void Vc_CameraFollowTeleport(const cam::Vec3* chr_pos, std::int16_t chr_ang_y) {
+    cam::Vec3 cam_pos = cam::first_camera_position(*chr_pos, chr_ang_y, cam::camera_api_config());
+    vcSetFirstCamWork(&cam_pos, chr_ang_y, 0);
+}
+
 void vcInitCamera(void* /*map_overlay_ptr: the zones are the running map's*/, const cam::Vec3* chr_pos) {
     sh::game::Session& s = session();
     s_driver.smooth_move = static_cast<std::uint8_t>(kMoveChase);

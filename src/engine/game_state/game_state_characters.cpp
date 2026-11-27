@@ -13,7 +13,10 @@
 
 #include "engine/entities/entity_world.h"
 
+#include "engine/camera/camera_types.h"
 #include <cstring>
+
+extern "C" void Vc_CameraFollowTeleport(const sh::camera::Vec3* chr_pos, std::int16_t chr_ang_y);
 
 namespace sh::game_state {
 
@@ -136,6 +139,9 @@ void place_player(std::int32_t x, std::int32_t z, const std::int32_t* y) {
     p.position.y = y != nullptr ? *y : ground;
     p.vars.harry.ground_height = ground;
     p.fall_speed = 0;
+    // The play camera goes with him in the same frame, or it would travel there from where it stood.
+    const sh::camera::Vec3 at{p.position.x, p.position.y, p.position.z};
+    Vc_CameraFollowTeleport(&at, p.rotation.y);
 }
 
 // ---- debug spawn and removal (the console's SPAWN) ----
