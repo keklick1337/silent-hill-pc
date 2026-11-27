@@ -113,8 +113,6 @@ A mod can tell its own story with the game's maps. What it uses:
 - **What the tools show.** `sh.world.mark(id, {x, z, r, label, kind})` puts a place of the story (a trigger of the script, a save point, a monster waiting to come) into the modding tools' overlay (F2, *Scripts*), so the editor shows the story as it runs; the marks go at a map change.
 - **Remembering.** Every flag of a mod is saved by name, as many as the story needs: a flag per beat reached, per item taken, per monster killed keeps all of it across a load.
 
-[`examples/mods/cybil_story/`](../../examples/mods/cybil_story/) is a whole branch made this way.
-
 ## Script layers
 
 A layer is a mod's file at the path of a Lua file of the game:

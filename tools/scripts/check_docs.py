@@ -4,6 +4,10 @@
 
     python3 -I tools/scripts/check_docs.py            everything
     python3 -I tools/scripts/check_docs.py --links    the links only
+    python3 -I tools/scripts/check_docs.py --untracked-ok    a file git does not track yet counts as there
+
+A link or a path must lead to a file git tracks (or one that is staged): a file that only lies in the working tree
+is not in a fresh checkout, and the same check fails there. Outside a git checkout the files on disk are taken.
 
 For every Markdown file of the repository (third_party/ excluded):
   links     a relative link must lead to a file of the tree, and its #anchor to a heading of that file;
@@ -20,6 +24,7 @@ For the modding guide (docs/modding/) in addition:
 """
 import json
 import re
+import subprocess
 import sys
 from pathlib import Path
 
@@ -35,6 +40,40 @@ NOT_IN_GIT = re.compile(r'^(third_party/(deps|SDL3))(/|$)')
 ELSEWHERE = re.compile(r'^(src/(bodyprog|maps|main)/|tests/sh_tests|tools/sh-import/sh-import|'
                        r'gamedata/items/(items|weapons)\.json$)')
 PLACEHOLDER = re.compile(r'[<>*{}$…]|\.\.\.|\[')
+
+
+def tracked_files(cache=[]):
+    """The paths git tracks (staged ones included), or None when that cannot be asked."""
+    if not cache:
+        files = None
+        if '--untracked-ok' not in sys.argv:
+            try:
+                out = subprocess.run(['git', '-C', str(ROOT), 'ls-files', '-z'], capture_output=True, check=True)
+                files = frozenset(out.stdout.decode('utf-8', 'surrogateescape').split('\0')) - {''}
+            except (OSError, subprocess.CalledProcessError):
+                files = None
+        cache.append(files)
+    return cache[0]
+
+
+def missing(target, stem=False, source=None):
+    """Why the path is not in the tree ('' when it is). With stem, a name without its extension finds its files."""
+    there = target.exists() or (stem and bool(list(target.parent.glob(target.name + '.*'))))
+    if not there:
+        return 'no such path'
+    tracked = tracked_files()
+    # A document that is itself not in git yet may name its untracked neighbours.
+    if tracked is not None and source is not None and source.relative_to(ROOT).as_posix() not in tracked:
+        return ''
+    try:
+        rel = target.resolve().relative_to(ROOT).as_posix()
+    except ValueError:
+        return ''
+    if tracked is None or rel in ('', '.'):
+        return ''
+    if rel in tracked or any(t.startswith(rel + '/') or (stem and t.startswith(rel + '.')) for t in tracked):
+        return ''
+    return 'not in git (commit it with the document, or drop the mention)'
 
 
 def markdown_files():
@@ -101,8 +140,9 @@ def check_links(path, problems):
                 continue
             file_part, _, anchor = target.partition('#')
             dest = path if not file_part else (path.parent / file_part).resolve()
-            if not dest.exists():
-                problems.append(f'{rel}:{n}: broken link {target}')
+            why = missing(dest, source=path)
+            if why:
+                problems.append(f'{rel}:{n}: broken link {target}' + ('' if why == 'no such path' else f': {why}'))
                 continue
             if anchor and dest.is_file() and dest.suffix == '.md' and anchor.lower() not in anchors(dest):
                 problems.append(f'{rel}:{n}: no heading #{anchor} in {dest.relative_to(ROOT).as_posix()}')
@@ -126,9 +166,10 @@ def check_paths(path, problems):
             if IMPORTED.match(token) or NOT_IN_GIT.match(token) or ELSEWHERE.match(token):
                 continue
             # A file named without its extension (`src/x/file` for file.h and file.cpp) is found by its stem.
-            target = ROOT / token
-            if not target.exists() and not list(target.parent.glob(target.name + '.*')):
-                problems.append(f'{rel}:{n}: no such path {m.group(1)}')
+            why = missing(ROOT / token, stem=True, source=path)
+            if why:
+                problems.append(f'{rel}:{n}: {why}: {m.group(1)}' if why != 'no such path'
+                                else f'{rel}:{n}: no such path {m.group(1)}')
 
 
 def api_names():
