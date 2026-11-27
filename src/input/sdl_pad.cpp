@@ -4,6 +4,7 @@
 #include "engine/config/pc_config.h"
 #include "engine/log/sh_log.h"
 #include "input/pad.h"
+#include "input/pointer_math.h"
 
 #include <algorithm>
 #include <cstdlib>
@@ -99,7 +100,7 @@ std::uint16_t mouseWord()
     std::uint16_t word = kNone;
     const SDL_MouseButtonFlags down = SDL_GetMouseState(nullptr, nullptr);
     for (int b = 1; b <= 5; ++b)
-        if ((down & SDL_BUTTON_MASK(b)) && mask[b])
+        if ((down & mouse_button_bit(b)) && mask[b])
             word &= static_cast<std::uint16_t>(~mask[b]);
     if (wheel().upFrames > 0 && mask[6])
         word &= static_cast<std::uint16_t>(~mask[6]);

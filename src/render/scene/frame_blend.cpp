@@ -84,14 +84,36 @@ Mat3 blend_rotation(const Mat3& a, const Mat3& b, double t) {
     return matrix_of(q);
 }
 
-// Where the camera stands in the world.
-Vec3 eye(const Camera& c) { return rotate_back(c.rot, {-c.trans[0], -c.trans[1], -c.trans[2]}); }
+// View space back to the world. A camera the game rounded (each element of its rotation to 1/4096) is not a pure
+// rotation, and its transpose puts a point as far off as the rounding times the point's distance from the world's
+// origin: centimetres on most maps, by another amount whenever the camera turns. So the rotation is inverted.
+struct Back {
+    Mat3 inverse;
+    Vec3 trans;
+    explicit Back(const Camera& c) : trans(c.trans) {
+        const Mat3& m = c.rot;
+        const double c00 = m[4] * m[8] - m[5] * m[7];
+        const double c01 = m[5] * m[6] - m[3] * m[8];
+        const double c02 = m[3] * m[7] - m[4] * m[6];
+        const double det = m[0] * c00 + m[1] * c01 + m[2] * c02;
+        if (std::fabs(det) > 1e-9) {
+            inverse = {c00 / det, (m[2] * m[7] - m[1] * m[8]) / det, (m[1] * m[5] - m[2] * m[4]) / det,
+                       c01 / det, (m[0] * m[8] - m[2] * m[6]) / det, (m[2] * m[3] - m[0] * m[5]) / det,
+                       c02 / det, (m[1] * m[6] - m[0] * m[7]) / det, (m[0] * m[4] - m[1] * m[3]) / det};
+        } else {
+            inverse = {m[0], m[3], m[6], m[1], m[4], m[7], m[2], m[5], m[8]};
+        }
+    }
+    Vec3 point(const Vec3& v) const { return rotate(inverse, {v[0] - trans[0], v[1] - trans[1], v[2] - trans[2]}); }
+    // Where the camera stands in the world.
+    Vec3 eye() const { return point({0, 0, 0}); }
+};
 
-Vec3 world_of(const Camera& c, const PrelitVertex& v) {
-    return rotate_back(c.rot, {v.x - c.trans[0], v.y - c.trans[1], v.z - c.trans[2]});
-}
+Vec3 eye(const Camera& c) { return Back(c).eye(); }
 
-Vec3 centre(const Camera& c, const PrelitMesh& m) {
+Vec3 world_of(const Back& c, const PrelitVertex& v) { return c.point({v.x, v.y, v.z}); }
+
+Vec3 centre(const Back& c, const PrelitMesh& m) {
     Vec3 sum{0, 0, 0};
     for (const PrelitVertex& v : m.vertices) {
         sum[0] += v.x;
@@ -119,9 +141,7 @@ std::array<float, 3> floats(const Vec3& v) {
     return {static_cast<float>(v[0]), static_cast<float>(v[1]), static_cast<float>(v[2])};
 }
 
-Vec3 point_to_world(const Camera& c, const Vec3& v) {
-    return rotate_back(c.rot, {v[0] - c.trans[0], v[1] - c.trans[1], v[2] - c.trans[2]});
-}
+Vec3 point_to_world(const Camera& c, const Vec3& v) { return Back(c).point(v); }
 
 Vec3 point_to_view(const Camera& c, const Vec3& w) {
     const Vec3 v = rotate(c.rot, w);
@@ -160,8 +180,10 @@ void blend_frames(const Frame& from, const Frame& to, double t, Frame& out, cons
     t = std::clamp(t, 0.0, 1.0);
 
     if (is_cut(from, to, limits)) return;
-    const Vec3 eye_from = eye(from.camera);
-    const Vec3 eye_to = eye(to.camera);
+    const Back back_from(from.camera);
+    const Back back_to(to.camera);
+    const Vec3 eye_from = back_from.eye();
+    const Vec3 eye_to = back_to.eye();
 
     Camera& cam = out.camera;
     cam.rot = blend_rotation(from.camera.rot, to.camera.rot, t);
@@ -180,11 +202,11 @@ void blend_frames(const Frame& from, const Frame& to, double t, Frame& out, cons
         const PrelitMesh& newer = to.prelit[i];
         const PrelitMesh* older = i < from.prelit.size() ? &from.prelit[i] : nullptr;
         if (older != nullptr && (!same_shape(*older, newer) ||
-                                 distance(centre(from.camera, *older), centre(to.camera, newer)) > limits.mesh_move))
+                                 distance(centre(back_from, *older), centre(back_to, newer)) > limits.mesh_move))
             older = nullptr;
         for (std::size_t v = 0; v < mesh.vertices.size(); ++v) {
-            Vec3 world = world_of(to.camera, newer.vertices[v]);
-            if (older != nullptr) world = lerp(world_of(from.camera, older->vertices[v]), world, t);
+            Vec3 world = world_of(back_to, newer.vertices[v]);
+            if (older != nullptr) world = lerp(world_of(back_from, older->vertices[v]), world, t);
             const Vec3 view = rotate(cam.rot, world);
             mesh.vertices[v].x = static_cast<float>(view[0] + cam.trans[0]);
             mesh.vertices[v].y = static_cast<float>(view[1] + cam.trans[1]);
@@ -211,17 +233,22 @@ void blend_frames(const Frame& from, const Frame& to, double t, Frame& out, cons
 }
 
 void TickFrames::record(const Frame& frame, const Beam& beam) {
+    std::swap(older_, previous_);
     std::swap(previous_, last_);
     last_ = frame;
+    older_beam_ = previous_beam_;
     previous_beam_ = last_beam_;
     last_beam_ = beam;
-    count_ = std::min(count_ + 1, 2);
+    count_ = std::min(count_ + 1, 3);
 }
 
 void TickFrames::reset() { count_ = 0; }
 
 void TickFrames::show(double t, Frame& out, Beam& beam) const {
-    if (count_ >= 2) {
+    if (count_ >= 3 && t < 0.0) {
+        blend_frames(older_, previous_, 1.0 + t, out);
+        beam = blend_beam(older_, older_beam_, previous_, previous_beam_, out, 1.0 + t);
+    } else if (count_ >= 2) {
         blend_frames(previous_, last_, t, out);
         beam = blend_beam(previous_, previous_beam_, last_, last_beam_, out, t);
     } else if (count_ == 1) {

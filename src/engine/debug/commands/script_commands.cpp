@@ -2,7 +2,8 @@
 // Copyright 2026 Vladislav Tislenko (keklick1337)
 //
 // Console commands of scripted checks (-consolecmd files, the replay harness, tests/smoke): a held pad, a
-// fixed random seed, updates that stall as on a loaded machine.
+// fixed random seed, updates that stall as on a loaded machine, a mouse and a right stick that turn the view
+// at a steady rate, and a record of the camera of every presented frame.
 
 #include "engine/debug/command_services.h"
 #include "engine/debug/commands/command_groups.h"
@@ -10,11 +11,17 @@
 #include "engine/debug/commands/scripted_run.h"
 #include "engine/loop/frame_view.h"
 #include "engine/loop/game_random.h"
+#include "engine/log/sh_log.h"
+#include "platform/sh_platform.h"
 
 #include <SDL3/SDL_timer.h>
 
+#include <algorithm>
+#include <cmath>
 #include <cstdio>
 #include <cstdlib>
+#include <string>
+#include <vector>
 
 namespace sh::debug {
 
@@ -27,7 +34,68 @@ StallDice& stall_dice() {
     return dice;
 }
 
+// `lookinput`: mouse counts a second, and the right stick's deflection (-127..127).
+struct ScriptedLook {
+    double mouse_rate[2] = {0.0, 0.0};
+    double mouse_owed[2] = {0.0, 0.0};
+    std::uint64_t polled_at = 0;
+    int stick[2] = {0, 0};
+};
+ScriptedLook s_look;
+
+// `looktrace`: kept in memory while it runs, because a log line per frame would disturb the frame times it measures.
+struct LookSample {
+    double ms;
+    bool between;
+    double yaw, pitch;
+    double counts[2];
+    double eye[3];
+};
+bool s_trace_on = false;
+std::vector<LookSample> s_trace;
+std::uint64_t s_trace_start = 0;
+double s_counts_sent[2] = {0.0, 0.0};
+
 }  // namespace
+
+void script_look_poll() {
+    const std::uint64_t now = SDL_GetPerformanceCounter();
+    if (s_look.mouse_rate[0] == 0.0 && s_look.mouse_rate[1] == 0.0) {
+        s_look.polled_at = 0;
+        return;
+    }
+    if (s_look.polled_at != 0) {
+        const double passed =
+            static_cast<double>(now - s_look.polled_at) / static_cast<double>(SDL_GetPerformanceFrequency());
+        // A mouse reports whole counts: the fraction waits for the next poll.
+        float whole[2];
+        for (int i = 0; i < 2; ++i) {
+            s_look.mouse_owed[i] += s_look.mouse_rate[i] * passed;
+            whole[i] = static_cast<float>(std::trunc(s_look.mouse_owed[i]));
+            s_look.mouse_owed[i] -= whole[i];
+            s_counts_sent[i] += whole[i];
+        }
+        Sh_InjectRelativeMouse(whole[0], whole[1]);
+    }
+    s_look.polled_at = now;
+}
+
+bool script_stick_held() { return s_look.stick[0] != 0 || s_look.stick[1] != 0; }
+
+void script_stick_apply(std::uint8_t* right_x, std::uint8_t* right_y) {
+    *right_x = static_cast<std::uint8_t>(128 + s_look.stick[0]);
+    *right_y = static_cast<std::uint8_t>(128 + s_look.stick[1]);
+}
+
+bool look_trace_on() { return s_trace_on; }
+
+void look_trace_frame(bool between, double yaw_deg, double pitch_deg, const double eye_metres[3]) {
+    if (!s_trace_on || s_trace.size() >= 100000) return;
+    const double ms = static_cast<double>(SDL_GetPerformanceCounter() - s_trace_start) * 1000.0 /
+                      static_cast<double>(SDL_GetPerformanceFrequency());
+    s_trace.push_back({ms, between, yaw_deg, pitch_deg, {s_counts_sent[0], s_counts_sent[1]},
+                       {eye_metres[0], eye_metres[1], eye_metres[2]}});
+}
 
 bool script_pad_held() { return s_held_buttons != 0; }
 
@@ -51,6 +119,51 @@ void register_script_commands(Registry& registry) {
             }
             s_held_buttons = held.value();
             say(ctx, "pad: holding 0x%04x", s_held_buttons);
+            return done();
+        });
+
+    add(registry, "lookinput", "debug",
+        "scripted look input: mouse <x> <y> moves the mouse by so many counts a second, stick <x> <y> holds the "
+        "right stick (-127..127), off stops both",
+        {arg("device", ArgType::Enum, false, "what to drive", {"mouse", "stick", "off"}),
+         opt_number("x", "to the right"), opt_number("y", "down")},
+        [](Context& ctx, const Args& args) {
+            const std::string& device = args.str(0);
+            if (device == "mouse") {
+                s_look.mouse_rate[0] = args.number(1);
+                s_look.mouse_rate[1] = args.number(2);
+                s_look.mouse_owed[0] = s_look.mouse_owed[1] = 0.0;
+            } else if (device == "stick") {
+                s_look.stick[0] = std::clamp(static_cast<int>(args.number(1)), -127, 127);
+                s_look.stick[1] = std::clamp(static_cast<int>(args.number(2)), -127, 127);
+            } else {
+                s_look = ScriptedLook{};
+            }
+            say(ctx, "lookinput: mouse %.1f %.1f counts/s, stick %d %d", s_look.mouse_rate[0], s_look.mouse_rate[1],
+                s_look.stick[0], s_look.stick[1]);
+            return done();
+        });
+
+    add(registry, "looktrace", "debug",
+        "record the camera's heading, pitch and place on every presented frame; off writes the records to the log",
+        {arg("state", ArgType::Enum, false, "start or stop", {"on", "off"})}, [](Context& ctx, const Args& args) {
+            if (args.str(0) == "on") {
+                s_trace.clear();
+                s_trace_on = true;
+                s_trace_start = SDL_GetPerformanceCounter();
+                s_counts_sent[0] = s_counts_sent[1] = 0.0;
+                return done();
+            }
+            s_trace_on = false;
+            // frame, milliseconds when its view was settled, update or between, yaw and pitch (degrees), mouse counts
+            // sent, the eye (metres)
+            for (std::size_t i = 0; i < s_trace.size(); ++i) {
+                const LookSample& r = s_trace[i];
+                SH_LOG("[LOOKTRACE] %zu %.3f %c %.5f %.5f %.0f %.0f %.5f %.5f %.5f", i, r.ms, r.between ? 'b' : 'u',
+                       r.yaw, r.pitch, r.counts[0], r.counts[1], r.eye[0], r.eye[1], r.eye[2]);
+            }
+            say(ctx, "looktrace: %zu frames", s_trace.size());
+            s_trace.clear();
             return done();
         });
 

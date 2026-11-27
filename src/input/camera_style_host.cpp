@@ -44,18 +44,6 @@ int pad_bind(const char* name) {
     return name[0] != '\0' ? lookup_controller_bind(name, SDL_GAMEPAD_BUTTON_INVALID) : SDL_GAMEPAD_BUTTON_INVALID;
 }
 
-// Config numbers the buttons left, right, middle; SDL left, middle, right.
-SDL_MouseButtonFlags mouse_mask(int config_button) {
-    switch (config_button) {
-        case 1: return SDL_BUTTON_LMASK;
-        case 2: return SDL_BUTTON_RMASK;
-        case 3: return SDL_BUTTON_MMASK;
-        case 4: return SDL_BUTTON_X1MASK;
-        case 5: return SDL_BUTTON_X2MASK;
-        default: return 0;
-    }
-}
-
 bool free_movement() {
     return gs::game_state() == gs::GameState::InGame && gs::sys_state() == gs::SysState::Gameplay &&
            Pc_ConsoleIsOpen() == 0 && g_PcDebugMenuActive == 0;
@@ -149,34 +137,21 @@ void CameraStyles::frame_update() {
         }
     }
 
-    // Swap Shoulder: over the shoulder, and third person when it aims over the shoulder (tps_ots_aim).
+    // Swap Shoulder: over the shoulder and third person, which rests over a shoulder too (tps_rest_x).
     {
         bool held = false;
         if (swap_mouse_ != 0) {
-            held = (SDL_GetMouseState(nullptr, nullptr) & mouse_mask(swap_mouse_)) != 0;
+            held = (SDL_GetMouseState(nullptr, nullptr) & mouse_button_bit(swap_mouse_)) != 0;
         } else {
             held = key_down(keys, swap_key_);
         }
         held = held || controller_bind_held(swap_pad_);
-        const bool sided = style_ == CameraStyle::OverShoulder ||
-                           (style_ == CameraStyle::ThirdPerson && g_PcConfig.tpsOtsAim != 0);
+        const bool sided = style_ == CameraStyle::OverShoulder || style_ == CameraStyle::ThirdPerson;
         if (playing && held && !swap_was_down_ && sided) {
             shoulder_side_ = -shoulder_side_;
             SH_DBG("[CTRLSTYLE] OTS shoulder: %s", shoulder_side_ > 0 ? "right" : "left");
         }
         swap_was_down_ = held;
-    }
-
-    // Backspace steps the aim mark through its shapes.
-    {
-        const bool held = key_down(keys, SDL_SCANCODE_BACKSPACE);
-        if (playing && held && !crosshair_key_was_down_) {
-            const Crosshair next = next_crosshair({g_PcConfig.crosshair != 0, g_PcConfig.crosshairStyle});
-            g_PcConfig.crosshair = next.on ? 1 : 0;
-            g_PcConfig.crosshairStyle = next.shape;
-            SH_DBG_ECHO("[CTRLSTYLE] Crosshair: %s", crosshair_name(next));
-        }
-        crosshair_key_was_down_ = held;
     }
 
     // The mouse is captured only while the player moves about with an alternate camera or the free camera flies.
@@ -188,9 +163,11 @@ void CameraStyles::frame_update() {
         capture = sh::devtools::tool_mode().mouse_look;
     }
     if (g_window != nullptr && SDL_GetWindowRelativeMouseMode(g_window) != capture) {
-        SDL_SetWindowRelativeMouseMode(g_window, capture);
-        // What the mouse travelled before the switch must not turn the camera on its first frame.
-        Sh_RelativeMouseState(nullptr, nullptr);
+        // What the mouse travelled before the switch must not turn the camera on its first frame. A video driver
+        // that cannot capture (a run without a window) refuses every frame, and must not swallow the motion.
+        if (SDL_SetWindowRelativeMouseMode(g_window, capture)) {
+            Sh_RelativeMouseState(nullptr, nullptr);
+        }
         // A released pointer is confined to the window again if the window confines it.
         sh::platform::update_mouse_confinement();
     }

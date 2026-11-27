@@ -19,6 +19,11 @@ uint64_t Sh_PerfFrequency(void);
  * Both return the SDL button mask. Either pointer may be NULL. */
 uint32_t Sh_MouseState(int* x, int* y);
 uint32_t Sh_RelativeMouseState(int* dx, int* dy);
+/* The relative motion since the last call of either relative query as the device reported it, fractions and all:
+ * what turns a camera. Both pointers must be given. */
+uint32_t Sh_RelativeMouseMotion(float* dx, float* dy);
+/* Motion a scripted check adds to the next relative query, as if the mouse had moved (the console's `lookinput`). */
+void Sh_InjectRelativeMouse(float dx, float dy);
 
 /* A pointer driven by the touch screen (window coordinates, SDL button bits), for the screens that follow the mouse:
  * Sh_MouseState reports its place, and its buttons beside the real mouse's, from the first call until the real mouse

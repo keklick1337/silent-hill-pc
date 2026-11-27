@@ -10,6 +10,7 @@
 #include "engine/log/sh_log.h"
 #include "engine/hooks/hook_bus.h"
 #include "input/pad.h"
+#include "input/pointer_math.h"
 
 #include <SDL3/SDL.h>
 
@@ -127,8 +128,13 @@ void resolve() {
     }
 }
 
+// The bind numbers against the device's masks: Mouse2 is the right button, Mouse3 the middle one.
+static_assert(mouse_button_bit(1) == SDL_BUTTON_LMASK && mouse_button_bit(2) == SDL_BUTTON_RMASK &&
+              mouse_button_bit(3) == SDL_BUTTON_MMASK && mouse_button_bit(4) == SDL_BUTTON_X1MASK &&
+              mouse_button_bit(5) == SDL_BUTTON_X2MASK);
+
 bool mouse_down(int m, Uint32 buttons) {
-    if (m >= 1 && m <= 5) return (buttons & SDL_BUTTON_MASK(m)) != 0;
+    if (m >= 1 && m <= 5) return (buttons & mouse_button_bit(m)) != 0;
     if (m == 6) return wheel().upFrames > 0;
     if (m == 7) return wheel().downFrames > 0;
     return false;

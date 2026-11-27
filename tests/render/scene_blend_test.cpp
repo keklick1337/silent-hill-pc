@@ -176,7 +176,42 @@ SH_TEST(scene_blend_objects_and_beam) {
     SH_CHECK(sc::blend_beam(fa, from, fb, to, out, 0.5).position == to.position);
 }
 
-SH_TEST(scene_tick_frames_keep_two_updates) {
+// A camera the game rounded (its rotation to 1/4096, its translation to whole units) 160 m from the world's origin:
+// halfway between two such cameras that stand at the same place and turn a little, the blended camera still stands
+// at that place (within the rounding, 2 units), and a vertex that stood still in the world is still seen there. The
+// transpose of such a matrix would put the eye up to 20 units off, by another amount for each of the two.
+SH_TEST(scene_blend_takes_rounded_cameras_as_they_draw) {
+    const double eye[3] = {-1583.0, -358.0, 41727.0};
+    const auto rounded = [&](double yaw) {
+        sc::Camera c = camera_at(0, 0, 0, yaw);
+        for (double& e : c.rot) e = std::round(e * 4096.0) / 4096.0;
+        for (std::size_t r = 0; r < 3; ++r)
+            c.trans[r] = std::round(-(c.rot[r * 3] * eye[0] + c.rot[r * 3 + 1] * eye[1] + c.rot[r * 3 + 2] * eye[2]));
+        return c;
+    };
+    const double point[3] = {eye[0] + 100.0, eye[1] + 20.0, eye[2] + 600.0};
+    const auto frame = [&](const sc::Camera& c) {
+        sc::Frame f;
+        f.world = true;
+        f.camera = c;
+        sc::PrelitMesh m;
+        m.texture_key = 7;
+        m.vertices = {view_of(c, point[0], point[1], point[2])};
+        f.prelit.push_back(m);
+        return f;
+    };
+    const sc::Frame a = frame(rounded(0.3001));
+    const sc::Frame b = frame(rounded(0.3137));
+    sc::Frame out;
+    sc::blend_frames(a, b, 0.5, out);
+    // Where the blended camera (a pure rotation) sees its own eye and the vertex.
+    const std::array<double, 3> stands = world_of(out.camera, sc::PrelitVertex{});
+    SH_CHECK(near(stands[0], eye[0], 2.0) && near(stands[1], eye[1], 2.0) && near(stands[2], eye[2], 2.0));
+    const std::array<double, 3> seen = world_of(out.camera, out.prelit[0].vertices[0]);
+    SH_CHECK(near(seen[0], point[0], 2.0) && near(seen[1], point[1], 2.0) && near(seen[2], point[2], 2.0));
+}
+
+SH_TEST(scene_tick_frames_keep_three_updates) {
     sc::TickFrames ticks;
     SH_CHECK(!ticks.has_last() && !ticks.has_pair());
     const sc::Frame a = frame_with_mesh(camera_at(0, 0, 0, 0.0), 100);
@@ -200,6 +235,12 @@ SH_TEST(scene_tick_frames_keep_two_updates) {
     ticks.record(c, beam);
     ticks.show(0.5, out, beam);
     SH_CHECK(near(world_of(out.camera, out.prelit[0].vertices[0])[0], 160, 0.05));
+    // Three are kept: a negative share goes back towards the update before the last two.
+    SH_CHECK(ticks.has_three());
+    ticks.show(-0.5, out, beam);
+    SH_CHECK(near(world_of(out.camera, out.prelit[0].vertices[0])[0], 120, 0.05));
+    ticks.show(-1.0, out, beam);
+    SH_CHECK(near(world_of(out.camera, out.prelit[0].vertices[0])[0], 100, 0.05));
     // After a reset the next update has no predecessor.
     ticks.reset();
     SH_CHECK(!ticks.has_last());

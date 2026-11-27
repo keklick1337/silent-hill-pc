@@ -1,5 +1,6 @@
 #include "engine/camera/alt_camera.h"
 
+#include <algorithm>
 #include <cmath>
 #include <cstdlib>
 #include <fstream>
@@ -94,6 +95,11 @@ float number_of(const Value& parent, std::string_view key, double lo, double hi)
     return static_cast<float>(v.number());
 }
 
+// A key added after the file's first version: a mod's whole copy of the older file still loads, with `fallback`.
+float number_or(const Value& parent, std::string_view key, double lo, double hi, float fallback) {
+    return parent.find(key) != nullptr ? number_of(parent, key, lo, hi) : fallback;
+}
+
 int int_of(const Value& parent, std::string_view key, int lo, int hi) {
     const Value& v = member(parent, key);
     if (!v.is_integer() || v.integer() < lo || v.integer() > hi) {
@@ -145,7 +151,7 @@ Result<AltCameraTuning> parse_alt_camera_tuning(std::string_view json_text) try 
 
     const Value& fp = member(root, "first_person");
     reject_unknown(fp, {"pitch_limit_deg", "yaw_limit_deg", "view_pitch_limit_deg", "head_follow_shift",
-                        "head_look_delay_ms", "head_look_full_ms", "sway_limit"});
+                        "head_look_delay_ms", "head_look_full_ms", "sway_limit", "sway_time"});
     t.fps_pitch_limit_deg = number_of(fp, "pitch_limit_deg", 0.0, 89.0);
     t.fps_yaw_limit_deg = number_of(fp, "yaw_limit_deg", 0.0, 180.0);
     t.fps_view_pitch_limit_deg = number_of(fp, "view_pitch_limit_deg", 0.0, 89.0);
@@ -153,6 +159,7 @@ Result<AltCameraTuning> parse_alt_camera_tuning(std::string_view json_text) try 
     t.head_look_delay_ms = static_cast<std::uint32_t>(int_of(fp, "head_look_delay_ms", 0, 600000));
     t.head_look_full_ms = static_cast<std::uint32_t>(int_of(fp, "head_look_full_ms", 0, 600000));
     t.head_sway_limit = number_of(fp, "sway_limit", 0.0, 4.0);
+    t.head_sway_time = number_or(fp, "sway_time", 0.0, 2.0, 0.12f);
     if (t.head_look_full_ms <= t.head_look_delay_ms) {
         fail(at(fp, "\"head_look_full_ms\" must be after \"head_look_delay_ms\""));
     }
@@ -172,7 +179,7 @@ Result<AltCameraTuning> parse_alt_camera_tuning(std::string_view json_text) try 
 
     const Value& arm = member(root, "spring_arm");
     reject_unknown(arm, {"follow_time", "follow_vertical_scale", "follow_aim_scale", "max_lag", "teleport_distance",
-                         "zoom_time", "probe_radius", "ease_out_time", "close_lift", "close_shoulder",
+                         "zoom_time", "probe_radius", "ease_out_time", "ease_in_time", "close_lift", "close_shoulder",
                          "recenter_time",
                          "recenter_pitch_deg"});
     t.follow_time = number_of(arm, "follow_time", 0.0, 2.0);
@@ -183,6 +190,7 @@ Result<AltCameraTuning> parse_alt_camera_tuning(std::string_view json_text) try 
     t.zoom_time = number_of(arm, "zoom_time", 0.0, 2.0);
     t.probe_radius = number_of(arm, "probe_radius", 0.0, 2.0);
     t.ease_out_time = number_of(arm, "ease_out_time", 0.0, 4.0);
+    t.ease_in_time = number_or(arm, "ease_in_time", 0.0, 4.0, 0.1f);
     t.close_lift = number_of(arm, "close_lift", 0.0, 4.0);
     t.close_shoulder = number_of(arm, "close_shoulder", 0.0, 1.0);
     t.recenter_time = number_of(arm, "recenter_time", 0.01, 8.0);
@@ -253,55 +261,185 @@ std::int32_t AltCamera::projection_distance(float fov_deg, std::int32_t fallback
     return h;
 }
 
-void AltCamera::look(const AltCameraInput& in, AltCameraOutput& out, std::int32_t& yaw, std::int32_t& pitch) {
+namespace {
+
+double clamp01(float v) { return v < 0.0f ? 0.0 : (v > 1.0f ? 1.0 : static_cast<double>(v)); }
+
+// The share of a gap an exponential ease with smooth time `time` closes in dt (1 = all of it).
+double ease_share(double time, double dt) {
+    if (time <= 0.0) return 1.0;
+    if (dt <= 0.0) return 0.0;
+    return 1.0 - std::exp(-2.0 * dt / time);
+}
+
+// Look smoothing: how much of a turn is applied over dt, `owed` of it left from before and `fresh` of it arriving
+// evenly through dt, with smooth time `time`. The exact response of the ease to that input, so the view moves the
+// same whether dt is one update or the part of it a frame between two updates stands at.
+double eased_turn(double owed, double fresh, double time, double dt) {
+    if (time <= 0.0) return owed + fresh;
+    const double x = 2.0 * dt / time;
+    if (std::fabs(x) < 1e-9) return 0.0;
+    const double closed = 1.0 - std::exp(-x);
+    return owed * closed + fresh * (1.0 - closed / x);
+}
+
+constexpr double kUnitsPerRadian = 4096.0 / (2.0 * 3.14159265358979323846);
+
+}  // namespace
+
+bool AltCamera::turn_input(const AltCameraInput& in, double frames, bool orbit, double* d_yaw, double* d_pitch) const {
     const AltCameraOptions& o = in.options;
-    int mdx = in.frozen ? 0 : in.mouse_dx;
-    int mdy = in.frozen ? 0 : in.mouse_dy;
-    yaw += static_cast<std::int32_t>(mdx * t_.mouse_yaw * o.mouse_sensitivity);
-    const std::int32_t mouse_pitch = static_cast<std::int32_t>(mdy * t_.mouse_pitch * o.mouse_sensitivity);
-    pitch += o.invert_mouse_y ? mouse_pitch : -mouse_pitch;
+    const double mdx = in.frozen ? 0.0 : in.mouse_dx;
+    const double mdy = in.frozen ? 0.0 : in.mouse_dy;
+    *d_yaw = mdx * t_.mouse_yaw * o.mouse_sensitivity;
+    const double mouse_pitch = mdy * t_.mouse_pitch * o.mouse_sensitivity;
+    *d_pitch = o.invert_mouse_y ? mouse_pitch : -mouse_pitch;
 
     int rx = in.frozen ? 0 : in.right_x - 128;
     int ry = in.frozen ? 0 : in.right_y - 128;
-    if (rx > -t_.stick_dead_zone && rx < t_.stick_dead_zone) rx = 0;
-    if (ry > -t_.stick_dead_zone && ry < t_.stick_dead_zone) ry = 0;
+    const int zone = t_.stick_dead_zone;
+    if (rx > -zone && rx < zone) rx = 0;
+    if (ry > -zone && ry < zone) ry = 0;
     if (rx != 0 || ry != 0) {
-        const float s = o.pad_sensitivity;
-        const std::int32_t stick_yaw = per_frame(static_cast<std::int32_t>(((rx * t_.stick_yaw) >> 7) * s), in.delta_time);
-        const std::int32_t stick_pitch =
-            per_frame(static_cast<std::int32_t>(((ry * t_.stick_pitch) >> 7) * s), in.delta_time);
-        yaw += stick_yaw;
-        pitch += o.invert_pad_y ? stick_pitch : -stick_pitch;
+        // Third person: past the dead zone the deflection restarts at 0 and goes through the response curve, so
+        // a small push aims finely and a full push turns at the tuned rate. First person: the deflection as it is.
+        const auto curve = [&](int v) {
+            if (!orbit) return v / 128.0;
+            const double span = 127.0 - zone;
+            double m = span > 0.0 ? (std::abs(v) - zone) / span : 1.0;
+            m = m < 0.0 ? 0.0 : (m > 1.0 ? 1.0 : m);
+            m = std::pow(m, double(t_.stick_exponent));
+            return v < 0 ? -m : m;
+        };
+        const double s = o.pad_sensitivity;
+        *d_yaw += curve(rx) * t_.stick_yaw * s * frames;
+        const double stick_pitch = curve(ry) * t_.stick_pitch * s * frames;
+        *d_pitch += o.invert_pad_y ? stick_pitch : -stick_pitch;
     }
+    return mdx != 0.0 || mdy != 0.0 || rx != 0 || ry != 0;
+}
+
+void AltCamera::look(const AltCameraInput& in, AltCameraOutput& out, std::int32_t& yaw, std::int32_t& pitch) {
+    double d_yaw = 0.0, d_pitch = 0.0;
+    // The stick rates are per 30 fps frame, whose step is 136.
+    const bool turned = turn_input(in, in.delta_time / 136.0, false, &d_yaw, &d_pitch);
 
     // The device that last turned the view (aim assist strength): the mouse, else any stick.
     // The move stick counts past the dead zone, the look stick from its edge.
     const int lx = in.left_x - 128;
     const int ly = in.left_y - 128;
     const int zone = t_.stick_dead_zone;
-    if (mdx != 0 || mdy != 0) {
+    if (!in.frozen && (in.mouse_dx != 0.0 || in.mouse_dy != 0.0)) {
         out.aim_device = 0;
-    } else if (rx != 0 || ry != 0 || lx > zone || lx < -zone || ly > zone || ly < -zone) {
+    } else if (turned || lx > zone || lx < -zone || ly > zone || ly < -zone) {
         out.aim_device = 1;
+    }
+
+    if (in.frozen) {
+        carry_yaw_ = carry_pitch_ = 0.0;
+    } else {
+        // A slow turn adds less than an angle unit a frame: the fraction waits for the next frame instead of
+        // being dropped, or the view would stand still under a slowly moving mouse.
+        carry_yaw_ += d_yaw;
+        carry_pitch_ += d_pitch;
+        const auto whole_yaw = static_cast<std::int32_t>(std::lround(carry_yaw_));
+        const auto whole_pitch = static_cast<std::int32_t>(std::lround(carry_pitch_));
+        carry_yaw_ -= whole_yaw;
+        carry_pitch_ -= whole_pitch;
+        yaw += whole_yaw;
+        pitch += whole_pitch;
     }
 
     yaw = (yaw + 4096) & 4095;
     if (in.style == AltStyle::FirstPerson) {
         const std::int32_t limit = deg(t_.fps_pitch_limit_deg);
-        if (pitch < -limit) pitch = -limit;
-        if (pitch > limit) pitch = limit;
+        if (pitch <= -limit || pitch >= limit) {
+            pitch = pitch < 0 ? -limit : limit;
+            carry_pitch_ = 0.0;
+        }
         // The look turns up to the shoulders; moving or aiming turns the body with it.
         const std::int32_t side = deg(t_.fps_yaw_limit_deg);
         const std::int32_t off = signed_angle(yaw - in.harry_yaw);
-        if (off > side) {
+        if (off >= side) {
             yaw = (in.harry_yaw + side + 4096) & 4095;
-        } else if (off < -side) {
+            carry_yaw_ = 0.0;
+        } else if (off <= -side) {
             yaw = (in.harry_yaw - side + 4096) & 4095;
+            carry_yaw_ = 0.0;
         }
     } else {
         if (pitch < deg(t_.pitch_min_deg)) pitch = deg(t_.pitch_min_deg);
         if (pitch > deg(t_.pitch_max_deg)) pitch = deg(t_.pitch_max_deg);
     }
+}
+
+AltLook AltCamera::look_ahead(const AltCameraInput& in, double seconds) const {
+    AltLook look{in.yaw + carry_yaw_, in.pitch + carry_pitch_};
+    if (in.frozen) return look;
+    const bool orbit = in.style != AltStyle::FirstPerson;
+    double d_yaw = 0.0, d_pitch = 0.0;
+    turn_input(in, orbit ? seconds * 30.0 : seconds * (4096.0 / 136.0), orbit, &d_yaw, &d_pitch);
+    if (orbit) {
+        const double time = t_.look_smoothing_time * clamp01(in.options.look_smoothing);
+        look.yaw += eased_turn(pending_yaw_, d_yaw, time, seconds);
+        look.pitch += eased_turn(pending_pitch_, d_pitch, time, seconds);
+        look.pitch = std::clamp(look.pitch, double(deg(t_.pitch_min_deg)), double(deg(t_.pitch_max_deg)));
+    } else {
+        look.yaw += d_yaw;
+        look.pitch += d_pitch;
+        const double limit = deg(t_.fps_pitch_limit_deg);
+        look.pitch = std::clamp(look.pitch, -limit, limit);
+        const double side = deg(t_.fps_yaw_limit_deg);
+        const double off = std::remainder(look.yaw - in.harry_yaw, 4096.0);
+        look.yaw = in.harry_yaw + std::clamp(off, -side, side);
+    }
+    return look;
+}
+
+AltPose AltCamera::pose(const AltViewBasis& b, double yaw, double pitch) {
+    AltPose p;
+    if (b.first_person) {
+        const double view_yaw = (yaw + b.head_yaw) / kUnitsPerRadian;
+        double view_pitch = pitch + b.head_pitch;
+        if (b.view_pitch_limit > 0.0) view_pitch = std::clamp(view_pitch, -b.view_pitch_limit, b.view_pitch_limit);
+        view_pitch /= kUnitsPerRadian;
+        const double fwd[3] = {std::sin(view_yaw) * std::cos(view_pitch), -std::sin(view_pitch),
+                               std::cos(view_yaw) * std::cos(view_pitch)};
+        for (int i = 0; i < 3; ++i) {
+            p.eye[i] = b.eye[i] - b.pull * fwd[i];
+            p.at[i] = p.eye[i] + b.ahead * fwd[i];
+        }
+        return p;
+    }
+    // The spring arm of orbit(), without its rounding and with the walls where the update found them.
+    const double view_yaw = (yaw + b.rear) / kUnitsPerRadian;
+    const double sy = std::sin(view_yaw), cy = std::cos(view_yaw);
+    const double sp = std::sin(pitch / kUnitsPerRadian), cp = std::cos(pitch / kUnitsPerRadian);
+    const double fwd[3] = {sy * cp, -sp, cy * cp};
+    const double offset[3] = {cy * b.shoulder_x, b.shoulder_y, -sy * b.shoulder_x};
+    for (int i = 0; i < 3; ++i) p.eye[i] = b.root[i] - b.distance * fwd[i];
+    p.eye[1] += b.orbit_height;
+    p.at[0] = p.eye[0] + b.ahead * fwd[0];
+    p.at[1] = b.anchor_y + b.ahead * fwd[1];
+    p.at[2] = p.eye[2] + b.ahead * fwd[2];
+    for (int i = 0; i < 3; ++i) {
+        p.eye[i] += offset[i];
+        p.at[i] += offset[i];
+    }
+    if (b.pulled) {
+        const double drop = (1.0 - b.close_shoulder) * (1.0 - b.arm_frac);
+        for (int i = 0; i < 3; ++i) {
+            const double pivot = b.head[i] + offset[i];
+            p.eye[i] = pivot + (p.eye[i] - pivot) * b.arm_frac;
+        }
+        p.eye[0] -= offset[0] * drop;
+        p.eye[2] -= offset[2] * drop;
+        p.at[0] -= offset[0] * drop;
+        p.at[2] -= offset[2] * drop;
+        p.at[1] += (b.head[1] - b.anchor_y) * (1.0 - b.arm_frac);
+        p.eye[1] -= b.lift;
+    }
+    return p;
 }
 
 
@@ -326,15 +464,6 @@ void aim_ray(const AltVec3& eye, const AltVec3& at, const AltVec3& fwd, AltCamer
 
 std::int32_t round_i(double v) { return static_cast<std::int32_t>(std::lround(v)); }
 
-double clamp01(float v) { return v < 0.0f ? 0.0 : (v > 1.0f ? 1.0 : static_cast<double>(v)); }
-
-// The share of a gap an exponential ease with smooth time `time` closes in dt (1 = all of it).
-double ease_share(double time, double dt) {
-    if (time <= 0.0) return 1.0;
-    if (dt <= 0.0) return 0.0;
-    return 1.0 - std::exp(-2.0 * dt / time);
-}
-
 struct DVec {
     double x = 0.0, y = 0.0, z = 0.0;
 };
@@ -350,57 +479,31 @@ DVec to_d(const AltVec3& v) { return DVec{double(v.x), double(v.y), double(v.z)}
 void AltCamera::look_orbit(const AltCameraInput& in, AltCameraOutput& out, std::int32_t& yaw, std::int32_t& pitch,
                            double dt) {
     const AltCameraOptions& o = in.options;
-    const int mdx = in.frozen ? 0 : in.mouse_dx;
-    const int mdy = in.frozen ? 0 : in.mouse_dy;
-    double d_yaw = double(mdx) * t_.mouse_yaw * o.mouse_sensitivity;
-    const double mouse_pitch = double(mdy) * t_.mouse_pitch * o.mouse_sensitivity;
-    double d_pitch = o.invert_mouse_y ? mouse_pitch : -mouse_pitch;
-
-    int rx = in.frozen ? 0 : in.right_x - 128;
-    int ry = in.frozen ? 0 : in.right_y - 128;
-    const int zone = t_.stick_dead_zone;
-    if (rx > -zone && rx < zone) rx = 0;
-    if (ry > -zone && ry < zone) ry = 0;
-    if (rx != 0 || ry != 0) {
-        // Past the dead zone the deflection restarts at 0 and goes through the response curve, so a
-        // small push aims finely and a full push turns at the tuned rate.
-        const auto curve = [&](int v) {
-            const double span = 127.0 - zone;
-            double m = span > 0.0 ? (std::abs(v) - zone) / span : 1.0;
-            m = m < 0.0 ? 0.0 : (m > 1.0 ? 1.0 : m);
-            m = std::pow(m, double(t_.stick_exponent));
-            return v < 0 ? -m : m;
-        };
-        const double frames = dt * 30.0;  // the stick rates are per 30 fps frame
-        const double s = o.pad_sensitivity;
-        d_yaw += curve(rx) * t_.stick_yaw * s * frames;
-        const double stick_pitch = curve(ry) * t_.stick_pitch * s * frames;
-        d_pitch += o.invert_pad_y ? stick_pitch : -stick_pitch;
-    }
+    double d_yaw = 0.0, d_pitch = 0.0;
+    const bool turned = turn_input(in, dt * 30.0, true, &d_yaw, &d_pitch);  // the stick rates are per 30 fps frame
 
     // The device that last turned the view (aim assist strength): the mouse, else any stick.
+    const int zone = t_.stick_dead_zone;
     const int lx = in.left_x - 128;
     const int ly = in.left_y - 128;
-    if (mdx != 0 || mdy != 0) {
+    if (!in.frozen && (in.mouse_dx != 0.0 || in.mouse_dy != 0.0)) {
         out.aim_device = 0;
-    } else if (rx != 0 || ry != 0 || lx > zone || lx < -zone || ly > zone || ly < -zone) {
+    } else if (turned || lx > zone || lx < -zone || ly > zone || ly < -zone) {
         out.aim_device = 1;
     }
 
-    const bool turned = mdx != 0 || mdy != 0 || rx != 0 || ry != 0;
     look_idle_ = turned ? 0.0 : look_idle_ + dt;
 
     if (in.frozen) {
         pending_yaw_ = pending_pitch_ = carry_yaw_ = carry_pitch_ = 0.0;
     } else {
-        // Smoothing spreads a turn over the next frames without losing any of it.
-        pending_yaw_ += d_yaw;
-        pending_pitch_ += d_pitch;
-        const double share = dt > 0.0 ? ease_share(t_.look_smoothing_time * clamp01(o.look_smoothing), dt) : 1.0;
-        const double apply_yaw = share >= 1.0 ? pending_yaw_ : pending_yaw_ * share;
-        const double apply_pitch = share >= 1.0 ? pending_pitch_ : pending_pitch_ * share;
-        pending_yaw_ -= apply_yaw;
-        pending_pitch_ -= apply_pitch;
+        // Smoothing spreads a turn over the next frames without losing any of it. A frame without time (a held
+        // game) eases nothing: the turn goes through whole.
+        const double time = dt > 0.0 ? t_.look_smoothing_time * clamp01(o.look_smoothing) : 0.0;
+        const double apply_yaw = eased_turn(pending_yaw_, d_yaw, time, dt);
+        const double apply_pitch = eased_turn(pending_pitch_, d_pitch, time, dt);
+        pending_yaw_ += d_yaw - apply_yaw;
+        pending_pitch_ += d_pitch - apply_pitch;
         // The tail of an ease is applied whole, so a turn ends instead of creeping.
         if (std::abs(pending_yaw_) < 0.25) {
             carry_yaw_ += pending_yaw_;
@@ -557,7 +660,8 @@ void AltCamera::orbit(const AltCameraInput& in, AltCameraOutput& out, std::int32
     const DVec pivot{head.x + offset.x, head.y + offset.y, head.z + offset.z};
     const DVec arm{eye.x - pivot.x, eye.y - pivot.y, eye.z - pivot.z};
     const double full = length(arm);
-    double hard = 1.0;
+    double hard = 1.0;   // the nearest hit of the cone
+    double block = 1.0;  // the hit of the ray to the eye itself: geometry between Harry and the eye
     if (full > 0.0) {
         const DVec around[] = {{0.0, 0.0, 0.0},
                                {right.x * probe, 0.0, right.z * probe},
@@ -573,16 +677,32 @@ void AltCamera::orbit(const AltCameraInput& in, AltCameraOutput& out, std::int32
             if (len > 0.0 && host.ray_hit(to_alt(pivot), to_alt(to), &hit) && hit < len) {
                 const double share = (hit - margin) / len;
                 if (share < hard) hard = share;
+                if (i == 0) block = share;
             }
         }
         const double least = q(t_.wall_min) / full;
         if (hard < least) hard = least;
         if (hard > 1.0) hard = 1.0;
+        if (block < least) block = least;
     }
-    if (snap || hard < arm_frac_) {
+    if (snap) {
         arm_frac_ = hard;
+        arm_out_.snap(hard);
     } else {
-        arm_frac_ += (hard - arm_frac_) * ease_share(t_.ease_out_time, dt);
+        // What stands between Harry and the eye brings the eye in at once: it never looks from behind a wall.
+        // What only the rays around the eye touch (a door frame, a post it is about to pass) brings it in over a
+        // moment, so the eye does not jump each time a ray catches an edge. Back out it starts from rest and
+        // gathers speed, instead of leaving at full speed the moment the wall lets go.
+        const bool blocked = arm_frac_ > block;
+        if (blocked) arm_frac_ = block;
+        if (hard < arm_frac_) {
+            arm_frac_ += (hard - arm_frac_) * ease_share(t_.ease_in_time, dt);
+            arm_out_.snap(arm_frac_);
+        } else {
+            if (blocked) arm_out_.snap(arm_frac_);
+            arm_out_.step(hard, t_.ease_out_time, dt);
+            arm_frac_ = arm_out_.x < hard ? arm_out_.x : hard;
+        }
     }
     arm_valid_ = true;
 
@@ -592,6 +712,7 @@ void AltCamera::orbit(const AltCameraInput& in, AltCameraOutput& out, std::int32
     };
     // The aim ray always starts in front of the wall, whatever the render eye does.
     const AltVec3 aim_eye = hard < 1.0 ? along(hard) : eye;
+    std::int32_t close_lift = 0;
     if (o.wall_collision && arm_frac_ < 1.0) {
         eye = along(arm_frac_);
         // The shoulder offset closes in with the arm, down to close_shoulder of itself, so Harry stays
@@ -616,6 +737,7 @@ void AltCamera::orbit(const AltCameraInput& in, AltCameraOutput& out, std::int32
                 lift = room < 0 ? 0 : (room < lift ? room : lift);
             }
             eye.y -= lift;
+            close_lift = lift;
         }
     }
 
@@ -638,6 +760,24 @@ void AltCamera::orbit(const AltCameraInput& in, AltCameraOutput& out, std::int32
     }
     out.eye = eye;
     out.look_at = at;
+
+    AltViewBasis& basis = out.basis;
+    basis.valid = true;
+    basis.ahead = ahead;
+    for (int i = 0; i < 3; ++i) basis.root[i] = follow_[i].x;
+    basis.distance = distance_.x;
+    basis.orbit_height = q(t_.orbit_height);
+    basis.anchor_y = follow_[1].x + q(t_.look_at_height);
+    basis.head[0] = head.x;
+    basis.head[1] = head.y;
+    basis.head[2] = head.z;
+    basis.shoulder_x = sx;
+    basis.shoulder_y = syo;
+    basis.rear = rear;
+    basis.pulled = o.wall_collision && arm_frac_ < 1.0;
+    basis.arm_frac = arm_frac_;
+    basis.close_shoulder = t_.close_shoulder;
+    basis.lift = close_lift;
 }
 
 AltCameraOutput AltCamera::update(const AltCameraInput& in, AltCameraHost& host) {
@@ -655,12 +795,15 @@ AltCameraOutput AltCamera::update(const AltCameraInput& in, AltCameraHost& host)
         }
         head_ref_valid_ = false;
         head_rot_valid_ = false;
+        sway_valid_ = false;
         swing_pull_ = 0;
         head_visible_ = false;
         look_orbit(in, out, yaw, pitch, dt);
         orbit(in, out, yaw, pitch, dt, host);
         out.yaw = yaw;
         out.pitch = pitch;
+        out.basis.yaw = yaw + carry_yaw_;
+        out.basis.pitch = pitch + carry_pitch_;
         return out;
     }
 
@@ -672,13 +815,22 @@ AltCameraOutput AltCamera::update(const AltCameraInput& in, AltCameraHost& host)
         // before a scene would drift back for seconds.
         yaw = in.harry_yaw;
         pitch = 0;
+        carry_yaw_ = carry_pitch_ = 0.0;
         head_ref_valid_ = false;
         head_rot_valid_ = false;
         swing_pull_ = 0;
         head_visible_ = false;
     }
+    // Smoothing is the orbit's: nothing of it is owed here.
+    pending_yaw_ = pending_pitch_ = 0.0;
 
     look(in, out, yaw, pitch);
+
+    AltViewBasis& basis = out.basis;
+    basis.valid = true;
+    basis.first_person = true;
+    basis.yaw = yaw + carry_yaw_;
+    basis.pitch = pitch + carry_pitch_;
 
     std::int32_t view_yaw = yaw;
     std::int32_t view_pitch = pitch;
@@ -717,7 +869,10 @@ AltCameraOutput AltCamera::update(const AltCameraInput& in, AltCameraHost& host)
             const std::int32_t d_pitch = signed_angle(head_pitch - head_pitch_ref_);
             view_yaw += wide(d_yaw, gain);
             view_pitch += wide(d_pitch, gain);
+            basis.head_yaw = view_yaw - yaw;
+            basis.head_pitch = view_pitch - pitch;
             const std::int32_t limit = deg(t_.fps_view_pitch_limit_deg);
+            basis.view_pitch_limit = limit;
             if (view_pitch > limit) view_pitch = limit;
             if (view_pitch < -limit) view_pitch = -limit;
         }
@@ -778,6 +933,28 @@ AltCameraOutput AltCamera::update(const AltCameraInput& in, AltCameraHost& host)
         eye.z = in.harry.z + wide(local.z, c) - wide(local.x, s);
         eye.y = in.harry.y + local.y;
     }
+    // The picture's eye: the same, with the head's sway eased. The head bone is known to 1/256 m, so the sway
+    // comes in steps of 4 mm, a jolt of the whole picture on each; the game's own eye above keeps them.
+    {
+        const double sway[3] = {head_ref_valid_ ? double(out.head_local.x - head_ref_.x) : 0.0,
+                                head_ref_valid_ ? double(out.head_local.y - head_ref_.y) : 0.0,
+                                head_ref_valid_ ? double(out.head_local.z - head_ref_.z) : 0.0};
+        for (int i = 0; i < 3; ++i) {
+            if (!sway_valid_ || in.reset) {
+                sway_[i].snap(sway[i]);
+            } else {
+                sway_[i].step(sway[i], t_.head_sway_time, dt);
+            }
+        }
+        sway_valid_ = true;
+        const double s = fx::sin(in.harry_yaw) / 4096.0;
+        const double c = fx::cos(in.harry_yaw) / 4096.0;
+        const double local[3] = {o.eye_offset.x + sway_[0].x, o.eye_offset.y + sway_[1].x, o.eye_offset.z + sway_[2].x};
+        basis.eye[0] = in.harry.x + local[2] * s + local[0] * c;
+        basis.eye[1] = in.harry.y + local[1];
+        basis.eye[2] = in.harry.z + local[2] * c - local[0] * s;
+    }
+    basis.ahead = ahead;
 
     // Melee swing: back the eye along the view away from the nearest forearm or hand, up to the
     // player's cap, quick out and gentler home; a ray keeps it out of the level behind the eye.
@@ -823,6 +1000,7 @@ AltCameraOutput AltCamera::update(const AltCameraInput& in, AltCameraHost& host)
             eye.x -= wide(pull, fwd.x);
             eye.y -= wide(pull, fwd.y);
             eye.z -= wide(pull, fwd.z);
+            basis.pull = pull;
         }
     }
     out.first_person = true;

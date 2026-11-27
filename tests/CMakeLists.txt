@@ -120,6 +120,13 @@ if(SH_TEST_DEBUG_PARTS IN_LIST SH_TEST_SOURCES)
                                     "${PROJECT_SOURCE_DIR}/src/engine/debug/commands/command_kit.cpp")
 endif()
 
+# The scene of a frame seen from another camera is compiled into the game (src/engine/app/loop); its test builds the
+# file itself.
+set(SH_TEST_SCENE_AIM "${CMAKE_CURRENT_SOURCE_DIR}/render/scene_aim_test.cpp")
+if(SH_TEST_SCENE_AIM IN_LIST SH_TEST_SOURCES)
+    target_sources(sh_tests PRIVATE "${PROJECT_SOURCE_DIR}/src/engine/app/loop/scene_aim.cpp")
+endif()
+
 # The bullet hole sheet is compiled into the game (src/render/decals); its test builds the file itself.
 set(SH_TEST_BULLET_HOLE "${CMAKE_CURRENT_SOURCE_DIR}/render/bullet_hole_test.cpp")
 if(SH_TEST_BULLET_HOLE IN_LIST SH_TEST_SOURCES)

@@ -156,21 +156,15 @@ SH_TEST(camera_style_ids_and_round) {
     SH_CHECK(camera_style_list() == "classic:Classic (Default)|tps:Thirdperson Shooter|fps:First Person");
 }
 
-SH_TEST(camera_style_crosshair_round) {
-    Crosshair c{false, 2};
-    c = next_crosshair(c);
-    SH_CHECK((c == Crosshair{true, 0}));
-    SH_CHECK(std::string_view(crosshair_name(c)) == "cross (+)");
-    c = next_crosshair(c);
-    SH_CHECK(std::string_view(crosshair_name(c)) == "dot");
-    c = next_crosshair(c);
-    SH_CHECK(std::string_view(crosshair_name(c)) == "circle");
-    c = next_crosshair(c);
-    SH_CHECK((c == Crosshair{true, 3}));
-    SH_CHECK(std::string_view(crosshair_name(c)) == "dashes");
-    c = next_crosshair(c);
-    SH_CHECK((c == Crosshair{false, 3}));
-    SH_CHECK(std::string_view(crosshair_name(c)) == "off");
+SH_TEST(pointer_mouse_button_of_a_bind_number) {
+    // The device's button state: bit 0 left, bit 1 middle, bit 2 right, bits 3 and 4 the side buttons. A bind
+    // numbers them left, right, middle: Mouse2 (Aim by default) is the right button, Mouse3 the middle one.
+    SH_CHECK(mouse_button_bit(1) == 0x01);
+    SH_CHECK(mouse_button_bit(2) == 0x04);
+    SH_CHECK(mouse_button_bit(3) == 0x02);
+    SH_CHECK(mouse_button_bit(4) == 0x08);
+    SH_CHECK(mouse_button_bit(5) == 0x10);
+    SH_CHECK(mouse_button_bit(0) == 0 && mouse_button_bit(6) == 0 && mouse_button_bit(-1) == 0);
 }
 
 SH_TEST(camera_style_mouse_button_of_a_bind) {

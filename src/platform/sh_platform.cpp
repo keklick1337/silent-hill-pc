@@ -52,11 +52,35 @@ extern "C" uint32_t Sh_MouseState(int* x, int* y)
     return buttons;
 }
 
+namespace {
+float s_injectedX = 0.0f, s_injectedY = 0.0f;
+
+SDL_MouseButtonFlags relative_motion(float* fx, float* fy)
+{
+    const SDL_MouseButtonFlags buttons = SDL_GetRelativeMouseState(fx, fy);
+    *fx += s_injectedX;
+    *fy += s_injectedY;
+    s_injectedX = s_injectedY = 0.0f;
+    return buttons;
+}
+}  // namespace
+
+extern "C" void Sh_InjectRelativeMouse(float dx, float dy)
+{
+    s_injectedX += dx;
+    s_injectedY += dy;
+}
+
+extern "C" uint32_t Sh_RelativeMouseMotion(float* dx, float* dy)
+{
+    return relative_motion(dx, dy);
+}
+
 extern "C" uint32_t Sh_RelativeMouseState(int* dx, int* dy)
 {
     static float s_carryX = 0.0f, s_carryY = 0.0f;
     float fx = 0.0f, fy = 0.0f;
-    const SDL_MouseButtonFlags buttons = SDL_GetRelativeMouseState(&fx, &fy);
+    const SDL_MouseButtonFlags buttons = relative_motion(&fx, &fy);
     if (!dx && !dy)
     {
         /* A flush (both NULL) drops the carry with the accumulated motion. */

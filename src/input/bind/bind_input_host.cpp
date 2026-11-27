@@ -80,12 +80,9 @@ NavState held_nav() {
 unsigned mouse_button_bits() {
     const SDL_MouseButtonFlags sdl = SDL_GetMouseState(nullptr, nullptr);
     unsigned bits = 0;
-    // Config numbering: Mouse1 left, Mouse2 right, Mouse3 middle.
-    if (sdl & SDL_BUTTON_LMASK) bits |= 1u << 0;
-    if (sdl & SDL_BUTTON_RMASK) bits |= 1u << 1;
-    if (sdl & SDL_BUTTON_MMASK) bits |= 1u << 2;
-    if (sdl & SDL_BUTTON_X1MASK) bits |= 1u << 3;
-    if (sdl & SDL_BUTTON_X2MASK) bits |= 1u << 4;
+    for (int n = 1; n <= 5; ++n) {
+        if (sdl & mouse_button_bit(n)) bits |= 1u << (n - 1);
+    }
     return bits;
 }
 

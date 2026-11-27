@@ -25,8 +25,6 @@ constexpr std::array<StyleText, kCameraStyles> kStyleText = {{
 constexpr std::array<CameraStyle, 3> kRound = {CameraStyle::Classic, CameraStyle::ThirdPerson,
                                                CameraStyle::FirstPerson};
 
-constexpr int kLastShape = 3;
-
 }  // namespace
 
 CameraStyle camera_style_from(int value) {
@@ -64,21 +62,6 @@ std::string camera_style_list() {
         list += text.name;
     }
     return list;
-}
-
-Crosshair next_crosshair(Crosshair now) {
-    if (!now.on) {
-        return {true, 0};
-    }
-    if (now.shape < kLastShape) {
-        return {true, now.shape + 1};
-    }
-    return {false, now.shape};
-}
-
-const char* crosshair_name(Crosshair mark) {
-    static constexpr const char* kShapes[] = {"cross (+)", "dot", "circle", "dashes"};
-    return mark.on ? kShapes[mark.shape & kLastShape] : "off";
 }
 
 int mouse_button_of_bind(std::string_view bind) {

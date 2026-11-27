@@ -368,8 +368,8 @@ inline constexpr Setting kSettings[] = {
     keys::real("fps_fov", &keys::C::fpsFov, 71.1, 40.0, 140.0, "first-person field of view"),
     keys::real("tps_fov", &keys::C::tpsFov, 71.1, 40.0, 140.0, "thirdperson field of view"),
     keys::real("ots_fov", &keys::C::otsFov, 71.1, 40.0, 140.0, "over-the-shoulder field of view"),
-    keys::whole("tps_rest_x", &keys::C::tpsRestX, 0, -20000, 20000, "thirdperson rest offset, Q12"),
-    keys::whole("tps_rest_y", &keys::C::tpsRestY, 0, -20000, 20000, "thirdperson rest offset, Q12"),
+    keys::whole("tps_rest_x", &keys::C::tpsRestX, 1638, -20000, 20000, "thirdperson rest offset, Q12"),
+    keys::whole("tps_rest_y", &keys::C::tpsRestY, -410, -20000, 20000, "thirdperson rest offset, Q12"),
     keys::whole("tps_aim_x", &keys::C::tpsAimX, 3686, -20000, 20000, "thirdperson aim offset, Q12"),
     keys::whole("tps_aim_y", &keys::C::tpsAimY, 0, -20000, 20000, "thirdperson aim offset, Q12"),
     keys::whole("ots_rest_x", &keys::C::otsRestX, 2252, -20000, 20000, "over-the-shoulder rest offset, Q12"),
@@ -414,7 +414,7 @@ inline constexpr Setting kSettings[] = {
     keys::flag("control_2d", &keys::C::control2d, 0, "screen-relative movement"),
     keys::flag("control_2d_snap", &keys::C::control2dSnap, 0, "screen-relative movement turns at once"),
     keys::flag("disable_dpad_movement", &keys::C::disableDpadMovement, 0, "the d-pad does not move Harry"),
-    keys::real("mouse_sensitivity", &keys::C::mouseSensitivity, 1.0, 0.1, 4.0, "mouse look speed"),
+    keys::real("mouse_sensitivity", &keys::C::mouseSensitivity, 1.0, 0.02, 4.0, "mouse look speed"),
     keys::real("controller_sensitivity", &keys::C::controllerSensitivity, 1.0, 0.1, 4.0, "stick look speed"),
 
     // Game rules; the GAMEPLAY CHANGE ones are off in the original game.

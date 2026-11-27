@@ -25,14 +25,15 @@
     "smoothing_time": 0.12
   },
   "first_person": {
-    "description": "First person look limits in degrees: pitch (up/down) and yaw (left/right of Harry's body), and the limit with the head look added (view_pitch_limit_deg). head_follow_shift: the head sway reference low-pass (1/2^n per frame). The head look eases in between head_look_delay_ms and head_look_full_ms after Harry stops moving. sway_limit: the eye follows the head's sway no farther than this from its tuned spot, in metres.",
+    "description": "First person look limits in degrees: pitch (up/down) and yaw (left/right of Harry's body), and the limit with the head look added (view_pitch_limit_deg). head_follow_shift: the head sway reference low-pass (1/2^n per frame). The head look eases in between head_look_delay_ms and head_look_full_ms after Harry stops moving. sway_limit: the eye follows the head's sway no farther than this from its tuned spot, in metres. sway_time: the picture's eye follows that sway over this smooth time in seconds (0 = at once, in the 4 mm steps the head bone moves by).",
     "pitch_limit_deg": 82.0,
     "yaw_limit_deg": 90.0,
     "view_pitch_limit_deg": 87.0,
     "head_follow_shift": 8,
     "head_look_delay_ms": 1500,
     "head_look_full_ms": 3500,
-    "sway_limit": 0.12
+    "sway_limit": 0.12,
+    "sway_time": 0.12
   },
   "melee_swing": {
     "description": "First person melee camera dolly, distances in metres: it starts when a forearm or hand comes nearer the eye than near, keeps wall metres away from level geometry behind the eye, draws Harry's head beyond head_show and hides it below head_hide, and snaps back home within snap.",
@@ -48,7 +49,7 @@
     "min": 0.35
   },
   "spring_arm": {
-    "description": "Third person and over the shoulder camera smoothing. Times are spring smooth times in seconds (critically damped, the same at any frame rate); distances in metres. follow_time: pivot follow at 100% of the tps_camera_smoothing option (50% halves it); vertical follow is follow_vertical_scale times softer and aiming follow is follow_aim_scale times tighter; the pivot never trails Harry by more than max_lag and a jump beyond teleport_distance snaps the camera. zoom_time eases the orbit radius and shoulder offset when aiming in and out. Walls: a cone of five rays from the shoulder point to the eye with probe_radius around it; the eye comes in at once and goes back out over ease_out_time, rises by up to close_lift as it comes in (so Harry's head does not fill the view; a ceiling limits it) and keeps only close_shoulder of the shoulder offset at the closest (so Harry stays in frame). While Harry moves and the view has not been turned for tps_recenter_delay seconds, the pitch levels toward recenter_pitch_deg over recenter_time.",
+    "description": "Third person and over the shoulder camera smoothing. Times are spring smooth times in seconds (critically damped, the same at any frame rate); distances in metres. follow_time: pivot follow at 100% of the tps_camera_smoothing option (50% halves it); vertical follow is follow_vertical_scale times softer and aiming follow is follow_aim_scale times tighter; the pivot never trails Harry by more than max_lag and a jump beyond teleport_distance snaps the camera. zoom_time eases the orbit radius and shoulder offset when aiming in and out. Walls: a cone of five rays from the shoulder point to the eye with probe_radius around it; the eye comes in at once from what stands between Harry and it, over ease_in_time from what only the rays around it touch (a door frame, a post), and goes back out over ease_out_time (a spring: it starts from rest), rises by up to close_lift as it comes in (so Harry's head does not fill the view; a ceiling limits it) and keeps only close_shoulder of the shoulder offset at the closest (so Harry stays in frame). While Harry moves and the view has not been turned for tps_recenter_delay seconds, the pitch levels toward recenter_pitch_deg over recenter_time.",
     "follow_time": 0.3,
     "follow_vertical_scale": 1.6,
     "follow_aim_scale": 0.35,
@@ -56,7 +57,8 @@
     "teleport_distance": 3.0,
     "zoom_time": 0.22,
     "probe_radius": 0.18,
-    "ease_out_time": 0.45,
+    "ease_out_time": 0.35,
+    "ease_in_time": 0.1,
     "close_lift": 0.12,
     "close_shoulder": 0.3,
     "recenter_time": 0.9,

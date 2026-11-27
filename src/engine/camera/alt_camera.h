@@ -12,10 +12,12 @@
 // frame input. The host answers the level ray queries. Units are the world's: Q12 positions,
 // Q12 turns (4096 a turn), +Y down.
 //
-// First person is integer arithmetic throughout. Third person and
+// First person is integer arithmetic, but for the look angles, which keep the fraction of an angle
+// unit that a slow mouse or stick adds per frame. Third person and
 // over the shoulder are a spring arm: the pivot follows Harry through a critically damped spring,
 // zoom and shoulder offset ease the same way, the look input may be smoothed, a cone of rays keeps
-// the eye out of walls (in at once, back out eased) and the pitch levels itself while Harry moves.
+// the eye out of walls (in at once from what stands between Harry and the eye, eased from what the
+// rays around the eye graze, back out eased) and the pitch levels itself while Harry moves.
 // Every ease is a closed form of the frame time, so the feel does not depend on the frame rate.
 
 #include <cstdint>
@@ -56,6 +58,7 @@ struct AltCameraTuning {
     std::uint32_t head_look_delay_ms = 0;  // head look off for this long after Harry stops
     std::uint32_t head_look_full_ms = 0;   // ... and fully on from here
     float head_sway_limit = 0.0f;      // first person: the eye leaves the tuned spot by no more than this
+    float head_sway_time = 0.0f;       // ... and the picture's eye follows the sway over this smooth time (seconds)
     float swing_near = 0.0f;           // arm distance where the melee dolly starts
     float swing_wall = 0.0f;           // keep-out margin from level geometry behind the eye
     float swing_head_show = 0.0f;      // dolly distance above which the head is drawn
@@ -72,6 +75,7 @@ struct AltCameraTuning {
     float zoom_time = 0.0f;            // orbit radius and shoulder offset
     float probe_radius = 0.0f;         // half size of the ray cone at the eye
     float ease_out_time = 0.0f;        // back out after a wall let go
+    float ease_in_time = 0.0f;         // in from what only the rays around the eye touch
     float close_lift = 0.0f;           // the eye rises this much when a wall presses it fully in
     float close_shoulder = 1.0f;       // ... and keeps this share of the shoulder offset
     float look_smoothing_time = 0.0f;  // look input at 100% look smoothing
@@ -130,7 +134,7 @@ struct AltCameraInput {
     bool rear_look = false;
     int shoulder_side = 1;             // +1 right, -1 left
     bool frozen = false;               // console or quick options open: the view holds still
-    int mouse_dx = 0, mouse_dy = 0;
+    double mouse_dx = 0.0, mouse_dy = 0.0;  // mouse counts, fractions kept
     int right_x = 128, right_y = 128, left_x = 128, left_y = 128;  // raw sticks
     bool moving = false;               // walking input this frame (first person head look delay, third person recenter)
     bool in_gameplay = false;          // settled gameplay: the head references may be taken
@@ -139,8 +143,47 @@ struct AltCameraInput {
     AltCameraOptions options;
 };
 
+// What an update built its view from, apart from the look angles: the picture can be drawn from it for angles that
+// are not whole units and for the angles of a later moment (AltCamera::pose). Positions are Q12 units, angles are
+// angle units, both with their fractions.
+struct AltViewBasis {
+    bool valid = false;
+    bool first_person = false;
+    double yaw = 0.0, pitch = 0.0;     // the look angles the update ended with
+    double ahead = 0.0;                // the look target's distance
+    // Third person and over the shoulder: the spring arm as the update left it.
+    double root[3] = {};               // the pivot (Harry's root, lagged)
+    double distance = 0.0;
+    double orbit_height = 0.0;
+    double anchor_y = 0.0;             // the look target's height
+    double head[3] = {};               // where the arm starts
+    double shoulder_x = 0.0, shoulder_y = 0.0;
+    double rear = 0.0;                 // the rear look's half turn
+    bool pulled = false;               // a wall holds the eye in
+    double arm_frac = 1.0;
+    double close_shoulder = 1.0;
+    double lift = 0.0;
+    // First person: the eye before the melee dolly, the dolly, and the head look added to the angles.
+    double eye[3] = {};
+    double pull = 0.0;
+    double head_yaw = 0.0, head_pitch = 0.0;
+    double view_pitch_limit = 0.0;     // of the angles with the head look; 0 = none
+};
+
+// A view in Q12 world units.
+struct AltPose {
+    double eye[3] = {};
+    double at[3] = {};
+};
+
+// Look angles in angle units, fractions kept; the yaw is not wrapped.
+struct AltLook {
+    double yaw = 0.0, pitch = 0.0;
+};
+
 struct AltCameraOutput {
     std::int32_t yaw = 0, pitch = 0;
+    AltViewBasis basis;                // for the renderer: the same view without the rounding
     AltVec3 eye, look_at;              // the view
     AltVec3 aim_origin, aim_forward;   // the free-aim ray: from the eye through the screen centre
     int aim_device = -1;               // -1 unchanged, 0 mouse, 1 pad
@@ -164,6 +207,15 @@ public:
 
     AltCameraOutput update(const AltCameraInput& in, AltCameraHost& host);
 
+    // Where the look angles would stand `seconds` after the last update, with the mouse counts of `in` arrived
+    // since and its sticks held all that time: what a frame presented between two updates looks along, so that the
+    // view turns on every frame and not once an update. `in.yaw` and `in.pitch` are the angles as the game holds
+    // them now. Reads the smoothing and the fractions the last update left; changes nothing.
+    AltLook look_ahead(const AltCameraInput& in, double seconds) const;
+
+    // The view of `basis` along other look angles: the update's own when they are basis.yaw and basis.pitch.
+    static AltPose pose(const AltViewBasis& basis, double yaw, double pitch);
+
     // The projection distance of a horizontal field of view on the 320-wide frame (rounded to
     // nearest, so the default 71.1 degrees gives the game's own 224), clamped to 16..512;
     // `fallback` for a degenerate angle.
@@ -172,6 +224,9 @@ public:
 private:
     struct Tuned;  // the tuning in Q12 and angle units
     void look(const AltCameraInput& in, AltCameraOutput& out, std::int32_t& yaw, std::int32_t& pitch);
+    // The turn the mouse and the right stick ask for over `frames` 30 fps frames; `orbit` bends the stick through
+    // the response curve. False when neither moved.
+    bool turn_input(const AltCameraInput& in, double frames, bool orbit, double* d_yaw, double* d_pitch) const;
 
     void look_orbit(const AltCameraInput& in, AltCameraOutput& out, std::int32_t& yaw, std::int32_t& pitch, double dt);
     void orbit(const AltCameraInput& in, AltCameraOutput& out, std::int32_t yaw, std::int32_t pitch, double dt,
@@ -195,6 +250,7 @@ private:
     Spring distance_;                  // orbit radius
     Spring shoulder_x_, shoulder_y_;
     double arm_frac_ = 1.0;            // the wall-limited share of the arm in use
+    Spring arm_out_;                   // ... on its way back out
     double pending_yaw_ = 0.0, pending_pitch_ = 0.0;  // smoothed look input not applied yet
     double carry_yaw_ = 0.0, carry_pitch_ = 0.0;      // fractions of an angle unit
     double look_idle_ = 0.0;           // seconds since the view was last turned
@@ -207,6 +263,8 @@ private:
     std::uint32_t last_move_ms_ = 0;
     std::int32_t swing_pull_ = 0;
     bool head_visible_ = false;
+    Spring sway_[3];                   // the head's sway as the picture shows it, body frame
+    bool sway_valid_ = false;
 };
 
 }  // namespace sh::camera

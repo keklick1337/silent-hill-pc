@@ -37,7 +37,10 @@ struct Beam {
 Beam blend_beam(const Frame& from_frame, const Beam& from, const Frame& to_frame, const Beam& to,
                 const Frame& out_frame, double t, const BlendLimits& limits = {});
 
-// The scenes of the last two updates.
+// The scenes of the last three updates. An update runs on the first frame after it is due, never by the same time
+// late, so a picture that started over at each update would run fast and then wait. The frames show a moment a
+// little behind the last update instead, the same distance behind on every frame; just after an update that moment
+// still lies before the update that came before it, which is why three are kept.
 class TickFrames {
 public:
     // An update's scene is about to be presented.
@@ -45,13 +48,17 @@ public:
     // The next recorded scene has no predecessor (the frames in between were not presented one after another).
     void reset();
     bool has_pair() const { return count_ >= 2; }
+    bool has_three() const { return count_ >= 3; }
     bool has_last() const { return count_ >= 1; }
-    // The scene `t` of the way from the update before the last to the last one; the last one alone without a pair.
+    // The scene `t` of the way from the update before the last (0) to the last one (1), or for a negative `t`
+    // that far back towards the update before those two (-1); the nearest one kept when there are fewer.
     void show(double t, Frame& out, Beam& beam) const;
 
 private:
+    Frame older_;
     Frame previous_;
     Frame last_;
+    Beam older_beam_;
     Beam previous_beam_;
     Beam last_beam_;
     int count_ = 0;

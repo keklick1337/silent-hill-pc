@@ -34,17 +34,6 @@ CameraStyle next_camera_style(CameraStyle style, int direction);
 // this build accepts. The cameras of the round only.
 std::string camera_style_list();
 
-// The aim mark of the alternate cameras: off, or one of four shapes.
-struct Crosshair {
-    bool on = false;
-    int shape = 0;  // 0 cross, 1 dot, 2 circle, 3 dashes
-
-    bool operator==(const Crosshair&) const = default;
-};
-// off -> cross -> dot -> circle -> dashes -> off. Switching off keeps the shape.
-Crosshair next_crosshair(Crosshair now);
-const char* crosshair_name(Crosshair mark);
-
 // The mouse button a bind names: 1..5 for Mouse1..Mouse5 (any case), 0 for anything else.
 int mouse_button_of_bind(std::string_view bind);
 
@@ -52,8 +41,7 @@ class CameraStyles {
 public:
     // At start: takes the style from the configuration and writes the style list to config.cfg.
     void init();
-    // Once a frame: the Change Camera and Swap Shoulder binds, the crosshair key, which binds are live, and the
-    // mouse capture.
+    // Once a frame: the Change Camera and Swap Shoulder binds, which binds are live, and the mouse capture.
     void frame_update();
 
     // Makes a style the current one and saves it.
@@ -91,7 +79,6 @@ private:
     bool change_key_was_down_ = false;
     bool change_pad_was_down_ = false;
     bool swap_was_down_ = false;
-    bool crosshair_key_was_down_ = false;
 };
 
 CameraStyles& camera_styles();

@@ -26,6 +26,7 @@
 #include "engine/math/geometry_state.h"
 #include "engine/screens/screen_fade.h"
 #include "engine/screens/screens_view.h"
+#include "input/alt_camera_view.h"
 #include "input/camera_style.h"
 #include "platform/sh_platform.h"
 #include "engine/mods/data_reload.h"
@@ -114,6 +115,24 @@ constexpr std::int64_t kWarpDistance = 3 * 4096;
 
 std::optional<cam::AltCamera> s_camera;
 std::uint32_t s_camera_epoch = sh::mods::kNeverRead;
+
+// The view for the picture (input/alt_camera_view.h): what the update under way built its view from, the same of the
+// last two presented updates, the input of the last update and the mouse counts read since.
+struct ShownView {
+    bool valid = false;
+    bool fresh = false;  // the view began anew: nothing leads to it from the update before
+    cam::AltViewBasis basis;
+    cam::AltPose rounded;  // the game's own camera
+};
+ShownView s_view_now, s_view_last, s_view_before, s_view_older;
+cam::AltCameraInput s_look_input;
+double s_mouse_between[2] = {0.0, 0.0};
+
+// The camera stands down: the mouse's travel meanwhile must not turn it when it comes back.
+void stand_down() {
+    s_stood_down = true;
+    s_mouse_between[0] = s_mouse_between[1] = 0.0;
+}
 
 cam::AltCamera* camera() {
     if (sh::mods::data_stale(s_camera_epoch)) {
@@ -258,7 +277,7 @@ extern "C" void Pc_TpsCamera_Apply(void) {
     g_PcAltCamApplied = 0;
     // An attract demo is a recording of the stock game: nothing to steer.
     if (s.sys_flag(sh::game::sys_flag::kDemo)) {
-        s_stood_down = true;
+        stand_down();
         field_of_view(true);
         return;
     }
@@ -269,7 +288,7 @@ extern "C" void Pc_TpsCamera_Apply(void) {
                                       !s.sys_flag(sh::game::sys_flag::kCutscene) &&
                                       s.system.flow.cutscene_border == sh::game::kCutsceneBorderNone;
         if (!fps_through_load) {
-            s_stood_down = true;
+            stand_down();
             field_of_view(true);
             return;
         }
@@ -314,8 +333,15 @@ extern "C" void Pc_TpsCamera_Apply(void) {
     in.rear_look = g_PcRearLookActive != 0;
     in.shoulder_side = sh::input::camera_styles().shoulder_side();
     in.frozen = g_PcConsoleInputActive || g_PcDebugMenuActive;
-    // Always drained, also while frozen, so the view does not jump when the console closes.
-    Sh_RelativeMouseState(&in.mouse_dx, &in.mouse_dy);
+    // Always drained, also while frozen, so the view does not jump when the console closes. With it come the counts
+    // the frames presented since the last update have read and shown already.
+    {
+        float dx = 0.0f, dy = 0.0f;
+        Sh_RelativeMouseMotion(&dx, &dy);
+        in.mouse_dx = s_mouse_between[0] + dx;
+        in.mouse_dy = s_mouse_between[1] + dy;
+        s_mouse_between[0] = s_mouse_between[1] = 0.0;
+    }
     in.right_x = pad.raw.right_x;
     in.right_y = pad.raw.right_y;
     in.left_x = pad.raw.left_x;
@@ -355,4 +381,74 @@ extern "C" void Pc_TpsCamera_Apply(void) {
     sh::app::view::view_look_at(eye, at);
     field_of_view(false);
     g_PcAltCamApplied = 1;
+
+    s_view_now.valid = out.basis.valid;
+    s_view_now.fresh = in.reset;
+    s_view_now.basis = out.basis;
+    for (int i = 0; i < 3; ++i) {
+        s_view_now.rounded.eye[i] = eye[i];
+        s_view_now.rounded.at[i] = at[i];
+    }
+    s_look_input = in;
+    s_look_input.mouse_dx = s_look_input.mouse_dy = 0.0;
+    s_look_input.reset = false;
 }
+
+namespace sh::input {
+
+void alt_view_update_begin() { s_view_now.valid = false; }
+
+bool alt_view_update_presented(bool follows, AltCameraView* told) {
+    s_view_older = s_view_before;
+    s_view_before = s_view_last;
+    s_view_last = s_view_now;
+    if (!follows || s_view_last.fresh || s_view_before.basis.first_person != s_view_last.basis.first_person) {
+        s_view_before.valid = s_view_older.valid = false;
+    }
+    if (!s_view_last.valid) {
+        return false;
+    }
+    for (int i = 0; i < 3; ++i) {
+        told->eye[i] = s_view_last.rounded.eye[i];
+        told->at[i] = s_view_last.rounded.at[i];
+    }
+    return true;
+}
+
+void alt_view_for_present(const AltViewMoment& moment, AltCameraView* view) {
+    if (moment.read_mouse) {
+        float dx = 0.0f, dy = 0.0f;
+        Sh_RelativeMouseMotion(&dx, &dy);
+        s_mouse_between[0] += dx;
+        s_mouse_between[1] += dy;
+    }
+    cam::AltCameraInput in = s_look_input;
+    in.yaw = g_TpsCamYaw;
+    in.pitch = g_TpsCamPitch;
+    in.mouse_dx = s_mouse_between[0];
+    in.mouse_dy = s_mouse_between[1];
+    in.frozen = g_PcConsoleInputActive || g_PcDebugMenuActive;
+    // An update that stood still (a pause) turns nothing by the stick, so the frames after it do not either. And
+    // when the next update is long in coming (a stall), the stick's turn is not carried on past two updates' worth:
+    // what the stick did meanwhile is not known.
+    const double step = s_look_input.delta_time / 4096.0;
+    const double seconds = step > 0.0 ? (moment.seconds < 2.0 * step ? moment.seconds : 2.0 * step) : 0.0;
+    cam::AltLook look{s_view_last.basis.yaw, s_view_last.basis.pitch};
+    if (cam::AltCamera* c = ::camera()) {
+        look = c->look_ahead(in, seconds);
+    }
+
+    const ShownView& to = moment.before_last ? s_view_before : s_view_last;
+    const ShownView& from = moment.before_last ? s_view_older : s_view_before;
+    const cam::AltPose last = cam::AltCamera::pose(to.basis, look.yaw, look.pitch);
+    const bool blended = from.valid && moment.blend < 1.0;
+    // The scene shown stands between the two updates, so the view is built on what lies between their two.
+    const cam::AltPose before = blended ? cam::AltCamera::pose(from.basis, look.yaw, look.pitch) : last;
+    const double t = moment.blend < 0.0 ? 0.0 : (moment.blend > 1.0 ? 1.0 : moment.blend);
+    for (int i = 0; i < 3; ++i) {
+        view->eye[i] = before.eye[i] + (last.eye[i] - before.eye[i]) * t;
+        view->at[i] = before.at[i] + (last.at[i] - before.at[i]) * t;
+    }
+}
+
+}  // namespace sh::input

@@ -32,6 +32,14 @@ private:
     bool was_down_ = false;
 };
 
+// The bit of a mouse button in the device's button state (bit 0 left, 1 middle, 2 right, 3 and 4 the side
+// buttons), from the number a bind gives it: Mouse1 left, Mouse2 right, Mouse3 middle, Mouse4 and Mouse5 the side
+// buttons. 0 for a number that is no button.
+constexpr std::uint32_t mouse_button_bit(int bind_number) {
+    constexpr std::uint32_t kBits[] = {0, 1u << 0, 1u << 2, 1u << 1, 1u << 3, 1u << 4};
+    return bind_number >= 1 && bind_number <= 5 ? kBits[bind_number] : 0;
+}
+
 // The wheel as the menus read it. The input layer latches every notch for two frames and counts all of them.
 struct WheelReader {
     int step = 0;     // +1 / -1 on the frame a notch arrives (several in one frame are one step)

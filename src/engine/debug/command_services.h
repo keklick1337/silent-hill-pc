@@ -24,6 +24,15 @@ void gpu_bench_frame();
 // `pad`: the buttons a script holds. apply clears their bits in the pad word (0 = pressed).
 bool script_pad_held();
 void script_pad_apply(std::uint16_t* buttons_up);
+// `lookinput`: scripted look input. poll runs after every input poll and moves the mouse by the counts due since
+// the last one; apply holds the right stick (raw bytes, 128 = centre).
+void script_look_poll();
+bool script_stick_held();
+void script_stick_apply(std::uint8_t* right_x, std::uint8_t* right_y);
+// `looktrace`: the camera of every presented frame (degrees, metres), `between` on a frame presented between two
+// updates.
+bool look_trace_on();
+void look_trace_frame(bool between, double yaw_deg, double pitch_deg, const double eye_metres[3]);
 // `stall`: sleeps this update when the share says so.
 void stall_test_frame();
 // `shotseq`: called after every present with a note about the frame (its kind, its time).

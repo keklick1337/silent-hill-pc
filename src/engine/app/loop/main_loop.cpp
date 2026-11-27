@@ -10,11 +10,14 @@
 #include "engine/save/game_saves.h"
 #include "input/pad.h"
 #include "engine/runtime/game_hooks.h"
+#include <algorithm>
+#include <array>
 #include <cmath>
 #include <cstdint>
 #include <string>
 #include <string_view>
 
+#include <SDL3/SDL_events.h>
 #include <SDL3/SDL_scancode.h>
 #include <SDL3/SDL_timer.h>
 
@@ -26,6 +29,7 @@
 #include "engine/app/texture_upscale_run.h"
 #include "engine/app/loader/game_files.h"
 #include "engine/app/loop/frame_loop.h"
+#include "engine/app/loop/scene_aim.h"
 #include "engine/app/pc_paths.h"
 #include "engine/camera/game_camera.h"
 #include "engine/cutscene/cutscene_c.h"
@@ -70,6 +74,7 @@
 #include "render/scene/scene_c.h"
 #include "engine/math/precise_capture.h"
 #include "engine/devtools/perf_monitor.h"
+#include "input/alt_camera_view.h"
 #include "input/camera_style.h"
 #include "input/mouse_pointer.h"
 
@@ -464,6 +469,11 @@ const FrameHook kFrameHooks[] = {
              raw.status = 0;
              sh::debug::script_pad_apply(&raw.buttons);
          }
+         if (sh::debug::script_stick_held()) {
+             sh::game::RawPad& raw = session().game.pads[0].raw;
+             raw.status = 0;
+             sh::debug::script_stick_apply(&raw.right_x, &raw.right_y);
+         }
      }},
     {"demo_pad", [] { sh::gameflow::demo_player().feed_pad(sh::gameflow::demo_host()); }},
     {"pad_build", [] { sh::loop::pad_build(); }},
@@ -540,6 +550,7 @@ public:
         sh::loop::frame_ticks()++;
         sh::loop::frame_timing().render_only = 0;
         update_step_ = sh::loop::frame_delta();
+        sh::input::alt_view_update_begin();
         // The update starts from what the last update left, not from what the frames in between showed.
         sh::gpu::display::set_presenting_again(false);
         if (beam_shown_) set_flashlight_beam(beam_updated_);
@@ -560,6 +571,7 @@ public:
     {
         sh::loop::frame_timing().render_only = 1;
         sh::input::poll();
+        sh::debug::script_look_poll();
         sh::loop::pad_latch();
     }
     void updated_present() override
@@ -578,46 +590,72 @@ public:
             --cut_updates_;
             ticks.reset();
         }
-        if (!sh::loop::frame_rate_free()) {
-            ticks.reset();
-            return;
-        }
-        // Above the update rate the picture runs one update behind, so the frames up to the next update can show
-        // the way from the previous scene to this one.
         sh::scene::Frame& scene = sh::scene::current_frame();
         beam_updated_ = beam_of_flashlight();
+        sh::scene::Beam beam = beam_updated_;
+        if (!sh::loop::frame_rate_free()) {
+            ticks.reset();
+            note_alt_view(false, scene);
+            update_due_ = 0.0;
+            if (aim_alt_camera(false, 2, 1.0, 0.0, scene, beam)) {
+                ++scene.serial;
+                set_flashlight_beam(beam);
+                beam_shown_ = true;
+            }
+            trace_look(false);
+            return;
+        }
+        // Above the update rate the frames show the way from one update's scene to the next.
         ticks.record(scene, beam_updated_);
-        if (ticks.has_pair()) {
-            sh::scene::Beam beam;
-            ticks.show(0.0, scene, beam);
+        note_alt_view(ticks.has_pair(), scene);
+        // The mouse is read again now that the update is done, as on the frames between two updates: the view is
+        // then as old on every presented frame.
+        late_mouse();
+        update_presented_ = SDL_GetPerformanceCounter();
+        // An update runs on the first frame after its vertical blank, up to a frame late and never by the same
+        // time: the moment it was due is the steady one the picture's time is counted from. An update is never
+        // early, so the least late of the last few tells where that moment is.
+        const double now = seconds_of(update_presented_);
+        const double period = update_period();
+        const double due = update_due_ + period;
+        if (update_due_ == 0.0 || period <= 0.0 || std::fabs(now - due) > 2.0 * period) {
+            update_due_ = now;
+            lateness_.fill(0.0);
+        } else {
+            lateness_[lateness_at_++ % lateness_.size()] = now - due;
+            const double least = *std::min_element(lateness_.begin(), lateness_.end());
+            update_due_ = due + least;
+            for (double& late : lateness_) late -= least;
+        }
+        if (show_moment(now, false, scene, beam)) {
             ++scene.serial;
             set_flashlight_beam(beam);
             beam_shown_ = true;
         }
-        update_presented_ = SDL_GetPerformanceCounter();
+        trace_look(false);
     }
     void render_only_present() override
     {
+        // After the frame's wait, so that the picture shows the mouse as it is when the frame goes out.
+        late_mouse();
         sh::render::feedback_control() = feedback_asked_;
         sh::gpu::display::set_presenting_again(true);
         sh::frame::frame().redraw_last();
-        sh::scene::TickFrames& ticks = sh::scene::tick_frames();
-        if (!ticks.has_last()) return;
-        const double passed = static_cast<double>(SDL_GetPerformanceCounter() - update_presented_) /
-                              static_cast<double>(SDL_GetPerformanceFrequency());
-        const double step = static_cast<double>(update_step_) / 4096.0;
+        if (!sh::scene::tick_frames().has_last()) return;
         sh::scene::Frame& scene = sh::scene::current_frame();
-        sh::scene::Beam beam;
-        ticks.show(step > 0.0 ? passed / step : 1.0, scene, beam);
+        sh::scene::Beam beam = beam_updated_;
+        show_moment(seconds_of(SDL_GetPerformanceCounter()), true, scene, beam);
         ++scene.serial;
         set_flashlight_beam(beam);
         beam_shown_ = true;
+        trace_look(true);
     }
     void mark(gf::FrameMarkPoint point) override { sh::loop::profile_mark(static_cast<sh::loop::FrameMark>(point)); }
     void poll_input() override
     {
         SH_PERF_SCOPE("input_poll", "");
         sh::input::poll();
+        sh::debug::script_look_poll();
     }
     // A map warp is an exit to the title and a New Game in one step, so it takes the warm reset's place in the frame.
     // `mods reload` of the data runs at the same point, between frames: in play it also loads the map again.
@@ -793,6 +831,118 @@ public:
     }
 
 private:
+    static double seconds_of(std::uint64_t counter)
+    {
+        return static_cast<double>(counter) / static_cast<double>(SDL_GetPerformanceFrequency());
+    }
+    // Brings the mouse's travel up to date without handling events: a frame is under way, and a resize or a quit
+    // waits for the next poll.
+    static void late_mouse()
+    {
+        SDL_PumpEvents();
+        sh::debug::script_look_poll();
+    }
+    // The real time one update stands for: its step in whole vertical blanks (the step itself is rounded to Q12).
+    double update_period() const
+    {
+        const double blanks = std::round(static_cast<double>(update_step_) * kVBlankRate / 4096.0);
+        return blanks / kVBlankRate;
+    }
+    // Game time from the moment the last update was due to `now`.
+    double game_seconds_since_due(double now) const
+    {
+        const double period = update_period();
+        return period > 0.0 ? (now - update_due_) * (static_cast<double>(update_step_) / 4096.0) / period : 0.0;
+    }
+
+    // The scene of the moment a frame presented at `now` shows, and the alternate camera's view of it. The moment
+    // runs evenly with the clock, behind the last update by what an update can be late: a frame, and a little for
+    // the clock. False when the scene stays as the update made it.
+    bool show_moment(double now, bool between, sh::scene::Frame& scene, sh::scene::Beam& beam)
+    {
+        sh::scene::TickFrames& ticks = sh::scene::tick_frames();
+        const double period = update_period();
+        if (last_present_ > 0.0 && period > 0.0) {
+            const double frame = std::min(now - last_present_, period);
+            frame_share_ += (frame / period - frame_share_) * kFrameShareFollow;
+        }
+        last_present_ = now;
+        double shown = 1.0;
+        if (ticks.has_pair() && period > 0.0) {
+            shown = (now - update_due_) / period - (frame_share_ + kClockMargin);
+            shown = std::clamp(shown, ticks.has_three() ? -1.0 : 0.0, 1.0);
+        }
+        const bool back = shown < 0.0;
+        const int to = back ? 1 : 2;
+        bool changed = false;
+        if (ticks.has_pair() || between) {
+            ticks.show(shown, scene, beam);
+            changed = true;
+        }
+        if (aim_alt_camera(true, to, back ? 1.0 + shown : shown, game_seconds_since_due(now), scene, beam)) {
+            changed = true;
+        }
+        return changed;
+    }
+
+    // The update's scene, before it is blended with the ones before: was it drawn with the alternate camera's view?
+    // The game's rounding stays well inside the limits; beyond them another camera drew the scene (a scene's shot,
+    // an item screen), and its picture is not touched.
+    void note_alt_view(bool follows, const sh::scene::Frame& scene)
+    {
+        constexpr double kTurn = 0.02, kMove = 8.0;
+        alt_view_[0] = alt_view_[1] && follows;
+        alt_view_[1] = alt_view_[2] && follows;
+        updated_camera_[0] = updated_camera_[1];
+        updated_camera_[1] = updated_camera_[2];
+        updated_camera_[2] = scene.camera;
+        sh::input::AltCameraView told;
+        sh::scene::Camera exact;
+        alt_view_[2] = sh::input::alt_view_update_presented(follows, &told) && scene.world &&
+                       sh::loop::camera_looking(told.eye, told.at, &exact);
+        if (alt_view_[2]) {
+            const sh::loop::CameraGap gap = sh::loop::camera_gap(scene.camera, exact);
+            alt_view_[2] = gap.turn <= kTurn && gap.move <= kMove;
+        }
+    }
+
+    // An alternate camera's view takes the place of the camera the scene was drawn with: the same view without the
+    // game's rounding, turned as far as the mouse and the stick have turned it by now (input/alt_camera_view.h).
+    // The scene stands `shown` of the way from the update before update `to` (1 the one before the last, 2 the
+    // last) to that update.
+    bool aim_alt_camera(bool read_mouse, int to, double shown, double seconds, sh::scene::Frame& scene,
+                        sh::scene::Beam& beam)
+    {
+        if (!scene.world || !alt_view_[to]) return false;
+        // Two updates too far apart to blend are shown as a cut to the newer one, with its camera as it was.
+        const sh::scene::Camera& made = updated_camera_[to];
+        const bool cut = scene.camera.rot == made.rot && scene.camera.trans == made.trans;
+        // Blended with a scene of another camera: neither view is the picture's.
+        if (shown < 1.0 && !cut && !alt_view_[to - 1]) return false;
+        sh::input::AltViewMoment moment;
+        moment.read_mouse = read_mouse;
+        moment.before_last = to == 1;
+        moment.blend = cut ? 1.0 : shown;
+        moment.seconds = seconds;
+        sh::input::AltCameraView view;
+        sh::input::alt_view_for_present(moment, &view);
+        sh::scene::Camera aimed;
+        if (!sh::loop::camera_looking(view.eye, view.at, &aimed)) return false;
+        sh::loop::aim_scene(scene, beam, aimed);
+        return true;
+    }
+
+    // `looktrace`: where the camera of the frame about to be presented looks.
+    static void trace_look(bool between)
+    {
+        if (!sh::debug::look_trace_on()) return;
+        const std::array<double, 9>& rot = sh::scene::current_frame().camera.rot;
+        constexpr double kDegrees = 180.0 / 3.14159265358979323846;
+        const std::array<double, 3> eye = sh::loop::camera_eye(sh::scene::current_frame().camera);
+        const double metres[3] = {eye[0] / 256.0, eye[1] / 256.0, eye[2] / 256.0};
+        sh::debug::look_trace_frame(between, std::atan2(rot[6], rot[8]) * kDegrees,
+                                    -std::asin(std::clamp(rot[7], -1.0, 1.0)) * kDegrees, metres);
+    }
     static sh::scene::Beam beam_of_flashlight()
     {
         const sh::render::Flashlight& light = sh::render::flashlight();
@@ -817,6 +967,18 @@ private:
 
     std::int32_t update_step_ = 0;          // the step of the last update, Q12 seconds
     std::uint64_t update_presented_ = 0;    // performance counter when the last update was presented
+    // The last three presented updates, oldest first: each was drawn with an alternate camera's view (and the
+    // frames lead to it from the one before), and the camera of its scene.
+    bool alt_view_[3] = {false, false, false};
+    sh::scene::Camera updated_camera_[3];
+    double last_present_ = 0.0;             // when the last frame's moment was taken, seconds
+    double frame_share_ = 0.5;              // the time between two frames as a share of an update, followed slowly
+    static constexpr double kFrameShareFollow = 0.05;
+    static constexpr double kClockMargin = 0.08;  // of an update: what the due moment itself may be off by
+    double update_due_ = 0.0;               // the steady moment the last update stands for, seconds; 0 = none yet
+    static constexpr double kVBlankRate = 60.0;
+    std::array<double, 8> lateness_{};      // how late the last updates were against the due moment, seconds
+    std::size_t lateness_at_ = 0;
     sh::render::FeedbackControl feedback_asked_{};
     sh::scene::Beam beam_updated_;          // the flashlight as the last update left it
     bool beam_shown_ = false;               // the renderer's flashlight holds a blended beam
