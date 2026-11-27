@@ -242,3 +242,34 @@ SH_TEST(file_player_mixes_and_stops) {
     player.stop(8);
     SH_CHECK(player.active_count() == 0);
 }
+
+// fade(): a level of its own on top of the volume, moved evenly over the frames asked for. A sound that is not
+// playing keeps the level for its next play; a voice that was never faded mixes as before.
+SH_TEST(file_player_fades_evenly) {
+    sh::audio::FilePlayer player;
+    const int unity = sh::audio::FilePlayer::kUnity;
+    const int full = sh::audio::FilePlayer::kFadeUnity;
+    auto pcm = std::make_shared<const std::vector<std::int16_t>>(std::vector<std::int16_t>(100, 10000));
+    SH_CHECK(!player.fade(9, 0, 0, false));  // not playing: the level waits for the play
+    player.play(pcm, 1, 44100, 1.0, unity, unity, true, 9);
+    SH_CHECK(player.voices().size() == 1 && player.voices()[0].fade == 0);
+    std::vector<std::int32_t> l(1000, 0), r(1000, 0);
+    player.mix(l.data(), r.data(), 100);
+    SH_CHECK(l[0] == 0 && l[99] == 0);  // silent from its first frame
+    SH_CHECK(player.fade(9, full, 800, false));
+    std::fill(l.begin(), l.end(), 0);
+    player.mix(l.data(), r.data(), 1000);
+    SH_CHECK(l[0] == 0 && l[400] > 4900 && l[400] < 5100 && l[799] > 9900 && l[999] == 10000);
+    for (int i = 1; i < 1000; ++i) {
+        SH_CHECK(l[i] >= l[i - 1] && l[i] - l[i - 1] <= 13);  // no step: 10000 over 800 frames
+    }
+    SH_CHECK(player.voices()[0].fade == full);
+    SH_CHECK(player.fade(9, 0, 500, true));  // out, and it stops there
+    std::fill(l.begin(), l.end(), 0);
+    player.mix(l.data(), r.data(), 1000);
+    SH_CHECK(l[0] == 10000 && l[250] > 4900 && l[250] < 5100 && l[600] == 0);
+    SH_CHECK(player.active(9) == 0);
+    // the waiting level is taken once: the next play is at the sound's own volume
+    player.play(pcm, 1, 44100, 1.0, unity, unity, true, 9);
+    SH_CHECK(player.voices()[0].fade == full);
+}

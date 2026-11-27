@@ -127,6 +127,22 @@ int NpcDirector::end_tick(NpcHost& host, bool radio_on, std::array<RadioChannel,
     if (!radio_on) {
         return pitch;
     }
+    int heard = 0;
+    while (heard < kRadioEntries && radio_.entry(heard).slot != kNoSlot) {
+        ++heard;
+    }
+    if (!host.radio_static_allowed(heard, radio_.entry(0).slot, radio_.entry(0).distance_sq)) {
+        for (int l = 0; l < kRadioSlots; ++l) {
+            RadioChannel& ch = channels[static_cast<std::size_t>(l)];
+            if (ch.playing != kNoSlot) {
+                host.radio_stop(l);
+            }
+            ch.playing = kNoSlot;
+            ch.target = kNoSlot;
+            ch.entry = kNoSlot;
+        }
+        return pitch;
+    }
     RadioSlotSet taken;
     for (RadioChannel& ch : channels) {
         int idx = ch.target == kNoSlot ? kNoSlot : radio_.index_of(ch.target);

@@ -679,6 +679,9 @@ void hook_item_picked(int item, int count, int flag) { sh::hooks::game_item_pick
 int hook_item_given(int item, int count, const char* source) {
     return sh::hooks::game_item_given(item, count, source);
 }
+bool hook_radio_static(int heard, int nearest_slot, std::uint32_t nearest_sq) {
+    return sh::hooks::game_radio_static(heard, nearest_slot, nearest_sq);
+}
 bool script_map_handler(int param) { return ShScript_CallMapHandler(param) != 0; }
 bool runtime_pickups_run_event() { return sh::world::runtime_pickups_run_event(); }
 void runtime_pickups_draw() { sh::world::runtime_pickups_draw(); }

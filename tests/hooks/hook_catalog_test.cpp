@@ -22,11 +22,12 @@ SH_TEST(hooks_catalog_names_unique_and_complete) {
                              "map.unload", "map.room_enter", "item.pickup", "item.picked", "item.use", "player.damage",
                              "player.death", "entity.spawn", "entity.death", "flag.set", "menu.open", "cutscene.start",
                              "cutscene.end", "input.action", "map.event", "item.given", "player.quick_heal",
-                             "game.quick_save", "game.quick_load"}) {
+                             "game.quick_save", "game.quick_load", "radio.static"}) {
         SH_CHECK(find_event(want) != nullptr);
     }
     // The PC's own grants and keys: cancellable, the count and the heal changeable.
-    for (const char* cancellable : {"item.given", "player.quick_heal", "game.quick_save", "game.quick_load"}) {
+    for (const char* cancellable :
+         {"item.given", "player.quick_heal", "game.quick_save", "game.quick_load", "radio.static"}) {
         SH_CHECK(find_event(cancellable)->cancellable);
     }
     const auto mutable_field = [](const char* event, std::string_view field) {

@@ -13,6 +13,7 @@
 #include "engine/script/sh_script.h"
 
 #include <array>
+#include <cmath>
 #include <cstdint>
 #include <cstdio>
 #include <cstdlib>
@@ -560,6 +561,20 @@ bool game_map_event_allowed(int param) {
         s_event_allowed = bus().emit(ev);
     }
     return s_event_allowed;
+}
+
+bool game_radio_static(int heard, int nearest_slot, unsigned nearest_sq) {
+    if (!listening("radio.static")) {
+        return true;
+    }
+    Event ev("radio.static", true);
+    // The tracker keeps squared metres; the event gives the distance as every other one, Q12.
+    const double metres = std::sqrt(static_cast<double>(nearest_sq));
+    ev.set("map", map_name(), true)
+        .set("heard", std::int64_t{heard}, true)
+        .set("nearest_slot", std::int64_t{nearest_slot}, true)
+        .set("nearest", heard > 0 ? static_cast<std::int64_t>(metres * 4096.0) : std::int64_t{-1}, true);
+    return bus().emit(ev);
 }
 
 }  // namespace sh::hooks

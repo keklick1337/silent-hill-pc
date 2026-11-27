@@ -379,8 +379,9 @@ void register_system_commands(Registry& registry) {
             const std::vector<sh::audio::FilePlayer::VoiceInfo> files = sh::audio::audio_engine().file_voices();
             say(ctx, "sound files playing: %d", static_cast<int>(files.size()));
             for (const auto& v : files) {
-                say(ctx, " sound %d: left %d, right %d of %d%s", v.tag, v.left, v.right, sh::audio::FilePlayer::kUnity,
-                    v.loop ? ", loop" : "");
+                say(ctx, " sound %d: left %d, right %d of %d%s, level %d%%", v.tag, v.left, v.right,
+                    sh::audio::FilePlayer::kUnity, v.loop ? ", loop" : "",
+                    static_cast<int>(static_cast<std::int64_t>(v.fade) * 100 / sh::audio::FilePlayer::kFadeUnity));
             }
             int keyed = 0;
             for (int voice = 0; voice < sh::audio::kVoices; ++voice) {

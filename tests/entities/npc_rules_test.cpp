@@ -60,6 +60,15 @@ struct FakeHost final : ent::NpcHost {
         radio.push_back("update" + std::to_string(c) + ":" + std::to_string(b) + ":" + std::to_string(v));
     }
     void radio_stop(int c) override { radio.push_back("stop" + std::to_string(c)); }
+    bool radio_allowed = true;
+    int asked_heard = -1, asked_nearest = -2;
+    std::uint32_t asked_sq = 0;
+    bool radio_static_allowed(int heard, int nearest_slot, std::uint32_t nearest_sq) override {
+        asked_heard = heard;
+        asked_nearest = nearest_slot;
+        asked_sq = nearest_sq;
+        return radio_allowed;
+    }
 };
 
 }  // namespace
@@ -357,4 +366,30 @@ SH_TEST(npc_rules_kill_tally) {
     SH_CHECK(ent::kill_tally_counter(r, 7, state) == 1);
     SH_CHECK(ent::kill_tally_counter(r, 38, state) == 0);
     SH_CHECK(ent::kill_tally_counter(r, 39, state) == -1 && reads == 2);  // a monster's attack is not read
+}
+
+// Something else sounds for the radio (a mod's radio.static handler cancelled): the host is told what the radio
+// hears, the channels fall silent and follow nobody, and they start again when it is allowed.
+SH_TEST(npc_director_radio_static_can_be_taken_over) {
+    ent::NpcDirector d(shipped(), ent::NpcCharaIds{0, 29, 24});
+    FakeHost h;
+    std::array<ent::RadioChannel, 2> ch{};
+    d.begin_tick(h);
+    d.review(h, 3, ent::NpcView{5, 8 * kM, 0, 0, false});
+    d.review(h, 4, ent::NpcView{5, 4 * kM, 0, 0, false});
+    SH_CHECK(d.end_tick(h, true, ch) == 2);
+    SH_CHECK(h.asked_heard == 2 && h.asked_nearest == 4 && h.asked_sq == 16);
+    SH_CHECK(joined(h.radio) == "start0 start1");
+    h.radio.clear();
+    h.radio_allowed = false;
+    SH_CHECK(d.end_tick(h, true, ch) == 2);  // the pitch state for the music is the tracker's as before
+    SH_CHECK(joined(h.radio) == "stop0 stop1");
+    SH_CHECK(ch[0].playing == ent::kNoSlot && ch[0].target == ent::kNoSlot && ch[1].playing == ent::kNoSlot);
+    h.radio.clear();
+    SH_CHECK(d.end_tick(h, true, ch) == 2 && h.radio.empty());  // silent: nothing to stop twice
+    h.asked_heard = -1;
+    SH_CHECK(d.end_tick(h, false, ch) == 2 && h.asked_heard == -1);  // switched off: nobody is asked
+    h.radio_allowed = true;
+    SH_CHECK(d.end_tick(h, true, ch) == 2);
+    SH_CHECK(joined(h.radio) == "start0 start1");
 }

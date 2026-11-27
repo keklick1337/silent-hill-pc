@@ -417,6 +417,22 @@ int l_sound_attributes(lua_State* L) {
     h->attributes_update(id, balance, vol, named_int(L, 4, fn));
     return 0;
 }
+// sh.sound.fade(sound, level[, seconds[, stop]]) -> bool: a sound that plays a file (a "file" entry of sounds/*.json,
+// or sh.sound.swap) moves to `level` of its volume (0 silent .. 1 as it plays) over `seconds` (0: at once), smoothly
+// in the mix, and stops when it gets there if `stop`. A sound that is not playing keeps the level for its next play,
+// so "fade to 0, play, fade to 1 in a second" is a fade-in from silence. True when the sound was playing.
+int l_sound_fade(lua_State* L) {
+    NAMED_SOUND("sound.fade")
+    const char* fn = "sound.fade";
+    named_arity(L, 4, fn);
+    const int id = named_sfx(L, 1, fn);
+    const lua_Number level = luaL_checknumber(L, 2);
+    const lua_Number seconds = luaL_optnumber(L, 3, 0.0);
+    luaL_argcheck(L, level >= 0.0 && level <= 4.0, 2, "a level is 0 (silent) to 4");
+    luaL_argcheck(L, seconds >= 0.0 && seconds <= 600.0, 3, "a time is 0 to 600 seconds");
+    lua_pushboolean(L, h->fade(id, static_cast<float>(level), static_cast<float>(seconds), lua_toboolean(L, 4) != 0));
+    return 1;
+}
 int l_sound_play(lua_State* L) {
     NAMED_SOUND("sound.play")
     const char* fn = "sound.play";
@@ -606,6 +622,7 @@ void install_sound_families(lua_State* L, Host* host) {
         {"sound", "sd_call", nullptr, l_sound_sd_call},
         {"sound", "stop", nullptr, l_sound_stop},
         {"sound", "attributes", nullptr, l_sound_attributes},
+        {"sound", "fade", nullptr, l_sound_fade},
         {"sound", "play", nullptr, l_sound_play},
         {"sound", "play_with_flags", nullptr, l_sound_play_with_flags},
         {"sound", "play_falloff", nullptr, l_sound_play_falloff},

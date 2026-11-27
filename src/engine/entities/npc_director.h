@@ -81,6 +81,15 @@ public:
     virtual void radio_start(int channel) = 0;
     virtual void radio_update(int channel, std::int32_t balance, std::int32_t volume) = 0;
     virtual void radio_stop(int channel) = 0;
+    // Asked every tick the radio is switched on, with what it hears (`heard` monsters in reach, the nearest's slot
+    // and squared distance in square metres, kNoSlot when none). False: something else sounds for the radio this
+    // tick, and its channels stay silent.
+    virtual bool radio_static_allowed(int heard, int nearest_slot, std::uint32_t nearest_sq) {
+        (void)heard;
+        (void)nearest_slot;
+        (void)nearest_sq;
+        return true;
+    }
 };
 
 // The NPC slots of the game, as the per-tick pass drives them.

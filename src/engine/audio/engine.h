@@ -82,6 +82,8 @@ public:
     bool play_file(const std::filesystem::path& path, int tag, int left, int right, float semitones, bool loop);
     void stop_file(int tag);
     void set_file_volume(int tag, int left, int right);
+    // FilePlayer::fade with the time in seconds. True when a voice of `tag` plays.
+    bool fade_file(int tag, float level, float seconds, bool stop_at_end);
     std::uint64_t files_started() const { return files_started_; }
     std::vector<FilePlayer::VoiceInfo> file_voices();
 

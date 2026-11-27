@@ -17,6 +17,7 @@
 #include "engine/gameflow/event_triggers.h"
 #include "engine/gameflow/map_event_state.h"
 #include "engine/app/game_view.h"
+#include "engine/audio/sound_api.h"
 #include "engine/runtime/game_hooks.h"
 #include "engine/script/host_interfaces.h"
 #include "engine/script/named_api.h"
@@ -395,6 +396,9 @@ public:
     }
     int play_balanced(int id, int bal, int vol) override {
         return Sd_PlaySfx(static_cast<std::uint16_t>(id), static_cast<std::int8_t>(bal), static_cast<std::uint8_t>(vol));
+    }
+    bool fade(int id, float level, float seconds, bool stop) override {
+        return ShSound_FadeFile(id, level, seconds, stop ? 1 : 0) != 0;
     }
     int position_ref(const char* ref, int out[3], char* err, int err_cap) override {
         return PcScriptNamed_PositionRef(ref, out, err, err_cap);

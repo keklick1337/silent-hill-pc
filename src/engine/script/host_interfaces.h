@@ -85,6 +85,15 @@ public:
     virtual int sd_command_number(const char* name) = 0;  // -1 unknown
     virtual void attributes_update(int sfxId, int balance, int vol, int pitch) = 0;
     virtual int play_balanced(int sfxId, int balance, int vol) = 0;
+    // A sound that plays a file: its level goes to `level` (1 = as it plays) over `seconds`, and it stops there
+    // when `stop`. False when it is not playing (the level then waits for its next play).
+    virtual bool fade(int sfxId, float level, float seconds, bool stop) {
+        (void)sfxId;
+        (void)level;
+        (void)seconds;
+        (void)stop;
+        return false;
+    }
 
     // The named family sh.sound.*. A position is a Q12 point or nullptr (the
     // sound has no place: centred, unattenuated by distance); a string reference ("vec:0", a map

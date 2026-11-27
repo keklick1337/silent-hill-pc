@@ -38,6 +38,52 @@ void FilePlayer::play(std::shared_ptr<const std::vector<std::int16_t>> pcm, int 
     v.tag = tag;
     v.serial = ++serial_;
     v.on = v.frames > 0;
+    v.fade = v.fade_target = static_cast<std::int64_t>(kFadeUnity) << 32;
+    v.fade_step = 0;
+    v.fade_stops = false;
+    for (auto it = start_levels_.begin(); it != start_levels_.end(); ++it) {
+        if (it->tag == tag) {
+            v.fade = v.fade_target = static_cast<std::int64_t>(it->level) << 32;
+            start_levels_.erase(it);
+            break;
+        }
+    }
+}
+
+bool FilePlayer::fade(int tag, int level, std::uint32_t frames, bool stop_at_end) {
+    level = std::clamp(level, 0, 4 * kFadeUnity);
+    const std::int64_t target = static_cast<std::int64_t>(level) << 32;
+    bool any = false;
+    for (Voice& v : voices_) {
+        if (!v.on || v.tag != tag) {
+            continue;
+        }
+        any = true;
+        v.fade_target = target;
+        v.fade_stops = stop_at_end;
+        if (frames == 0 || v.fade == target) {
+            v.fade = target;
+            v.fade_step = 0;
+            if (stop_at_end) {
+                v = Voice{};
+            }
+        } else {
+            v.fade_step = (target - v.fade) / static_cast<std::int64_t>(frames);
+            if (v.fade_step == 0) {
+                v.fade_step = target > v.fade ? 1 : -1;
+            }
+        }
+    }
+    if (!any && !stop_at_end) {
+        for (StartLevel& s : start_levels_) {
+            if (s.tag == tag) {
+                s.level = level;
+                return false;
+            }
+        }
+        start_levels_.push_back(StartLevel{tag, level});
+    }
+    return any;
 }
 
 void FilePlayer::stop(int tag) {
@@ -76,7 +122,7 @@ std::vector<FilePlayer::VoiceInfo> FilePlayer::voices() const {
     std::vector<VoiceInfo> out;
     for (const Voice& v : voices_) {
         if (v.on) {
-            out.push_back(VoiceInfo{v.tag, v.left, v.right, v.loop});
+            out.push_back(VoiceInfo{v.tag, v.left, v.right, v.loop, static_cast<int>(v.fade >> 32)});
         }
     }
     return out;
@@ -89,6 +135,7 @@ void FilePlayer::mix(std::int32_t* left, std::int32_t* right, std::uint32_t fram
         }
         const std::int16_t* data = v.pcm->data();
         const int ch = v.channels;
+        const std::int64_t unity = static_cast<std::int64_t>(kFadeUnity) << 32;
         for (std::uint32_t i = 0; i < frames; ++i) {
             std::uint64_t index = v.position >> 32;
             if (index >= v.frames) {
@@ -108,8 +155,25 @@ void FilePlayer::mix(std::int32_t* left, std::int32_t* right, std::uint32_t fram
             };
             const std::int32_t l = sample(0);
             const std::int32_t r = ch == 2 ? sample(1) : l;
-            left[i] += (l * v.left) >> 14;
-            right[i] += (r * v.right) >> 14;
+            if (v.fade == unity && v.fade_step == 0) {
+                left[i] += (l * v.left) >> 14;
+                right[i] += (r * v.right) >> 14;
+            } else {
+                const std::int64_t level = v.fade >> 32;  // of kFadeUnity
+                left[i] += static_cast<std::int32_t>((((static_cast<std::int64_t>(l) * v.left) >> 14) * level) >> 16);
+                right[i] += static_cast<std::int32_t>((((static_cast<std::int64_t>(r) * v.right) >> 14) * level) >> 16);
+                if (v.fade_step != 0) {
+                    v.fade += v.fade_step;
+                    if ((v.fade_step > 0) == (v.fade >= v.fade_target)) {
+                        v.fade = v.fade_target;
+                        v.fade_step = 0;
+                        if (v.fade_stops) {
+                            v = Voice{};
+                            break;
+                        }
+                    }
+                }
+            }
             v.position += v.step;
         }
     }

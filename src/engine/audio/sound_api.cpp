@@ -70,6 +70,9 @@ int ShSound_PlayFile(const char* path, int tag, int left, int right, float semit
 }
 void ShSound_StopFile(int tag) { audio_engine().stop_file(tag); }
 void ShSound_SetFileVolume(int tag, int left, int right) { audio_engine().set_file_volume(tag, left, right); }
+int ShSound_FadeFile(int tag, float level, float seconds, int stop_at_end) {
+    return audio_engine().fade_file(tag, level, seconds, stop_at_end != 0) ? 1 : 0;
+}
 
 void ShSound_SetMusicSlot(int slot) { audio_engine().set_music_slot(slot); }
 int ShSound_OpenSong(const char* name) { return audio_engine().open_song(name ? name : "") ? 1 : 0; }

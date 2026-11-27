@@ -273,6 +273,7 @@ int hook_item_pickup_count(int item, int flag, int count);
 void hook_item_picked(int item, int count, int flag);
 // item.given (a story event adds an item without a pickup): the count to add, -1 cancelled.
 int hook_item_given(int item, int count, const char* source);
+bool hook_radio_static(int heard, int nearest_slot, std::uint32_t nearest_sq);
 bool script_map_handler(int param);
 bool runtime_pickups_run_event();
 void runtime_pickups_draw();

@@ -54,6 +54,12 @@ constexpr FieldInfo kDamage[] = {
     {"source", "string", false, "character id of the attacker, \"\" when none"},
     {"source_slot", "int", false, "the attacker's entity slot, -1 when none"},
 };
+constexpr FieldInfo kRadioStatic[] = {
+    {"map", "string", false, "map name"},
+    {"heard", "int", false, "monsters in the radio's reach this tick (the three nearest at most)"},
+    {"nearest_slot", "int", false, "entity slot of the nearest one, -1 when none"},
+    {"nearest", "int", false, "Q12 distance of the nearest one, -1 when none"},
+};
 constexpr FieldInfo kDeath[] = {{"map", "string", false, "map name"}};
 constexpr FieldInfo kSpawn[] = {
     {"chara", "string", false, "character id, e.g. Groaner"},
@@ -108,6 +114,9 @@ constexpr std::array kEvents = {
     EventInfo{"cutscene.end", false, kCutscene, "control is back after a cutscene"},
     EventInfo{"input.action", true, kAction, "an input action was pressed; cancel swallows the press"},
     EventInfo{"map.event", true, kMapEvent, "a map event handler is about to run; cancel skips it"},
+    EventInfo{"radio.static", true, kRadioStatic,
+              "every tick the radio is switched on, before its noise sounds; cancel keeps the radio's own noise "
+              "silent this tick (a script sounds its own)"},
 };
 
 }  // namespace

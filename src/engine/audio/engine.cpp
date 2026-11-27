@@ -497,6 +497,13 @@ void AudioEngine::set_file_volume(int tag, int left, int right) {
     files_.set_volume(tag, left, right);
 }
 
+bool AudioEngine::fade_file(int tag, float level, float seconds, bool stop_at_end) {
+    std::lock_guard<std::mutex> lock(mutex_);
+    const float frames = std::clamp(seconds, 0.0f, 600.0f) * 44100.0f;
+    return files_.fade(tag, static_cast<int>(std::clamp(level, 0.0f, 4.0f) * FilePlayer::kFadeUnity),
+                       static_cast<std::uint32_t>(frames), stop_at_end);
+}
+
 void AudioEngine::mix_block(std::int16_t* out, std::uint32_t frames) {
     left_.assign(frames, 0);
     right_.assign(frames, 0);

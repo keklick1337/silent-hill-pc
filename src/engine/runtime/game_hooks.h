@@ -43,5 +43,9 @@ int game_player_damage(int amount, int attacker_npc);
 void game_player_death();
 // map.event: asked every tick a map event runs; emitted once per run.
 bool game_map_event_allowed(int param);
+// radio.static: the radio is switched on and is about to sound for the monsters it hears (`heard` of them, the
+// nearest in slot `nearest_slot`, `nearest_sq` square metres away; -1 and 0 when none). False (a handler cancelled):
+// the radio's own noise stays silent this tick.
+bool game_radio_static(int heard, int nearest_slot, unsigned nearest_sq);
 
 }  // namespace sh::hooks

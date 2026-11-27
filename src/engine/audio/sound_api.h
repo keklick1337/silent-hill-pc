@@ -41,6 +41,7 @@ void ShSound_SetMainExempt(int on);
 int ShSound_PlayFile(const char* path, int tag, int left, int right, float semitones, int loop);
 void ShSound_StopFile(int tag);
 void ShSound_SetFileVolume(int tag, int left, int right);
+int ShSound_FadeFile(int tag, float level, float seconds, int stop_at_end);
 
 /* Music. The music instruments are the bank in ShSound_SetMusicSlot (3 by default). Status: 0 none, 1 playing,
  * 2 stopped, 3 ended, 4 paused. */

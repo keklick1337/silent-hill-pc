@@ -116,6 +116,9 @@ public:
         link::sound_attributes(kRadioLoop + channel, static_cast<std::int8_t>(balance), static_cast<std::uint8_t>(volume));
     }
     void radio_stop(int channel) override { link::stop_sound(kRadioLoop + channel); }
+    bool radio_static_allowed(int heard, int nearest_slot, std::uint32_t nearest_sq) override {
+        return link::hook_radio_static(heard, nearest_slot, nearest_sq);
+    }
 };
 
 // The radio channels' memory across ticks and rooms.
