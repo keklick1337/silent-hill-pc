@@ -64,7 +64,6 @@
     "ui.bind.wheel_up": "ホイール上",
     "ui.control_style.classic_default": "クラシック（標準）",
     "ui.control_style.first_person": "一人称視点",
-    "ui.control_style.over_the_shoulder": "肩越し視点",
     "ui.control_style.thirdperson_shooter": "三人称シューター",
     "ui.controls_screen.back": "戻る",
     "ui.controls_screen.controller": "コントローラー",

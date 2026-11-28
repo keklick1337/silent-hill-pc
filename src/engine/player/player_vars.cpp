@@ -59,7 +59,7 @@ const PlayerVarName kNames[] = {
     {"option_walk_run", PlayerVar::OptionWalkRun, false},
     {"option_weapon_control", PlayerVar::OptionWeaponControl, false},
     {"option_retreat_turn", PlayerVar::OptionRetreatTurn, false},
-    // One of the PC's alternate cameras (third person, over the shoulder, first person) is on.
+    // One of the PC's alternate cameras (third person, first person) is on.
     {"alt_camera", PlayerVar::AltCamera, false},
     // Rounds in the gun and the rounds of its ammo carried; the inventory slot of the weapon.
     {"ammo", PlayerVar::Ammo, true},

@@ -100,7 +100,8 @@ void Visibility::update(const Facts& facts, float seconds) {
 
     std::uint32_t want = 0;
     if (shown_) {
-        want = bit(Control::Map) | bit(Control::Inventory) | bit(Control::Pause) | bit(Control::Camera);
+        want = bit(Control::Map) | bit(Control::Inventory) | bit(Control::Pause);
+        if (!facts.look_drag) want |= bit(Control::Camera);
         want |= facts.dpad ? bit(Control::Dpad) | bit(Control::Run) : bit(Control::Stick);
         if ((facts.prompted & bit(Control::Struggle)) != 0) {
             // The struggle button takes the right thumb's place: nothing else there answers while Harry is held.

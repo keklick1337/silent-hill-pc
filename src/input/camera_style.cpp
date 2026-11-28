@@ -18,7 +18,6 @@ struct StyleText {
 constexpr std::array<StyleText, kCameraStyles> kStyleText = {{
     {"classic", "Classic (Default)"},
     {"tps", "Thirdperson Shooter"},
-    {"ots", "Over the Shoulder"},
     {"fps", "First Person"},
 }};
 
@@ -37,9 +36,6 @@ const char* camera_style_id(CameraStyle style) {
 }
 
 CameraStyle next_camera_style(CameraStyle style, int direction) {
-    if (style == CameraStyle::OverShoulder) {
-        style = CameraStyle::ThirdPerson;
-    }
     std::size_t at = 0;
     for (std::size_t i = 0; i < kRound.size(); ++i) {
         if (kRound[i] == style) {

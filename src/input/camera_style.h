@@ -2,7 +2,7 @@
 // Copyright 2026 Vladislav Tislenko (keklick1337)
 //
 // The camera the game is played with: the original's own, or one of the alternate ones (third person behind the
-// player, the same held over one shoulder, first person). The choice is the config key `control_style`, is made
+// player's shoulder, first person). The choice is the config key `control_style`, is made
 // on the Options screen and switched in the game with the Change Camera bind, and it also decides which set of
 // binds is live (the alternate cameras share one) and whether the mouse is captured to look around.
 //
@@ -17,17 +17,16 @@
 namespace sh::input {
 
 // The numbers are what the configuration holds.
-enum class CameraStyle : int { Classic = 0, ThirdPerson = 1, OverShoulder = 2, FirstPerson = 3 };
-inline constexpr int kCameraStyles = 4;
+enum class CameraStyle : int { Classic = 0, ThirdPerson = 1, FirstPerson = 2 };
+inline constexpr int kCameraStyles = 3;
 
 // A number outside the list is Classic.
 CameraStyle camera_style_from(int value);
-// The value of `control_style` in config.cfg: classic, tps, ots, fps.
+// The value of `control_style` in config.cfg: classic, tps, fps.
 const char* camera_style_id(CameraStyle style);
 constexpr bool is_alternate_camera(CameraStyle style) { return style != CameraStyle::Classic; }
 
-// The next (direction > 0) or previous camera of the round classic -> third person -> first person. Over the
-// shoulder is not on the round: it is chosen in config.cfg, and steps on as third person does.
+// The next (direction > 0) or previous camera of the round classic -> third person -> first person.
 CameraStyle next_camera_style(CameraStyle style, int direction);
 
 // "id:Name|id:Name|...", written to config.cfg as `control_styles` so that someone editing the file sees what

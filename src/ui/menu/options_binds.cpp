@@ -76,7 +76,7 @@ constexpr const char* kSettingKeys[] = {
     "control_2d", "mouse_sensitivity", "controller_sensitivity", "invert_mouse_y", "invert_controller_y",
     "aim_assist", "disable_dpad_movement",
     // Gameplay
-    "auto_reload", "aim_resume_after_inventory", "fps_fov", "tps_fov", "ots_fov", "tps_ots_aim",
+    "auto_reload", "aim_resume_after_inventory", "fps_fov", "tps_fov", "tps_ots_aim",
     // Interface
     "low_health_glow", "crosshair", "crosshair_style", "crosshair_size", "text_size", "modding_tools",
 };
@@ -811,16 +811,16 @@ void register_camera(sh::menu::Registry& reg)
         sh::app::apply_classic_control_scheme();
     };
     style.text = []() {
-        static const char* const kNames[] = {"classic", "third_person", "over_shoulder", "first_person"};
+        static const char* const kNames[] = {"classic", "third_person", "first_person"};
         const int s = static_cast<int>(sh::input::camera_styles().style());
-        return value_label(kNames[(s >= 0 && s <= 3) ? s : 0]);
+        return value_label(kNames[(s >= 0 && s <= 2) ? s : 0]);
     };
-    style.texts = value_labels({"classic", "third_person", "over_shoulder", "first_person"});
+    style.texts = value_labels({"classic", "third_person", "first_person"});
     reg.native_setting("setting.control_style", std::move(style));
     // The assist is part of the third person free aim: the classic camera aims with the original's own
     // auto-aim and first person straight down the view, so the row is dimmed there.
     reg.native_enabled("setting.aim_assist",
-                       []() { return sh::input::camera_styles().style() == sh::input::CameraStyle::ThirdPerson || sh::input::camera_styles().style() == sh::input::CameraStyle::OverShoulder; });
+                       []() { return sh::input::camera_styles().style() == sh::input::CameraStyle::ThirdPerson; });
 
     struct Flag {
         const char* key;
@@ -852,6 +852,19 @@ void register_camera(sh::menu::Registry& reg)
         n.fraction = [f]() { return *f.field / 100.0; };
         n.texts = []() { return std::vector<std::string>{"0%", "100%"}; };
         reg.native_setting(std::string("setting.") + f.key, std::move(n));
+    }
+
+    // The turn speed of every look input, 25..300 % in steps of 5.
+    {
+        sh::menu::NativeSetting n;
+        n.step = [](int dir) {
+            g_PcConfig.lookSpeed = std::clamp((g_PcConfig.lookSpeed + 2) / 5 * 5 + (dir < 0 ? -5 : 5), 25, 300);
+            save_int("look_speed", g_PcConfig.lookSpeed);
+        };
+        n.text = []() { return std::to_string(g_PcConfig.lookSpeed) + "%"; };
+        n.fraction = []() { return (std::clamp(g_PcConfig.lookSpeed, 25, 300) - 25) / 275.0; };
+        n.texts = []() { return std::vector<std::string>{"25%", "300%"}; };
+        reg.native_setting("setting.look_speed", std::move(n));
     }
 
     // visible_if over config.cfg keys: the camera kind and the renderer by their config names, the rest as numbers.
@@ -933,6 +946,8 @@ extern "C" void Pc_OptionsBinds_Register(void)
         save_int("crosshair_fps_aim_only", g_PcConfig.crosshairFpsAimOnly);
         g_PcConfig.crosshairHideMelee = PcConfig_Defaults()->crosshairHideMelee;
         save_int("crosshair_hide_melee", g_PcConfig.crosshairHideMelee);
+        g_PcConfig.lookSpeed = PcConfig_Defaults()->lookSpeed;
+        save_int("look_speed", g_PcConfig.lookSpeed);
         g_PcConfig.tpsCameraCollision = PcConfig_Defaults()->tpsCameraCollision;
         save_int("tps_camera_collision", g_PcConfig.tpsCameraCollision);
         g_PcConfig.tpsCameraRecenter = PcConfig_Defaults()->tpsCameraRecenter;

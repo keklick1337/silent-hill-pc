@@ -64,7 +64,6 @@
     "ui.bind.wheel_up": "Колёсико вверх",
     "ui.control_style.classic_default": "Классика (стандарт)",
     "ui.control_style.first_person": "Вид от 1-го лица",
-    "ui.control_style.over_the_shoulder": "Из-за плеча",
     "ui.control_style.thirdperson_shooter": "Шутер от 3-го лица",
     "ui.controls_screen.back": "Назад",
     "ui.controls_screen.controller": "Геймпад",

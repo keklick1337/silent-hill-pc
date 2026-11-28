@@ -73,7 +73,14 @@ SH_TEST(retired_keys_old_config_lines_are_skipped) {
         "enable_plugins = 1\n"
         "allow_unrecognized_dlls = 1\n"
         "audio_engine = native\n"
-        "fix_second_newspaper = 0\n";
+        "fix_second_newspaper = 0\n"
+        "ots_fov = 80.0\n"
+        "ots_aim_zoom_amount = 100\n"
+        "ots_rest_zoom_amount = 0\n"
+        "ots_rest_x = 2252\n"
+        "ots_rest_y = 0\n"
+        "ots_aim_x = 3686\n"
+        "ots_aim_y = 0\n";
     int retired = 0, other = 0;
     std::istringstream in(text);
     for (std::string line; std::getline(in, line);) {

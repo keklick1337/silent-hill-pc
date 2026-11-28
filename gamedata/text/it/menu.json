@@ -186,8 +186,6 @@
     "menu.pcopt_t.camera_collision": "Collisione camera",
     "menu.pcopt_t.first_person_fov": "FOV prima persona",
     "menu.pcopt_t.ots_aim_in_tps": "Mira OTS in 3ª pers.",
-    "menu.pcopt_t.ots_aim_zoom": "Zoom mira OTS",
-    "menu.pcopt_t.ots_fov": "Campo visivo OTS",
     "menu.pcopt_t.third_person_fov": "FOV terza persona",
     "menu.police": "Polizia",
     "menu.pool_hall": "Biliardi",

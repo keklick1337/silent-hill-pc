@@ -1,7 +1,7 @@
 #pragma once
 
 // Alternate cameras of the PC control styles: third person (an
-// orbit behind Harry), over the shoulder (the orbit shifted to one side) and first person (an eye
+// orbit behind Harry, shifted over one shoulder) and first person (an eye
 // riding Harry's head). The mouse and the right stick turn the view independently of Harry's body;
 // aiming eases the orbit in; walls pull the third-person eye in toward Harry's head; in first
 // person the eye follows the head bone's sway and look, and backs away from the arms in a melee
@@ -13,8 +13,8 @@
 // Q12 turns (4096 a turn), +Y down.
 //
 // First person is integer arithmetic, but for the look angles, which keep the fraction of an angle
-// unit that a slow mouse or stick adds per frame. Third person and
-// over the shoulder are a spring arm: the pivot follows Harry through a critically damped spring,
+// unit that a slow mouse or stick adds per frame. Third person
+// is a spring arm: the pivot follows Harry through a critically damped spring,
 // zoom and shoulder offset ease the same way, the look input may be smoothed, a cone of rays keeps
 // the eye out of walls (in at once from what stands between Harry and the eye, eased from what the
 // rays around the eye graze, back out eased) and the pitch levels itself while Harry moves.
@@ -90,7 +90,7 @@ Result<AltCameraTuning> parse_alt_camera_tuning(std::string_view json_text);
 Result<AltCameraTuning> load_alt_camera_tuning(const std::filesystem::path& gamedata_dir,
                                                const std::filesystem::path& mods_dir, std::string* source);
 
-enum class AltStyle { ThirdPerson, OverShoulder, FirstPerson };
+enum class AltStyle { ThirdPerson, FirstPerson };
 
 // The player's options for the frame, already resolved for the active style.
 struct AltCameraOptions {
@@ -98,6 +98,7 @@ struct AltCameraOptions {
     float pad_sensitivity = 1.0f;
     bool invert_mouse_y = false;
     bool invert_pad_y = false;
+    float look_speed = 1.0f;           // scales every look input (mouse, stick, touch) on top of their own factors
     float aim_zoom_percent = 100.0f;   // -200..200: 0 = no zoom, 100 = the aim distance, 200 = twice as far in
     float rest_zoom_percent = 0.0f;    // the resting distance on the same scale
     std::int32_t rest_x = 0, rest_y = 0;  // shoulder offset at rest (Q12, X along the right vector)
@@ -135,6 +136,7 @@ struct AltCameraInput {
     int shoulder_side = 1;             // +1 right, -1 left
     bool frozen = false;               // console or quick options open: the view holds still
     double mouse_dx = 0.0, mouse_dy = 0.0;  // mouse counts, fractions kept
+    double touch_yaw = 0.0, touch_pitch = 0.0;  // a touch screen's look drag, angle units (positive: right, up)
     int right_x = 128, right_y = 128, left_x = 128, left_y = 128;  // raw sticks
     bool moving = false;               // walking input this frame (first person head look delay, third person recenter)
     bool in_gameplay = false;          // settled gameplay: the head references may be taken
@@ -151,7 +153,7 @@ struct AltViewBasis {
     bool first_person = false;
     double yaw = 0.0, pitch = 0.0;     // the look angles the update ended with
     double ahead = 0.0;                // the look target's distance
-    // Third person and over the shoulder: the spring arm as the update left it.
+    // Third person: the spring arm as the update left it.
     double root[3] = {};               // the pivot (Harry's root, lagged)
     double distance = 0.0;
     double orbit_height = 0.0;

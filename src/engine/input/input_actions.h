@@ -59,7 +59,7 @@ enum class Action : int {
 
 inline constexpr int kActionCount = static_cast<int>(Action::Count);
 inline constexpr int kSlots = 2;      // primary + secondary
-inline constexpr int kSchemes = 2;    // 0 = classic camera, 1 = alternate cameras (TPS/OTS/FPS)
+inline constexpr int kSchemes = 2;    // 0 = classic camera, 1 = alternate cameras (TPS/FPS)
 inline constexpr std::size_t kNameMax = 23;  // bind names live in 24-byte C fields
 
 enum ActionFlags : unsigned {

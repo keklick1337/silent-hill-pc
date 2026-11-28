@@ -64,7 +64,6 @@
     "ui.bind.wheel_up": "Roulette haut",
     "ui.control_style.classic_default": "Classique (d'origine)",
     "ui.control_style.first_person": "Vue subjective",
-    "ui.control_style.over_the_shoulder": "Vue épaule",
     "ui.control_style.thirdperson_shooter": "Tir 3e personne",
     "ui.controls_screen.back": "Retour",
     "ui.controls_screen.controller": "Manette",

@@ -182,8 +182,6 @@
     "menu.pcopt_t.camera_collision": "Collision caméra",
     "menu.pcopt_t.first_person_fov": "FOV première personne",
     "menu.pcopt_t.ots_aim_in_tps": "Visée épaule TPS",
-    "menu.pcopt_t.ots_aim_zoom": "Zoom épaule",
-    "menu.pcopt_t.ots_fov": "FOV épaule",
     "menu.pcopt_t.third_person_fov": "FOV troisième personne",
     "menu.pool_hall": "Billard",
     "menu.pp_flashlight": "Lampe PP",

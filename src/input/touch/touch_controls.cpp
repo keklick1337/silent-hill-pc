@@ -24,6 +24,7 @@
 #include "engine/platform/window.h"
 #include "engine/screens/paper_map.h"
 #include "engine/text/message_box.h"
+#include "input/camera_style.h"
 #include "input/mouse_pointer.h"
 #include "input/pad.h"
 #include "input/pc_actions.h"
@@ -54,7 +55,7 @@ namespace {
 namespace gs = sh::game_state;
 
 enum class Mode { Off, Idle, Controls, Map, Pointer, Edit };
-enum class Owner { None, Stick, Dpad, Control, Pointer, Map, Edit, EditUi, Back, Skip, Delete };
+enum class Owner { None, Stick, Dpad, Control, Look, Pointer, Map, Edit, EditUi, Back, Skip, Delete };
 enum class EditUi { Done, Reset };
 
 constexpr int kMaxFingers = 10;
@@ -83,6 +84,7 @@ struct Finger {
     Point start, pos, last;  // window pixels
     std::uint64_t start_ns = 0;
     float moved = 0.0f;  // farthest from the start, pixels
+    bool looked = false;  // a look finger past the tap distance: it turns the camera
     Owner owner = Owner::None;
     Control control = Control::Count;
     EditUi ui = EditUi::Done;
@@ -113,6 +115,11 @@ struct State {
     std::uint8_t dpad_before = 0;  // the arrows of the update before, for the struggle's presses
     Toggle run;
     bool run_held = false;
+
+    // The look: a finger that landed on the free screen while an alternate camera plays, and its drag not yet taken
+    // by the camera, in screen widths.
+    int look_finger = -1;
+    double look_x = 0.0, look_y = 0.0;
 
     // Aim and attack: a weapon in hand, and the picture of its attack.
     bool aim_latched = false;
@@ -186,6 +193,8 @@ bool dpad_mode() { return g_PcConfig.touchMovement == 1; }
 
 // The controls of the chosen movement: the stick, or the d-pad with its run toggle (also in the layout editor).
 bool in_use(Control c) {
+    // The View button is the original camera's search view; the alternate cameras turn by a drag instead.
+    if (c == Control::Camera) return !sh::input::is_alternate_camera(sh::input::camera_styles().style());
     if (c == Control::Stick) return !dpad_mode();
     if (c == Control::Dpad || c == Control::Run) return dpad_mode();
     return true;
@@ -407,6 +416,8 @@ void drop_owners() {
     s.dpad_bits = 0;
     s.dpad_held = 0;
     s.run.release_all();
+    s.look_finger = -1;
+    s.look_x = s.look_y = 0.0;
     s.pointer_finger = -1;
     s.pointer_long = false;
     s.pointer_long_taken = false;
@@ -478,6 +489,12 @@ void down_controls(Finger& f, const Screen& scr) {
         f.owner = Owner::Stick;
         s.stick_finger = index_of(f);
         s.stick_origin = f.pos;
+        return;
+    }
+    // The rest of the screen turns the alternate cameras, as the mouse does on a desktop (whose mouse looks already).
+    if (s.look_finger < 0 && !f.from_mouse && sh::input::is_alternate_camera(sh::input::camera_styles().style())) {
+        f.owner = Owner::Look;
+        s.look_finger = index_of(f);
     }
 }
 
@@ -656,6 +673,9 @@ void up_finger(Finger& f, const Screen& scr) {
         case Owner::Control:
             if (f.control == Control::Run) s.run.release();
             break;
+        case Owner::Look:
+            s.look_finger = -1;
+            break;
         case Owner::Pointer:
             s.pointer_finger = -1;
             if (s.pointer_long) {
@@ -744,6 +764,16 @@ void move_finger(Finger& f, const Screen& scr) {
         case Owner::Stick:
             s.stick_origin = follow_origin(s.stick_origin, f.pos, circle(s.layout[Control::Stick], scr).r,
                                            kStickFollow);
+            break;
+        case Owner::Look:
+            // A finger that has not yet moved past the tap distance turns nothing: a tap stays a tap. Then the whole
+            // way from where it landed counts, so the view does not jump when it starts to follow.
+            if (f.moved > kSlop * scr.h && scr.w > 0.0f) {
+                const Point from = f.looked ? f.last : f.start;
+                s.look_x += (f.pos.x - from.x) / scr.w;
+                s.look_y += (f.pos.y - from.y) / scr.w;
+                f.looked = true;
+            }
             break;
         case Owner::Pointer: {
             if (s.pointer_long) {
@@ -835,6 +865,7 @@ void touch_hook(sh::platform::TouchPhase phase, std::uint64_t id, float x, float
             s.dpad_bits = 0;
         }
         if (index_of(*f) == s.pointer_finger) s.pointer_finger = -1;
+        if (index_of(*f) == s.look_finger) s.look_finger = -1;
         *f = Finger{};
     } else {
         up_finger(*f, scr);
@@ -956,6 +987,7 @@ TouchStick frame() {
         facts.action_target = s.target;
         facts.action_always = g_PcConfig.touchActionButton != 0;
         facts.dpad = dpad_mode();
+        facts.look_drag = !in_use(Control::Camera);
         facts.armed = s.armed;
         look_at_prompts();
         facts.prompted = s.prompted;
@@ -1466,6 +1498,18 @@ void open_editor() {
 }
 
 bool editor_open() { return st().editor; }
+
+void take_look(double* yaw, double* pitch) {
+    State& s = st();
+    *yaw = *pitch = 0.0;
+    if (s.mode == Mode::Controls) {
+        // Degrees per screen width to angle units (4096 a turn); a finger moved up looks up, as the mouse does.
+        const double units = std::clamp(g_PcConfig.touchLookSensitivity, 30.0f, 360.0f) * (4096.0 / 360.0);
+        *yaw = s.look_x * units;
+        *pitch = -s.look_y * units;
+    }
+    s.look_x = s.look_y = 0.0;
+}
 
 void reset_layout() {
     State& s = st();

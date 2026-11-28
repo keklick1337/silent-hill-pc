@@ -229,8 +229,6 @@
     "menu.pcopt_t.camera_collision": "Камера и стены",
     "menu.pcopt_t.first_person_fov": "FOV 1-го лица",
     "menu.pcopt_t.ots_aim_in_tps": "Прицел с плеча",
-    "menu.pcopt_t.ots_aim_zoom": "Зум с плеча",
-    "menu.pcopt_t.ots_fov": "FOV с плеча",
     "menu.pcopt_t.third_person_fov": "FOV 3-го лица",
     "menu.police": "Участок",
     "menu.pool_hall": "Бильярд",

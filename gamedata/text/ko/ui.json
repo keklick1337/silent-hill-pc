@@ -64,7 +64,6 @@
     "ui.bind.wheel_up": "휠 위",
     "ui.control_style.classic_default": "클래식 (기본)",
     "ui.control_style.first_person": "1인칭",
-    "ui.control_style.over_the_shoulder": "숄더 뷰",
     "ui.control_style.thirdperson_shooter": "3인칭 슈터",
     "ui.controls_screen.back": "뒤로",
     "ui.controls_screen.controller": "컨트롤러",

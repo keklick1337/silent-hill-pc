@@ -5,6 +5,8 @@
 // In free gameplay the on-screen controls show: a floating stick in the left part of the screen (the pad's analog
 // stick, the rim runs), the action button while something in reach answers it, aim, attack while the weapon is up
 // (or while the game asks for it: a kick at a downed enemy), the camera (View), the map, the inventory and pause.
+// With an alternate camera (third person, first person) a finger dragged anywhere else turns the
+// view and the aim, as the mouse does on a desktop; it and the stick's finger work together.
 // With `touch_movement = dpad` a fixed cross of four arrows (one finger, a diagonal presses two; the pad's digital
 // directions, as on the original's d-pad) and a run toggle stand in for the stick.
 // While Harry is held the game asks for the struggle button: its taps and the stick's flicks are presses to break
@@ -30,6 +32,10 @@ bool controls_enabled();
 void draw();
 // Called while a movie holds the loop, over its picture: the Skip button.
 void draw_over_movie();
+
+// What a finger dragged over the free part of the screen (not on a control) turned the alternate cameras by since
+// the last call, in angle units (4096 a turn; positive: right, up), by `touch_look_sensitivity`. A tap turns nothing.
+void take_look(double* yaw, double* pitch);
 
 // The layout editor, opened from the options.
 void open_editor();

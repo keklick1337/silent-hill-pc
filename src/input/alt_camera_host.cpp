@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 //
-// The host of the engine's alternate cameras (third person, over the shoulder, first person,
+// The host of the engine's alternate cameras (third person over the shoulder, first person,
 // engine/camera/alt_camera.h): reads Harry, his head and arm bones, the pad, the mouse and the player's camera
 // options into AltCameraInput, answers its ray queries with the level collision, decides when the camera stands down
 // (attract demo, scripted scenes, item pickup) and hands the view, the free-aim ray and the first-person values to
@@ -28,6 +28,7 @@
 #include "engine/screens/screens_view.h"
 #include "input/alt_camera_view.h"
 #include "input/camera_style.h"
+#include "input/touch/touch_controls.h"
 #include "platform/sh_platform.h"
 #include "engine/mods/data_reload.h"
 
@@ -127,11 +128,22 @@ struct ShownView {
 ShownView s_view_now, s_view_last, s_view_before, s_view_older;
 cam::AltCameraInput s_look_input;
 double s_mouse_between[2] = {0.0, 0.0};
+double s_touch_between[2] = {0.0, 0.0};  // the touch look's yaw and pitch, angle units
+
+// The touch look's turn since the last call, added to what the frames since the last update read.
+void read_touch_look() {
+    double yaw = 0.0, pitch = 0.0;
+    sh::input::touch::take_look(&yaw, &pitch);
+    s_touch_between[0] += yaw;
+    s_touch_between[1] += pitch;
+}
 
 // The camera stands down: the mouse's travel meanwhile must not turn it when it comes back.
 void stand_down() {
     s_stood_down = true;
     s_mouse_between[0] = s_mouse_between[1] = 0.0;
+    read_touch_look();
+    s_touch_between[0] = s_touch_between[1] = 0.0;
 }
 
 cam::AltCamera* camera() {
@@ -179,26 +191,20 @@ cam::AltBone bone(int index) {
     return b;
 }
 
-cam::AltCameraOptions options(bool ots) {
+cam::AltCameraOptions options() {
     cam::AltCameraOptions o;
     o.mouse_sensitivity = g_PcConfig.mouseSensitivity;
     o.pad_sensitivity = g_PcConfig.controllerSensitivity;
     o.invert_mouse_y = g_PcConfig.invertMouseY != 0;
     o.invert_pad_y = g_PcConfig.invertControllerY != 0;
-    o.aim_zoom_percent = ots ? g_PcConfig.otsAimZoom : g_PcConfig.tpsAimZoom;
-    o.rest_zoom_percent = ots ? g_PcConfig.otsRestZoom : g_PcConfig.tpsRestZoom;
-    if (ots) {
-        o.rest_x = g_PcConfig.otsRestX;
-        o.rest_y = g_PcConfig.otsRestY;
-        o.aim_x = g_PcConfig.otsAimX;
-        o.aim_y = g_PcConfig.otsAimY;
-    } else {
-        o.rest_x = g_PcConfig.tpsRestX;
-        o.rest_y = g_PcConfig.tpsRestY;
-        // Third person swings over the shoulder only while aiming, and only with tps_ots_aim.
-        o.aim_x = g_PcConfig.tpsOtsAim ? g_PcConfig.tpsAimX : o.rest_x;
-        o.aim_y = g_PcConfig.tpsOtsAim ? g_PcConfig.tpsAimY : o.rest_y;
-    }
+    o.look_speed = static_cast<float>(g_PcConfig.lookSpeed) / 100.0f;
+    o.aim_zoom_percent = g_PcConfig.tpsAimZoom;
+    o.rest_zoom_percent = g_PcConfig.tpsRestZoom;
+    o.rest_x = g_PcConfig.tpsRestX;
+    o.rest_y = g_PcConfig.tpsRestY;
+    // Aiming moves the camera farther over the shoulder (tps_aim_x) only with tps_ots_aim.
+    o.aim_x = g_PcConfig.tpsOtsAim ? g_PcConfig.tpsAimX : o.rest_x;
+    o.aim_y = g_PcConfig.tpsOtsAim ? g_PcConfig.tpsAimY : o.rest_y;
     o.wall_collision = g_PcConfig.tpsCameraCollision != 0;
     o.follow_smoothing = static_cast<float>(g_PcConfig.tpsCameraSmoothing) / 100.0f;
     o.look_smoothing = static_cast<float>(g_PcConfig.tpsLookSmoothing) / 100.0f;
@@ -231,8 +237,6 @@ void field_of_view(bool stand_down) {
     if (Pc_AltCamStateOk() && !stand_down) {
         if (sh::input::camera_styles().first_person()) {
             fov = g_PcConfig.fpsFov;
-        } else if (sh::input::camera_styles().style() == sh::input::CameraStyle::OverShoulder) {
-            fov = g_PcConfig.otsFov;
         } else if (sh::input::camera_styles().style() == sh::input::CameraStyle::ThirdPerson) {
             fov = g_PcConfig.tpsFov;
         }
@@ -302,8 +306,7 @@ extern "C" void Pc_TpsCamera_Apply(void) {
     const sh::entities::CharacterRecord& harry = s.system.characters.player;
     const sh::game::PadState& pad = s.game.pads[0];
     cam::AltCameraInput in;
-    in.style = sh::input::camera_styles().first_person() ? cam::AltStyle::FirstPerson
-                          : (sh::input::camera_styles().style() == sh::input::CameraStyle::OverShoulder ? cam::AltStyle::OverShoulder : cam::AltStyle::ThirdPerson);
+    in.style = sh::input::camera_styles().first_person() ? cam::AltStyle::FirstPerson : cam::AltStyle::ThirdPerson;
     // A scene leaves Harry facing somewhere new and a warp puts him somewhere new: the view returns at once behind
     // him (first person: in his eyes), looking where he looks, instead of travelling there from the old pose.
     bool warped = false;
@@ -341,6 +344,10 @@ extern "C" void Pc_TpsCamera_Apply(void) {
         in.mouse_dx = s_mouse_between[0] + dx;
         in.mouse_dy = s_mouse_between[1] + dy;
         s_mouse_between[0] = s_mouse_between[1] = 0.0;
+        read_touch_look();
+        in.touch_yaw = s_touch_between[0];
+        in.touch_pitch = s_touch_between[1];
+        s_touch_between[0] = s_touch_between[1] = 0.0;
     }
     in.right_x = pad.raw.right_x;
     in.right_y = pad.raw.right_y;
@@ -348,7 +355,7 @@ extern "C" void Pc_TpsCamera_Apply(void) {
     in.left_y = pad.raw.left_y;
     in.in_gameplay = s.game.game_state == sh::game::game_state::kInGame && s.sys_state() == sh::game::sys_state::kGameplay;
     in.delta_time = sh::loop::frame_delta();
-    in.options = options(sh::input::camera_styles().style() == sh::input::CameraStyle::OverShoulder);
+    in.options = options();
     // The head look delay only reads the walking input and the clock when the head look runs; the orbit's recenter
     // reads the walking input.
     if (sh::input::camera_styles().first_person() && in.options.head_tracking) {
@@ -391,6 +398,7 @@ extern "C" void Pc_TpsCamera_Apply(void) {
     }
     s_look_input = in;
     s_look_input.mouse_dx = s_look_input.mouse_dy = 0.0;
+    s_look_input.touch_yaw = s_look_input.touch_pitch = 0.0;
     s_look_input.reset = false;
 }
 
@@ -421,12 +429,15 @@ void alt_view_for_present(const AltViewMoment& moment, AltCameraView* view) {
         Sh_RelativeMouseMotion(&dx, &dy);
         s_mouse_between[0] += dx;
         s_mouse_between[1] += dy;
+        read_touch_look();
     }
     cam::AltCameraInput in = s_look_input;
     in.yaw = g_TpsCamYaw;
     in.pitch = g_TpsCamPitch;
     in.mouse_dx = s_mouse_between[0];
     in.mouse_dy = s_mouse_between[1];
+    in.touch_yaw = s_touch_between[0];
+    in.touch_pitch = s_touch_between[1];
     in.frozen = g_PcConsoleInputActive || g_PcDebugMenuActive;
     // An update that stood still (a pause) turns nothing by the stick, so the frames after it do not either. And
     // when the next update is long in coming (a stall), the stick's turn is not carried on past two updates' worth:

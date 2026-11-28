@@ -173,8 +173,6 @@
     "menu.pcopt_t.camera_collision": "Kamerakollision",
     "menu.pcopt_t.first_person_fov": "FOV Ich-Sicht",
     "menu.pcopt_t.ots_aim_in_tps": "Schulterzielen (TPS)",
-    "menu.pcopt_t.ots_aim_zoom": "Schulterziel-Zoom",
-    "menu.pcopt_t.ots_fov": "Schulter-FOV",
     "menu.pcopt_t.third_person_fov": "FOV 3. Person",
     "menu.police": "Polizei",
     "menu.pool_hall": "Billardhalle",

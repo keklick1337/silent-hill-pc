@@ -14,7 +14,7 @@ extern "C" {
 
 /* One frame of the action binds; called from the main loop before the combat machine. */
 void Pc_ExtraActionsUpdate(void);
-/* Rear Look: held in a TPS/OTS camera during gameplay. */
+/* Rear Look: held in the TPS camera during gameplay. */
 void Pc_RearLookUpdate(void);
 
 /* Frame-stable rising edge of a physical controller button (SDL gamepad index); < 0 never fires. */

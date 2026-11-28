@@ -191,8 +191,6 @@
     "menu.pcopt_t.camera_collision": "Choque de cámara",
     "menu.pcopt_t.first_person_fov": "FOV primera persona",
     "menu.pcopt_t.ots_aim_in_tps": "Apuntar OTS (TPS)",
-    "menu.pcopt_t.ots_aim_zoom": "Zoom de apuntado OTS",
-    "menu.pcopt_t.ots_fov": "FOV en OTS",
     "menu.pcopt_t.third_person_fov": "FOV tercera persona",
     "menu.police": "Comisaría",
     "menu.pool_hall": "Billares",

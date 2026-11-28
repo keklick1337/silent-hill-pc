@@ -91,6 +91,7 @@ struct Facts {
     bool action_target = false;  // something in reach answers the action button
     bool action_always = false;  // `touch_action_button` 1
     bool dpad = false;           // `touch_movement = dpad`: the d-pad and the run toggle instead of the stick
+    bool look_drag = false;      // an alternate camera, turned by a drag: no View (camera) button
     std::uint32_t prompted = 0;  // bits of Control the game asks for (engine/input/touch_prompts.h)
 };
 

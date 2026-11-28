@@ -129,7 +129,7 @@ SH_TEST(camera_alt_shoulder_narrows_at_a_side_wall) {
     Planes level;
     level.planes.push_back({0, 1638});  // a wall 0.4 to Harry's right
     cam::AltCameraInput in = rigid();
-    in.style = cam::AltStyle::OverShoulder;
+    in.style = cam::AltStyle::ThirdPerson;
     in.options.rest_x = 3686;  // 0.9 to the right
     cam::AltCameraOutput out = c.update(in, level);
     // The shoulder point stays short of the wall; the arm itself keeps (most of) its length.

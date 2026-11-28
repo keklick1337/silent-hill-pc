@@ -131,11 +131,10 @@ SH_TEST(pointer_decodes_the_arrow_picture) {
 SH_TEST(camera_style_ids_and_round) {
     SH_CHECK(std::string_view(camera_style_id(CameraStyle::Classic)) == "classic");
     SH_CHECK(std::string_view(camera_style_id(CameraStyle::ThirdPerson)) == "tps");
-    SH_CHECK(std::string_view(camera_style_id(CameraStyle::OverShoulder)) == "ots");
     SH_CHECK(std::string_view(camera_style_id(CameraStyle::FirstPerson)) == "fps");
     SH_CHECK(std::string_view(camera_style_id(static_cast<CameraStyle>(9))).empty());
-    SH_CHECK(camera_style_from(2) == CameraStyle::OverShoulder);
-    SH_CHECK(camera_style_from(4) == CameraStyle::Classic);
+    SH_CHECK(camera_style_from(2) == CameraStyle::FirstPerson);
+    SH_CHECK(camera_style_from(3) == CameraStyle::Classic);
     SH_CHECK(camera_style_from(-1) == CameraStyle::Classic);
 
     using S = CameraStyle;
@@ -144,14 +143,10 @@ SH_TEST(camera_style_ids_and_round) {
     SH_CHECK(next_camera_style(S::FirstPerson, 1) == S::Classic);
     SH_CHECK(next_camera_style(S::Classic, -1) == S::FirstPerson);
     SH_CHECK(next_camera_style(S::FirstPerson, -1) == S::ThirdPerson);
-    // Over the shoulder is off the round and steps as third person does.
-    SH_CHECK(next_camera_style(S::OverShoulder, 1) == S::FirstPerson);
-    SH_CHECK(next_camera_style(S::OverShoulder, -1) == S::Classic);
     SH_CHECK(next_camera_style(S::Classic, 0) == S::ThirdPerson);
 
     SH_CHECK(!is_alternate_camera(S::Classic));
-    SH_CHECK(is_alternate_camera(S::ThirdPerson) && is_alternate_camera(S::OverShoulder) &&
-             is_alternate_camera(S::FirstPerson));
+    SH_CHECK(is_alternate_camera(S::ThirdPerson) && is_alternate_camera(S::FirstPerson));
     // The line config.cfg gets as control_styles.
     SH_CHECK(camera_style_list() == "classic:Classic (Default)|tps:Thirdperson Shooter|fps:First Person");
 }

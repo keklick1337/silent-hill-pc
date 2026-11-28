@@ -66,8 +66,8 @@ void register_camera_commands(Registry& registry) {
     add(registry, "tpsfov", "camera", "Third-person field of view",
         {opt_word("degrees", "55..110; 'default' = 71.1", {"default"})},
         fov_command(&s_PcConfig::tpsFov, "tps_fov",
-                    "thirdperson FOV %.1f deg (71.1 = the game's own FOV; applies in TPS/OTS gameplay only)"),
-        {}, "Applies in third-person and over-the-shoulder gameplay only. Saved to the config (tps_fov).");
+                    "thirdperson FOV %.1f deg (71.1 = the game's own FOV; applies in TPS gameplay only)"),
+        {}, "Applies in third-person gameplay only. Saved to the config (tps_fov).");
 
     // How far the third-person camera moves in while aiming, as a share of its zoom range.
     add(registry, "tpsaimzoom", "camera", "Third-person aim zoom amount",
@@ -79,14 +79,14 @@ void register_camera_commands(Registry& registry) {
                 g_PcConfig.tpsAimZoom = percent;
                 save_setting("tps_aim_zoom_amount", "%.0f", percent);
             }
-            say(ctx, "TPS/OTS aim zoom %.0f%% (100 = original full zoom, 200 = 2x zoom, 0 = none)",
+            say(ctx, "TPS aim zoom %.0f%% (100 = original full zoom, 200 = 2x zoom, 0 = none)",
                 static_cast<double>(g_PcConfig.tpsAimZoom));
             return done();
         });
-    add(registry, "tpsotsaim", "camera", "Over-the-shoulder aiming in third person",
+    add(registry, "tpsotsaim", "camera", "Shoulder aiming in third person",
         {opt_switch("on|off; no argument toggles")},
         saved_switch(&s_PcConfig::tpsOtsAim, "tps_ots_aim",
-                     "OTS aiming in thirdperson %s (default on; camera eases over the shoulder while aiming)"),
+                     "Shoulder aiming in thirdperson %s (default on; camera eases over the shoulder while aiming)"),
         {}, "On: the camera eases over the shoulder while aiming.");
     // Scripted runs have no mouse: the orbit, and with it Harry's steering, turns by degrees.
     add(registry, "tpsturn", "camera", "Turn the third-person orbit",

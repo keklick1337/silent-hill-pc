@@ -137,7 +137,7 @@ void CameraStyles::frame_update() {
         }
     }
 
-    // Swap Shoulder: over the shoulder and third person, which rests over a shoulder too (tps_rest_x).
+    // Swap Shoulder: third person rests over a shoulder (tps_rest_x).
     {
         bool held = false;
         if (swap_mouse_ != 0) {
@@ -146,10 +146,10 @@ void CameraStyles::frame_update() {
             held = key_down(keys, swap_key_);
         }
         held = held || controller_bind_held(swap_pad_);
-        const bool sided = style_ == CameraStyle::OverShoulder || style_ == CameraStyle::ThirdPerson;
+        const bool sided = style_ == CameraStyle::ThirdPerson;
         if (playing && held && !swap_was_down_ && sided) {
             shoulder_side_ = -shoulder_side_;
-            SH_DBG("[CTRLSTYLE] OTS shoulder: %s", shoulder_side_ > 0 ? "right" : "left");
+            SH_DBG("[CTRLSTYLE] shoulder: %s", shoulder_side_ > 0 ? "right" : "left");
         }
         swap_was_down_ = held;
     }

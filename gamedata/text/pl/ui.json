@@ -64,7 +64,6 @@
     "ui.bind.wheel_up": "Rolka w górę",
     "ui.control_style.classic_default": "Klasyczny (domyślny)",
     "ui.control_style.first_person": "Pierwsza osoba",
-    "ui.control_style.over_the_shoulder": "Zza ramienia",
     "ui.control_style.thirdperson_shooter": "Strzelanka z trzeciej osoby",
     "ui.controls_screen.back": "Powrót",
     "ui.controls_screen.controller": "Kontroler",

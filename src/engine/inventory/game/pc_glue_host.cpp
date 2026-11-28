@@ -307,7 +307,7 @@ void run_low_health_glow()
 
 }  // namespace sh::screens
 
-// ---- free-aim assist (OTS/TPS) ----
+// ---- free-aim assist (TPS) ----
 //
 // Free aim casts one screen-centre ray, and an enemy only takes the hit when both that ray and the hand-to-target
 // damage ray thread its narrow cylinder. Over an enemy's body (mouse) or near it (controller), the aim point snaps onto

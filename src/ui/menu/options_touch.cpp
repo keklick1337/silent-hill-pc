@@ -1,7 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 // The Touch Controls page (Options > Controls, shown on a touch screen): the layout editor, whether the controls
 // show, the stick or the d-pad, the action button, aim, the stick's run, opacity and size (config.cfg touch_*).
-// Also the strength of the phone's vibrator (phone_vibration, a Controls row on a phone) and the Interface page's
+// Also the strength of the phone's vibrator (phone_vibration, a Controls row on a phone), the touch look's speed
+// (touch_look_sensitivity, the same) and the Interface page's
 // performance overlay (fps_display and fps_profiler as one row), which a phone has no key for.
 
 #include "ui/menu/options_touch.h"
@@ -59,6 +60,22 @@ void percent_row(sh::menu::Registry& reg, const char* key, float* field, float l
     reg.native_setting(std::string("setting.") + key, std::move(n));
 }
 
+// A bar of whole numbers in steps of `step`.
+void whole_row(sh::menu::Registry& reg, const char* key, float* field, float lo, float hi, float step) {
+    sh::menu::NativeSetting n;
+    n.step = [key, field, lo, hi, step](int dir) {
+        const float v = std::round(*field / step) * step + (dir < 0 ? -step : step);
+        *field = std::clamp(v, lo, hi);
+        save_int(key, static_cast<int>(std::lround(*field)));
+    };
+    n.text = [field]() { return std::to_string(static_cast<int>(std::lround(*field))); };
+    n.fraction = [field, lo, hi]() { return (*field - lo) / (hi - lo); };
+    n.texts = [lo, hi]() {
+        return std::vector<std::string>{std::to_string(static_cast<int>(lo)), std::to_string(static_cast<int>(hi))};
+    };
+    reg.native_setting(std::string("setting.") + key, std::move(n));
+}
+
 }  // namespace
 
 void register_touch_rows(sh::menu::Registry& reg) {
@@ -100,6 +117,8 @@ void register_touch_rows(sh::menu::Registry& reg) {
     percent_row(reg, "touch_opacity", &g_PcConfig.touchOpacity, 0.2f, 1.0f);
     percent_row(reg, "touch_scale", &g_PcConfig.touchScale, 0.6f, 1.6f);
     percent_row(reg, "phone_vibration", &g_PcConfig.phoneVibration, 0.0f, 1.0f);
+    // Degrees for a drag across the screen's width.
+    whole_row(reg, "touch_look_sensitivity", &g_PcConfig.touchLookSensitivity, 30.0f, 360.0f, 10.0f);
 
     reg.native_action("options.touch_edit_layout", []() { sh::input::touch::open_editor(); });
     reg.native_action("options.touch_reset_layout", []() { sh::input::touch::reset_layout(); });

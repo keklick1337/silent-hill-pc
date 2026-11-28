@@ -217,7 +217,7 @@ void Pc_RearLookUpdate(void) {
     const bool* keys = SDL_GetKeyboardState(nullptr);
     const bool held =
         (keys != nullptr && b.rear_look != SDL_SCANCODE_UNKNOWN && keys[b.rear_look]) || b.pad.held(kPadRearLook);
-    // TPS/OTS only (not first person, not classic), gameplay only; cleared otherwise so it never latches.
+    // TPS only (not first person, not classic), gameplay only; cleared otherwise so it never latches.
     g_PcRearLookActive = (held && g_DebugThirdPersonCam && !sh::input::camera_styles().first_person() && in_gameplay() && !Pc_ConsoleIsOpen() &&
                           !g_PcDebugMenuActive)
                              ? 1

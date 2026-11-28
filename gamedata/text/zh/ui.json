@@ -64,7 +64,6 @@
     "ui.bind.wheel_up": "滚轮向上",
     "ui.control_style.classic_default": "经典（默认）",
     "ui.control_style.first_person": "第一人称",
-    "ui.control_style.over_the_shoulder": "越肩视角",
     "ui.control_style.thirdperson_shooter": "第三人称射击",
     "ui.controls_screen.back": "返回",
     "ui.controls_screen.controller": "手柄",

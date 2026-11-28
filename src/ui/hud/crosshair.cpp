@@ -5,6 +5,7 @@
 #include "engine/config/pc_config.h"
 #include "engine/game_state/game_state.h"
 #include "input/camera_style.h"
+#include "input/touch/touch_controls.h"
 
 namespace sh::ui {
 
@@ -23,7 +24,7 @@ constexpr int kThirdPersonDrop = 4;
 
 void draw_crosshair() {
     const sh::input::CameraStyle style = sh::input::camera_styles().style();
-    const bool third_person = style == sh::input::CameraStyle::ThirdPerson || style == sh::input::CameraStyle::OverShoulder;
+    const bool third_person = style == sh::input::CameraStyle::ThirdPerson;
     const bool first_person = style == sh::input::CameraStyle::FirstPerson;
 
     CrosshairView view;
@@ -46,7 +47,9 @@ void draw_crosshair() {
     }
 
     // First person aims down the view itself: no drop.
-    const CrosshairShape shape(g_PcConfig.crosshairStyle, g_PcConfig.crosshairSize, third_person ? kThirdPersonDrop : 0);
+    // On a touch screen the mark grows with the on-screen controls (touch_scale).
+    const float size = g_PcConfig.crosshairSize * (Pc_Touch_Active() != 0 ? g_PcConfig.touchScale : 1.0f);
+    const CrosshairShape shape(g_PcConfig.crosshairStyle, size, third_person ? kThirdPersonDrop : 0);
     gs::OverlayQuad quads[CrosshairShape::kMaxQuads];
     for (int i = 0; i < shape.count(); i++) {
         for (int corner = 0; corner < 4; corner++) {

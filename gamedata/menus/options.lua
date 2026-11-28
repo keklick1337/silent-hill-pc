@@ -280,7 +280,11 @@ for _, row in ipairs{
     game("vibration"),
     -- A phone's own vibrator plays the rumble while no pad with motors is in use (src/input/phone_rumble.h).
     phone(setting("phone_vibration")),
+    -- A drag over the free screen turns the alternate cameras (src/input/touch/touch_controls.h).
+    phone(setting("touch_look_sensitivity")),
     advanced(setting("control_2d")),
+    -- Every look input of the free cameras at once, on top of each device's own factor.
+    setting("look_speed"),
     desktop(setting("mouse_sensitivity")),
     advanced(setting("controller_sensitivity")),
     desktop(setting("invert_mouse_y")),
@@ -334,17 +338,16 @@ sh.menu.define{
         setting("control_style"),
         only(setting("tps_fov"), camera_is("tps")),
         only(setting("tps_ots_aim"), camera_is("tps")),
-        only(setting("ots_fov"), camera_is("ots")),
-        only(setting("tps_camera_smoothing"), camera_is("tps", "ots")),
-        only(setting("tps_look_smoothing"), camera_is("tps", "ots")),
-        only(setting("tps_camera_recenter"), camera_is("tps", "ots")),
-        only(setting("tps_camera_collision"), camera_is("tps", "ots")),
+        only(setting("tps_camera_smoothing"), camera_is("tps")),
+        only(setting("tps_look_smoothing"), camera_is("tps")),
+        only(setting("tps_camera_recenter"), camera_is("tps")),
+        only(setting("tps_camera_collision"), camera_is("tps")),
         only(setting("fps_fov"), camera_is("fps")),
-        only(setting("crosshair"), camera_is("tps", "ots", "fps")),
-        only(setting("crosshair_style"), camera_is("tps", "ots", "fps"), crosshair_on),
-        only(setting("crosshair_size"), camera_is("tps", "ots", "fps"), crosshair_on),
-        only(setting("crosshair_fps_aim_only"), camera_is("tps", "ots", "fps"), crosshair_on),
-        only(setting("crosshair_hide_melee"), camera_is("tps", "ots", "fps"), crosshair_on),
+        only(setting("crosshair"), camera_is("tps", "fps")),
+        only(setting("crosshair_style"), camera_is("tps", "fps"), crosshair_on),
+        only(setting("crosshair_size"), camera_is("tps", "fps"), crosshair_on),
+        only(setting("crosshair_fps_aim_only"), camera_is("tps", "fps"), crosshair_on),
+        only(setting("crosshair_hide_melee"), camera_is("tps", "fps"), crosshair_on),
     },
 }
 
@@ -371,7 +374,8 @@ sh.menu.define{
         page("graphics"),
         page("audio"),
         page("controls"),
-        advanced(page("camera")),
+        -- A phone lists it too: the camera style is the first thing a touch player may want to change.
+        page("camera"),
         page("gameplay"),
         page("interface"),
         -- The quick setup of the first start: the game restarts into it (a desktop's questions; a phone has none).

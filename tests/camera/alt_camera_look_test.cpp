@@ -100,6 +100,38 @@ SH_TEST(camera_alt_look_keeps_a_slow_mouse) {
     }
 }
 
+// The camera turn speed scales the mouse, the stick and a touch drag alike: half and double the turn of 100 %,
+// and 100 % is the device's own turn. A touch drag is in angle units already (10 a frame: 600 in a second).
+SH_TEST(camera_alt_look_speed_scales_every_input) {
+    enum Device { Mouse, Stick, Touch };
+    for (const cam::AltStyle style : {cam::AltStyle::FirstPerson, cam::AltStyle::ThirdPerson}) {
+        for (const Device device : {Mouse, Stick, Touch}) {
+            std::int32_t yaw[3] = {0, 0, 0};
+            const float speeds[3] = {1.0f, 0.5f, 2.0f};
+            for (int k = 0; k < 3; ++k) {
+                cam::AltCamera c(shipped());
+                Open level;
+                cam::AltCameraInput in = input(style);
+                in.options.look_speed = speeds[k];
+                step(c, in, level);
+                if (device == Mouse) in.mouse_dx = 2.0;
+                if (device == Stick) in.right_x = 128 + 64;
+                if (device == Touch) in.touch_yaw = 10.0;
+                cam::AltCameraOutput out;
+                for (int i = 0; i < 30; ++i) {
+                    in.harry_yaw = in.yaw;
+                    out = step(c, in, level);
+                }
+                yaw[k] = out.yaw;
+            }
+            SH_CHECK(yaw[0] != 0);
+            if (device == Touch) SH_CHECK(yaw[0] == 300);
+            SH_CHECK(std::abs(2 * yaw[1] - yaw[0]) <= 2);
+            SH_CHECK(std::abs(yaw[2] - 2 * yaw[0]) <= 2);
+        }
+    }
+}
+
 // The same hand movement arrives as 2.4 counts a frame at 60 frames a second and as 1 count a frame at 144:
 // the view ends at the same angle (2 seconds, 288 counts, 1728 units less the turns of a full circle).
 SH_TEST(camera_alt_look_mouse_is_frame_rate_independent) {
@@ -183,7 +215,7 @@ SH_TEST(camera_alt_pose_is_the_rounded_view) {
     for (cam::AltCameraHost* host : hosts) {
         for (int k = 0; k < 24; ++k) {
             cam::AltCamera c(t);
-            cam::AltCameraInput in = input(cam::AltStyle::OverShoulder);
+            cam::AltCameraInput in = input(cam::AltStyle::ThirdPerson);
             in.harry = cam::AltVec3{40960 + k * 517, -300, -8192};
             in.harry_yaw = k * 170;
             in.yaw = (k * 613) & 4095;

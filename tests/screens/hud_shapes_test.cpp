@@ -60,7 +60,7 @@ SH_TEST(crosshair_shapes_as_designed) {
 
     // The circle: eight pieces of a ring, each from one corner of the octagon to the next, outer edge then inner.
     const CrosshairShape circle(2, 100.0f, 0);
-    SH_CHECK(circle.count() == 8 && CrosshairShape::kMaxQuads == 8);
+    SH_CHECK(circle.count() == 8 && CrosshairShape::kMaxQuads == 9);
     SH_CHECK(quad_is(circle.quad(0), 6, 0, 4, 4, 4, 0, 3, 3));
     SH_CHECK(quad_is(circle.quad(1), 4, 4, 0, 6, 3, 3, 0, 4));
     SH_CHECK(quad_is(circle.quad(2), 0, 6, -4, 4, 0, 4, -3, 3));
@@ -70,8 +70,18 @@ SH_TEST(crosshair_shapes_as_designed) {
     SH_CHECK(quad_is(circle.quad(6), 0, -6, 4, -4, 0, -4, 3, -3));
     SH_CHECK(quad_is(circle.quad(7), 4, -4, 6, 0, 3, -3, 4, 0));
 
+    // The chevron: two arms 2 tall from the tip at the middle, slanting down 5 to each side.
+    const CrosshairShape chevron(4, 100.0f, 0);
+    SH_CHECK(chevron.count() == 2 && quad_is(chevron.quad(0), -5, 5, 0, 0, -5, 7, 0, 2) &&
+             quad_is(chevron.quad(1), 0, 0, 5, 5, 0, 2, 5, 7));
+
+    // The dot and ring: the circle's ring and a dot 2 wide in the middle.
+    const CrosshairShape dot_ring(5, 100.0f, 0);
+    SH_CHECK(dot_ring.count() == 9 && quad_is(dot_ring.quad(0), 6, 0, 4, 4, 4, 0, 3, 3) &&
+             bar_is(dot_ring.quad(8), -1, -1, 1, 1));
+
     // A style the config does not know is the cross.
-    for (const int style : {4, 7, -1, 100}) {
+    for (const int style : {6, 7, -1, 100}) {
         const CrosshairShape other(style, 100.0f, 0);
         SH_CHECK(other.count() == 2 && bar_is(other.quad(0), -6, -1, 6, 1));
     }

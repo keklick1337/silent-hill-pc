@@ -64,7 +64,6 @@
     "ui.bind.wheel_up": "Wheel Up",
     "ui.control_style.classic_default": "Classic (Default)",
     "ui.control_style.first_person": "First Person",
-    "ui.control_style.over_the_shoulder": "Over the Shoulder",
     "ui.control_style.thirdperson_shooter": "Thirdperson Shooter",
     "ui.controls_screen.back": "Back",
     "ui.controls_screen.controller": "Controller",

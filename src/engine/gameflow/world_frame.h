@@ -49,7 +49,7 @@ public:
     virtual void restore_random() = 0;
     virtual void collision_triggers() = 0;
     virtual void move_camera() = 0;
-    // TPS/OTS/FPS and the free cam replace the view the camera just published, before any map hook bakes it.
+    // TPS/FPS and the free cam replace the view the camera just published, before any map hook bakes it.
     virtual void alternate_cameras() = 0;
     virtual void map_frame_hook() = 0;
     virtual void update_player() = 0;

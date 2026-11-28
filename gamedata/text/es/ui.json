@@ -64,7 +64,6 @@
     "ui.bind.wheel_up": "Rueda hacia arriba",
     "ui.control_style.classic_default": "Clásica (por defecto)",
     "ui.control_style.first_person": "Primera persona",
-    "ui.control_style.over_the_shoulder": "Al hombro",
     "ui.control_style.thirdperson_shooter": "Shooter en 3.ª persona",
     "ui.controls_screen.back": "Volver",
     "ui.controls_screen.controller": "Mando",

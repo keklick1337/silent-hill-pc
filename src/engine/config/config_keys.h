@@ -185,7 +185,8 @@ inline constexpr Word kTitleStyles[] = {{"us", ui::kTitleStyleUs},
                                         {"western", ui::kTitleStyleUs},
                                         {"japanese", ui::kTitleStyleJapanese},
                                         {"jp", ui::kTitleStyleJapanese}};
-inline constexpr Word kCameraStyles[] = {{"tps", 1}, {"ots", 2}, {"fps", 3}};
+// "ots" was a third person held over one shoulder; third person rests there now.
+inline constexpr Word kCameraStyles[] = {{"tps", 1}, {"fps", 2}, {"ots", 1}};
 inline constexpr Word kSpeakers[] = {{"stereo", 1}, {"quad", 2}, {"51", 3}, {"71", 4}, {"hrtf", 5}};
 inline constexpr Word kAspects[] = {{"raw", 1}, {"accurate", 1}};
 inline constexpr Word kSoftwareGl[] = {{"auto", 0}, {"force", 1}, {"off", 2}};
@@ -357,26 +358,19 @@ inline constexpr Setting kSettings[] = {
     // Controls and cameras.
     keys::word("controller_movement", &keys::C::controllerMovement, 2, keys::kStickOrPad, 2, "analog, dpad or both"),
     keys::flag("movement_original", &keys::C::movementOriginal, 1, "the original movement state machine"),
-    keys::word("control_style", &keys::C::controlStyle, 0, keys::kCameraStyles, 0, "classic, tps, ots or fps"),
+    keys::word("control_style", &keys::C::controlStyle, 0, keys::kCameraStyles, 0, "classic, tps or fps"),
     keys::elsewhere("control_styles", "the camera styles of this build, written by the game"),
     keys::flag("invert_mouse_y", &keys::C::invertMouseY, 0, "invert mouse look"),
     keys::flag("invert_controller_y", &keys::C::invertControllerY, 0, "invert stick look"),
     keys::real("tps_rest_zoom_amount", &keys::C::tpsRestZoom, 0.0, -200.0, 200.0, "thirdperson resting dolly, percent"),
-    keys::real("ots_rest_zoom_amount", &keys::C::otsRestZoom, 0.0, -200.0, 200.0, "over-the-shoulder resting dolly, percent"),
     keys::real("tps_aim_zoom_amount", &keys::C::tpsAimZoom, 100.0, -200.0, 200.0, "thirdperson aim dolly, percent"),
     keys::custom("tps_aim_zoom", Hook::AimZoomSwitch, "on/off form of tps_aim_zoom_amount"),
-    keys::real("ots_aim_zoom_amount", &keys::C::otsAimZoom, 100.0, -200.0, 200.0, "over-the-shoulder aim dolly, percent"),
     keys::real("fps_fov", &keys::C::fpsFov, 71.1, 40.0, 140.0, "first-person field of view"),
     keys::real("tps_fov", &keys::C::tpsFov, 71.1, 40.0, 140.0, "thirdperson field of view"),
-    keys::real("ots_fov", &keys::C::otsFov, 71.1, 40.0, 140.0, "over-the-shoulder field of view"),
     keys::whole("tps_rest_x", &keys::C::tpsRestX, 1638, -20000, 20000, "thirdperson rest offset, Q12"),
     keys::whole("tps_rest_y", &keys::C::tpsRestY, -410, -20000, 20000, "thirdperson rest offset, Q12"),
     keys::whole("tps_aim_x", &keys::C::tpsAimX, 3686, -20000, 20000, "thirdperson aim offset, Q12"),
     keys::whole("tps_aim_y", &keys::C::tpsAimY, 0, -20000, 20000, "thirdperson aim offset, Q12"),
-    keys::whole("ots_rest_x", &keys::C::otsRestX, 2252, -20000, 20000, "over-the-shoulder rest offset, Q12"),
-    keys::whole("ots_rest_y", &keys::C::otsRestY, 0, -20000, 20000, "over-the-shoulder rest offset, Q12"),
-    keys::whole("ots_aim_x", &keys::C::otsAimX, 3686, -20000, 20000, "over-the-shoulder aim offset, Q12"),
-    keys::whole("ots_aim_y", &keys::C::otsAimY, 0, -20000, 20000, "over-the-shoulder aim offset, Q12"),
     keys::whole("fps_head_x", &keys::C::fpsHeadX, -29, -20000, 20000, "first-person eye, Q12"),
     keys::whole("fps_head_y", &keys::C::fpsHeadY, -6836, -20000, 20000, "first-person eye, Q12"),
     keys::whole("fps_head_z", &keys::C::fpsHeadZ, 919, -20000, 20000, "first-person eye, Q12"),
@@ -388,11 +382,11 @@ inline constexpr Setting kSettings[] = {
     keys::flag("tps_camera_recenter", &keys::C::tpsCameraRecenter, 1, "the camera levels itself behind Harry"),
     keys::custom("tps_recenter_delay", Hook::RecenterDelay, "seconds before it does, 0..30")
         .owning(&keys::C::tpsRecenterDelay, 2.0),
-    keys::flag("crosshair", &keys::C::crosshair, 0, "crosshair while aiming"),
-    keys::whole("crosshair_style", &keys::C::crosshairStyle, 0, 0, 3, "cross, dot, circle or dashes"),
+    keys::flag("crosshair", &keys::C::crosshair, 1, "crosshair of the free cameras"),
+    keys::whole("crosshair_style", &keys::C::crosshairStyle, 0, 0, 5, "cross, dot, circle, dashes, chevron, ring+dot"),
     keys::real("crosshair_size", &keys::C::crosshairSize, 100.0, 25.0, 125.0, "crosshair size, percent"),
-    keys::flag("crosshair_fps_aim_only", &keys::C::crosshairFpsAimOnly, 0, "first-person crosshair only while aiming"),
-    keys::flag("crosshair_hide_melee", &keys::C::crosshairHideMelee, 0, "no crosshair without a gun"),
+    keys::flag("crosshair_fps_aim_only", &keys::C::crosshairFpsAimOnly, 1, "crosshair only while aiming"),
+    keys::flag("crosshair_hide_melee", &keys::C::crosshairHideMelee, 1, "no crosshair without a gun"),
     keys::real("text_size", &keys::C::textSize, 100.0, 100.0, 150.0, "subtitle and message size, percent"),
     keys::flag("aim_assist", &keys::C::aimAssist, 1, "aim assist of the free-aim cameras"),
     keys::flag("mouse_cursor", &keys::C::mouseCursor, 1, "the mouse drives puzzles and the main menu"),
@@ -411,10 +405,14 @@ inline constexpr Setting kSettings[] = {
     keys::real("touch_scale", &keys::C::touchScale, 1.0, 0.6, 1.6, "size of the on-screen controls"),
     keys::real("phone_vibration", &keys::C::phoneVibration, 1.0, 0.0, 1.0,
                "strength of the rumble on a phone's own vibrator, 0 = off"),
+    keys::real("touch_look_sensitivity", &keys::C::touchLookSensitivity, 150.0, 30.0, 360.0,
+               "degrees the alternate cameras turn for a drag across the screen's width"),
     keys::text("touch_layout", &text_field<&keys::C::touchLayout>, "", "places of the on-screen controls, empty = default"),
     keys::flag("control_2d", &keys::C::control2d, 0, "screen-relative movement"),
     keys::flag("control_2d_snap", &keys::C::control2dSnap, 0, "screen-relative movement turns at once"),
     keys::flag("disable_dpad_movement", &keys::C::disableDpadMovement, 0, "the d-pad does not move Harry"),
+    keys::whole("look_speed", &keys::C::lookSpeed, 100, 25, 300,
+                "camera turn speed of the alternate cameras, percent, on top of the mouse, stick and touch factors"),
     keys::real("mouse_sensitivity", &keys::C::mouseSensitivity, 1.0, 0.02, 4.0, "mouse look speed"),
     keys::real("controller_sensitivity", &keys::C::controllerSensitivity, 1.0, 0.1, 4.0, "stick look speed"),
 

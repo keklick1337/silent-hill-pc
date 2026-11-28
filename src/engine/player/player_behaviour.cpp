@@ -2,7 +2,7 @@
 // Copyright 2026 Vladislav Tislenko (keklick1337)
 //
 // Harry's behaviour of the tick: the Lua controller, legs, upper body and reaction states,
-// and the PC control layer that replaces the legs under the alternate cameras (third person, over the shoulder,
+// and the PC control layer that replaces the legs under the alternate cameras (third person,
 // first person) and 2D control (movement relative to the screen).
 
 #include "engine/player/player.h"

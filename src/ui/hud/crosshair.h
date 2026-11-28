@@ -16,11 +16,11 @@ struct CrosshairQuad {
 };
 
 // The values of `crosshair_style`; anything else is the cross.
-enum class CrosshairStyle { Cross = 0, Dot = 1, Circle = 2, Dashes = 3 };
+enum class CrosshairStyle { Cross = 0, Dot = 1, Circle = 2, Dashes = 3, Chevron = 4, DotRing = 5 };
 
 class CrosshairShape {
 public:
-    static constexpr int kMaxQuads = 8;      // the circle's ring
+    static constexpr int kMaxQuads = 9;      // the ring with its dot
     static constexpr int kSmallestSize = 25;  // percent
     static constexpr int kLargestSize = 125;
 
@@ -37,6 +37,19 @@ public:
                     ring_segment(corner, (corner + 1) % 8);
                 }
                 break;
+            case CrosshairStyle::DotRing:
+                for (int corner = 0; corner < 8; corner++) {
+                    ring_segment(corner, (corner + 1) % 8);
+                }
+                bar(-1, -1, 1, 1);
+                break;
+            case CrosshairStyle::Chevron: {
+                // A caret whose tip is the aim point: two arms 2 thick slanting down 5 to each side.
+                const int reach = 5, thick = 2;
+                slant(-reach, reach, 0, 0, thick);
+                slant(0, 0, reach, reach, thick);
+                break;
+            }
             case CrosshairStyle::Dashes: {
                 // Four dashes 4 long, 2 thick, 3 from the middle: the target shows between them.
                 const int near = 3, far = 7, half = 1;
@@ -78,6 +91,17 @@ private:
         CrosshairQuad& q = next();
         const int xs[4] = {left, right, left, right};
         const int ys[4] = {top, top, bottom, bottom};
+        for (int corner = 0; corner < 4; corner++) {
+            q.x[corner] = static_cast<std::int16_t>(xs[corner]);
+            q.y[corner] = static_cast<std::int16_t>(ys[corner]);
+        }
+    }
+
+    // A parallelogram from (x0, y0) to (x1, y1) along its top edge, `thick` lines tall.
+    void slant(int x0, int y0, int x1, int y1, int thick) {
+        CrosshairQuad& q = next();
+        const int xs[4] = {x0, x1, x0, x1};
+        const int ys[4] = {y0, y1, y0 + thick, y1 + thick};
         for (int corner = 0; corner < 4; corner++) {
             q.x[corner] = static_cast<std::int16_t>(xs[corner]);
             q.y[corner] = static_cast<std::int16_t>(ys[corner]);
@@ -130,7 +154,7 @@ private:
 // What decides whether the mark is on screen this frame.
 struct CrosshairView {
     bool enabled = false;       // `crosshair`
-    bool aimed_camera = false;  // third person, over the shoulder or first person: the view's middle is the aim
+    bool aimed_camera = false;  // third person or first person: the view's middle is the aim
     bool in_play = false;       // the player has control: no mark over cutscenes, menus or the map
     bool aiming = false;        // the weapon is raised
     bool only_while_aiming = false;  // `crosshair_fps_aim_only`

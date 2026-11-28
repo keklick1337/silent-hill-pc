@@ -8,7 +8,7 @@
 # view_entry.cpp are the C entry points the game calls (vcExecCamera, the camera API, the
 # driver, the vw*/Vw_* view calls), reading the game through camera_host.h (the game's host is
 # src/engine/camera/game/camera_game_host.cpp);
-# sh_world supplies the bit-exact fixed-point trigonometry. alt_camera.cpp holds the PC control-style cameras (third person, over the shoulder, first person),
+# sh_world supplies the bit-exact fixed-point trigonometry. alt_camera.cpp holds the PC control-style cameras (third person, first person),
 # driven by the game's alt-camera bridge; sh_mods finds a mod's alt_cameras.json,
 # sh_gameflow reads config/camera.json (base or mod).
 add_library(sh_camera STATIC

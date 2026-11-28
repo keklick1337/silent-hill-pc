@@ -16,7 +16,8 @@ extern "C" {
 //   7: Space / Escape / Tab / M binds    8: keyboard binds become action_* lines
 //   9: fps_cap 30 -> 60                  10: texture_upscale 8 and 16 -> 4
 //   11: msg_voice_tail_ms 1000 -> 500    12: pad_quick_turn leftshoulder -> leftshoulder+rightshoulder (classic)
-#define PC_CONFIG_VERSION 12
+//   13: control_style ots -> tps; crosshair, crosshair_fps_aim_only, crosshair_hide_melee 0 -> 1
+#define PC_CONFIG_VERSION 13
 
 // Bytes of one bind slot: a name, or two joined by '+' ("leftshoulder+rightshoulder").
 #define PC_BIND_SLOT_LEN 32
@@ -194,19 +195,12 @@ typedef struct {
     float fpsFov;
     float tpsFov;
     float tpsAimZoom;
-    float otsFov;
-    float otsAimZoom;
     float tpsRestZoom;
-    float otsRestZoom;
     // Camera offsets in Q12 view units; Y is stored with the console's downward axis.
     int tpsRestX;
     int tpsRestY;
     int tpsAimX;
     int tpsAimY;
-    int otsRestX;
-    int otsRestY;
-    int otsAimX;
-    int otsAimY;
     // The first-person eye in Harry's body frame, Q12: right, up (negative), forward.
     int fpsHeadX;
     int fpsHeadY;
@@ -271,6 +265,8 @@ typedef struct {
     float touchOpacity;
     float touchScale;
     float phoneVibration;  // the pad rumble on a phone's own vibrator (input/phone_rumble.h): 0 off .. 1 full
+    int lookSpeed;  // percent: scales every look input of the alternate cameras
+    float touchLookSensitivity;  // degrees the alternate cameras turn for a drag across the screen's width
     char touchLayout[240];  // input/touch/touch_layout.h; empty = the default places; a 256-byte config line
 } s_PcConfig;
 

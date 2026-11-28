@@ -71,7 +71,7 @@ sc::SettingsData shipped() {
 
 SH_TEST(settings_data_parses) {
     const sc::SettingsData l = shipped();
-    SH_CHECK(l.rows.size() == 29 && l.rows[0].kind == sc::SettingRow::Kind::Resolution);
+    SH_CHECK(l.rows.size() == 28 && l.rows[0].kind == sc::SettingRow::Kind::Resolution);
     SH_CHECK(l.rows[0].setting == "resolution" && !l.rows[0].realtime && l.rows[1].keep_on_reset);
     SH_CHECK(l.resolutions.size() == 36 && l.aspects.size() == 7 && l.quick.size() == 11);
     SH_CHECK(l.default_map == "map0_s00" && !l.reset_done.empty() && !l.restart_notice.empty());
@@ -212,8 +212,8 @@ SH_TEST(settings_quick) {
     SH_CHECK(host.ints["shadow_resolution"] == 2048 && pc.quick_label(*shadow, host) == "2048 x 2048");
 
     const sc::QuickSetting* style_row = pc.quick("crosshair_style");
-    host.ints["crosshair_style"] = 7;
-    SH_CHECK(pc.quick_label(*style_row, host) == "Dashes");  // the Crosshair row above says whether it shows
+    host.ints["crosshair_style"] = 5;
+    SH_CHECK(pc.quick_label(*style_row, host) == "Dot and Ring");  // the Crosshair row above says whether it shows
 
     const sc::QuickSetting* hero = pc.quick("hero_light");
     host.ints["hero_light"] = 3;

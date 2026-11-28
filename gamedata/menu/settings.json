@@ -140,7 +140,6 @@
     {"label": "Text_Size", "kind": "slider", "setting": "text_size", "min": 100.0, "max": 150.0, "step": 5.0},
     {"label": "First_Person_FOV", "kind": "slider", "setting": "fps_fov", "min": 40.0, "max": 140.0, "step": 1.0},
     {"label": "Third_Person_FOV", "kind": "slider", "setting": "tps_fov", "min": 40.0, "max": 140.0, "step": 1.0},
-    {"label": "OTS_FOV", "kind": "slider", "setting": "ots_fov", "min": 40.0, "max": 140.0, "step": 1.0},
     {
       "label": "OTS_Aim_In_TPS",
       "kind": "choice",
@@ -207,9 +206,8 @@
     "crosshair_style": {
       "kind": "cycle",
       "setting": "crosshair_style",
-      "mask": true,
       "label_table": "quick",
-      "labels": ["Cross (+)", "Dot", "Circle", "Dashes"]
+      "labels": ["Cross (+)", "Dot", "Circle", "Dashes", "Chevron", "Dot and Ring"]
     },
     "auto_reload": {
       "kind": "cycle",

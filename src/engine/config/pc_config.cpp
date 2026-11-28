@@ -6,6 +6,7 @@
 #include <cstring>
 #include <string>
 #include <string_view>
+#include <utility>
 #include <vector>
 
 #include "audio/voice/voice_line_player.h"
@@ -378,6 +379,18 @@ void migrate(int from) {
     if (from < 11 && c.msgVoiceTailMs == 1000) {
         c.msgVoiceTailMs = 500;
         PcConfig_SaveKeyValue("msg_voice_tail_ms", "500");
+    }
+    // The over-the-shoulder camera is gone: its name reads as third person, and the file says so.
+    if (from < 13 && c.controlStyle == 1) PcConfig_SaveKeyValue("control_style", "tps");
+    // The crosshair of the free cameras is on by default, shown while a gun is aimed.
+    if (from < 13) {
+        for (const auto& [key, field] : {std::pair{"crosshair", &c.crosshair},
+                                         std::pair{"crosshair_fps_aim_only", &c.crosshairFpsAimOnly},
+                                         std::pair{"crosshair_hide_melee", &c.crosshairHideMelee}}) {
+            if (*field != 0) continue;
+            *field = 1;
+            PcConfig_SaveKeyValue(key, "1");
+        }
     }
     ControlScheme* const schemes[2] = {&c.classic, &c.altcam};
     const auto save_slot = [](const char* key, int scheme, const char* value) {

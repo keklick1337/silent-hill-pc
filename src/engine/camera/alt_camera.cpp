@@ -294,6 +294,10 @@ bool AltCamera::turn_input(const AltCameraInput& in, double frames, bool orbit, 
     *d_yaw = mdx * t_.mouse_yaw * o.mouse_sensitivity;
     const double mouse_pitch = mdy * t_.mouse_pitch * o.mouse_sensitivity;
     *d_pitch = o.invert_mouse_y ? mouse_pitch : -mouse_pitch;
+    const double tyaw = in.frozen ? 0.0 : in.touch_yaw;
+    const double tpitch = in.frozen ? 0.0 : in.touch_pitch;
+    *d_yaw += tyaw;
+    *d_pitch += tpitch;
 
     int rx = in.frozen ? 0 : in.right_x - 128;
     int ry = in.frozen ? 0 : in.right_y - 128;
@@ -316,7 +320,9 @@ bool AltCamera::turn_input(const AltCameraInput& in, double frames, bool orbit, 
         const double stick_pitch = curve(ry) * t_.stick_pitch * s * frames;
         *d_pitch += o.invert_pad_y ? stick_pitch : -stick_pitch;
     }
-    return mdx != 0.0 || mdy != 0.0 || rx != 0 || ry != 0;
+    *d_yaw *= o.look_speed;
+    *d_pitch *= o.look_speed;
+    return mdx != 0.0 || mdy != 0.0 || tyaw != 0.0 || tpitch != 0.0 || rx != 0 || ry != 0;
 }
 
 void AltCamera::look(const AltCameraInput& in, AltCameraOutput& out, std::int32_t& yaw, std::int32_t& pitch) {
@@ -324,7 +330,7 @@ void AltCamera::look(const AltCameraInput& in, AltCameraOutput& out, std::int32_
     // The stick rates are per 30 fps frame, whose step is 136.
     const bool turned = turn_input(in, in.delta_time / 136.0, false, &d_yaw, &d_pitch);
 
-    // The device that last turned the view (aim assist strength): the mouse, else any stick.
+    // The device that last turned the view (aim assist strength): the mouse, else any stick or a touch drag.
     // The move stick counts past the dead zone, the look stick from its edge.
     const int lx = in.left_x - 128;
     const int ly = in.left_y - 128;
@@ -482,7 +488,7 @@ void AltCamera::look_orbit(const AltCameraInput& in, AltCameraOutput& out, std::
     double d_yaw = 0.0, d_pitch = 0.0;
     const bool turned = turn_input(in, dt * 30.0, true, &d_yaw, &d_pitch);  // the stick rates are per 30 fps frame
 
-    // The device that last turned the view (aim assist strength): the mouse, else any stick.
+    // The device that last turned the view (aim assist strength): the mouse, else any stick or a touch drag.
     const int zone = t_.stick_dead_zone;
     const int lx = in.left_x - 128;
     const int ly = in.left_y - 128;
@@ -567,7 +573,7 @@ void AltCamera::orbit(const AltCameraInput& in, AltCameraOutput& out, std::int32
     if (rest < closest) rest = closest;
     if (aimed < closest) aimed = closest;
     const double target_distance = in.aiming ? aimed : rest;
-    // Shoulder offset (over the shoulder, and third person while aiming): along the right vector,
+    // Shoulder offset (third person, at rest and while aiming): along the right vector,
     // flipped by the shoulder side, and up or down.
     const double target_sx = double((in.aiming ? o.aim_x : o.rest_x) * in.shoulder_side);
     const double target_sy = double(in.aiming ? o.aim_y : o.rest_y);
