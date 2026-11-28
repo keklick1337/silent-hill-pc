@@ -142,7 +142,7 @@ Flat functions: the vocabulary the base game's map event scripts are written in.
 | `sh.chara_spawn_entry_set(entry, on)` | Marks an entry of the map's spawn table as in play, so the map's spawner leaves it alone. |
 | `sh.chara_spawn_flags_set(chara, idx, flags)` | Sets the flags of a placed spawn. |
 | `sh.chara_state(chara, name[, fallback]) -> state` | The number of a scene state of a character by name. |
-| `sh.cutscene_border(state)` | The cutscene's black bars; 20 shows them. |
+| `sh.cutscene_border(state)` | The cutscene's black bars: 18 fades them in (about a second; outside a cutscene the view closes in a little with them, as in the game's own scenes in play), 20 shows them at once, 22 fades them out (and the view back), 0 ends them at once at the end of a cutscene. |
 | `sh.cutscene_flag(on)` | Sets or clears the cutscene flag. |
 | `sh.cutscene_timer_get() -> t` | The cutscene clock. |
 | `sh.cutscene_timer_set(t)` | Sets the cutscene clock. |

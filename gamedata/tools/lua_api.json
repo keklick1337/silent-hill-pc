@@ -491,7 +491,7 @@
     },
     "sh.cutscene_border": {
       "signature": "sh.cutscene_border(state)",
-      "description": "The cutscene's black bars; 20 shows them."
+      "description": "The cutscene's black bars: 18 fades them in (about a second; outside a cutscene the view closes in a little with them, as in the game's own scenes in play), 20 shows them at once, 22 fades them out (and the view back), 0 ends them at once at the end of a cutscene."
     },
     "sh.cutscene_flag": {
       "signature": "sh.cutscene_flag(on)",
