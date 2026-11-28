@@ -413,6 +413,12 @@ inline constexpr Setting kSettings[] = {
     keys::flag("disable_dpad_movement", &keys::C::disableDpadMovement, 0, "the d-pad does not move Harry"),
     keys::whole("look_speed", &keys::C::lookSpeed, 100, 25, 300,
                 "camera turn speed of the alternate cameras, percent, on top of the mouse, stick and touch factors"),
+    keys::whole("pad_deadzone", &keys::C::padDeadzone, 10, 0, 50,
+                "move stick: the radius at the centre that reads as still, percent of the travel"),
+    keys::whole("pad_look_deadzone", &keys::C::padLookDeadzone, 0, 0, 50,
+                "look stick: the radius at the centre that reads as still, percent, before the camera's own zone"),
+    keys::whole("pad_outer_deadzone", &keys::C::padOuterDeadzone, 10, 0, 30,
+                "both sticks: the band at the rim that reads as a full push, percent of the travel"),
     keys::real("mouse_sensitivity", &keys::C::mouseSensitivity, 1.0, 0.02, 4.0, "mouse look speed"),
     keys::real("controller_sensitivity", &keys::C::controllerSensitivity, 1.0, 0.1, 4.0, "stick look speed"),
 

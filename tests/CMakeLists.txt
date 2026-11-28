@@ -86,9 +86,9 @@ if(SH_TEST_CHARA_GAME IN_LIST SH_TEST_SOURCES)
 endif()
 
 # The bind table, the console key binds, the prompt table, the pointer arithmetic, the console's selection, the
-# camera styles, the phone's rumble and the touch controls' plain parts are compiled into the game (src/input); their
-# tests build the parts that need neither SDL nor the game (input/touch_test.cpp and input/touch_dpad_test.cpp use the
-# touch sources below).
+# camera styles, the phone's rumble, the stick zones and the touch controls' plain parts are compiled into the game
+# (src/input); their tests build the parts that need neither SDL nor the game (input/touch_test.cpp and
+# input/touch_dpad_test.cpp use the touch sources below).
 set(SH_TEST_INPUT_BIND_TABLE "${CMAKE_CURRENT_SOURCE_DIR}/input/bind_table_test.cpp")
 if(SH_TEST_INPUT_BIND_TABLE IN_LIST SH_TEST_SOURCES)
     target_sources(sh_tests PRIVATE "${PROJECT_SOURCE_DIR}/src/input/bind/bind_table.cpp"
@@ -98,6 +98,7 @@ if(SH_TEST_INPUT_BIND_TABLE IN_LIST SH_TEST_SOURCES)
                                     "${PROJECT_SOURCE_DIR}/src/input/glyphs/glyph_table.cpp"
                                     "${PROJECT_SOURCE_DIR}/src/input/pointer_math.cpp"
                                     "${PROJECT_SOURCE_DIR}/src/input/phone_rumble.cpp"
+                                    "${PROJECT_SOURCE_DIR}/src/input/stick_shape.cpp"
                                     "${PROJECT_SOURCE_DIR}/src/input/inventory_pointer.cpp"
                                     "${PROJECT_SOURCE_DIR}/src/input/ring_carousel.cpp"
                                     "${PROJECT_SOURCE_DIR}/src/input/object_pick.cpp"

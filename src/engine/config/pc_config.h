@@ -266,6 +266,11 @@ typedef struct {
     float touchScale;
     float phoneVibration;  // the pad rumble on a phone's own vibrator (input/phone_rumble.h): 0 off .. 1 full
     int lookSpeed;  // percent: scales every look input of the alternate cameras
+    // The pad's sticks (input/stick_shape.h), percent of the travel: the centre that reads as still, for the move and
+    // the look stick, and the band at the rim that reads as a full push.
+    int padDeadzone;
+    int padLookDeadzone;
+    int padOuterDeadzone;
     float touchLookSensitivity;  // degrees the alternate cameras turn for a drag across the screen's width
     char touchLayout[240];  // input/touch/touch_layout.h; empty = the default places; a 256-byte config line
 } s_PcConfig;

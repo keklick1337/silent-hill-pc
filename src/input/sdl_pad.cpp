@@ -5,6 +5,7 @@
 #include "engine/log/sh_log.h"
 #include "input/pad.h"
 #include "input/pointer_math.h"
+#include "input/stick_shape.h"
 
 #include <algorithm>
 #include <cstdlib>
@@ -108,6 +109,11 @@ std::uint16_t mouseWord()
         word &= static_cast<std::uint16_t>(~mask[7]);
     return word;
 }
+
+// The move stick is read axis by axis by the game's own thresholds, so its round gate is stretched to the square.
+StickZones moveZones() { return {g_PcConfig.padDeadzone, g_PcConfig.padOuterDeadzone, true}; }
+
+StickZones lookZones() { return {g_PcConfig.padLookDeadzone, g_PcConfig.padOuterDeadzone, false}; }
 
 std::uint8_t axisByte(int value) { return static_cast<std::uint8_t>(value / 256 + 128); }
 
@@ -354,13 +360,19 @@ bool PadSystem::readPad(int slot, std::uint16_t& word, short axes[4])
         word |= kDpadBits;
 
     const ControllerBindings& m = binds.controller;
-    axes[0] = static_cast<short>(bindValue(s.gamepad, m.axis_right_x));
-    axes[1] = static_cast<short>(bindValue(s.gamepad, m.axis_right_y));
-    axes[2] = static_cast<short>(bindValue(s.gamepad, m.axis_left_x));
-    axes[3] = static_cast<short>(bindValue(s.gamepad, m.axis_left_y));
+    const int rx = bindValue(s.gamepad, m.axis_right_x);
+    const int ry = bindValue(s.gamepad, m.axis_right_y);
+    const int lx = bindValue(s.gamepad, m.axis_left_x);
+    const int ly = bindValue(s.gamepad, m.axis_left_y);
+    const StickAxes look = shape_stick(rx, ry, lookZones());
+    const StickAxes move = shape_stick(lx, ly, moveZones());
+    axes[0] = static_cast<short>(look.x);
+    axes[1] = static_cast<short>(look.y);
+    axes[2] = static_cast<short>(move.x);
+    axes[3] = static_cast<short>(move.y);
 
-    return word != kNone || std::abs(axes[0]) > kActiveStick || std::abs(axes[1]) > kActiveStick ||
-           std::abs(axes[2]) > kActiveStick || std::abs(axes[3]) > kActiveStick;
+    return word != kNone || std::abs(rx) > kActiveStick || std::abs(ry) > kActiveStick || std::abs(lx) > kActiveStick ||
+           std::abs(ly) > kActiveStick;
 }
 
 // Single player: every connected pad drives port 0. A bit is pressed if any pad presses it,

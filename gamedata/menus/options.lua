@@ -287,6 +287,10 @@ for _, row in ipairs{
     setting("look_speed"),
     desktop(setting("mouse_sensitivity")),
     advanced(setting("controller_sensitivity")),
+    -- How far a stick moves before it counts, and the rim that counts as a full push (src/input/stick_shape.h).
+    setting("pad_deadzone"),
+    advanced(setting("pad_outer_deadzone")),
+    advanced(setting("pad_look_deadzone")),
     desktop(setting("invert_mouse_y")),
     advanced(setting("invert_controller_y")),
     advanced(setting("aim_assist")),

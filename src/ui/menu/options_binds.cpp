@@ -867,6 +867,27 @@ void register_camera(sh::menu::Registry& reg)
         reg.native_setting("setting.look_speed", std::move(n));
     }
 
+    // The pad's stick zones (input/stick_shape.h), percent in steps of 5; a value set in config.cfg between the
+    // steps moves to the nearest one.
+    struct Zone {
+        const char* key;
+        int* field;
+        int max;
+    };
+    for (const Zone z : {Zone{"pad_deadzone", &g_PcConfig.padDeadzone, 50},
+                         Zone{"pad_look_deadzone", &g_PcConfig.padLookDeadzone, 50},
+                         Zone{"pad_outer_deadzone", &g_PcConfig.padOuterDeadzone, 30}}) {
+        sh::menu::NativeSetting n;
+        n.step = [z](int dir) {
+            *z.field = std::clamp((*z.field + 2) / 5 * 5 + (dir < 0 ? -5 : 5), 0, z.max);
+            save_int(z.key, *z.field);
+        };
+        n.text = [z]() { return std::to_string(*z.field) + "%"; };
+        n.fraction = [z]() { return std::clamp(*z.field, 0, z.max) / static_cast<double>(z.max); };
+        n.texts = [z]() { return std::vector<std::string>{"0%", std::to_string(z.max) + "%"}; };
+        reg.native_setting(std::string("setting.") + z.key, std::move(n));
+    }
+
     // visible_if over config.cfg keys: the camera kind and the renderer by their config names, the rest as numbers.
     reg.config_reader("config.cfg", [](std::string_view key) -> std::optional<sh::menu::Value> {
         if (key == "control_style") return sh::menu::Value{std::string(sh::input::camera_style_id(sh::input::camera_styles().style()))};
@@ -948,6 +969,12 @@ extern "C" void Pc_OptionsBinds_Register(void)
         save_int("crosshair_hide_melee", g_PcConfig.crosshairHideMelee);
         g_PcConfig.lookSpeed = PcConfig_Defaults()->lookSpeed;
         save_int("look_speed", g_PcConfig.lookSpeed);
+        g_PcConfig.padDeadzone = PcConfig_Defaults()->padDeadzone;
+        save_int("pad_deadzone", g_PcConfig.padDeadzone);
+        g_PcConfig.padLookDeadzone = PcConfig_Defaults()->padLookDeadzone;
+        save_int("pad_look_deadzone", g_PcConfig.padLookDeadzone);
+        g_PcConfig.padOuterDeadzone = PcConfig_Defaults()->padOuterDeadzone;
+        save_int("pad_outer_deadzone", g_PcConfig.padOuterDeadzone);
         g_PcConfig.tpsCameraCollision = PcConfig_Defaults()->tpsCameraCollision;
         save_int("tps_camera_collision", g_PcConfig.tpsCameraCollision);
         g_PcConfig.tpsCameraRecenter = PcConfig_Defaults()->tpsCameraRecenter;
