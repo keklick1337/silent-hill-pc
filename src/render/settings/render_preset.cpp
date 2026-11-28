@@ -202,15 +202,14 @@ int   g_screen_lines = 0;  // a phone's or tablet's screen height (its shorter s
 //             also halves the sun's taps; no TAA, ambient occlusion, HDR frame, bloom or volumetric fog;
 //   high      enhanced plus ambient occlusion (estimated at every second pixel, atmosphere_pass.cpp), the HDR frame
 //             with the soft tonemapper and bloom, and the volumetric fog, still at the screen's own lines;
-//   ultra     high plus TAA and god rays and the flashlight's map at 1024, at kPhoneUltraLines.
+//   ultra     high plus TAA and god rays and the flashlight's map at 1024, at the screen's own lines.
 // None has the flakes' shadows (particle_shadows) or film grain; RenderPreset_PlatformLimits takes anisotropic
 // filtering, ray tracing and the AI upscaling away. The ultras' twins (upscaled, ray traced) are not offered on a
 // phone and read as ultra there.
 //
 // Measured on a 2021 phone (Mali-G78, 2400x1080) in a bar lit by nine lamps, in millions of GPU cycles a frame:
-// see RENDER.md 7.2. Ultra draws fewer lines so its TAA, fog volume and bloom fit the frame of a 2024 flagship
-// (Adreno 750, 1440-line screen) at 60 fps.
-constexpr float kPhoneUltraLines = 648.0f;
+// see RENDER.md 7.2. Ultra draws the screen's own lines as the other full presets do; a player whose phone cannot
+// keep its frame lowers the Render Scale row.
 
 // Mobile draws half the screen's lines (and columns) whatever the screen: 720 on a 1440-line phone.
 constexpr float kMobileScreenShare = 0.5f;
@@ -219,20 +218,12 @@ constexpr float kMobileScreenShare = 0.5f;
 // bilinear quad of palette lookups), which is most of what made high's scene twice mobile's per pixel there.
 constexpr int kPhoneTextureFilterMax = 2;
 
-// The render scale that draws about `lines` lines on the screen, in steps of 0.05 the Options bar can show; never
-// above the screen.
-float scale_for_lines(float lines, int screen)
-{
-    const float scale = std::round(lines / static_cast<float>(screen) * 20.0f) / 20.0f;
-    return std::clamp(scale, 0.25f, 1.0f);
-}
-
 // The render scale of a preset on a screen of `screen` lines.
 float phone_scale(int preset, int screen)
 {
     if (preset == RENDER_PRESET_MOBILE) return kMobileScreenShare;
-    if (preset == RENDER_PRESET_ORIGINAL || preset == RENDER_PRESET_ENHANCED || preset == RENDER_PRESET_HIGH) return 1.0f;
-    return scale_for_lines(kPhoneUltraLines, screen);
+    (void)screen;
+    return 1.0f;
 }
 
 // The phone's variant of a preset (the table above).
