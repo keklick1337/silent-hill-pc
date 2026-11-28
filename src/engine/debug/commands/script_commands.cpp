@@ -9,6 +9,8 @@
 #include "engine/debug/commands/command_groups.h"
 #include "engine/debug/commands/command_kit.h"
 #include "engine/debug/commands/scripted_run.h"
+#include "engine/game_state/session.h"
+#include "engine/loop/frame_clock.h"
 #include "engine/loop/frame_view.h"
 #include "engine/loop/game_random.h"
 #include "engine/log/sh_log.h"
@@ -185,8 +187,14 @@ void register_script_commands(Registry& registry) {
             if (args.has(0) && !args.str(0).empty()) {
                 sh::loop::game_random().set_seed(
                     static_cast<std::uint32_t>(std::strtoul(args.str(0).c_str(), nullptr, 0)));
-                // The 30 Hz gate restarts with the seed: a scripted check then rolls on the same frames every run.
-                sh::loop::frame_timing().tick30_accumulator = 0;
+                // The 30 Hz gates restart with the seed: a scripted check then rolls on the same frames every run.
+                // The update under way had its gate taken from the old phase (the weather steps and draws on it),
+                // so it is taken again as the first update of the new one.
+                sh::loop::FrameTiming& timing = sh::loop::frame_timing();
+                timing.tick30_accumulator = 0;
+                timing.tick30 = sh::loop::tick30_step(timing.tick30_accumulator, timing.delta) ? 1 : 0;
+                sh::game::session().player.tick30_forward = 0;
+                sh::game::session().player.tick30_attack = 0;
             }
             say(ctx, "rngseed: 0x%08x (update %d, step %d)", sh::loop::game_random().seed(),
                 static_cast<int>(sh::loop::frame_ticks()), static_cast<int>(sh::loop::frame_delta()));
