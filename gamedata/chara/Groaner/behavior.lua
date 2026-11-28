@@ -950,9 +950,14 @@ local function think(c)
     local p = player()
     local light = map_light() & 3
     local sight = SIGHT[b(light == 0) * 2 + b(light == 2)]
+    local reach, step, loudness = sight[1], sight[2], TOWN and 2457 or 4096
+    local sense = c.groaner_sense_scale
+    if sense ~= 0 then
+        reach, step, loudness = q12_mul(reach, sense), q12_mul(step, sense), q12_mul(loudness, sense)
+    end
     local dist = distance_2d(p.pos_x - c.pos_x, p.pos_z - c.pos_z)
-    if sh.entity.player_noise(c.slot, dist, TOWN and 2457 or 4096) ~= 0
-        or sh.entity.player_visible(c.slot, 1, sight[1], sight[2]) ~= 0 then
+    if sh.entity.player_noise(c.slot, dist, loudness) ~= 0
+        or sh.entity.player_visible(c.slot, 1, reach, step) ~= 0 then
         c.groaner_flags = c.groaner_flags | SEES_PLAYER
         if c.groaner_flags & AWAKE ~= 0 then
             c.groaner_target_x = p.pos_x

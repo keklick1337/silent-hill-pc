@@ -19,6 +19,7 @@
     {"name": "groaner_voice_request", "kind": "u8", "at": 39},
     {"name": "groaner_step_left", "kind": "u8", "at": 40},
     {"name": "groaner_step_right", "kind": "u8", "at": 41},
-    {"name": "groaner_speed", "kind": "s16", "at": 44}
+    {"name": "groaner_speed", "kind": "s16", "at": 44},
+    {"name": "groaner_sense_scale", "kind": "u16", "at": 46, "note": "Q12 scale of the reach of its sight and hearing, 0 = the game's (4096 the same); a script sets it each tick for a sharper or duller Groaner, since its start clears the block"}
   ]
 }
