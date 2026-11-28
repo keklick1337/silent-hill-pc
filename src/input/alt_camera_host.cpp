@@ -11,7 +11,6 @@
 #include <string>
 
 #include <SDL3/SDL_scancode.h>
-#include <SDL3/SDL_timer.h>
 
 #include "engine/app/game_view.h"
 #include "engine/app/pc_paths.h"
@@ -356,10 +355,14 @@ extern "C" void Pc_TpsCamera_Apply(void) {
     in.in_gameplay = s.game.game_state == sh::game::game_state::kInGame && s.sys_state() == sh::game::sys_state::kGameplay;
     in.delta_time = sh::loop::frame_delta();
     in.options = options();
+    // The clock of the head look delay is the game's, not the wall clock: the head look turns the view the weather
+    // spawns around, and the wall clock would run on through a stall or a pause.
+    static std::uint64_t s_camera_time = 0;  // Q12 seconds of the updates the camera ran
+    s_camera_time += in.delta_time > 0 ? static_cast<std::uint64_t>(in.delta_time) : 0u;
     // The head look delay only reads the walking input and the clock when the head look runs; the orbit's recenter
     // reads the walking input.
     if (sh::input::camera_styles().first_person() && in.options.head_tracking) {
-        in.now_ms = SDL_GetTicks();
+        in.now_ms = s_camera_time * 1000u / 4096u;
         in.moving = walking();
     } else if (!sh::input::camera_styles().first_person()) {
         in.moving = walking();

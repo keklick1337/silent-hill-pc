@@ -140,7 +140,7 @@ struct AltCameraInput {
     int right_x = 128, right_y = 128, left_x = 128, left_y = 128;  // raw sticks
     bool moving = false;               // walking input this frame (first person head look delay, third person recenter)
     bool in_gameplay = false;          // settled gameplay: the head references may be taken
-    std::uint64_t now_ms = 0;
+    std::uint64_t now_ms = 0;          // game time, ms (first person head look delay)
     std::int32_t delta_time = 0;       // Q12 seconds
     AltCameraOptions options;
 };
