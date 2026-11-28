@@ -590,6 +590,14 @@ public:
             --cut_updates_;
             ticks.reset();
         }
+        // While the game is frozen the picture is the captured frame, not the scenes its updates describe (a pickup's
+        // scene holds the item alone). The frames lag up to an update behind, so without this the first ones after
+        // the freeze showed such a scene without its backdrop: the world vanished for a frame or two.
+        const bool frozen = feedback_asked_.present_last_frame != 0;
+        if (frozen != frozen_updated_) {
+            frozen_updated_ = frozen;
+            ticks.reset();
+        }
         sh::scene::Frame& scene = sh::scene::current_frame();
         beam_updated_ = beam_of_flashlight();
         sh::scene::Beam beam = beam_updated_;
@@ -984,6 +992,7 @@ private:
     bool beam_shown_ = false;               // the renderer's flashlight holds a blended beam
     std::uint32_t camera_cuts_ = 0;         // ShCutscene_CameraCuts() as the last update saw it
     int cut_updates_ = 0;                   // updates still to be shown without a blend from the one before
+    bool frozen_updated_ = false;           // the last update presented the captured frame (a freeze)
     bool data_reload_ = false;  // warm_reset_due() answered for `mods reload`, not for a reset
 };
 
